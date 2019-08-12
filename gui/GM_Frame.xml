@@ -1,0 +1,13 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\..\FrameXML\UI.xsd">
+  <!-- MainFrame -->
+  <Frame name="GM_MainFrame" parent="UIParent" hidden="true">
+    <Scripts>
+      <OnLoad>
+        rggm.OnLoad(self)
+      </OnLoad>
+      <OnEvent>
+        rggm.OnEvent(event, ...)
+      </OnEvent>
+    </Scripts>
+  </Frame>
+</Ui>

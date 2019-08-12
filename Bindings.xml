@@ -1,0 +1,19 @@
+<Bindings>
+  <Binding name="CLICK GM_GearBarSlot_1:LeftButton" description="Use Slot1" header="GEARMENU"/>
+  <Binding name="CLICK GM_GearBarSlot_2:LeftButton" description="Use Slot2" />
+  <Binding name="CLICK GM_GearBarSlot_3:LeftButton" description="Use Slot3" />
+  <Binding name="CLICK GM_GearBarSlot_4:LeftButton" description="Use Slot4" />
+  <Binding name="CLICK GM_GearBarSlot_5:LeftButton" description="Use Slot5" />
+  <Binding name="CLICK GM_GearBarSlot_6:LeftButton" description="Use Slot6" />
+  <Binding name="CLICK GM_GearBarSlot_7:LeftButton" description="Use Slot7" />
+  <Binding name="CLICK GM_GearBarSlot_8:LeftButton" description="Use Slot8" />
+  <Binding name="CLICK GM_GearBarSlot_9:LeftButton" description="Use Slot9" />
+  <Binding name="CLICK GM_GearBarSlot_10:LeftButton" description="Use Slot10" />
+  <Binding name="CLICK GM_GearBarSlot_11:LeftButton" description="Use Slot11" />
+  <Binding name="CLICK GM_GearBarSlot_12:LeftButton" description="Use Slot12" />
+  <Binding name="CLICK GM_GearBarSlot_13:LeftButton" description="Use Slot13" />
+  <Binding name="CLICK GM_GearBarSlot_14:LeftButton" description="Use Slot14" />
+  <Binding name="CLICK GM_GearBarSlot_15:LeftButton" description="Use Slot15" />
+  <Binding name="CLICK GM_GearBarSlot_16:LeftButton" description="Use Slot16" />
+  <Binding name="CLICK GM_GearBarSlot_17:LeftButton" description="Use Slot17" />
+</Bindings>
