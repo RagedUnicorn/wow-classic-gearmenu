@@ -8,7 +8,7 @@
 
 ## Installation
 
-WoW-Addons are installed directly in your WoW directory:
+WoW-Addons are installed directly into your WoW directory:
 
 `[WoW-installation-directory]\Interface\AddOns`
 
