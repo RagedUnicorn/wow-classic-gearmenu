@@ -222,7 +222,7 @@ end
 function me.UnlockGearBar()
   GearMenuConfiguration.lockGearBar = false
   _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME]:SetBackdrop({
-    bgFile = [[Interface\DialogFrame\UI-DialogBox-Background]]
+    bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background"
   })
 end
 
