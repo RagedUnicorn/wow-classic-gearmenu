@@ -1,7 +1,7 @@
 ## Interface: 11302
 ## Title: GearMenu
 ## Author: Michael Wiesendanger <michael.wiesendanger@gmail.com>
-## Notes: Addon to manage usable gear
+## Notes: Addon to manage and keybind usable gear
 ## Version: v1.0.0
 ## SavedVariablesPerCharacter: GearMenuConfiguration
 
@@ -27,6 +27,9 @@ code/GM_ItemManager.lua
 code/GM_CombatQueue.lua
 code/GM_QuickChange.lua
 code/GM_Configuration.lua
+
+# debug
+code/GM_Debug.lua
 
 # gui
 gui/GM_Frame.xml
