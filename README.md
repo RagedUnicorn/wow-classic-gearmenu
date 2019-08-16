@@ -52,14 +52,6 @@ With GearMenu it is easy to switch between items in supported slots. This is esp
 
 TODO add gif
 
-### Item switch one-handed to two-handed
-
-TODO unclear how this works on classic
-
-Remember the error message you get when you try to switch your one-handed weapon with a two-handed? GearMenu recognizes this and will automatically unequip your offhand weapon or shield as long as there is enough space in your bag to store both weapons. Thus, allowing to switch to a two-handed weapon with a single click.
-
-TODO add gif
-
 ### CombatQueue
 
 Certain items cannot be switched while the player is in combat. Weapons will be switched immediately whether the player is in combat or not. Other items that cannot be switched in combat will be enqueued in the combatqueue and switched as soon as possible. This is especially useful in PvP when you leave combat for a short time.
