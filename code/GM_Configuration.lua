@@ -23,6 +23,10 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
+-- luacheck: globals INVSLOT_HEAD INVSLOT_NECK INVSLOT_SHOULDER INVSLOT_CHEST INVSLOT_WAIST INVSLOT_LEGS INVSLOT_FEET
+-- luacheck: globals INVSLOT_WRIST INVSLOT_HAND INVSLOT_FINGER1 INVSLOT_FINGER2 INVSLOT_TRINKET1 INVSLOT_TRINKET2
+-- luacheck: globals INVSLOT_BACK INVSLOT_MAINHAND INVSLOT_OFFHAND INVSLOT_RANGED GetAddOnMetadata
+
 local mod = rggm
 local me = {}
 mod.configuration = me
@@ -222,7 +226,7 @@ end
 function me.UnlockGearBar()
   GearMenuConfiguration.lockGearBar = false
   _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME]:SetBackdrop({
-    bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background"
+    bgFile = [[Interface\DialogFrame\UI-DialogBox-Background]]
   })
 end
 

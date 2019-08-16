@@ -23,6 +23,8 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
+-- luacheck: globals GetItemInfo C_LossOfControl
+
 local mod = rggm
 local me = {}
 mod.combatQueue = me
@@ -103,7 +105,7 @@ function me.ProcessQueue()
   -- update queue for all slotpositions
   for _, gearSlot in pairs(gearSlots) do
     if combatQueueStore[gearSlot.slotId] ~= nil then
-      _, _, _, _, _, _, _, equipSlot = GetItemInfo(combatQueueStore[gearSlot.slotId])
+      local _, _, _, _, _, _, _, equipSlot = GetItemInfo(combatQueueStore[gearSlot.slotId])
       mod.itemManager.EquipItemById(combatQueueStore[gearSlot.slotId], gearSlot.slotId, equipSlot)
       mod.gearBar.UpdateCombatQueue(gearSlot.slotId)
     end
@@ -149,7 +151,8 @@ function me.UpdateEquipChangeBlockStatus()
 
     mod.logger.LogDebug(me.tag, "UpdateEquipChangeBlockStatus detected locType: " .. locType)
 
-    if locType == "STUN_MECHANIC" or locType == "STUN" or locType == "FEAR_MECHANIC" or locType == "CONFUSE" or locType == "POSSESS" then
+    if locType == "STUN_MECHANIC" or locType == "STUN" or locType == "FEAR_MECHANIC" or locType == "CONFUSE"
+        or locType == "POSSESS" then
       isEquipChangeBlocked = true
       return
     end

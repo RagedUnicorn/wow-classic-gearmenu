@@ -23,6 +23,8 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
+-- luacheck: globals CreateFrame MouseIsOver GetItemCooldown
+
 local mod = rggm
 local me = {}
 
@@ -51,12 +53,12 @@ function me.BuildChangeMenu(gearBarFrame)
   changeMenuFrame:SetBackdropBorderColor(0, 0, 0, .8)
   changeMenuFrame:SetPoint("BOTTOMLEFT", gearBarFrame, "TOPLEFT", 5, 0)
 
-  local row = 0
+  local row
   local col = 0
 
   for position = 1, RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_SLOT_AMOUNT do
-    local xPos = 0
-    local yPos = 0
+    local xPos
+    local yPos
 
     if math.fmod(position, 2) ~= 0 then
       -- left
@@ -85,7 +87,7 @@ end
 --[[
   Create a single changeSlot
 
-  @param {table} changeMenuFrame
+  @param {table} frame
   @param {number} position
   @param {number} xPos
   @param {number} yPos
@@ -93,14 +95,14 @@ end
   @return {table}
     The created changeSlot
 ]]--
-function me.CreateChangeSlot(changeMenuFrame, position, xPos, yPos)
-  local changeSlot = CreateFrame("Button", RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT .. position, changeMenuFrame)
+function me.CreateChangeSlot(frame, position, xPos, yPos)
+  local changeSlot = CreateFrame("Button", RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT .. position, frame)
 
-  changeSlot:SetFrameLevel(changeMenuFrame:GetFrameLevel() + 1)
+  changeSlot:SetFrameLevel(frame:GetFrameLevel() + 1)
   changeSlot:SetSize(RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_SLOT_SIZE, RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_SLOT_SIZE)
   changeSlot:SetPoint(
     "BOTTOMLEFT",
-    changeMenuFrame,
+    frame,
     "BOTTOMLEFT",
     xPos,
     yPos
@@ -249,7 +251,7 @@ end
     false - invoked on initial showing of the changeMenu after a gearSlot was hovered over
 ]]--
 function me.UpdateChangeMenuCooldownState(interval)
-  for index, changeMenuSlot in pairs(changeMenuSlots) do
+  for _, changeMenuSlot in pairs(changeMenuSlots) do
     if changeMenuSlot.itemId ~= nil then
       if interval then
         -- if changeMenu is not shown no need to show cooldown

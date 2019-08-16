@@ -22,6 +22,10 @@
   SOFTWARE.
 ]]--
 
+-- luacheck: globals CreateFrame STANDARD_TEXT_FONT UIDropDownMenu_Initialize UIDropDownMenu_AddButton
+-- luacheck: globals UIDropDownMenu_GetSelectedID UIDropDownMenu_SetSelectedValue FauxScrollFrame_Update
+-- luacheck: globals FauxScrollFrame_GetOffset UIDropDownMenu_GetSelectedValue
+
 local mod = rggm
 local me = {}
 mod.quickChangeMenu = me
@@ -99,7 +103,12 @@ end
   @param {table} frame
 ]]--
 function me.CreateDelaySlider(frame)
-  local delaySlider = CreateFrame("Slider", RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_DELAY_SLIDER, frame, "OptionsSliderTemplate")
+  local delaySlider = CreateFrame(
+    "Slider",
+    RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_DELAY_SLIDER,
+    frame,
+    "OptionsSliderTemplate"
+  )
   delaySlider:SetWidth(RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_DELAY_SLIDER_WIDTH)
   delaySlider:SetHeight(RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_DELAY_SLIDER_HEIGHT)
   delaySlider:SetOrientation('HORIZONTAL')
@@ -131,7 +140,7 @@ end
   @param {number} value
 ]]--
 function me.DelaySliderOnValueChange(self, value)
-  self.valueFontString:SetText(self:GetValue() .. " " .. rggm.L["quick_change_slider_unit"])
+  self.valueFontString:SetText(value .. " " .. rggm.L["quick_change_slider_unit"])
 end
 
 --[[
@@ -204,7 +213,7 @@ end
   OnClick callback for remove rule button
 ]]--
 function me.RemoveRuleOnClick()
-  if quickchangeRule.from == nil or quickchangeRule.to == nilt then
+  if quickchangeRule.from == nil or quickchangeRule.to == nil then
     mod.logger.PrintUserError(rggm.L["quick_change_unable_to_remove_rule"])
     return
   end
@@ -253,7 +262,7 @@ end
 
   @param {table} self
 ]]--
-function me.InitializeInventoryTypeDropdownMenu(self)
+function me.InitializeInventoryTypeDropdownMenu()
   local gearSlots = mod.gearManager.GetGearSlots()
   local registeredInventoryTypes = {}
 
@@ -284,7 +293,7 @@ function me.InitializeInventoryTypeDropdownMenu(self)
     end
   end
 
-  if (UIDropDownMenu_GetSelectedID(_G[RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_CHOOSE_INVENTORY_TYPE]) == nil) then
+  if (UIDropDownMenu_GetSelectedValue(_G[RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_CHOOSE_INVENTORY_TYPE]) == nil) then
     UIDropDownMenu_SetSelectedValue(
       _G[RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_CHOOSE_INVENTORY_TYPE],
       RGGM_CONSTANTS.CATEGORY_DROPDOWN_DEFAULT_VALUE
@@ -323,7 +332,9 @@ function me.CreateRulesList(frame)
     "FauxScrollFrameTemplate"
   )
   rulesScrollFrame:SetWidth(RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_RULES_CONTENT_FRAME_WIDTH)
-  rulesScrollFrame:SetHeight(RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_ROW_HEIGHT * RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MAX_ROWS)
+  rulesScrollFrame:SetHeight(
+    RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_ROW_HEIGHT * RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MAX_ROWS
+  )
   rulesScrollFrame:SetPoint("TOPLEFT", 10, -50)
   rulesScrollFrame:EnableMouseWheel(true)
   rulesScrollFrame:SetBackdrop({
@@ -429,7 +440,12 @@ function me.RulesScrollFrameOnUpdate(scrollFrame)
     maxValue = RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MAX_ROWS + 1
   end
   -- Note: maxValue needs to be at least max_rows + 1
-  FauxScrollFrame_Update(scrollFrame, maxValue, RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MAX_ROWS, RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_ROW_HEIGHT)
+  FauxScrollFrame_Update(
+    scrollFrame,
+    maxValue,
+    RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MAX_ROWS,
+    RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_ROW_HEIGHT
+  )
 
   local offset = FauxScrollFrame_GetOffset(scrollFrame)
   for index = 1, RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MAX_ROWS do
@@ -497,7 +513,12 @@ function me.FromFauxScrollFrameOnUpdate(scrollFrame)
     maxValue = RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MAX_ROWS + 1
   end
   -- Note: maxValue needs to be at least max_rows + 1
-  FauxScrollFrame_Update(scrollFrame, maxValue, RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MAX_ROWS, RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_ROW_HEIGHT)
+  FauxScrollFrame_Update(
+    scrollFrame,
+    maxValue,
+    RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MAX_ROWS,
+    RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_ROW_HEIGHT
+  )
 
   local offset = FauxScrollFrame_GetOffset(scrollFrame)
   for i = 1, RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MAX_ROWS do
@@ -561,7 +582,12 @@ function me.ToFauxScrollFrameOnUpdate(scrollFrame)
     maxValue = RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MAX_ROWS + 1
   end
   -- Note: maxValue needs to be at least max_rows + 1
-  FauxScrollFrame_Update(scrollFrame, maxValue, RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MAX_ROWS, RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_ROW_HEIGHT)
+  FauxScrollFrame_Update(
+    scrollFrame,
+    maxValue,
+    RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MAX_ROWS,
+    RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_ROW_HEIGHT
+  )
 
   local offset = FauxScrollFrame_GetOffset(scrollFrame)
   for i = 1, RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MAX_ROWS do

@@ -23,6 +23,8 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
+-- luacheck: globals C_Timer
+
 local mod = rggm
 local me = {}
 mod.ticker = me

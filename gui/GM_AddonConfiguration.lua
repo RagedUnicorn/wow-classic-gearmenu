@@ -23,6 +23,8 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
+-- luacheck: globals CreateFrame UIParent InterfaceOptions_AddCategory InterfaceOptionsFrame_OpenToCategory
+
 local mod = rggm
 local me = {}
 
@@ -35,16 +37,25 @@ me.tag = "AddonConfiguration"
 ]]--
 function me.SetupAddonConfiguration()
   local panel = {}
+
   panel.main = me.BuildCategory(RGGM_CONSTANTS.ELEMENT_ADDON_PANEL, nil, rggm.L["addon_name"])
-  me.BuildCategory(RGGM_CONSTANTS.ELEMENT_GENERAL_SUB_OPTION_FRAME, panel.main, rggm.L["general_category_name"], function(self)
-    mod.generalMenu.BuildUi(self)
-  end)
-  me.BuildCategory(RGGM_CONSTANTS.ELEMENT_GEAR_SLOTS_SUB_OPTION_FRAME, panel.main, rggm.L["gearslot_category_name"], function(self)
-    mod.gearSlotMenu.BuildUi(self)
-  end)
-  me.BuildCategory(RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_SUB_OPTION_FRAME, panel.main, rggm.L["quick_change_category_name"], function(self)
-    mod.quickChangeMenu.BuildUi(self)
-  end)
+  me.BuildCategory(
+    RGGM_CONSTANTS.ELEMENT_GENERAL_SUB_OPTION_FRAME,
+    panel.main,
+    rggm.L["general_category_name"],
+    mod.generalMenu.BuildUi
+  )
+  me.BuildCategory(
+    RGGM_CONSTANTS.ELEMENT_GEAR_SLOTS_SUB_OPTION_FRAME,
+    panel.main, rggm.L["gearslot_category_name"],
+    mod.gearSlotMenu.BuildUi
+  )
+  me.BuildCategory(
+    RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_SUB_OPTION_FRAME,
+    panel.main,
+    rggm.L["quick_change_category_name"],
+    mod.quickChangeMenu.BuildUi
+  )
   --[[
     For development purpose the InterfaceOptionsFrame_OpenToCategory function can be used to directly
     open a specific category. Because of a blizzard bug this usually has to be called twice to actually work.

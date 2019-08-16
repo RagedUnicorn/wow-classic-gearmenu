@@ -45,7 +45,7 @@ function me.RegisterFilter(name, pattern)
     ["filter"] = pattern
   }
 
-  tinsert(filters, filter)
+  table.insert(filters, filter)
 end
 
 --[[
@@ -58,7 +58,7 @@ end
 function me.DeregisterFilter(name)
   for i = 1, table.getn(filters) do
     if filters[i].name == name then
-      tremove(filters, i)
+      table.remove(filters, i)
       break
     end
   end
@@ -73,7 +73,7 @@ end
 ]]--
 function me.ShouldFilterTag(tag)
   for i = 1, table.getn(filters) do
-    if strmatch(tag, filters[i].filter) then
+    if string.match(tag, filters[i].filter) then
       return true
     end
   end

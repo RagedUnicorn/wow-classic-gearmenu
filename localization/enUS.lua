@@ -1,3 +1,6 @@
+
+-- luacheck: globals GetLocale GetAddOnMetadata
+
 rggm = rggm or {}
 rggm.L = {}
 
@@ -28,7 +31,8 @@ rggm.L["show_cooldowns_tooltip"] = "Display a cooldown for all itemslots"
 rggm.L["enable_tooltips"] = "Enable Tooltips"
 rggm.L["enable_tooltips_tooltip"] = "Whether to show a tooltip when hovering an item or not"
 rggm.L["enable_simple_tooltips"] = "Display simple Tooltips"
-rggm.L["enable_simple_tooltips_tooltip"] = "Show only the title of the item that is currently hovered instead of the full tooltip"
+rggm.L["enable_simple_tooltips_tooltip"] = "Show only the title of the item that is currently hovered "
+  .. "instead of the full tooltip"
 rggm.L["enable_drag_and_drop"] = "Enable Drag and Drop"
 rggm.L["enable_drag_and_drop_tooltip"] = "Enable Drag and Drop for items"
 rggm.L["filter_item_quality"] = "Filter Item Quality:"
@@ -62,7 +66,8 @@ rggm.L["titleslot_17"] = "Slot 17:"
 -- quickchange
 rggm.L["quick_change_category_name"] = "Quickchange"
 rggm.L["quick_change_slider_title"] = "Delay in seconds"
-rggm.L["quick_change_slider_tooltip"] = "Set a delay for when the Quickchange rule should actually take place. For items that give a buff the delay should usually be set to the duration of the buff"
+rggm.L["quick_change_slider_tooltip"] = "Set a delay for when the Quickchange rule should actually take place. "
+  .. "For items that give a buff the delay should usually be set to the duration of the buff"
 rggm.L["quick_change_slider_unit"] = "seconds"
 rggm.L["quick_change_add_rule"] = "Add"
 rggm.L["quick_change_remove_rule"] = "Remove"

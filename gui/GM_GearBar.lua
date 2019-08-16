@@ -23,6 +23,10 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
+-- luacheck: globals CreateFrame UIParent GetBindingText GetBindingKey GetInventoryItemID GetItemCooldown
+-- luacheck: globals GetInventoryItemLink GetItemInfo GetContainerItemInfo C_Timer MouseIsOver
+-- luacheck: globals CursorCanGoInSlot EquipCursorItem ClearCursor IsInventoryItemLocked PickupInventoryItem
+
 local mod = rggm
 local me = {}
 
@@ -33,7 +37,6 @@ me.tag = "GearBar"
 --[[
   Local references to heavily accessed ui elements
 ]]--
-local gearBarFrame
 local gearSlots = {}
 
 --[[
@@ -81,7 +84,12 @@ end
     The created gearSlot
 ]]--
 function me.CreateGearSlot(gearBarFrame, position)
-  local gearSlot = CreateFrame("Button", RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT .. position, gearBarFrame, "SecureActionButtonTemplate")
+  local gearSlot = CreateFrame(
+    "Button",
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT .. position,
+    gearBarFrame,
+    "SecureActionButtonTemplate"
+  )
 
   gearSlot:SetFrameLevel(gearBarFrame:GetFrameLevel() + 1)
   gearSlot:SetSize(RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT_SIZE, RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT_SIZE)
@@ -141,7 +149,10 @@ end
 ]]--
 function me.CreateCombatQueueSlot(gearSlot)
   local combatQueueSlot = CreateFrame("Frame", RGGM_CONSTANTS.ELEMENT_GEAR_BAR_COMBAT_QUEUE_SLOT, gearSlot)
-  combatQueueSlot:SetSize(RGGM_CONSTANTS.ELEMENT_GEAR_BAR_COMBAT_QUEUE_SLOT_SIZE, RGGM_CONSTANTS.ELEMENT_GEAR_BAR_COMBAT_QUEUE_SLOT_SIZE)
+  combatQueueSlot:SetSize(
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_COMBAT_QUEUE_SLOT_SIZE,
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_COMBAT_QUEUE_SLOT_SIZE
+  )
   combatQueueSlot:SetPoint("TOPRIGHT", gearSlot)
 
   local iconHolderTexture = combatQueueSlot:CreateTexture(
@@ -171,7 +182,9 @@ function me.CreateKeyBindingText(gearSlot, position)
   keybindingFontString:SetTextColor(1, .82, 0, 1)
   keybindingFontString:SetPoint("TOP", 0, -2)
   keybindingFontString:SetSize(gearSlot:GetWidth(), 20)
-  keybindingFontString:SetText(GetBindingText(GetBindingKey("CLICK GM_GearBarSlot_" .. position .. ":LeftButton"), "KEY_", 1))
+  keybindingFontString:SetText(
+    GetBindingText(GetBindingKey("CLICK GM_GearBarSlot_" .. position .. ":LeftButton"), "KEY_", 1)
+  )
 
   if mod.configuration.IsShowKeyBindingsEnabled() then
     keybindingFontString:Show()
@@ -213,9 +226,10 @@ function me.UpdateGearBar()
     else
       -- slot is inactive
       gearSlot:Hide()
-      me.UpdateSlotPosition()
     end
   end
+
+  me.UpdateSlotPosition()
 end
 
 --[[
@@ -318,7 +332,7 @@ function me.UpdateCombatQueue(slotId)
   end
 
   if itemId then
-    _, bagNumber, bagPos = mod.itemManager.FindItemInBag(itemId)
+    local bagNumber, bagPos = mod.itemManager.FindItemInBag(itemId)
     if bagNumber then
       icon:SetTexture(GetContainerItemInfo(bagNumber, bagPos))
       icon:Show()
@@ -384,7 +398,7 @@ function me.SetupEvents(gearSlot)
   --[[
     Replacement for OnCLick. Do not overwrite click event for protected button
   ]]--
-  gearSlot:SetScript("PreClick", function(self, button, down)
+  gearSlot:SetScript("PreClick", function(self, button)
     me.GearSlotOnClick(self, button)
   end)
 

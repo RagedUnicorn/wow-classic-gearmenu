@@ -23,6 +23,8 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
+-- luacheck: globals GetItemInfo GetItemSpell GetInventoryItemID C_Timer
+
 local mod = rggm
 local me = {}
 mod.quickChange = me
@@ -46,17 +48,18 @@ function me.AddQuickChangeRule(changeFromItemId, changeToItemId, delay)
   end
 
   -- prevent adding duplicate rules
-  for index, quickChangeRule in ipairs(mod.configuration.GetQuickChangeRules()) do
+  for _, quickChangeRule in ipairs(mod.configuration.GetQuickChangeRules()) do
     if quickChangeRule.changeFromItemId == changeFromItemId then
       mod.logger.PrintUserError(rggm.L["quick_change_unable_to_add_rule_duplicate"])
       return
     end
   end
 
-  local changeFromName, _, itemFromQuality, _, _, _, _, _, equipFromSlot, itemFromTexture = GetItemInfo(changeFromItemId)
-  local changeToName, _, itemToQuality, _, _, _, _, _, equipToSlot, itemToTexture = GetItemInfo(changeToItemId)
+  local changeFromName, _, itemFromQuality, _, _, _, _, _, equipFromSlot, itemFromTexture =
+    GetItemInfo(changeFromItemId)
+  local changeToName, _, itemToQuality, _, _, _, _, _, _, itemToTexture = GetItemInfo(changeToItemId)
 
-  local spellName, spellID = GetItemSpell(changeFromItemId)
+  local _, spellId = GetItemSpell(changeFromItemId)
   local quickChangeRule = {
     ["changeFromName"] = changeFromName,
     ["changeFromItemId"] = changeFromItemId,
@@ -66,13 +69,14 @@ function me.AddQuickChangeRule(changeFromItemId, changeToItemId, delay)
     ["changeToItemId"] = changeToItemId,
     ["changeToItemIcon"] = itemToTexture,
     ["changeToItemQuality"] = itemToQuality,
-    ["equipSlot"] = equipSlot,
+    ["equipSlot"] = equipFromSlot,
     ["spellId"] = spellId,
     ["delay"] = delay
   }
 
   mod.configuration.AddQuickChangeRule(quickChangeRule)
-  mod.logger.LogDebug(me.tag, "Added new quickChangeRule from: " .. quickChangeRule.changeFromItemId .. " to: " .. quickChangeRule.changeToItemId)
+  mod.logger.LogDebug(me.tag, "Added new quickChangeRule from: " .. quickChangeRule.changeFromItemId ..
+    " to: " .. quickChangeRule.changeToItemId)
 end
 
 --[[
@@ -111,7 +115,7 @@ function me.OnUnitSpellCastSucceeded(...)
   -- only interested in spell events that where caused by the player itself
   if unitId ~= RGGM_CONSTANTS.UNIT_ID_PLAYER then return end
 
-  for index, quickChangeRule in ipairs(mod.configuration.GetQuickChangeRules()) do
+  for _, quickChangeRule in ipairs(mod.configuration.GetQuickChangeRules()) do
     if spellId == quickChangeRule.spellId then
       -- found a rule for used spell
       local slotIds = {}
@@ -127,13 +131,11 @@ function me.OnUnitSpellCastSucceeded(...)
 
       for _, slotMetadata in ipairs(slotIds) do
         if slotMetadata.itemId == quickChangeRule.changeFromItemId then
-          if quickChangeRule.delay then
-            C_Timer.After(quickChangeRule.delay, function()
-              mod.itemManager.EquipItemById(quickChangeRule.changeToItemId, slotMetadata.slotId, quickChangeRule.equipSlot)
-            end)
-          else
-            mod.itemManager.EquipItemById(quickChangeRule.changeToItemId, slotMetadata.slotId, quickChangeRule.equipSlot)
-          end
+          C_Timer.After(quickChangeRule.delay or 0, function()
+            mod.itemManager.EquipItemById(
+              quickChangeRule.changeToItemId, slotMetadata.slotId, quickChangeRule.equipSlot
+            )
+          end)
         end
       end
     end

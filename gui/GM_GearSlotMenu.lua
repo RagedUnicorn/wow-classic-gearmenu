@@ -22,6 +22,9 @@
   SOFTWARE.
 ]]--
 
+-- luacheck: globals CreateFrame UIDropDownMenu_Initialize UIDropDownMenu_AddButton UIDropDownMenu_GetSelectedID
+-- luacheck: globals STANDARD_TEXT_FONT UIDropDownMenu_GetSelectedValue UIDropDownMenu_SetSelectedValue
+
 local mod = rggm
 local me = {}
 mod.gearSlotMenu = me
@@ -56,7 +59,12 @@ end
     The created dropdown menu
 ]]--
 function me.CreateGearSlotDropdown(frame, position)
-  local gearSlotDropdownMenu = CreateFrame("Button", RGGM_CONSTANTS.ELEMENT_GEAR_SLOT_OPT_SLOT .. position, frame, "UIDropDownMenuTemplate")
+  local gearSlotDropdownMenu = CreateFrame(
+    "Button",
+    RGGM_CONSTANTS.ELEMENT_GEAR_SLOT_OPT_SLOT .. position,
+    frame,
+    "UIDropDownMenuTemplate"
+  )
   gearSlotDropdownMenu.position = position
 
   if math.fmod(position, 2) == 0 then
@@ -77,7 +85,7 @@ end
 ]]--
 function me.CreateGearSlotLabel(frame, gearSlotDropdownMenu, position)
   local gearSlotLabel = frame:CreateFontString(RGGM_CONSTANTS.ELEMENT_GEAR_SLOT_OPT_SLOT_LABEL .. position, "OVERLAY")
-  gearSlotLabel:SetFont("Fonts\\FRIZQT__.TTF", 15)
+  gearSlotLabel:SetFont(STANDARD_TEXT_FONT, 15)
   gearSlotLabel:SetPoint("TOP", gearSlotDropdownMenu, 25, 20)
   gearSlotLabel:SetText(rggm.L["titleslot_" .. position])
 end
@@ -105,11 +113,11 @@ function me.InitializeDropdownMenu(self)
   local emptyButton = mod.uiHelper.CreateDropdownButton("None", 0, me.DropDownMenuCallback)
   UIDropDownMenu_AddButton(emptyButton)
 
-  if (UIDropDownMenu_GetSelectedID(getglobal(RGGM_CONSTANTS.ELEMENT_GEAR_SLOT_OPT_SLOT .. self.position)) == nil) then
+  if (UIDropDownMenu_GetSelectedValue(_G[RGGM_CONSTANTS.ELEMENT_GEAR_SLOT_OPT_SLOT .. self.position]) == nil) then
     if gearSlotMetaData then
-      UIDropDownMenu_SetSelectedValue(getglobal(RGGM_CONSTANTS.ELEMENT_GEAR_SLOT_OPT_SLOT .. self.position), slot)
+      UIDropDownMenu_SetSelectedValue(_G[RGGM_CONSTANTS.ELEMENT_GEAR_SLOT_OPT_SLOT .. self.position], slot)
     else
-      UIDropDownMenu_SetSelectedValue(getglobal(RGGM_CONSTANTS.ELEMENT_GEAR_SLOT_OPT_SLOT .. self.position), 0)
+      UIDropDownMenu_SetSelectedValue(_G[RGGM_CONSTANTS.ELEMENT_GEAR_SLOT_OPT_SLOT .. self.position], 0)
     end
   end
 end
@@ -119,10 +127,8 @@ end
 ]]
 function me.DropDownMenuCallback(self)
   local position = self:GetParent().dropdown.position -- get slot position
-  local currentValue = UIDropDownMenu_GetSelectedID(_G[RGGM_CONSTANTS.ELEMENT_GEAR_SLOT_OPT_SLOT .. position])
 
   mod.configuration.SetSlotForPosition(position, self.value)
   mod.gearBar.UpdateGearBar()
-
   UIDropDownMenu_SetSelectedValue(_G[RGGM_CONSTANTS.ELEMENT_GEAR_SLOT_OPT_SLOT .. position], self.value)
 end

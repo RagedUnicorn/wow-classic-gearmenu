@@ -23,6 +23,9 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
+-- luacheck: globals GetContainerItemLink GetItemInfo GetItemQualityColor GetInventoryItemLink
+-- luacheck: globals UIParent GameTooltip_SetDefaultAnchor
+
 local mod = rggm
 local me = {}
 mod.tooltip = me
@@ -52,8 +55,7 @@ function me.BuildTooltipForWornItem(slotId)
 end
 
 --[[
-  Update the tooltip for either an item in the players bag or an item that he is
-  currently wearing.
+  Update the tooltip for either an item in the players bag or an item that he is currently wearing.
 
   @param {string} tooltipType
   @param {number} slotId
@@ -68,7 +70,7 @@ function me.TooltipUpdate(tooltipType, slotId, itemId)
   tooltip:SetOwner(_G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME], "ANCHOR_BOTTOMLEFT", 200, -50)
 
   if tooltipType == TOOLTIP_TYPE_BAG then
-    local _, bagNumber, bagPos = mod.itemManager.FindItemInBag(itemId)
+    local bagNumber, bagPos = mod.itemManager.FindItemInBag(itemId)
     if mod.configuration.IsSimpleTooltipsEnabled() then
       if not bagNumber or not bagPos then return end
 

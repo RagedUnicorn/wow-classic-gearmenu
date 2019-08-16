@@ -23,6 +23,8 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
+-- luacheck: globals STANDARD_TEXT_FONT
+
 local mod = rggm
 local me = {}
 

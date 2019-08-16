@@ -23,6 +23,10 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
+-- luacheck: globals INVSLOT_HEAD INVSLOT_NECK INVSLOT_SHOULDER INVSLOT_CHEST INVSLOT_WAIST INVSLOT_LEGS INVSLOT_FEET
+-- luacheck: globals INVSLOT_WRIST INVSLOT_HAND INVSLOT_FINGER1 INVSLOT_FINGER2 INVSLOT_TRINKET1 INVSLOT_TRINKET2
+-- luacheck: globals INVSLOT_BACK INVSLOT_MAINHAND INVSLOT_OFFHAND INVSLOT_RANGED UnitClass
+
 local mod = rggm
 local me = {}
 
@@ -130,7 +134,7 @@ local gearSlots = {
   }, {
     ["name"] = "slot_name_off_hand",
     ["type"] = (function()
-      _, class = UnitClass(RGGM_CONSTANTS.UNIT_ID_PLAYER)
+      local _, class = UnitClass(RGGM_CONSTANTS.UNIT_ID_PLAYER)
 
       if class == "ROGUE" then
         --[[

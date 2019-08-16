@@ -22,6 +22,9 @@
   SOFTWARE.
 ]]--
 
+-- luacheck: globals CreateFrame UIDropDownMenu_Initialize UIDropDownMenu_AddButton UIDropDownMenu_GetSelectedID
+-- luacheck: globals UIDropDownMenu_SetSelectedValue
+
 local mod = rggm
 local me = {}
 mod.generalMenu = me
@@ -130,7 +133,10 @@ end
 ]]--
 function me.BuildCheckButtonOption(parentFrame, optionFrameName, posX, posY, onShowCallback, onClickCallback)
   local checkButtonOptionFrame = CreateFrame("CheckButton", optionFrameName, parentFrame, "UICheckButtonTemplate")
-  checkButtonOptionFrame:SetSize(RGGM_CONSTANTS.ELEMENT_GENERAL_CHECK_OPTION_SIZE, RGGM_CONSTANTS.ELEMENT_GENERAL_CHECK_OPTION_SIZE)
+  checkButtonOptionFrame:SetSize(
+    RGGM_CONSTANTS.ELEMENT_GENERAL_CHECK_OPTION_SIZE,
+    RGGM_CONSTANTS.ELEMENT_GENERAL_CHECK_OPTION_SIZE
+  )
   checkButtonOptionFrame:SetPoint("TOPLEFT", posX, posY)
 
   for _, region in ipairs({checkButtonOptionFrame:GetRegions()}) do
@@ -199,7 +205,10 @@ end
   @param {table} frame
 ]]--
 function me.CreateItemQualityLabel(frame)
-  local filterItemQualityLabel = frame:CreateFontString(RGGM_CONSTANTS.ELEMENT_GENERAL_LABEL_FILTER_ITEM_QUALITY, "OVERLAY")
+  local filterItemQualityLabel = frame:CreateFontString(
+    RGGM_CONSTANTS.ELEMENT_GENERAL_LABEL_FILTER_ITEM_QUALITY,
+    "OVERLAY"
+  )
   filterItemQualityLabel:SetPoint("TOPLEFT", 20, -270)
   filterItemQualityLabel:SetFont("Fonts\\FRIZQT__.TTF", 12)
   filterItemQualityLabel:SetTextColor(1, 1, 1)
@@ -210,7 +219,12 @@ end
   @param {table} frame
 ]]--
 function me.CreateItemQualityDropdown(frame)
-  local itemQualityDropdownMenu = CreateFrame("Button", RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_FILTER_ITEM_QUALITY, frame, "UIDropDownMenuTemplate")
+  local itemQualityDropdownMenu = CreateFrame(
+    "Button",
+    RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_FILTER_ITEM_QUALITY,
+    frame,
+    "UIDropDownMenuTemplate"
+  )
   itemQualityDropdownMenu:SetPoint("TOPLEFT", 20, -290)
 
   UIDropDownMenu_Initialize(itemQualityDropdownMenu, me.InitializeDropdownMenu)

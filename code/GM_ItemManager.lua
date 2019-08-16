@@ -23,6 +23,10 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
+-- luacheck: globals GetContainerNumSlots GetContainerItemID GetItemInfo INVSLOT_MAINHAND INVSLOT_OFFHAND
+-- luacheck: globals UnitAffectingCombat CursorHasItem SpellIsTargeting GetContainerItemInfo
+-- luacheck: globals IsInventoryItemLocked PickupContainerItem PickupInventoryItem GetContainerItemLink
+-- luacheck: globals GetInventoryItemLink GetInventoryItemID GetItemSpell
 
 --[[
   Itemmanager manages all items. All itemslots muss register to work properly
@@ -32,8 +36,6 @@ local me = {}
 mod.itemManager = me
 
 me.tag = "ItemManager"
-
-local items = {}
 
 --[[
   Retrieve all items from inventory bags matching any type of
@@ -139,17 +141,18 @@ function me.EquipItemById(itemId, slotId, itemSlotType)
     or offHand always add the item to the combatQueue. If the player is not in combat
     or dead or the slot is mainHand or offHand immediately perform the swap
   ]]--
-  if UnitAffectingCombat(RGGM_CONSTANTS.UNIT_ID_PLAYER) or mod.common.IsPlayerReallyDead() or mod.combatQueue.IsEquipChangeBlocked() then
+  if UnitAffectingCombat(RGGM_CONSTANTS.UNIT_ID_PLAYER) or mod.common.IsPlayerReallyDead()
+      or mod.combatQueue.IsEquipChangeBlocked() then
     if slotId ~=  INVSLOT_MAINHAND and slotId ~= INVSLOT_OFFHAND then
       mod.combatQueue.AddToQueue(itemId, slotId)
       -- if type is weapon only add it to queue if the player is dead
     elseif mod.common.IsPlayerReallyDead() then
       mod.combatQueue.AddToQueue(itemId, slotId)
     else
-      me.SwitchItems(itemId, slotId, itemSlotType)
+      me.SwitchItems(itemId, slotId)
     end
   else
-    me.SwitchItems(itemId, slotId, itemSlotType)
+    me.SwitchItems(itemId, slotId)
   end
 end
 
@@ -175,22 +178,24 @@ end
 
   @param {number} itemId
   @param {number} slotId
-  @param {string} itemSlotType
 ]]--
-function me.SwitchItems(itemId, slotId, itemSlotType)
+function me.SwitchItems(itemId, slotId)
   if not CursorHasItem() and not SpellIsTargeting() then
-    local _, bagNumber, bagPos = me.FindItemInBag(itemId)
+    local bagNumber, bagPos = me.FindItemInBag(itemId)
 
-    if bagNumber then
+    if bagNumber and bagPos then
       local _, _, isLocked = GetContainerItemInfo(bagNumber, bagPos)
       if not isLocked and not IsInventoryItemLocked(bagPos) then
         -- neither container item nor inventory item locked, perform swap
         PickupContainerItem(bagNumber, bagPos)
         PickupInventoryItem(slotId)
+
+        -- make sure to clear combatQueue
+        mod.combatQueue.RemoveFromQueue(slotId)
       end
+    else
+      mod.logger.LogDebug(me.tag, "Was unable to switch because the item to switch to could not be found")
     end
-    -- make sure to clear combatQueue
-    mod.combatQueue.RemoveFromQueue(slotId)
   end
 end
 
@@ -204,8 +209,8 @@ end
 function me.FindItemInBag(itemId)
   for i = 0, 4 do
     for j = 1, GetContainerNumSlots(i) do
-      if strfind(GetContainerItemLink(i, j) or "", itemId, 1, 1) then
-        return nil, i, j
+      if string.find(GetContainerItemLink(i, j) or "", itemId, 1, 1) then
+        return i, j
       end
     end
   end
@@ -218,12 +223,9 @@ end
   @return {string | nil}, {string | nil}, {string | nil}
 ]]--
 function me.RetrieveItemInfo(slotId)
-  local link, id, name, equipSlot, texture = GetInventoryItemLink(RGGM_CONSTANTS.UNIT_ID_PLAYER, slotId)
-
-  if link then
-    _, _, id = strfind(link, "item:(%d+)")
-    name, _, _, _, _, _, _, equipSlot, texture = GetItemInfo(id)
-  end
+  local link = GetInventoryItemLink(RGGM_CONSTANTS.UNIT_ID_PLAYER, slotId)
+  local _, _, _, id = string.find(link, "item:(%d+)")
+  local _, _, _, _, _, _, _, equipSlot, texture = GetItemInfo(id)
 
   return texture, id, equipSlot
 end
@@ -330,7 +332,7 @@ end
 ]]--
 function me.AddItemsMatchingInventoryType(inventoryType, itemId, mustHaveOnUse)
   local item = nil
-  local itemName, _, itemRarity, _, _, _, _, _, equipSlot, itemIcon = GetItemInfo(itemId)
+  local itemName, _, _, _, _, _, _, _, equipSlot, itemIcon = GetItemInfo(itemId)
 
   for it = 1, table.getn(inventoryType) do
     if equipSlot == inventoryType[it] then

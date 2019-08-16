@@ -23,6 +23,8 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
+-- luacheck: globals C_Timer INVSLOT_TRINKET1
+
 local mod = rggm
 local me = {}
 
@@ -42,7 +44,7 @@ end
 _G["__GM__DEBUG__EXECUTE_QUICK_CHANGE_RULE"] = function()
   local quickChangeRules = mod.configuration.GetQuickChangeRules()
 
-   for index, quickChangeRule in ipairs(quickChangeRules) do
+   for _, quickChangeRule in ipairs(quickChangeRules) do
      mod.logger.LogDebug(me.tag, "Switching from: " .. quickChangeRule.changeFromItemId)
      mod.logger.LogDebug(me.tag, "Switching to: " .. quickChangeRule.changeToItemId)
      mod.logger.LogDebug(me.tag, "EquipSlot: " .. quickChangeRule.equipSlot)

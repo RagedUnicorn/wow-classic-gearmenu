@@ -23,6 +23,8 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
+-- luacheck: globals CreateFrame GetTime UIDropDownMenu_CreateInfo STANDARD_TEXT_FONT
+
 local mod = rggm
 local me = {}
 
@@ -72,7 +74,7 @@ end
 ]]--
 function me.CreateCooldownText(slot)
   local cooldownTextFontString = slot:CreateFontString(nil, "OVERLAY")
-  cooldownTextFontString:SetFont("Fonts\\FRIZQT__.TTF", 16, "OUTLINE")
+  cooldownTextFontString:SetFont(STANDARD_TEXT_FONT, 16, "OUTLINE")
   cooldownTextFontString:SetTextColor(1, .82, 0, 1)
   cooldownTextFontString:SetSize(slot:GetWidth(), 20)
   cooldownTextFontString:SetJustifyH("CENTER")
@@ -100,8 +102,8 @@ function me.CreateHighlightFrame(slot)
   highlightFrame:SetPoint("BOTTOMRIGHT", slot, "BOTTOMRIGHT")
 
   local innerBackdrop = {
-    bgFile = [[Interface\AddOns\GearMenu\assets\ui_slot_background]],
-    edgeFile = [[Interface\AddOns\GearMenu\assets\ui_slot_inner_glow]],
+    bgFile = "Interface\\AddOns\\GearMenu\\assets\\ui_slot_background",
+    edgeFile = "Interface\\AddOns\\GearMenu\\assets\\ui_slot_inner_glow",
     tile = false,
     tileSize = 16,
     edgeSize = 16,
@@ -143,6 +145,7 @@ function me.SetCooldown(frame, start, duration)
   elseif cooldown < 3 and not frame:GetText() then
     -- do not display global cooldown
     -- if there is already a text it is just a cooldown that entered into this state
+    return
   else
     if cooldown < 60 then
       cooldownText = math.floor(cooldown + .5) .. " s"

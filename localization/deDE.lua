@@ -1,3 +1,6 @@
+
+-- luacheck: globals GetLocale GetAddOnMetadata
+
 if (GetLocale() == "deDE") then
   rggm = rggm or {}
   rggm.L = {}
@@ -5,7 +8,8 @@ if (GetLocale() == "deDE") then
   rggm.L["addon_name"] = "GearMenu"
 
   -- console
-  rggm.L["help"] = "|cFFFFC300(%s)|r: Benutze |cFFFFC300/rggm|r oder |cFFFFC300/gearmenu|r für eine Liste der verfügbaren Optionen"
+  rggm.L["help"] = "|cFFFFC300(%s)|r: Benutze |cFFFFC300/rggm|r oder |cFFFFC300/gearmenu|r "
+    .. "für eine Liste der verfügbaren Optionen"
   rggm.L["opt"] = "|cFFFFC300opt|r - zeige Optionsmenu an"
   rggm.L["reload"] = "|cFFFFC300reload|r - UI neu laden"
   rggm.L["info_title"] = "|cFF00FFB0GearMenu:|r"
@@ -63,15 +67,21 @@ if (GetLocale() == "deDE") then
   -- quickchange
   rggm.L["quick_change_category_name"] = "Schnellwechsel"
   rggm.L["quick_change_slider_title"] = "Verzögerung in Sekunde"
-  rggm.L["quick_change_slider_tooltip"] = "Setzt eine Verzögerung wann eine Quickchange Regel angewendet werden sollte. Für Gegenstände welche einen Stärkungszauber auslösen sollte diese Verzögerung normalerweise der Dauer des Stärkungszaubers entsprechen."
+  rggm.L["quick_change_slider_tooltip"] = "Setzt eine Verzögerung wann eine Quickchange Regel "
+    .. "angewendet werden sollte. Für Gegenstände welche einen Stärkungszauber auslösen sollte "
+    .. "diese Verzögerung normalerweise der Dauer des Stärkungszaubers entsprechen."
   rggm.L["quick_change_slider_unit"] = "Sekunden"
   rggm.L["quick_change_add_rule"] = "Hinzufügen"
   rggm.L["quick_change_remove_rule"] = "Entfernen"
-  rggm.L["quick_change_invalid_rule"] = "Der Gegenstand von dem gewechselt und der Gegenstand zu dem gewechselt werden soll, können nicht der gleiche Gegenstand sein"
-  rggm.L["quick_change_unable_to_remove_rule"] = "Konnte Regel nicht entfernen - Bitte selektiere zuerst eine Regel welche entfernt werden soll"
-  rggm.L["quick_change_unable_to_add_rule_from"] = "Konnte neue Regel nicht hinzufügen - Kein 'Von' Gegenstand ausgewählt"
+  rggm.L["quick_change_invalid_rule"] = "Der Gegenstand von dem gewechselt und der Gegenstand zu "
+    .. "dem gewechselt werden soll, können nicht der gleiche Gegenstand sein"
+  rggm.L["quick_change_unable_to_remove_rule"] = "Konnte Regel nicht entfernen - Bitte selektiere "
+    .. "zuerst eine Regel welche entfernt werden soll"
+  rggm.L["quick_change_unable_to_add_rule_from"] = "Konnte neue Regel nicht hinzufügen "
+    .. "- Kein 'Von' Gegenstand ausgewählt"
   rggm.L["quick_change_unable_to_add_rule_to"] = "Konnte neue Regel nicht hinzufügen - Kein 'Zu' Gegenstand ausgewählt"
-  rggm.L["quick_change_unable_to_add_rule_duplicate"] = "Konnte neue Regel nicht hinzufügen - Eine Regel für diesen Gegenstand existiert bereits"
+  rggm.L["quick_change_unable_to_add_rule_duplicate"] = "Konnte neue Regel nicht hinzufügen "
+    .. "- Eine Regel für diesen Gegenstand existiert bereits"
 
   -- slot translations
   rggm.L["slot_name_head"] = "Kopf"

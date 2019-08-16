@@ -23,6 +23,8 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
+-- luacheck: globals BINDING_HEADER_GEARMENU INVSLOT_HEAD
+
 --[[
   Misc Variables
 ]]--
