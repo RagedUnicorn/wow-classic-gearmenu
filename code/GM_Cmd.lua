@@ -34,9 +34,9 @@ me.tag = "Cmd"
   Print cmd options for addon
 ]]--
 local function ShowInfoMessage()
-  DEFAULT_CHAT_FRAME:AddMessage(rggm.L["info_title"])
-  DEFAULT_CHAT_FRAME:AddMessage(rggm.L["reload"])
-  DEFAULT_CHAT_FRAME:AddMessage(rggm.L["opt"])
+  print(rggm.L["info_title"])
+  print(rggm.L["reload"])
+  print(rggm.L["opt"])
 end
 
 --[[
