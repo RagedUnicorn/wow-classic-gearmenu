@@ -23,7 +23,7 @@
 ]]--
 
 -- luacheck: globals CreateFrame UIDropDownMenu_Initialize UIDropDownMenu_AddButton UIDropDownMenu_GetSelectedID
--- luacheck: globals UIDropDownMenu_SetSelectedValue
+-- luacheck: globals UIDropDownMenu_SetSelectedValue STANDARD_TEXT_FONT
 
 local mod = rggm
 local me = {}
@@ -56,7 +56,7 @@ function me.BuildUi(frame)
   if builtMenu then return end
 
   local titleFontString = frame:CreateFontString(RGGM_CONSTANTS.ELEMENT_GENERAL_TITLE, "OVERLAY")
-  titleFontString:SetFont("Fonts\\FRIZQT__.TTF", 20)
+  titleFontString:SetFont(STANDARD_TEXT_FONT, 20)
   titleFontString:SetPoint("TOP", 0, -20)
   titleFontString:SetSize(frame:GetWidth(), 20)
   titleFontString:SetText(rggm.L["general_title"])
@@ -141,7 +141,7 @@ function me.BuildCheckButtonOption(parentFrame, optionFrameName, posX, posY, onS
 
   for _, region in ipairs({checkButtonOptionFrame:GetRegions()}) do
     if string.find(region:GetName() or "", "Text$") and region:IsObjectType("FontString") then
-      region:SetFont("Fonts\\FRIZQT__.TTF", 15)
+      region:SetFont(STANDARD_TEXT_FONT, 15)
       region:SetTextColor(.95, .95, .95)
       region:SetText(me.GetLabelText(checkButtonOptionFrame))
       break
@@ -210,7 +210,7 @@ function me.CreateItemQualityLabel(frame)
     "OVERLAY"
   )
   filterItemQualityLabel:SetPoint("TOPLEFT", 20, -270)
-  filterItemQualityLabel:SetFont("Fonts\\FRIZQT__.TTF", 12)
+  filterItemQualityLabel:SetFont(STANDARD_TEXT_FONT, 12)
   filterItemQualityLabel:SetTextColor(1, 1, 1)
   filterItemQualityLabel:SetText(rggm.L["filter_item_quality"])
 end
