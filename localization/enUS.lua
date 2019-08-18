@@ -1,5 +1,5 @@
 
--- luacheck: globals GetLocale GetAddOnMetadata
+-- luacheck: globals GetAddOnMetadata
 
 rggm = rggm or {}
 rggm.L = {}
