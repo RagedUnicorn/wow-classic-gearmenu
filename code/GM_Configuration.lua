@@ -475,6 +475,7 @@ end
   Get the position of a saved frame
 
   @param {string} frameName
+
   @return {table | nil}
     table - the returned x and y position
     nil - if no frame with the passed name could be found
