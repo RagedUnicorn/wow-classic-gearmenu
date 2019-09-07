@@ -48,7 +48,9 @@ local gearSlots = {}
 ]]--
 function me.BuildGearBar()
   local gearBarFrame = CreateFrame("Frame", RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME, UIParent)
-  gearBarFrame:SetWidth(RGGM_CONSTANTS.ELEMENT_GEAR_BAR_WIDTH)
+  gearBarFrame:SetWidth(
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_WIDTH + RGGM_CONSTANTS.ELEMENT_GEAR_BAR_WIDTH_MARGIN
+  )
   gearBarFrame:SetHeight(RGGM_CONSTANTS.ELEMENT_GEAR_BAR_HEIGHT)
 
   if not mod.configuration.IsGearBarLocked() then
@@ -227,6 +229,7 @@ function me.UpdateGearBar()
     return
   end
 
+  local slotCount = 0
 
   for index, gearSlot in pairs(gearSlots) do
     local slot = mod.configuration.GetSlotForPosition(index)
@@ -237,12 +240,17 @@ function me.UpdateGearBar()
       gearSlot:SetAttribute("type1", "item")
       gearSlot:SetAttribute("item", gearSlotMetaData.slotId)
       me.UpdateTexture(gearSlot, gearSlotMetaData)
+      slotCount = slotCount + 1
       gearSlot:Show()
     else
       -- slot is inactive
       gearSlot:Hide()
     end
   end
+
+  local gearBarWidth = slotCount * RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT_SIZE
+    + RGGM_CONSTANTS.ELEMENT_GEAR_BAR_WIDTH_MARGIN
+  _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME]:SetWidth(gearBarWidth)
 
   me.UpdateSlotPosition()
 end
