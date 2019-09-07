@@ -119,8 +119,10 @@ function me.CreateGearSlot(gearBarFrame, position)
   local slot = mod.configuration.GetSlotForPosition(position)
   local gearSlotMetaData = mod.gearManager.GetGearSlotForSlotId(slot)
 
-  gearSlot:SetAttribute("type1", "item")
-  gearSlot:SetAttribute("item", gearSlotMetaData.slotId)
+  if gearSlotMetaData ~= nil then
+    gearSlot:SetAttribute("type1", "item")
+    gearSlot:SetAttribute("item", gearSlotMetaData.slotId)
+  end
 
   gearSlot:SetBackdrop(backdrop)
   gearSlot:SetBackdropColor(0.15, 0.15, 0.15, 1)
