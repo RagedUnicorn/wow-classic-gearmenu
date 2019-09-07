@@ -86,14 +86,14 @@ function me.OnEvent(event, ...)
   elseif event == "BAG_UPDATE" then
     me.logger.LogEvent(me.tag, "BAG_UPDATE")
     if initializationDone then
-      me.gearBar.UpdateGearBar()
+      me.gearBar.UpdateGearBarTextures()
       -- trigger UpdateChangeMenu again to update items after an item was equiped
       me.changeMenu.UpdateChangeMenu()
     end
   elseif event == "PLAYER_EQUIPMENT_CHANGED" then
     me.logger.LogEvent(me.tag, "PLAYER_EQUIPMENT_CHANGED")
     if initializationDone then
-      me.gearBar.UpdateGearBar()
+      me.gearBar.UpdateGearBarTextures()
       me.gearBar.UpdateGearSlotCooldown(false)
     end
   elseif event == "BAG_UPDATE_COOLDOWN" then

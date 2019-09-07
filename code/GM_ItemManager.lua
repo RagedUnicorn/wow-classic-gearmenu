@@ -137,20 +137,12 @@ function me.EquipItemById(itemId, slotId, itemSlotType)
 
   mod.logger.LogDebug(me.tag, "EquipItem: " .. itemId .. " in slot: " .. slotId)
   --[[
-    if user is in combat or dead and the slot that is affected is not the mainHand
-    or offHand always add the item to the combatQueue. If the player is not in combat
-    or dead or the slot is mainHand or offHand immediately perform the swap
+    Blizzard blocks even weapons from being switched by addons during combat. Because of this
+    all items are added to the combatqueue if the player is in combat.
   ]]--
   if UnitAffectingCombat(RGGM_CONSTANTS.UNIT_ID_PLAYER) or mod.common.IsPlayerReallyDead()
       or mod.combatQueue.IsEquipChangeBlocked() then
-    if slotId ~=  INVSLOT_MAINHAND and slotId ~= INVSLOT_OFFHAND then
-      mod.combatQueue.AddToQueue(itemId, slotId)
-      -- if type is weapon only add it to queue if the player is dead
-    elseif mod.common.IsPlayerReallyDead() then
-      mod.combatQueue.AddToQueue(itemId, slotId)
-    else
-      me.SwitchItems(itemId, slotId)
-    end
+    mod.combatQueue.AddToQueue(itemId, slotId)
   else
     me.SwitchItems(itemId, slotId)
   end

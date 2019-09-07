@@ -26,6 +26,7 @@
 -- luacheck: globals CreateFrame UIParent GetBindingText GetBindingKey GetInventoryItemID GetItemCooldown
 -- luacheck: globals GetInventoryItemLink GetItemInfo GetContainerItemInfo C_Timer MouseIsOver
 -- luacheck: globals CursorCanGoInSlot EquipCursorItem ClearCursor IsInventoryItemLocked PickupInventoryItem
+-- luacheck: globals InCombatLockdown
 
 local mod = rggm
 local me = {}
@@ -114,6 +115,12 @@ function me.CreateGearSlot(gearBarFrame, position)
       bottom = 12
     }
   }
+
+  local slot = mod.configuration.GetSlotForPosition(position)
+  local gearSlotMetaData = mod.gearManager.GetGearSlotForSlotId(slot)
+
+  gearSlot:SetAttribute("type1", "item")
+  gearSlot:SetAttribute("item", gearSlotMetaData.slotId)
 
   gearSlot:SetBackdrop(backdrop)
   gearSlot:SetBackdropColor(0.15, 0.15, 0.15, 1)
@@ -209,19 +216,25 @@ function me.UpdateKeyBindings()
 end
 
 --[[
-  Update the gearBar after one of PLAYER_EQUIPMENT_CHANGED, BAG_UPDATE events
+  Update the gearBar after one of the slots was hidden or shown again
 ]]--
 function me.UpdateGearBar()
+  if InCombatLockdown() then
+    -- temporary fix for in combat configuration of slots
+    mod.logger.LogError(me.tag, "Unable to update slots in combat. Please /reload after your are out of combat")
+    return
+  end
+
+
   for index, gearSlot in pairs(gearSlots) do
     local slot = mod.configuration.GetSlotForPosition(index)
     local gearSlotMetaData = mod.gearManager.GetGearSlotForSlotId(slot)
 
     if gearSlotMetaData ~= nil then
       -- slot is active
-      me.UpdateTexture(gearSlot, gearSlotMetaData)
-      -- update secure attributes
       gearSlot:SetAttribute("type1", "item")
       gearSlot:SetAttribute("item", gearSlotMetaData.slotId)
+      me.UpdateTexture(gearSlot, gearSlotMetaData)
       gearSlot:Show()
     else
       -- slot is inactive
@@ -230,6 +243,20 @@ function me.UpdateGearBar()
   end
 
   me.UpdateSlotPosition()
+end
+
+--[[
+  Update the gearBar after one of PLAYER_EQUIPMENT_CHANGED, BAG_UPDATE events
+]]--
+function me.UpdateGearBarTextures()
+  for index, gearSlot in pairs(gearSlots) do
+    local slot = mod.configuration.GetSlotForPosition(index)
+    local gearSlotMetaData = mod.gearManager.GetGearSlotForSlotId(slot)
+
+    if gearSlotMetaData ~= nil then
+      me.UpdateTexture(gearSlot, gearSlotMetaData)
+    end
+  end
 end
 
 --[[
