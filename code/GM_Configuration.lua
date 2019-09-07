@@ -46,7 +46,7 @@ GearMenuConfiguration = {
   --[[
     Whether to show cooldowns on the itemslots
   ]]--
-  ["showCooldowns"] = true,
+  ["showCooldowns"] = false,
   --[[
     Whether to enable tooltips
   ]]--
@@ -142,7 +142,7 @@ function me.SetupConfiguration()
 
   if GearMenuConfiguration.showCooldowns == nil then
     mod.logger.LogInfo(me.tag, "showCooldowns has unexpected nil value")
-    GearMenuConfiguration.showCooldowns = true
+    GearMenuConfiguration.showCooldowns = false
   end
 
   if GearMenuConfiguration.enableTooltips == nil then
