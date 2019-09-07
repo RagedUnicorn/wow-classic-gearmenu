@@ -110,14 +110,17 @@ function me.InitializeDropdownMenu(self)
   end
 
   -- create an option to disable the slot completely
-  local emptyButton = mod.uiHelper.CreateDropdownButton("None", 0, me.DropDownMenuCallback)
+  local emptyButton = mod.uiHelper.CreateDropdownButton("None", RGGM_CONSTANTS.INVSLOT_NONE, me.DropDownMenuCallback)
   UIDropDownMenu_AddButton(emptyButton)
 
   if (UIDropDownMenu_GetSelectedValue(_G[RGGM_CONSTANTS.ELEMENT_GEAR_SLOT_OPT_SLOT .. self.position]) == nil) then
     if gearSlotMetaData then
       UIDropDownMenu_SetSelectedValue(_G[RGGM_CONSTANTS.ELEMENT_GEAR_SLOT_OPT_SLOT .. self.position], slot)
     else
-      UIDropDownMenu_SetSelectedValue(_G[RGGM_CONSTANTS.ELEMENT_GEAR_SLOT_OPT_SLOT .. self.position], 0)
+      UIDropDownMenu_SetSelectedValue(
+        _G[RGGM_CONSTANTS.ELEMENT_GEAR_SLOT_OPT_SLOT .. self.position],
+        RGGM_CONSTANTS.INVSLOT_NONE
+      )
     end
   end
 end
