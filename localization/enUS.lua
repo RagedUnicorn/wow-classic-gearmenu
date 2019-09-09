@@ -36,32 +36,18 @@ rggm.L["enable_simple_tooltips_tooltip"] = "Show only the title of the item that
 rggm.L["enable_drag_and_drop"] = "Enable Drag and Drop"
 rggm.L["enable_drag_and_drop_tooltip"] = "Enable Drag and Drop for items"
 rggm.L["filter_item_quality"] = "Filter Item Quality:"
-rggm.L["item_quality_poor"] = "Poor (Grey)"
-rggm.L["item_quality_common"] = "Common (White)"
-rggm.L["item_quality_uncommon"] = "Uncommon (Green)"
-rggm.L["item_quality_rare"] = "Rare (Blue)"
-rggm.L["item_quality_epic"] = "Epic (Purple)"
-rggm.L["item_quality_legendary"] = "Legendary (Orange)"
+rggm.L["item_quality_poor"] = "|cff9d9d9d"..ITEM_QUALITY0_DESC.."|r"
+rggm.L["item_quality_common"] = "|cffffffff"..ITEM_QUALITY1_DESC.."|r"
+rggm.L["item_quality_uncommon"] = "|cff1eff00"..ITEM_QUALITY2_DESC.."|r"
+rggm.L["item_quality_rare"] = "|cff0070dd"..ITEM_QUALITY3_DESC.."|r"
+rggm.L["item_quality_epic"] = "|cffa335ee"..ITEM_QUALITY4_DESC.."|r"
+rggm.L["item_quality_legendary"] = "|cffff8000"..ITEM_QUALITY5_DESC.."|r"
 
 -- gearslots
 rggm.L["gearslot_category_name"] = "Gearslots"
-rggm.L["titleslot_1"] = "Slot 1:"
-rggm.L["titleslot_2"] = "Slot 2:"
-rggm.L["titleslot_3"] = "Slot 3:"
-rggm.L["titleslot_4"] = "Slot 4:"
-rggm.L["titleslot_5"] = "Slot 5:"
-rggm.L["titleslot_6"] = "Slot 6:"
-rggm.L["titleslot_7"] = "Slot 7:"
-rggm.L["titleslot_8"] = "Slot 8:"
-rggm.L["titleslot_9"] = "Slot 9:"
-rggm.L["titleslot_10"] = "Slot 10:"
-rggm.L["titleslot_11"] = "Slot 11:"
-rggm.L["titleslot_12"] = "Slot 12:"
-rggm.L["titleslot_13"] = "Slot 13:"
-rggm.L["titleslot_14"] = "Slot 14:"
-rggm.L["titleslot_15"] = "Slot 15:"
-rggm.L["titleslot_16"] = "Slot 16:"
-rggm.L["titleslot_17"] = "Slot 17:"
+for i = 1, 17, 1 do 
+	rggm.L["titleslot_"..i] = "Slot "..i..":"
+end
 
 -- quickchange
 rggm.L["quick_change_category_name"] = "Quickchange"
@@ -76,6 +62,16 @@ rggm.L["quick_change_unable_to_remove_rule"] = "Unable to remove rule - Please s
 rggm.L["quick_change_unable_to_add_rule_from"] = "Unable to add new rule - missing a 'From' item"
 rggm.L["quick_change_unable_to_add_rule_to"] = "Unable to add new rule - missing a 'To' item"
 rggm.L["quick_change_unable_to_add_rule_duplicate"] = "Unable to add new rule - A rule for this item already exists"
+
+-- missing
+rggm.L["EquipItem: "] = "EquipItem: "
+rggm.L[" in slot: "] = " in slot: "
+rggm.L["Was unable to switch because the item to switch to could not be found"] = "Was unable to switch because the item to switch to could not be found"
+rggm.L["Filtered duplicate item - "] = "Filtered duplicate item - "
+rggm.L[" - from item list"] = " - from item list"
+rggm.L["Skipped item: "] = "Skipped item: "
+rggm.L[" because it has no onUse effect"] = " because it has no onUse effect"
+rggm.L["Ignoring item because its quality is lower than setting "] = "Ignoring item because its quality is lower than setting "
 
 -- slot translations
 rggm.L["slot_name_head"] = "Head"

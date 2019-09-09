@@ -96,7 +96,7 @@ function me.GetItemsForInventoryType(inventoryType)
 
               idx = idx + 1
             else
-              mod.logger.LogDebug(me.tag, "Ignoring item because its quality is lower than setting "
+              mod.logger.LogDebug(me.tag, rggm.L["Ignoring item because its quality is lower than setting "]
                 .. mod.configuration.GetFilterItemQuality())
             end
           end
@@ -135,7 +135,7 @@ end
 function me.EquipItemById(itemId, slotId, itemSlotType)
   if not itemId or not slotId or not itemSlotType then return end
 
-  mod.logger.LogDebug(me.tag, "EquipItem: " .. itemId .. " in slot: " .. slotId)
+  mod.logger.LogDebug(me.tag, rggm.L["EquipItem: "] .. itemId .. rggm.L[" in slot: "] .. slotId)
   --[[
     Blizzard blocks even weapons from being switched by addons during combat. Because of this
     all items are added to the combatqueue if the player is in combat.
@@ -186,7 +186,7 @@ function me.SwitchItems(itemId, slotId)
         mod.combatQueue.RemoveFromQueue(slotId)
       end
     else
-      mod.logger.LogDebug(me.tag, "Was unable to switch because the item to switch to could not be found")
+      mod.logger.LogDebug(me.tag, rggm.L["Was unable to switch because the item to switch to could not be found"])
     end
   end
 end
@@ -280,7 +280,7 @@ end
 function me.IsDuplicateItem(items, itemId)
   for i = 1, table.getn(items) do
     if items[i].id == itemId then
-      mod.logger.LogDebug(me.tag, "Filtered duplicate item - " .. items[i].name .. " - from item list")
+      mod.logger.LogDebug(me.tag, rggm.L["Filtered duplicate item - "] .. items[i].name .. rggm.L[" - from item list"])
       return true
     end
   end
@@ -336,7 +336,7 @@ function me.AddItemsMatchingInventoryType(inventoryType, itemId, mustHaveOnUse)
         item.id = itemId
         item.texture = itemIcon
       else
-        mod.logger.LogDebug(me.tag, "Skipped item: " .. itemName .. " because it has no onUse effect")
+        mod.logger.LogDebug(me.tag, rggm.L["Skipped item: "] .. itemName .. rggm.L[" because it has no onUse effect"])
         return nil
       end
     end
