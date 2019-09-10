@@ -88,7 +88,9 @@ function me.OnEvent(event, ...)
     if initializationDone then
       me.gearBar.UpdateGearBarTextures()
       -- trigger UpdateChangeMenu again to update items after an item was equiped
-      me.changeMenu.UpdateChangeMenu()
+      if _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_FRAME]:IsVisible() then
+        me.changeMenu.UpdateChangeMenu()
+      end
     end
   elseif event == "PLAYER_EQUIPMENT_CHANGED" then
     me.logger.LogEvent(me.tag, "PLAYER_EQUIPMENT_CHANGED")
