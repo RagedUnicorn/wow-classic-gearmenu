@@ -67,7 +67,8 @@ function me.TooltipUpdate(tooltipType, slotId, itemId)
 
   local tooltip = _G[RGGM_CONSTANTS.ELEMENT_TOOLTIP]
   tooltip:ClearLines()
-  tooltip:SetOwner(UIParent, "ANCHOR_PRESERVE")
+  tooltip:SetOwner(UIParent)
+  GameTooltip_SetDefaultAnchor(tooltip, UIParent)
 
   if tooltipType == TOOLTIP_TYPE_BAG then
     local bagNumber, bagPos = mod.itemManager.FindItemInBag(itemId)
