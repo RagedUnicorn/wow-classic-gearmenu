@@ -71,7 +71,7 @@ GearMenuConfiguration = {
     4 Epic (purple)
     5 Legendary (orange)
   ]]--
-  ["filterItemQuality"] = 0,
+  ["filterItemQuality"] = 2,
   --[[
     Initial default slot mapping
   ]]--
