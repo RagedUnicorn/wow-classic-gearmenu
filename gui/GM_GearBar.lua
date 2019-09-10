@@ -136,7 +136,6 @@ function me.CreateGearSlot(gearBarFrame, position)
 
   mod.uiHelper.CreateHighlightFrame(gearSlot)
   mod.uiHelper.PrepareSlotTexture(gearSlot)
-  mod.uiHelper.CreateCooldownText(gearSlot)
   mod.uiHelper.CreateCooldownOverlay(
     gearSlot,
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT_COOLDOWN_FRAME,
@@ -300,14 +299,10 @@ function me.UpdateSlotPosition()
 end
 
 --[[
-  Update the cooldown of items on gearBar after a BAG_UPDATE_COOLDOWN event
-
-  @param {booelan} interval
-    Whether the function was invoked by an event or by an interval
-    true - invoked by ticker interval
-    false - invoked by event BAG_UPDATE_COOLDOWN
+  Update the cooldown of items on gearBar after a BAG_UPDATE_COOLDOWN event or a manual
+  invoke after a configuration change (show/hide) cooldowns
 ]]--
-function me.UpdateGearSlotCooldown(interval)
+function me.UpdateGearSlotCooldown()
   for index, gearSlot in pairs(gearSlots) do
     local slot = mod.configuration.GetSlotForPosition(index)
     local gearSlotMetaData = mod.gearManager.GetGearSlotForSlotId(slot)
@@ -317,14 +312,11 @@ function me.UpdateGearSlotCooldown(interval)
       local itemId = GetInventoryItemID(RGGM_CONSTANTS.UNIT_ID_PLAYER, gearSlotMetaData.slotId)
 
       if itemId ~= nil then
-        local startTime, duration = GetItemCooldown(itemId)
-
-        if interval then
-          -- manually invoked to update text on slot
-          mod.uiHelper.SetCooldown(gearSlot.cooldownText, startTime, duration)
-        else
-          -- invoked by - BAG_UPDATE_COOLDOWN or initial addon start
+        if mod.configuration.IsShowCooldownsEnabled() then
+          local startTime, duration = GetItemCooldown(itemId)
           gearSlot.cooldownOverlay:SetCooldown(startTime, duration)
+        else
+          gearSlot.cooldownOverlay:Hide()
         end
       end
     end
@@ -348,6 +340,7 @@ function me.UpdateTexture(gearSlot, slotMetaData)
   else
     -- If no item can be found in the inventoryslot use the default icon
     gearSlot:SetNormalTexture(slotMetaData.textureId)
+    gearSlot.cooldownOverlay:Hide() -- hide cooldown if there is no actual item
   end
 end
 
@@ -573,7 +566,7 @@ end
 ]]--
 function me.HideCooldowns()
   for _, gearSlot in pairs(gearSlots) do
-    gearSlot.cooldownText:Hide()
+    gearSlot.cooldownOverlay:Hide()
   end
 end
 
@@ -582,6 +575,6 @@ end
 ]]--
 function me.ShowCooldowns()
   for _, gearSlot in pairs(gearSlots) do
-    gearSlot.cooldownText:Show()
+    gearSlot.cooldownOverlay:Show()
   end
 end

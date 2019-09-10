@@ -127,7 +127,6 @@ function me.CreateChangeSlot(frame, position, xPos, yPos)
   changeSlot:SetBackdropBorderColor(0, 0, 0, 1)
 
   mod.uiHelper.CreateHighlightFrame(changeSlot)
-  mod.uiHelper.CreateCooldownText(changeSlot)
   mod.uiHelper.CreateCooldownOverlay(
     changeSlot,
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_COOLDOWN_FRAME,
@@ -184,7 +183,7 @@ function me.UpdateChangeMenu(gearSlot)
 
     me.UpdateChangeMenuSize(items)
     me.UpdateChangeMenuPosition(gearSlot)
-    me.UpdateChangeMenuCooldownState(false)
+    me.UpdateChangeMenuCooldownState()
 
     mod.ticker.StartTickerChangeMenu()
 
@@ -204,7 +203,6 @@ function me.ResetChangeMenu()
     changeMenuSlots[i]:SetNormalTexture(nil)
     changeMenuSlots[i].highlightFrame:Hide()
     changeMenuSlots[i].cooldownOverlay:SetCooldown(0, 0)
-    changeMenuSlots[i].cooldownText:SetText("")
     changeMenuSlots[i]:Hide()
   end
 
@@ -244,24 +242,15 @@ end
 
 --[[
   Updates the cooldown representations of all items in the changeMenu
-
-  @param {booelan} interval
-    Whether the function was invoked by an event or by an interval
-    true - invoked by ticker interval
-    false - invoked on initial showing of the changeMenu after a gearSlot was hovered over
 ]]--
-function me.UpdateChangeMenuCooldownState(interval)
+function me.UpdateChangeMenuCooldownState()
   for _, changeMenuSlot in pairs(changeMenuSlots) do
     if changeMenuSlot.itemId ~= nil then
-      if interval then
-        -- if changeMenu is not shown no need to show cooldown
-        if not changeMenuFrame:IsShown() then return end
-
-        local startTime, duration = GetItemCooldown(changeMenuSlot.itemId)
-        mod.uiHelper.SetCooldown(changeMenuSlot.cooldownText, startTime, duration)
-      else
+      if mod.configuration.IsShowCooldownsEnabled() then
         local startTime, duration = GetItemCooldown(changeMenuSlot.itemId)
         changeMenuSlot.cooldownOverlay:SetCooldown(startTime, duration)
+      else
+        changeMenuSlot.cooldownOverlay:Hide()
       end
     end
   end
@@ -349,7 +338,7 @@ end
 ]]--
 function me.HideCooldowns()
   for _, changeMenuSlot in pairs(changeMenuSlots) do
-    changeMenuSlot.cooldownText:Hide()
+    changeMenuSlot.cooldownOverlay:Hide()
   end
 end
 
@@ -358,6 +347,6 @@ end
 ]]--
 function me.ShowCooldowns()
   for _, changeMenuSlot in pairs(changeMenuSlots) do
-    changeMenuSlot.cooldownText:Show()
+    changeMenuSlot.cooldownOverlay:Show()
   end
 end

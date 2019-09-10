@@ -96,12 +96,12 @@ function me.OnEvent(event, ...)
     me.logger.LogEvent(me.tag, "PLAYER_EQUIPMENT_CHANGED")
     if initializationDone then
       me.gearBar.UpdateGearBarTextures()
-      me.gearBar.UpdateGearSlotCooldown(false)
+      me.gearBar.UpdateGearSlotCooldown()
     end
   elseif event == "BAG_UPDATE_COOLDOWN" then
     me.logger.LogEvent(me.tag, "BAG_UPDATE_COOLDOWN")
     if initializationDone then
-      me.gearBar.UpdateGearSlotCooldown(false)
+      me.gearBar.UpdateGearSlotCooldown()
     end
   elseif event == "UPDATE_BINDINGS" then
     me.logger.LogEvent(me.tag, "UPDATE_BINDINGS")
@@ -152,7 +152,7 @@ function me.Initialize()
   -- start ticker intervals
   me.ticker.StartTickerSlotCooldown()
   -- Update initial view of cooldowns after addon initialization
-  me.gearBar.UpdateGearSlotCooldown(false)
+  me.gearBar.UpdateGearSlotCooldown()
   -- update initial view of gearBar after addon initialization
   me.gearBar.UpdateGearBar()
 

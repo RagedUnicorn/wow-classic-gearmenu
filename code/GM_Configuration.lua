@@ -46,7 +46,7 @@ GearMenuConfiguration = {
   --[[
     Whether to show cooldowns on the itemslots
   ]]--
-  ["showCooldowns"] = false,
+  ["showCooldowns"] = true,
   --[[
     Whether to enable tooltips
   ]]--

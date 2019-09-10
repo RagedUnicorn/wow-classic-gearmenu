@@ -62,32 +62,9 @@ function me.CreateCooldownOverlay(slot, frameName, slotSize)
   )
   cooldownOverlay:SetSize(slotSize, slotSize)
   cooldownOverlay:SetAllPoints()
+  cooldownOverlay:Hide()
 
   slot.cooldownOverlay = cooldownOverlay
-end
-
-
---[[
-  Create a fontString for a textual cooldown display
-
-  @param {table} slot
-]]--
-function me.CreateCooldownText(slot)
-  local cooldownTextFontString = slot:CreateFontString(nil, "OVERLAY")
-  cooldownTextFontString:SetFont(STANDARD_TEXT_FONT, 16, "OUTLINE")
-  cooldownTextFontString:SetTextColor(1, .82, 0, 1)
-  cooldownTextFontString:SetSize(slot:GetWidth(), 20)
-  cooldownTextFontString:SetJustifyH("CENTER")
-  cooldownTextFontString:ClearAllPoints()
-  cooldownTextFontString:SetPoint("CENTER", slot, "CENTER", 0, -5)
-
-  if mod.configuration.IsShowCooldownsEnabled() then
-    cooldownTextFontString:Show()
-  else
-    cooldownTextFontString:Hide()
-  end
-
-  slot.cooldownText = cooldownTextFontString
 end
 
 --[[
@@ -126,8 +103,8 @@ end
   Update visible cooldowns for slots on both the gearBar and the changeMenu
 ]]--
 function me.UpdateSlotCooldown()
-  mod.gearBar.UpdateGearSlotCooldown(true)
-  mod.changeMenu.UpdateChangeMenuCooldownState(true)
+  mod.gearBar.UpdateGearSlotCooldown()
+  mod.changeMenu.UpdateChangeMenuCooldownState()
 end
 
 --[[
@@ -216,5 +193,6 @@ end
 ]]--
 function me.ShowCooldowns()
   mod.gearBar.ShowCooldowns()
+  mod.gearBar.UpdateGearSlotCooldown()
   mod.changeMenu.ShowCooldowns()
 end
