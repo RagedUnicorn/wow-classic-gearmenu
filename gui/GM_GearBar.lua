@@ -189,9 +189,9 @@ end
 ]]--
 function me.CreateKeyBindingText(gearSlot, position)
   local keybindingFontString = gearSlot:CreateFontString(nil, "OVERLAY")
-  keybindingFontString:SetFont("Fonts\\FRIZQT__.TTF", 15, "OUTLINE")
+  keybindingFontString:SetFont("Fonts\\FRIZQT__.TTF", 12, "OUTLINE")
   keybindingFontString:SetTextColor(1, .82, 0, 1)
-  keybindingFontString:SetPoint("TOP", 0, -2)
+  keybindingFontString:SetPoint("TOP", 0, 1)
   keybindingFontString:SetSize(gearSlot:GetWidth(), 20)
   keybindingFontString:SetText(
     GetBindingText(GetBindingKey("CLICK GM_GearBarSlot_" .. position .. ":LeftButton"), "KEY_", 1)
