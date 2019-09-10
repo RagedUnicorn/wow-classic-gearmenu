@@ -67,7 +67,7 @@ function me.TooltipUpdate(tooltipType, slotId, itemId)
 
   local tooltip = _G[RGGM_CONSTANTS.ELEMENT_TOOLTIP]
   tooltip:ClearLines()
-  tooltip:SetOwner(_G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME], "ANCHOR_BOTTOMLEFT", 200, -50)
+  tooltip:SetOwner(UIParent, "ANCHOR_PRESERVE")
 
   if tooltipType == TOOLTIP_TYPE_BAG then
     local bagNumber, bagPos = mod.itemManager.FindItemInBag(itemId)
