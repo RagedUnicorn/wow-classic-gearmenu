@@ -132,6 +132,16 @@ There are certain limitations that make it harder to switch an item even if the 
 
 If you still think you found an issue where GearMenu doesn't switch items as expected feel free to create an [issue](https://github.com/RagedUnicorn/wow-classic-gearmenu/issues).
 
+#### Why can't I switch Weapons during Combat?
+
+This is a limitation that Blizzard puts on addons. It is not currently possible to switch to an arbitrary weapon while in combat. It is however possible to create weaponswitch macros because it is already known from which weapon to what weapon the player wants to switch. While it is not ideal, to workaround this issue GearMenu puts weapons in the CombatQueue if a weaponswitch is done while the player is in combat. If he is not in combat the switch will happen immediately. This might be improved in a future release if there is a better workaround possible.
+
+> Note: It is also possible to switch a weapon by drag an dropping the weapon in the standard Blizzard interfaces. This however is in no way connected to GearMenu
+
+#### Why can't I create an Itemset?
+
+This addon does not have the intention on supporting the functionality of switching between a PVE and a PVP set (or any other set). Its intention is to assist the player in switching single items fast and possibly during combat. It does not try to be the next Outfitter addon.
+
 ## Development
 
 ### Switching between Environments
