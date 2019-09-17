@@ -50,15 +50,17 @@ GearMenus goal is to help the player switching between items on certain slots. O
 
 With GearMenu it is easy to switch between items in supported slots. This is especially useful for engineering items that you wear for a certain amount of time and then switch back to your usual gear.
 
-TODO add gif
+![](/docs/gm_switch_items.gif)
 
 ### CombatQueue
 
 Certain items cannot be switched while the player is in combat. Weapons will be switched immediately whether the player is in combat or not. Other items that cannot be switched in combat will be enqueued in the combatqueue and switched as soon as possible. This is especially useful in PvP when you leave combat for a short time.
 
+![](/docs/gm_combat_queue.gif)
+
 > Note: You can right click any slot to clear the combatqueue for that slot
 
-TODO add gif
+![](/docs/gm_combat_queue_cancel.gif)
 
 ### Quick Change
 
@@ -66,30 +68,29 @@ Quick change consists of rules that apply when certain items are used. The playe
 
 > Note: If an item has a buff effect and you immediately change the item you will usually also lose its buff. In most cases it makes sense to set the delay to the duration of the buff
 
-TODO add gif
-
-After adding such a rule you can try it out.
-
-TODO add gif
+![](/docs/gm_quick_change_add_rule.gif)
 
 ### Keybinding
 
 GearMenu allows to keybind to every slot with a keybinding. Instead of having a keybind for every item that you have to remember you set it directly on the slot itself.
 
-TODO add gif
+![](/docs/gm_keybinding.gif)
 
 ### Drag and drop support
 
 GearMenu allows to drag and drop items onto slots, remove from slots and slots can even be switched in between.
 
 #### Drag and drop between slots
-TODO add gif
+
+![](/docs/gm_drag_and_drop_slots.gif)
 
 #### Drag and drop item to GearMenu
-TODO add gif
+
+![](/docs/gm_drag_and_drop_equip.gif)
 
 #### Unequip item by drag and drop
-TODO add gif
+
+![](/docs/gm_drag_and_drop_unequip.gif)
 
 ## Configurability
 
@@ -99,21 +100,21 @@ To show the configuration screen use `/rggm opt` while ingame and `/rggm info` f
 
 ### Hide/Show Cooldowns
 
-TODO add gif
+![](/docs/gm_options_cooldowns.gif)
 
 ### Hide/Show Keybindings
 
-TODO add gif
+![](/docs/gm_options_keybindings.gif)
 
 ### Lock/Unlock Window
 
-TODO add gif
+![](/docs/gm_options_lock_window.gif)
 
 ### Filter Items by Quality
 
 Not interested to see items with a quality level below a certain level? Filter them out and only items that meet your set level will be considered to be displayed in GearMenu.
 
-TODO add gif
+![](/docs/gm_options_filter_item_quality.gif)
 
 ## FAQ
 
