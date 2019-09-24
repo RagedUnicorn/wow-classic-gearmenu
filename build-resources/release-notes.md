@@ -1,1 +1,1 @@
-* Initial release
+* Fix setting of Keybindings
