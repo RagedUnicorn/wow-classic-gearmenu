@@ -40,7 +40,8 @@ local options = {
   {"ShowCooldowns", rggm.L["show_cooldowns"], rggm.L["show_cooldowns_tooltip"]},
   {"EnableTooltips", rggm.L["enable_tooltips"], rggm.L["enable_tooltips_tooltip"]},
   {"EnableSimpleTooltips", rggm.L["enable_simple_tooltips"], rggm.L["enable_simple_tooltips_tooltip"]},
-  {"EnableDragAndDrop", rggm.L["enable_drag_and_drop"], rggm.L["enable_drag_and_drop_tooltip"]}
+  {"EnableDragAndDrop", rggm.L["enable_drag_and_drop"], rggm.L["enable_drag_and_drop_tooltip"]},
+  {"EnableFastpress", rggm.L["enable_fastpress"], rggm.L["enable_fastpress_tooltip"]}
 }
 
 -- track whether the menu was already built
@@ -113,6 +114,15 @@ function me.BuildUi(frame)
     -230,
     me.EnableDragAndDropOnShow,
     me.EnableDragAndDropOnClick
+  )
+
+  me.BuildCheckButtonOption(
+    frame,
+    RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_FASTPRESS,
+    20,
+    -260,
+    me.EnableFastPressOnShow,
+    me.EnableFastPressOnClick
   )
 
   me.CreateItemQualityLabel(frame)
@@ -209,7 +219,7 @@ function me.CreateItemQualityLabel(frame)
     RGGM_CONSTANTS.ELEMENT_GENERAL_LABEL_FILTER_ITEM_QUALITY,
     "OVERLAY"
   )
-  filterItemQualityLabel:SetPoint("TOPLEFT", 20, -270)
+  filterItemQualityLabel:SetPoint("TOPLEFT", 20, -300)
   filterItemQualityLabel:SetFont(STANDARD_TEXT_FONT, 12)
   filterItemQualityLabel:SetTextColor(1, 1, 1)
   filterItemQualityLabel:SetText(rggm.L["filter_item_quality"])
@@ -225,7 +235,7 @@ function me.CreateItemQualityDropdown(frame)
     frame,
     "UIDropDownMenuTemplate"
   )
-  itemQualityDropdownMenu:SetPoint("TOPLEFT", 20, -290)
+  itemQualityDropdownMenu:SetPoint("TOPLEFT", 20, -320)
 
   UIDropDownMenu_Initialize(itemQualityDropdownMenu, me.InitializeDropdownMenu)
 end
@@ -395,6 +405,34 @@ function me.EnableDragAndDropOnClick(self)
     mod.configuration.EnableDragAndDrop()
   else
     mod.configuration.DisableDragAndDrop()
+  end
+end
+
+--[[
+  OnShow callback for checkbuttons - enable fastpress
+
+  @param {table} self
+]]--
+function me.EnableFastPressOnShow(self)
+  if mod.configuration.IsFastpressEnabled() then
+    self:SetChecked(true)
+  else
+    self:SetChecked(false)
+  end
+end
+
+--[[
+  OnClick callback for checkbuttons - enable fastpress
+
+  @param {table} self
+]]--
+function me.EnableFastPressOnClick(self)
+  local enabled = self:GetChecked()
+
+  if enabled then
+    mod.configuration.EnableFastpress()
+  else
+    mod.configuration.DisableFastpress()
   end
 end
 

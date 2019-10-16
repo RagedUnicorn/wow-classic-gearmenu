@@ -33,6 +33,8 @@ rggm.L["enable_tooltips_tooltip"] = "Whether to show a tooltip when hovering an 
 rggm.L["enable_simple_tooltips"] = "Display simple Tooltips"
 rggm.L["enable_simple_tooltips_tooltip"] = "Show only the title of the item that is currently hovered "
   .. "instead of the full tooltip"
+rggm.L["enable_fastpress"] = "Enable Fastpress"
+rggm.L["enable_fastpress_tooltip"] = "Enables actions to be triggered on a keypress down instead on keypress up"
 rggm.L["enable_drag_and_drop"] = "Enable Drag and Drop"
 rggm.L["enable_drag_and_drop_tooltip"] = "Enable Drag and Drop for items"
 rggm.L["filter_item_quality"] = "Filter Item Quality:"

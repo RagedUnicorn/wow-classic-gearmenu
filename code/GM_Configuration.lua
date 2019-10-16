@@ -60,6 +60,11 @@ GearMenuConfiguration = {
   ]]--
   ["enableDragAndDrop"] = true,
   --[[
+    Whether fastpress is enabled or not. If fastpress is activated actions will be
+    triggered as soon as a key is pressed down instead of waiting for the keyup event
+  ]]--
+  ["enableFastpress"] = false,
+  --[[
     Itemquality to filter items by their quality. Everything that is below the settings value
     will not be considered a valid item to display when building the changemenu.
     By default all items are allowed
@@ -158,6 +163,11 @@ function me.SetupConfiguration()
   if GearMenuConfiguration.enableDragAndDrop == nil then
     mod.logger.LogInfo(me.tag, "enableDragAndDrop has unexpected nil value")
     GearMenuConfiguration.enableDragAndDrop = true
+  end
+
+  if GearMenuConfiguration.enableFastpress == nil then
+    mod.logger.LogInfo(me.tag, "enableFastpress has unexpected nil value")
+    GearMenuConfiguration.enableFastpress = false
   end
 
   if GearMenuConfiguration.filterItemQuality == nil then
@@ -364,6 +374,31 @@ end
 ]]--
 function me.IsDragAndDropEnabled()
   return GearMenuConfiguration.enableDragAndDrop
+end
+
+--[[
+  Enable fastpress on GearMenu itemslots
+]]--
+function me.EnableFastpress()
+  GearMenuConfiguration.enableFastpress = true
+  mod.gearBar.UpdateClickHandler()
+end
+
+--[[
+  Disable fastpress on GearMenu itemslots
+]]--
+function me.DisableFastpress()
+  GearMenuConfiguration.enableFastpress = false
+  mod.gearBar.UpdateClickHandler()
+end
+
+--[[
+  @return {boolean}
+    true - if fastpress on GearMenu itemslots is enabled
+    false - if fastpress drop on GearMenu itemslots is disabled
+]]--
+function me.IsFastpressEnabled()
+  return GearMenuConfiguration.enableFastpress
 end
 
 --[[

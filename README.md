@@ -120,6 +120,10 @@ To show the configuration screen use `/rggm opt` while ingame and `/rggm info` f
 
 ![](/docs/gm_options_lock_window.gif)
 
+### Fastpress Support
+
+Enable whether an item in a Gearslot should be used when the player pressed down(keydown) or only after the key was released(keyup).
+
 ### Filter Items by Quality
 
 Not interested to see items with a quality level below a certain level? Filter them out and only items that meet your set level will be considered to be displayed in GearMenu.

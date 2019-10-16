@@ -423,13 +423,17 @@ function me.SetupEvents(gearSlot)
   --[[
     Note: SecureActionButtons ignore right clicks by default - reenable right clicks
   ]]--
-  gearSlot:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+  if mod.configuration.IsFastpressEnabled() then
+    gearSlot:RegisterForClicks("LeftButtonDown", "RightButtonDown")
+  else
+    gearSlot:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+  end
   gearSlot:RegisterForDrag("LeftButton")
   --[[
     Replacement for OnCLick. Do not overwrite click event for protected button
   ]]--
-  gearSlot:SetScript("PreClick", function(self, button)
-    me.GearSlotOnClick(self, button)
+  gearSlot:SetScript("PreClick", function(self, button, down)
+    me.GearSlotOnClick(self, button, down)
   end)
 
   gearSlot:SetScript("OnEnter", function(self)
@@ -447,6 +451,19 @@ function me.SetupEvents(gearSlot)
   gearSlot:SetScript("OnDragStart", function(self)
     me.GearSlotOnDragStart(self)
   end)
+end
+
+--[[
+  Update clickhandler to match fastpress configuration. Only register to events that are needed
+]]--
+function me.UpdateClickHandler()
+  for _, gearSlot in pairs(gearSlots) do
+    if mod.configuration.IsFastpressEnabled() then
+      gearSlot:RegisterForClicks("LeftButtonDown", "RightButtonDown")
+    else
+      gearSlot:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+    end
+  end
 end
 
 --[[

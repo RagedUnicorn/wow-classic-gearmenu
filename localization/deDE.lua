@@ -36,6 +36,8 @@ if (GetLocale() == "deDE") then
   rggm.L["enable_simple_tooltips_tooltip"] = "Zeige nur den Titel des markierten Items anstatt die ganze Kurzinfo"
   rggm.L["enable_drag_and_drop"] = "Aktiviere Drag and Drop"
   rggm.L["enable_drag_and_drop_tooltip"] = "Aktiviere Drag and Drop für Items"
+  rggm.L["enable_fastpress"] = "Aktiviere Schnellklick"
+  rggm.L["enable_fastpress_tooltip"] = "Aktiviert Aktionen beim drücken eines Knopfs anstatt beim loslassen des Knopfs"
   rggm.L["filter_item_quality"] = "Filtere Gegenstandsqualität:"
   rggm.L["item_quality_poor"] = "Arm (Grau)"
   rggm.L["item_quality_common"] = "Gewöhnlich (Weiss)"
