@@ -190,7 +190,7 @@ local gearSlots = {
     ["slotId"] = INVSLOT_OFFHAND
   }, {
     ["name"] = "slot_name_ranged",
-    ["type"] = {"INVTYPE_RANGED"},
+    ["type"] = {"INVTYPE_RANGED", "INVTYPE_THROWN", "INVTYPE_RANGEDRIGHT"},
     ["textureId"] = 136520,
     ["slotId"] = INVSLOT_RANGED
   }
