@@ -4,7 +4,9 @@
 
 > GearMenu aims to help the player switching between items in and out of combat. When the player is in combat a combatqueue will take care of switching the item as soon as possible. It also allows you to define switching rules and keybinding slots.
 
-![](/docs/badge_wow_classic.png)
+![](/docs/wow_badge.png)
+[![](/docs/twitch_badge.png)](https://www.curseforge.com/wow/addons/gearmenu)
+![](/docs/license_mit.png)
 
 ## Installation
 
