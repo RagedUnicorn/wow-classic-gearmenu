@@ -64,6 +64,14 @@ Certain items cannot be switched while the player is in combat. Weapons will be 
 
 ![](/docs/gm_combat_queue_cancel.gif)
 
+GearMenu also detects whether an itemswitch is possible even when out of combat. If you're switching an item while you're casting your mount or any other spell it will put the item in the combatqueue. As soon as the cast is over the item will be switched.
+
+![](/docs/gm_combat_queue_cast.gif)
+
+This is also the case if you cancel your cast.
+
+![](/docs/gm_combat_queue_cast_cancel.gif)
+
 ### Quick Change
 
 Quick change consists of rules that apply when certain items are used. The player can define rules for items that have a usable effect. An item might be immediately switched after use or only after a certain delay. Otherwise the same rules for item switching apply. This means that if the user is in combat it will be moved to the combat queue and if he is out of combat the item will be immediately switched. See the optionsmenu for defining new rules based on the item type.

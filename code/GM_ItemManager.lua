@@ -141,7 +141,7 @@ function me.EquipItemById(itemId, slotId, itemSlotType)
     all items are added to the combatqueue if the player is in combat.
   ]]--
   if UnitAffectingCombat(RGGM_CONSTANTS.UNIT_ID_PLAYER) or mod.common.IsPlayerReallyDead()
-      or mod.combatQueue.IsEquipChangeBlocked() then
+      or mod.combatQueue.IsEquipChangeBlocked() or mod.common.IsPlayerCasting() then
     mod.combatQueue.AddToQueue(itemId, slotId)
   else
     me.SwitchItems(itemId, slotId)

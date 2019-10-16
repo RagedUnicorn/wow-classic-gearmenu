@@ -67,6 +67,8 @@ function me.RegisterEvents(self)
   self:RegisterEvent("UPDATE_BINDINGS")
   -- Fires when a spell is cast successfully. Event is received even if spell is resisted.
   self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+  -- Fires when a unit's spellcast is interrupted
+  self:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
   -- Fires when the player is affected by some sort of control loss
   self:RegisterEvent("LOSS_OF_CONTROL_ADDED")
   -- Fires when the a loss of control is updated (or removed)
@@ -117,6 +119,10 @@ function me.OnEvent(event, ...)
   elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
     me.logger.LogEvent(me.tag, "UNIT_SPELLCAST_SUCCEEDED")
     me.quickChange.OnUnitSpellCastSucceeded(...)
+    me.combatQueue.ProcessQueue()
+  elseif event == "UNIT_SPELLCAST_INTERRUPTED" then
+    me.logger.LogEvent(me.tag, "UNIT_SPELLCAST_INTERRUPTED")
+    me.combatQueue.ProcessQueue()
   elseif (event == "PLAYER_REGEN_ENABLED" or event == "PLAYER_UNGHOST" or event == "PLAYER_ALIVE")
     and not me.common.IsPlayerReallyDead() then
       if event == "PLAYER_REGEN_ENABLED" then
