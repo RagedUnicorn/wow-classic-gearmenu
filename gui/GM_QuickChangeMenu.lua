@@ -239,7 +239,6 @@ function me.ResetSelectedRule()
   quickchangeRule.to = nil
 end
 
-
 --[[
   Create dropdown to choose from a list of itemTypes
 
@@ -521,6 +520,7 @@ function me.FromFauxScrollFrameOnUpdate(scrollFrame)
   )
 
   local offset = FauxScrollFrame_GetOffset(scrollFrame)
+
   for i = 1, RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MAX_ROWS do
     local value = i + offset
 
@@ -590,6 +590,7 @@ function me.ToFauxScrollFrameOnUpdate(scrollFrame)
   )
 
   local offset = FauxScrollFrame_GetOffset(scrollFrame)
+
   for i = 1, RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MAX_ROWS do
     local value = i + offset
 

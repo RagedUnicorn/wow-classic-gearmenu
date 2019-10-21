@@ -33,28 +33,28 @@ mod.debug = me
 me.tag = "Debug"
 
 _G["__GM__DEBUG__ADD_QUICK_CHANGE_RULE"] = function()
-   local changeFromItemId = 55881 -- Impetuous Query
-   local changeToItemId = 128959 -- Seal of House Wrynn
-   local delay = 10
+  local changeFromItemId = 55881 -- Impetuous Query
+  local changeToItemId = 128959 -- Seal of House Wrynn
+  local delay = 10
 
-   me.AddQuickChangeRule(changeFromItemId, changeToItemId, delay)
+  me.AddQuickChangeRule(changeFromItemId, changeToItemId, delay)
 end
 
 
 _G["__GM__DEBUG__EXECUTE_QUICK_CHANGE_RULE"] = function()
   local quickChangeRules = mod.configuration.GetQuickChangeRules()
 
-   for _, quickChangeRule in ipairs(quickChangeRules) do
-     mod.logger.LogDebug(me.tag, "Switching from: " .. quickChangeRule.changeFromItemId)
-     mod.logger.LogDebug(me.tag, "Switching to: " .. quickChangeRule.changeToItemId)
-     mod.logger.LogDebug(me.tag, "EquipSlot: " .. quickChangeRule.equipSlot)
+  for _, quickChangeRule in ipairs(quickChangeRules) do
+    mod.logger.LogDebug(me.tag, "Switching from: " .. quickChangeRule.changeFromItemId)
+    mod.logger.LogDebug(me.tag, "Switching to: " .. quickChangeRule.changeToItemId)
+    mod.logger.LogDebug(me.tag, "EquipSlot: " .. quickChangeRule.equipSlot)
 
-     if quickChangeRule.delay > 0 then
-       C_Timer.After(quickChangeRule.delay, function()
-         mod.itemManager.EquipItemById(quickChangeRule.changeToItemId, INVSLOT_TRINKET1, quickChangeRule.equipSlot)
-       end)
-     else
-       mod.itemManager.EquipItemById(quickChangeRule.changeToItemId, INVSLOT_TRINKET1, quickChangeRule.equipSlot)
-     end
-   end
+    if quickChangeRule.delay > 0 then
+      C_Timer.After(quickChangeRule.delay, function()
+        mod.itemManager.EquipItemById(quickChangeRule.changeToItemId, INVSLOT_TRINKET1, quickChangeRule.equipSlot)
+      end)
+    else
+      mod.itemManager.EquipItemById(quickChangeRule.changeToItemId, INVSLOT_TRINKET1, quickChangeRule.equipSlot)
+    end
+  end
 end

@@ -308,7 +308,6 @@ function me.UpdateGearSlotCooldown()
     local gearSlotMetaData = mod.gearManager.GetGearSlotForSlotId(slot)
 
     if gearSlotMetaData ~= nil then
-
       local itemId = GetInventoryItemID(RGGM_CONSTANTS.UNIT_ID_PLAYER, gearSlotMetaData.slotId)
 
       if itemId ~= nil then
@@ -506,6 +505,7 @@ function me.GearSlotOnEnter(self)
 
   local slot = mod.configuration.GetSlotForPosition(self.position)
   local gearSlotMetaData = mod.gearManager.GetGearSlotForSlotId(slot)
+
   if gearSlotMetaData ~= nil then
     mod.tooltip.BuildTooltipForWornItem(gearSlotMetaData.slotId)
   end
@@ -517,8 +517,8 @@ end
   @param {table} self
 ]]--
 function me.GearSlotOnLeave(self)
-    self.highlightFrame:Hide()
-    mod.tooltip.TooltipClear()
+  self.highlightFrame:Hide()
+  mod.tooltip.TooltipClear()
 end
 
 --[[
