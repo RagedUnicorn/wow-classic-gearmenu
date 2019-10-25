@@ -482,6 +482,8 @@ function me.GearSlotOnClick(self, button)
     local slot = mod.configuration.GetSlotForPosition(self.position)
     local gearSlotMetaData = mod.gearManager.GetGearSlotForSlotId(slot)
     mod.combatQueue.RemoveFromQueue(gearSlotMetaData.slotId)
+  else
+    return -- ignore other buttons
   end
 
   C_Timer.After(.5, function()
