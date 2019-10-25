@@ -113,7 +113,10 @@ function me.CreateDelaySlider(frame)
   delaySlider:SetHeight(RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_DELAY_SLIDER_HEIGHT)
   delaySlider:SetOrientation('HORIZONTAL')
   delaySlider:SetPoint("TOPLEFT", 10, -440)
-  delaySlider:SetMinMaxValues(RGGM_CONSTANTS.QUICK_CHANGE_DELAY_SLIDER_MIN, 120)
+  delaySlider:SetMinMaxValues(
+    RGGM_CONSTANTS.QUICK_CHANGE_DELAY_SLIDER_MIN,
+    RGGM_CONSTANTS.QUICK_CHANGE_DELAY_SLIDER_MAX
+  )
   delaySlider:SetValueStep(RGGM_CONSTANTS.QUICK_CHANGE_DELAY_SLIDER_STEP)
   delaySlider:SetObeyStepOnDrag(true)
   delaySlider:SetValue(RGGM_CONSTANTS.QUICK_CHANGE_DELAY_SLIDER_MIN)
