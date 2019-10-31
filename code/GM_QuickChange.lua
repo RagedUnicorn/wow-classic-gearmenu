@@ -111,33 +111,62 @@ end
 ]]--
 function me.OnUnitSpellCastSucceeded(...)
   local unitId, _, spellId = ...
-
   -- only interested in spell events that where caused by the player itself
   if unitId ~= RGGM_CONSTANTS.UNIT_ID_PLAYER then return end
 
   for _, quickChangeRule in ipairs(mod.configuration.GetQuickChangeRules()) do
     if spellId == quickChangeRule.spellId then
-      -- found a rule for used spell
-      local slotIds = {}
+      --
+      --[[
+        Found a rule for used spell. Search for all eligible slots that match the inventoryType
+        from the quickChangeRule. Then execute all those rules.
+      ]]--
+      local slotIds = me.CollectEligibleSlotIds(quickChangeRule)
+      me.ExecuteQuickChangeRule(quickChangeRule, slotIds)
+    end
+  end
+end
 
-      for _, gearSlot in ipairs(mod.gearManager.GetGearSlots()) do
-        for _, inventoryType in ipairs(gearSlot.type) do
-          if inventoryType == quickChangeRule.equipSlot then
-            gearSlot.itemId = GetInventoryItemID(RGGM_CONSTANTS.UNIT_ID_PLAYER, gearSlot.slotId)
-            table.insert(slotIds, gearSlot)
-          end
-        end
-      end
+--[[
+  Search for slots that are eligible for a certain quickChangeRule. There can be multiple
+  eligible slots for certain slots such as trinket slots because there are more than one such slots.
 
-      for _, slotMetadata in ipairs(slotIds) do
-        if slotMetadata.itemId == quickChangeRule.changeFromItemId then
-          C_Timer.After(quickChangeRule.delay or 0, function()
-            mod.itemManager.EquipItemById(
-              quickChangeRule.changeToItemId, slotMetadata.slotId, quickChangeRule.equipSlot
-            )
-          end)
-        end
+  @param {table} quickChangeRule
+
+  @return {table}
+    The collected eligible slotIds
+]]--
+function me.CollectEligibleSlotIds(quickChangeRule)
+  local slotIds = {}
+
+  for _, gearSlot in ipairs(mod.gearManager.GetGearSlots()) do
+    for _, inventoryType in ipairs(gearSlot.type) do
+      if inventoryType == quickChangeRule.equipSlot then
+        gearSlot.itemId = GetInventoryItemID(RGGM_CONSTANTS.UNIT_ID_PLAYER, gearSlot.slotId)
+        table.insert(slotIds, gearSlot)
       end
+    end
+  end
+
+  return slotIds
+end
+
+--[[
+  Executes a quickChangeRule once the correct slot was found
+
+  @param {table} quickChangeRule
+  @param {table} slotIds
+]]--
+function me.ExecuteQuickChangeRule(quickChangeRule, slotIds)
+  for _, slotMetadata in ipairs(slotIds) do
+    if slotMetadata.itemId == quickChangeRule.changeFromItemId then
+      C_Timer.After(quickChangeRule.delay or 0, function()
+        mod.itemManager.EquipItemById(
+          quickChangeRule.changeToItemId, slotMetadata.slotId, quickChangeRule.equipSlot
+        )
+      end)
+
+      return -- rule executed - back out
     end
   end
 end
