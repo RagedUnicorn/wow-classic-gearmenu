@@ -211,20 +211,6 @@ function me.FindItemInBag(itemId)
 end
 
 --[[
-  Retrieve itemInfo
-
-  @param {number} slotId
-  @return {string | nil}, {string | nil}, {string | nil}
-]]--
-function me.RetrieveItemInfo(slotId)
-  local link = GetInventoryItemLink(RGGM_CONSTANTS.UNIT_ID_PLAYER, slotId)
-  local _, _, _, id = string.find(link, "item:(%d+)")
-  local _, _, _, _, _, _, _, equipSlot, texture = GetItemInfo(id)
-
-  return texture, id, equipSlot
-end
-
---[[
   Find items in both bags and worn items that have an onUse effect. Duplicate items are filtered
 
   @param {table} inventoryType
