@@ -195,7 +195,7 @@ end
 ]]--
 function me.CreateKeyBindingText(gearSlot, position)
   local keybindingFontString = gearSlot:CreateFontString(nil, "OVERLAY")
-  keybindingFontString:SetFont("Fonts\\FRIZQT__.TTF", 12, "OUTLINE")
+  keybindingFontString:SetFont(STANDARD_TEXT_FONT, 12, "OUTLINE")
   keybindingFontString:SetTextColor(1, .82, 0, 1)
   keybindingFontString:SetPoint("TOP", 0, 1)
   keybindingFontString:SetSize(gearSlot:GetWidth(), 20)
