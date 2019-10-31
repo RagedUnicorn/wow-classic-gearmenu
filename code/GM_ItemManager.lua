@@ -201,7 +201,9 @@ end
 function me.FindItemInBag(itemId)
   for i = 0, 4 do
     for j = 1, GetContainerNumSlots(i) do
-      if string.find(GetContainerItemLink(i, j) or "", itemId, 1, 1) then
+      local _, _, id = string.find(GetContainerItemLink(i, j) or "", "item:(%d+):")
+
+      if tonumber(id) == itemId then
         return i, j
       end
     end
