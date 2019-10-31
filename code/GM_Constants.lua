@@ -153,6 +153,7 @@ RGGM_CONSTANTS = {
   ]]--
   ELEMENT_QUICK_CHANGE_SUB_OPTION_FRAME = "GM_QuickChangeMenuOptionFrame",
   ELEMENT_QUICK_CHANGE_CHOOSE_INVENTORY_TYPE = "GM_QuickChangeChooseCategory",
+  QUICK_CHANGE_BUTTON_MARGIN = 15,
   --[[
     QuickChange rule frame
   ]]--

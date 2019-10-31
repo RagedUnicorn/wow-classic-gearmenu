@@ -157,8 +157,15 @@ function me.CreateAddRuleButton()
     "UIPanelButtonTemplate"
   )
   addRuleButton:SetPoint("RIGHT", 120, 0)
-  addRuleButton:SetWidth(100)  -- can we update the width button:GetTextWidth()
   addRuleButton:SetText(rggm.L["quick_change_add_rule"])
+
+  local buttonSize = addRuleButton:GetTextWidth() + RGGM_CONSTANTS.QUICK_CHANGE_BUTTON_MARGIN
+
+  if buttonSize < 100 then
+    buttonSize = 100
+  end
+
+  addRuleButton:SetWidth(buttonSize)
   addRuleButton:SetScript("OnClick", me.AddRuleOnClick)
 end
 
@@ -207,8 +214,15 @@ function me.CreateRemoveRuleButton(frame)
     "UIPanelButtonTemplate"
   )
   removeRuleButton:SetPoint("TOPLEFT", 480, -200)
-  removeRuleButton:SetWidth(100)
   removeRuleButton:SetText(rggm.L["quick_change_remove_rule"])
+
+  local buttonSize = removeRuleButton:GetTextWidth() + RGGM_CONSTANTS.QUICK_CHANGE_BUTTON_MARGIN
+
+  if buttonSize < 100 then
+    buttonSize = 100
+  end
+
+  removeRuleButton:SetWidth(buttonSize)
   removeRuleButton:SetScript("OnClick", me.RemoveRuleOnClick)
 end
 
