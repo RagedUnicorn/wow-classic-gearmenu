@@ -287,7 +287,7 @@ function me.SizeSliderOnValueChange(self, value)
   mod.configuration.SetSlotSize(value)
 
   --[[
-    Update the gearBar and all of its slots. This includes the combatQueue and cooldown TODO
+    Update the gearBar and all of its slots. This includes the combatQueue and cooldown frames.
   ]]--
   mod.gearBar.UpdateGearBar()
 
