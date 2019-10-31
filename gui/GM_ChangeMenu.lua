@@ -50,7 +50,7 @@ function me.BuildChangeMenu(gearBarFrame)
 
   changeMenuFrame = CreateFrame("Frame", RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_FRAME, gearBarFrame)
   changeMenuFrame:SetWidth(RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT * changeSlotSize)
-  changeMenuFrame:SetHeight(RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_DEFAULT_HEIGHT)
+  changeMenuFrame:SetHeight(RGGM_CONSTANTS.GEAR_BAR_CHANGE_DEFAULT_HEIGHT)
   changeMenuFrame:SetBackdropColor(0, 0, 0, .5)
   changeMenuFrame:SetBackdropBorderColor(0, 0, 0, .8)
   changeMenuFrame:SetPoint("BOTTOMLEFT", gearBarFrame, "TOPLEFT", 5, 0)
@@ -58,7 +58,7 @@ function me.BuildChangeMenu(gearBarFrame)
   local row
   local col = 0
 
-  for position = 1, RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_SLOT_AMOUNT do
+  for position = 1, RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT do
     local xPos
     local yPos
 
@@ -167,7 +167,7 @@ function me.UpdateChangeMenu(gearSlot)
     local items = mod.itemManager.GetItemsForInventoryType(gearSlotMetaData.type)
 
     for index, item in ipairs(items) do
-      if index > RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_SLOT_AMOUNT then
+      if index > RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT then
         mod.logger.LogInfo(me.tag, "All changeMenuSlots are in use skipping rest of items...")
         break
       end
@@ -220,8 +220,8 @@ end
 function me.UpdateChangeMenuSize(items)
   local rows
 
-  if table.getn(items) > RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_SLOT_AMOUNT then
-    rows = RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_SLOT_AMOUNT / RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT
+  if table.getn(items) > RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT then
+    rows = RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT / RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT
   else
     rows = table.getn(items) / RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT
   end

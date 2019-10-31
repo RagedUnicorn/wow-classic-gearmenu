@@ -109,8 +109,8 @@ function me.CreateDelaySlider(frame)
     frame,
     "OptionsSliderTemplate"
   )
-  delaySlider:SetWidth(RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_DELAY_SLIDER_WIDTH)
-  delaySlider:SetHeight(RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_DELAY_SLIDER_HEIGHT)
+  delaySlider:SetWidth(RGGM_CONSTANTS.QUICK_CHANGE_DELAY_SLIDER_WIDTH)
+  delaySlider:SetHeight(RGGM_CONSTANTS.QUICK_CHANGE_DELAY_SLIDER_HEIGHT)
   delaySlider:SetOrientation('HORIZONTAL')
   delaySlider:SetPoint("TOPLEFT", 10, -440)
   delaySlider:SetMinMaxValues(
@@ -347,9 +347,9 @@ function me.CreateRulesList(frame)
     frame,
     "FauxScrollFrameTemplate"
   )
-  rulesScrollFrame:SetWidth(RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_RULES_CONTENT_FRAME_WIDTH)
+  rulesScrollFrame:SetWidth(RGGM_CONSTANTS.QUICK_CHANGE_RULES_CONTENT_FRAME_WIDTH)
   rulesScrollFrame:SetHeight(
-    RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_ROW_HEIGHT * RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MAX_ROWS
+    RGGM_CONSTANTS.QUICK_CHANGE_ROW_HEIGHT * RGGM_CONSTANTS.QUICK_CHANGE_MAX_ROWS
   )
   rulesScrollFrame:SetPoint("TOPLEFT", 10, -50)
   rulesScrollFrame:EnableMouseWheel(true)
@@ -359,7 +359,7 @@ function me.CreateRulesList(frame)
 
   rulesScrollFrame:SetScript("OnVerticalScroll", me.RuleListOnVerticalScroll)
 
-  for i = 1, RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MAX_ROWS do
+  for i = 1, RGGM_CONSTANTS.QUICK_CHANGE_MAX_ROWS do
     table.insert(rulesRows, me.CreateRuleRowFrame(rulesScrollFrame, i))
   end
 
@@ -374,7 +374,7 @@ end
 ]]--
 function me.RuleListOnVerticalScroll(self, offset)
   self.ScrollBar:SetValue(offset)
-  self.offset = math.floor(offset / RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_ROW_HEIGHT + 0.5)
+  self.offset = math.floor(offset / RGGM_CONSTANTS.QUICK_CHANGE_ROW_HEIGHT + 0.5)
   me.RulesScrollFrameOnUpdate(self)
 end
 
@@ -387,8 +387,8 @@ end
 ]]--
 function me.CreateRuleRowFrame(frame, position)
   local row = CreateFrame("Button", RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_RULES_ROW .. position, frame)
-  row:SetSize(frame:GetWidth() -5, RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_ROW_HEIGHT)
-  row:SetPoint("TOPLEFT", frame, 8, (position -1) * RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_ROW_HEIGHT * -1)
+  row:SetSize(frame:GetWidth() -5, RGGM_CONSTANTS.QUICK_CHANGE_ROW_HEIGHT)
+  row:SetPoint("TOPLEFT", frame, 8, (position -1) * RGGM_CONSTANTS.QUICK_CHANGE_ROW_HEIGHT * -1)
 
   local fromItemIcon = row:CreateTexture(nil, "ARTWORK")
   fromItemIcon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
@@ -452,19 +452,19 @@ function me.RulesScrollFrameOnUpdate(scrollFrame)
   local quickChangeRules = mod.configuration.GetQuickChangeRules()
   local maxValue = table.getn(quickChangeRules) or 0
 
-  if maxValue <= RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MAX_ROWS then
-    maxValue = RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MAX_ROWS + 1
+  if maxValue <= RGGM_CONSTANTS.QUICK_CHANGE_MAX_ROWS then
+    maxValue = RGGM_CONSTANTS.QUICK_CHANGE_MAX_ROWS + 1
   end
   -- Note: maxValue needs to be at least max_rows + 1
   FauxScrollFrame_Update(
     scrollFrame,
     maxValue,
-    RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MAX_ROWS,
-    RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_ROW_HEIGHT
+    RGGM_CONSTANTS.QUICK_CHANGE_MAX_ROWS,
+    RGGM_CONSTANTS.QUICK_CHANGE_ROW_HEIGHT
   )
 
   local offset = FauxScrollFrame_GetOffset(scrollFrame)
-  for index = 1, RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MAX_ROWS do
+  for index = 1, RGGM_CONSTANTS.QUICK_CHANGE_MAX_ROWS do
     local value = index + offset
 
     if value <= table.getn(quickChangeRules) then
@@ -501,7 +501,7 @@ function me.CreateFromItemList(frame)
   local fromScrollFrame = me.CreateFauxScrollFrame(
     RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_FROM_SCROLL_FRAME,
     frame,
-    RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_FROM_CONTENT_FRAME_WIDTH,
+    RGGM_CONSTANTS.QUICK_CHANGE_FROM_CONTENT_FRAME_WIDTH,
     me.FromFauxScrollFrameOnUpdate,
     fromRows
   )
@@ -525,20 +525,20 @@ function me.FromFauxScrollFrameOnUpdate(scrollFrame)
   local items = mod.itemManager.FindQuickChangeItems(gearSlot.type, true)
   local maxValue = table.getn(items) or 0
 
-  if maxValue <= RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MAX_ROWS then
-    maxValue = RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MAX_ROWS + 1
+  if maxValue <= RGGM_CONSTANTS.QUICK_CHANGE_MAX_ROWS then
+    maxValue = RGGM_CONSTANTS.QUICK_CHANGE_MAX_ROWS + 1
   end
   -- Note: maxValue needs to be at least max_rows + 1
   FauxScrollFrame_Update(
     scrollFrame,
     maxValue,
-    RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MAX_ROWS,
-    RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_ROW_HEIGHT
+    RGGM_CONSTANTS.QUICK_CHANGE_MAX_ROWS,
+    RGGM_CONSTANTS.QUICK_CHANGE_ROW_HEIGHT
   )
 
   local offset = FauxScrollFrame_GetOffset(scrollFrame)
 
-  for i = 1, RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MAX_ROWS do
+  for i = 1, RGGM_CONSTANTS.QUICK_CHANGE_MAX_ROWS do
     local value = i + offset
 
     if value <= table.getn(items) then
@@ -572,7 +572,7 @@ function me.CreateToItemList(frame)
   local toScrollFrame = me.CreateFauxScrollFrame(
     RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_TO_SCROLL_FRAME,
     frame,
-    RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_TO_CONTENT_FRAME_WIDTH,
+    RGGM_CONSTANTS.QUICK_CHANGE_TO_CONTENT_FRAME_WIDTH,
     me.ToFauxScrollFrameOnUpdate,
     toRows
   )
@@ -595,20 +595,20 @@ function me.ToFauxScrollFrameOnUpdate(scrollFrame)
   local items = mod.itemManager.FindQuickChangeItems(gearSlot.type, false)
   local maxValue = table.getn(items) or 0
 
-  if maxValue <= RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MAX_ROWS then
-    maxValue = RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MAX_ROWS + 1
+  if maxValue <= RGGM_CONSTANTS.QUICK_CHANGE_MAX_ROWS then
+    maxValue = RGGM_CONSTANTS.QUICK_CHANGE_MAX_ROWS + 1
   end
   -- Note: maxValue needs to be at least max_rows + 1
   FauxScrollFrame_Update(
     scrollFrame,
     maxValue,
-    RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MAX_ROWS,
-    RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_ROW_HEIGHT
+    RGGM_CONSTANTS.QUICK_CHANGE_MAX_ROWS,
+    RGGM_CONSTANTS.QUICK_CHANGE_ROW_HEIGHT
   )
 
   local offset = FauxScrollFrame_GetOffset(scrollFrame)
 
-  for i = 1, RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MAX_ROWS do
+  for i = 1, RGGM_CONSTANTS.QUICK_CHANGE_MAX_ROWS do
     local value = i + offset
 
     if value <= table.getn(items) then
@@ -647,7 +647,7 @@ end
 function me.CreateFauxScrollFrame(scrollFrameName, frame, width, callback, storage)
   local scrollFrame = CreateFrame("ScrollFrame", scrollFrameName, frame, "FauxScrollFrameTemplate")
   scrollFrame:SetWidth(width)
-  scrollFrame:SetHeight(RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_ROW_HEIGHT * RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MAX_ROWS)
+  scrollFrame:SetHeight(RGGM_CONSTANTS.QUICK_CHANGE_ROW_HEIGHT * RGGM_CONSTANTS.QUICK_CHANGE_MAX_ROWS)
   scrollFrame:EnableMouseWheel(true)
   scrollFrame:SetBackdrop({
     bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background"
@@ -655,11 +655,11 @@ function me.CreateFauxScrollFrame(scrollFrameName, frame, width, callback, stora
 
   scrollFrame:SetScript("OnVerticalScroll", function(self, offset)
     self.ScrollBar:SetValue(offset)
-    self.offset = math.floor(offset / RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_ROW_HEIGHT + 0.5)
+    self.offset = math.floor(offset / RGGM_CONSTANTS.QUICK_CHANGE_ROW_HEIGHT + 0.5)
     callback(self)
   end)
 
-  for i = 1, RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MAX_ROWS do
+  for i = 1, RGGM_CONSTANTS.QUICK_CHANGE_MAX_ROWS do
     table.insert(storage, me.CreateRowFrames(scrollFrame, i))
   end
 
@@ -675,8 +675,8 @@ end
 ]]--
 function me.CreateRowFrames(frame, position)
   local row = CreateFrame("Button", RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_CONTENT_FRAME_ROW .. position, frame)
-  row:SetSize(frame:GetWidth(), RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_ROW_HEIGHT)
-  row:SetPoint("TOPLEFT", frame, 0, (position -1) * RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_ROW_HEIGHT * -1)
+  row:SetSize(frame:GetWidth(), RGGM_CONSTANTS.QUICK_CHANGE_ROW_HEIGHT)
+  row:SetPoint("TOPLEFT", frame, 0, (position -1) * RGGM_CONSTANTS.QUICK_CHANGE_ROW_HEIGHT * -1)
 
   local itemIcon = row:CreateTexture(nil, "ARTWORK")
   itemIcon:SetTexCoord(0.07, 0.93, 0.07, 0.93)

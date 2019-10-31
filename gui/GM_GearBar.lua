@@ -51,9 +51,9 @@ function me.BuildGearBar()
   local gearBarSlotSize = mod.configuration.GetSlotSize()
 
   gearBarFrame:SetWidth(
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT_AMOUNT * gearBarSlotSize + RGGM_CONSTANTS.ELEMENT_GEAR_BAR_WIDTH_MARGIN
+    RGGM_CONSTANTS.GEAR_BAR_SLOT_AMOUNT * gearBarSlotSize + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN
   )
-  gearBarFrame:SetHeight(gearBarSlotSize + RGGM_CONSTANTS.ELEMENT_GEAR_BAR_HEIGHT_MARGIN)
+  gearBarFrame:SetHeight(gearBarSlotSize + RGGM_CONSTANTS.GEAR_BAR_HEIGHT_MARGIN)
 
   if not mod.configuration.IsGearBarLocked() then
     gearBarFrame:SetBackdrop({
@@ -69,7 +69,7 @@ function me.BuildGearBar()
   me.SetupDragFrame(gearBarFrame)
 
   -- create all gearSlots
-  for i = 1, RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT_AMOUNT do
+  for i = 1, RGGM_CONSTANTS.GEAR_BAR_SLOT_AMOUNT do
     me.CreateGearSlot(gearBarFrame, i)
   end
 
@@ -104,8 +104,8 @@ function me.CreateGearSlot(gearBarFrame, position)
     "LEFT",
     gearBarFrame,
     "LEFT",
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT_X + (position - 1) * gearBarSlotSize,
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT_Y
+    RGGM_CONSTANTS.GEAR_BAR_SLOT_X + (position - 1) * gearBarSlotSize,
+    RGGM_CONSTANTS.GEAR_BAR_SLOT_Y
   )
 
   local backdrop = {
@@ -164,7 +164,7 @@ end
 function me.CreateCombatQueueSlot(gearSlot)
   local combatQueueSlot = CreateFrame("Frame", RGGM_CONSTANTS.ELEMENT_GEAR_BAR_COMBAT_QUEUE_SLOT, gearSlot)
   local combatQeueuSlotSize = mod.configuration.GetSlotSize()
-    * RGGM_CONSTANTS.ELEMENT_GEAR_BAR_COMBAT_QUEUE_SLOT_SIZE_MODIFIER
+    * RGGM_CONSTANTS.GEAR_BAR_COMBAT_QUEUE_SLOT_SIZE_MODIFIER
 
   combatQueueSlot:SetSize(
     combatQeueuSlotSize,
@@ -296,8 +296,8 @@ end
 function me.UpdateGearBarSize(slotCount)
   local gearBarSlotSize = mod.configuration.GetSlotSize()
   local gearBarWidth = slotCount * gearBarSlotSize
-    + RGGM_CONSTANTS.ELEMENT_GEAR_BAR_WIDTH_MARGIN
-  local gearBarHeight = gearBarSlotSize + RGGM_CONSTANTS.ELEMENT_GEAR_BAR_HEIGHT_MARGIN
+    + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN
+  local gearBarHeight = gearBarSlotSize + RGGM_CONSTANTS.GEAR_BAR_HEIGHT_MARGIN
 
   _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME]:SetSize(gearBarWidth, gearBarHeight)
 end
@@ -324,8 +324,8 @@ function me.UpdateSlotPosition()
       "LEFT",
       _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME],
       "LEFT",
-      RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT_X + (position - 1) * mod.configuration.GetSlotSize(),
-      RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT_Y
+      RGGM_CONSTANTS.GEAR_BAR_SLOT_X + (position - 1) * mod.configuration.GetSlotSize(),
+      RGGM_CONSTANTS.GEAR_BAR_SLOT_Y
     )
 
     position = position + 1

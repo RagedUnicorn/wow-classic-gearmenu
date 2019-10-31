@@ -43,7 +43,7 @@ local builtMenu = false
 function me.BuildUi(frame)
   if builtMenu then return end
 
-  for i = 1, RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT_AMOUNT do
+  for i = 1, RGGM_CONSTANTS.GEAR_BAR_SLOT_AMOUNT do
     local gearSlotDropdownMenu = me.CreateGearSlotDropdown(frame, i)
     me.CreateGearSlotLabel(frame, gearSlotDropdownMenu, i)
   end
