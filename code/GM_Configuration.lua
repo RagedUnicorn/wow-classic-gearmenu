@@ -78,6 +78,10 @@ GearMenuConfiguration = {
   ]]--
   ["filterItemQuality"] = 2,
   --[[
+    Base size for a slot such as the changeMenu and gearBar
+  ]]--
+  ["slotSize"] = RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE,
+  --[[
     Initial default slot mapping
   ]]--
   ["slots"] = {
@@ -173,6 +177,11 @@ function me.SetupConfiguration()
   if GearMenuConfiguration.filterItemQuality == nil then
     mod.logger.LogInfo(me.tag, "filterItemQuality has unexpected nil value")
     GearMenuConfiguration.filterItemQuality = 0
+  end
+
+  if GearMenuConfiguration.slotSize == nil then
+    mod.logger.LogInfo(me.tag, "slotSize has unexpected nil value")
+    GearMenuConfiguration.slotSize = RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE
   end
 
   if GearMenuConfiguration.slots == nil then
@@ -420,6 +429,24 @@ end
 ]]--
 function me.GetFilterItemQuality()
   return GearMenuConfiguration.filterItemQuality
+end
+
+--[[
+  Update the gearbar slotSize
+
+  @param {number} slotSize
+]]--
+function me.SetSlotSize(slotSize)
+  GearMenuConfiguration.slotSize = slotSize
+end
+
+--[[
+  Get the configured gearbar slotsize
+
+  @return {number}
+]]--
+function me.GetSlotSize()
+  return GearMenuConfiguration.slotSize
 end
 
 --[[

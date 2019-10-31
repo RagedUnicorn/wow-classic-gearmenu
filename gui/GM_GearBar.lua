@@ -26,7 +26,7 @@
 -- luacheck: globals CreateFrame UIParent GetBindingText GetBindingKey GetInventoryItemID GetItemCooldown
 -- luacheck: globals GetInventoryItemLink GetItemInfo GetContainerItemInfo C_Timer MouseIsOver
 -- luacheck: globals CursorCanGoInSlot EquipCursorItem ClearCursor IsInventoryItemLocked PickupInventoryItem
--- luacheck: globals InCombatLockdown
+-- luacheck: globals InCombatLockdown STANDARD_TEXT_FONT
 
 local mod = rggm
 local me = {}
@@ -48,10 +48,12 @@ local gearSlots = {}
 ]]--
 function me.BuildGearBar()
   local gearBarFrame = CreateFrame("Frame", RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME, UIParent)
+  local gearBarSlotSize = mod.configuration.GetSlotSize()
+
   gearBarFrame:SetWidth(
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_WIDTH + RGGM_CONSTANTS.ELEMENT_GEAR_BAR_WIDTH_MARGIN
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT_AMOUNT * gearBarSlotSize + RGGM_CONSTANTS.ELEMENT_GEAR_BAR_WIDTH_MARGIN
   )
-  gearBarFrame:SetHeight(RGGM_CONSTANTS.ELEMENT_GEAR_BAR_HEIGHT)
+  gearBarFrame:SetHeight(gearBarSlotSize + RGGM_CONSTANTS.ELEMENT_GEAR_BAR_HEIGHT_MARGIN)
 
   if not mod.configuration.IsGearBarLocked() then
     gearBarFrame:SetBackdrop({
@@ -94,13 +96,15 @@ function me.CreateGearSlot(gearBarFrame, position)
     "SecureActionButtonTemplate"
   )
 
+  local gearBarSlotSize = mod.configuration.GetSlotSize()
+
   gearSlot:SetFrameLevel(gearBarFrame:GetFrameLevel() + 1)
-  gearSlot:SetSize(RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT_SIZE, RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT_SIZE)
+  gearSlot:SetSize(gearBarSlotSize, gearBarSlotSize)
   gearSlot:SetPoint(
     "LEFT",
     gearBarFrame,
     "LEFT",
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT_X + (position - 1) * RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT_SIZE,
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT_X + (position - 1) * gearBarSlotSize,
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT_Y
   )
 
@@ -139,7 +143,7 @@ function me.CreateGearSlot(gearBarFrame, position)
   mod.uiHelper.CreateCooldownOverlay(
     gearSlot,
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT_COOLDOWN_FRAME,
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT_COOLDOWN_SIZE
+    gearBarSlotSize
   )
 
   me.SetupEvents(gearSlot)
@@ -159,9 +163,12 @@ end
 ]]--
 function me.CreateCombatQueueSlot(gearSlot)
   local combatQueueSlot = CreateFrame("Frame", RGGM_CONSTANTS.ELEMENT_GEAR_BAR_COMBAT_QUEUE_SLOT, gearSlot)
+  local combatQeueuSlotSize = mod.configuration.GetSlotSize()
+    * RGGM_CONSTANTS.ELEMENT_GEAR_BAR_COMBAT_QUEUE_SLOT_SIZE_MODIFIER
+
   combatQueueSlot:SetSize(
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_COMBAT_QUEUE_SLOT_SIZE,
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_COMBAT_QUEUE_SLOT_SIZE
+    combatQeueuSlotSize,
+    combatQeueuSlotSize
   )
   combatQueueSlot:SetPoint("TOPRIGHT", gearSlot)
 
@@ -229,6 +236,7 @@ function me.UpdateGearBar()
   end
 
   local slotCount = 0
+  local gearBarSlotSize = mod.configuration.GetSlotSize()
 
   for index, gearSlot in pairs(gearSlots) do
     local slot = mod.configuration.GetSlotForPosition(index)
@@ -245,12 +253,24 @@ function me.UpdateGearBar()
       -- slot is inactive
       gearSlot:Hide()
     end
+
+    -- update slotsize to match configuration
+    gearSlot:SetSize(gearBarSlotSize, gearBarSlotSize)
+    gearSlot.cooldownOverlay:SetSize(gearBarSlotSize, gearBarSlotSize)
+    gearSlot.cooldownOverlay:GetRegions()
+      :SetFont(
+        STANDARD_TEXT_FONT,
+        mod.configuration.GetSlotSize() * RGGM_CONSTANTS.GEAR_BAR_CHANGE_COOLDOWN_TEXT_MODIFIER
+      )
+
+    gearSlot.keyBindingText
+      :SetFont(
+        STANDARD_TEXT_FONT,
+        mod.configuration.GetSlotSize() * RGGM_CONSTANTS.GEAR_BAR_CHANGE_KEYBIND_TEXT_MODIFIER
+      )
   end
 
-  local gearBarWidth = slotCount * RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT_SIZE
-    + RGGM_CONSTANTS.ELEMENT_GEAR_BAR_WIDTH_MARGIN
-  _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME]:SetWidth(gearBarWidth)
-
+  me.UpdateGearBarSize(slotCount)
   me.UpdateSlotPosition()
 end
 
@@ -266,6 +286,20 @@ function me.UpdateGearBarTextures()
       me.UpdateTexture(gearSlot, gearSlotMetaData)
     end
   end
+end
+
+--[[
+  Update the size of the gearBar itself depending on how many slots are active
+
+  @param {number} slotCount
+]]--
+function me.UpdateGearBarSize(slotCount)
+  local gearBarSlotSize = mod.configuration.GetSlotSize()
+  local gearBarWidth = slotCount * gearBarSlotSize
+    + RGGM_CONSTANTS.ELEMENT_GEAR_BAR_WIDTH_MARGIN
+  local gearBarHeight = gearBarSlotSize + RGGM_CONSTANTS.ELEMENT_GEAR_BAR_HEIGHT_MARGIN
+
+  _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME]:SetSize(gearBarWidth, gearBarHeight)
 end
 
 --[[
@@ -290,7 +324,7 @@ function me.UpdateSlotPosition()
       "LEFT",
       _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME],
       "LEFT",
-      RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT_X + (position - 1) * RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT_SIZE,
+      RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT_X + (position - 1) * mod.configuration.GetSlotSize(),
       RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT_Y
     )
 

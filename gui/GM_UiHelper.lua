@@ -63,6 +63,12 @@ function me.CreateCooldownOverlay(slot, frameName, slotSize)
   cooldownOverlay:SetSize(slotSize, slotSize)
   cooldownOverlay:SetAllPoints()
   cooldownOverlay:Hide()
+  -- set fontsize based on slotsize
+  cooldownOverlay:GetRegions()
+    :SetFont(
+      STANDARD_TEXT_FONT,
+      mod.configuration.GetSlotSize() * RGGM_CONSTANTS.GEAR_BAR_CHANGE_COOLDOWN_TEXT_MODIFIER
+    )
 
   slot.cooldownOverlay = cooldownOverlay
 end

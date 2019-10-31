@@ -44,6 +44,9 @@ rggm.L["item_quality_uncommon"] = "Uncommon (Green)"
 rggm.L["item_quality_rare"] = "Rare (Blue)"
 rggm.L["item_quality_epic"] = "Epic (Purple)"
 rggm.L["item_quality_legendary"] = "Legendary (Orange)"
+rggm.L["size_slider_title"] = "Gearslot size"
+rggm.L["size_slider_tooltip"] = "Modify the size of the Gearslots. Different elements will also adapt to the "
+  .. "size of the Gearslot"
 
 -- gearslots
 rggm.L["gearslot_category_name"] = "Gearslots"

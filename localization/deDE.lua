@@ -45,6 +45,9 @@ if (GetLocale() == "deDE") then
   rggm.L["item_quality_rare"] = "Selten (Blau)"
   rggm.L["item_quality_epic"] = "Episch (Violet)"
   rggm.L["item_quality_legendary"] = "Legendär (Orange)"
+  rggm.L["size_slider_title"] = "Ausrüstungsslot Grösse"
+  rggm.L["size_slider_tooltip"] = "Verändere die Grösse der Ausrüstungsslots. Andere Elemente passen sich ebbenfalls "
+    .. "an die Grösse des Ausrüstungsslots an"
 
   -- gearslots
   rggm.L["gearslot_category_name"] = "Ausrüstungsslots"

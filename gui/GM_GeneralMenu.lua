@@ -127,6 +127,7 @@ function me.BuildUi(frame)
 
   me.CreateItemQualityLabel(frame)
   me.CreateItemQualityDropdown(frame)
+  me.CreateSizeSlider(frame)
 
   builtMenu = true
 end
@@ -144,8 +145,8 @@ end
 function me.BuildCheckButtonOption(parentFrame, optionFrameName, posX, posY, onShowCallback, onClickCallback)
   local checkButtonOptionFrame = CreateFrame("CheckButton", optionFrameName, parentFrame, "UICheckButtonTemplate")
   checkButtonOptionFrame:SetSize(
-    RGGM_CONSTANTS.ELEMENT_GENERAL_CHECK_OPTION_SIZE,
-    RGGM_CONSTANTS.ELEMENT_GENERAL_CHECK_OPTION_SIZE
+    RGGM_CONSTANTS.GENERAL_CHECK_OPTION_SIZE,
+    RGGM_CONSTANTS.GENERAL_CHECK_OPTION_SIZE
   )
   checkButtonOptionFrame:SetPoint("TOPLEFT", posX, posY)
 
@@ -238,6 +239,66 @@ function me.CreateItemQualityDropdown(frame)
   itemQualityDropdownMenu:SetPoint("TOPLEFT", 20, -320)
 
   UIDropDownMenu_Initialize(itemQualityDropdownMenu, me.InitializeDropdownMenu)
+end
+
+--[[
+  Create a slider for changing the size of the gearSlots
+
+  @param {table} frame
+]]--
+function me.CreateSizeSlider(frame)
+  local sizeSlider = CreateFrame(
+    "Slider",
+    RGGM_CONSTANTS.ELEMENT_GENERAL_SIZE_SLIDER,
+    frame,
+    "OptionsSliderTemplate"
+  )
+  sizeSlider:SetWidth(RGGM_CONSTANTS.GENERAL_SIZE_SLIDER_WIDTH)
+  sizeSlider:SetHeight(RGGM_CONSTANTS.GENERAL_SIZE_SLIDER_HEIGHT)
+  sizeSlider:SetOrientation('HORIZONTAL')
+  sizeSlider:SetPoint("TOPLEFT", 20, -380)
+  sizeSlider:SetMinMaxValues(RGGM_CONSTANTS.GENERAL_SIZE_SLIDER_MIN, RGGM_CONSTANTS.GENERAL_SIZE_SLIDER_MAX)
+  sizeSlider:SetValueStep(RGGM_CONSTANTS.QUICK_CHANGE_DELAY_SLIDER_STEP)
+  sizeSlider:SetObeyStepOnDrag(true)
+  sizeSlider:SetValue(mod.configuration.GetSlotSize())
+
+  -- Update slider texts
+  _G[sizeSlider:GetName() .. "Low"]:SetText(RGGM_CONSTANTS.GENERAL_SIZE_SLIDER_MIN)
+  _G[sizeSlider:GetName() .. "High"]:SetText(RGGM_CONSTANTS.GENERAL_SIZE_SLIDER_MAX)
+  _G[sizeSlider:GetName() .. "Text"]:SetText(rggm.L["size_slider_title"])
+  sizeSlider.tooltipText = rggm.L["size_slider_tooltip"]
+
+  local valueFontString = sizeSlider:CreateFontString(nil, "OVERLAY")
+  valueFontString:SetFont(STANDARD_TEXT_FONT, 12)
+  valueFontString:SetPoint("BOTTOM", 0, -15)
+  valueFontString:SetText(sizeSlider:GetValue())
+
+  sizeSlider.valueFontString = valueFontString
+  sizeSlider:SetScript("OnValueChanged", me.SizeSliderOnValueChange)
+end
+
+--[[
+  OnValueChanged callback for size slider
+
+  @param {table} self
+  @param {number} value
+]]--
+function me.SizeSliderOnValueChange(self, value)
+  mod.configuration.SetSlotSize(value)
+
+  --[[
+    Update the gearBar and all of its slots. This includes the combatQueue and cooldown TODO
+  ]]--
+  mod.gearBar.UpdateGearBar()
+
+  --[[
+    Updating only the size of the changemenuslots and not the changeMenu that contains
+    those slots. The menu itself will automatically update once the player hovers over an
+    gearslot and those values need to be recalculated.
+  ]]--
+  mod.changeMenu.UpdateChangeMenuSlotSize()
+
+  self.valueFontString:SetText(value)
 end
 
 --[[

@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals CreateFrame MouseIsOver GetItemCooldown
+-- luacheck: globals CreateFrame MouseIsOver GetItemCooldown STANDARD_TEXT_FONT
 
 local mod = rggm
 local me = {}
@@ -46,9 +46,11 @@ local lastGearSlotHovered
   @param {table} gearBarFrame
 ]]--
 function me.BuildChangeMenu(gearBarFrame)
+  local changeSlotSize = mod.configuration.GetSlotSize()
+
   changeMenuFrame = CreateFrame("Frame", RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_FRAME, gearBarFrame)
-  changeMenuFrame:SetWidth(RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_WIDTH)
-  changeMenuFrame:SetHeight(RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_HEIGHT)
+  changeMenuFrame:SetWidth(RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT * changeSlotSize)
+  changeMenuFrame:SetHeight(RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_DEFAULT_HEIGHT)
   changeMenuFrame:SetBackdropColor(0, 0, 0, .5)
   changeMenuFrame:SetBackdropBorderColor(0, 0, 0, .8)
   changeMenuFrame:SetPoint("BOTTOMLEFT", gearBarFrame, "TOPLEFT", 5, 0)
@@ -64,14 +66,14 @@ function me.BuildChangeMenu(gearBarFrame)
       -- left
       row = 0
 
-      yPos = col * RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_SLOT_SIZE
-      xPos = row * RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_SLOT_SIZE
+      yPos = col * changeSlotSize
+      xPos = row * changeSlotSize
     else
       -- right
       row = 1
 
-      yPos = col * RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_SLOT_SIZE
-      xPos = row * RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_SLOT_SIZE
+      yPos = col * changeSlotSize
+      xPos = row * changeSlotSize
       col = col + 1
     end
 
@@ -97,9 +99,10 @@ end
 ]]--
 function me.CreateChangeSlot(frame, position, xPos, yPos)
   local changeSlot = CreateFrame("Button", RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT .. position, frame)
+  local changeSlotSize = mod.configuration.GetSlotSize()
 
   changeSlot:SetFrameLevel(frame:GetFrameLevel() + 1)
-  changeSlot:SetSize(RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_SLOT_SIZE, RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_SLOT_SIZE)
+  changeSlot:SetSize(changeSlotSize, changeSlotSize)
   changeSlot:SetPoint(
     "BOTTOMLEFT",
     frame,
@@ -130,7 +133,7 @@ function me.CreateChangeSlot(frame, position, xPos, yPos)
   mod.uiHelper.CreateCooldownOverlay(
     changeSlot,
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_COOLDOWN_FRAME,
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_COOLDOWN_SIZE
+    changeSlotSize
   )
 
   table.insert(changeMenuSlots, changeSlot) -- store changeSlot
@@ -218,15 +221,15 @@ function me.UpdateChangeMenuSize(items)
   local rows
 
   if table.getn(items) > RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_SLOT_AMOUNT then
-    rows = RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_SLOT_AMOUNT / 2
+    rows = RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_SLOT_AMOUNT / RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT
   else
-    rows = table.getn(items) / 2
+    rows = table.getn(items) / RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT
   end
 
   -- special case for if only one row needs to be displayed
   if rows < 1 then rows = 1 end
 
-  changeMenuFrame:SetHeight(math.ceil(rows) * RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_SLOT_SIZE)
+  changeMenuFrame:SetHeight(math.ceil(rows) * mod.configuration.GetSlotSize())
 end
 
 --[[
@@ -253,6 +256,51 @@ function me.UpdateChangeMenuCooldownState()
         changeMenuSlot.cooldownOverlay:Hide()
       end
     end
+  end
+end
+
+--[[
+ Update the size of all changeMenuSlots after the gearSlot size was changed
+]]--
+function me.UpdateChangeMenuSlotSize()
+  local changeSlotSize = mod.configuration.GetSlotSize()
+  local row
+  local col = 0
+
+  for index, changeMenuSlot in pairs(changeMenuSlots) do
+    local xPos
+    local yPos
+
+    if math.fmod(index, 2) ~= 0 then
+      -- left
+      row = 0
+
+      yPos = col * changeSlotSize
+      xPos = row * changeSlotSize
+    else
+      -- right
+      row = 1
+
+      yPos = col * changeSlotSize
+      xPos = row * changeSlotSize
+      col = col + 1
+    end
+
+    changeMenuSlot:SetPoint(
+      "BOTTOMLEFT",
+      changeMenuFrame,
+      "BOTTOMLEFT",
+      xPos,
+      yPos
+    )
+
+    changeMenuSlot:SetSize(changeSlotSize, changeSlotSize)
+    changeMenuSlot.cooldownOverlay:SetSize(changeSlotSize, changeSlotSize)
+    changeMenuSlot.cooldownOverlay:GetRegions()
+      :SetFont(
+        STANDARD_TEXT_FONT,
+        mod.configuration.GetSlotSize() * RGGM_CONSTANTS.GEAR_BAR_CHANGE_COOLDOWN_TEXT_MODIFIER
+      )
   end
 end
 
