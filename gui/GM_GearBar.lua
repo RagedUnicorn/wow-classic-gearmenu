@@ -195,10 +195,10 @@ end
 ]]--
 function me.CreateKeyBindingText(gearSlot, position)
   local keybindingFontString = gearSlot:CreateFontString(nil, "OVERLAY")
-  keybindingFontString:SetFont(STANDARD_TEXT_FONT, 12, "OUTLINE")
-  keybindingFontString:SetTextColor(1, .82, 0, 1)
+  keybindingFontString:SetTextColor(1, 1, 1, 1)
   keybindingFontString:SetPoint("TOP", 0, 1)
   keybindingFontString:SetSize(gearSlot:GetWidth(), 20)
+  me.SetKeyBindingFont(keybindingFontString)
   keybindingFontString:SetText(
     GetBindingText(GetBindingKey("CLICK GM_GearBarSlot_" .. position .. ":LeftButton"), "KEY_", 1)
   )
@@ -210,6 +210,17 @@ function me.CreateKeyBindingText(gearSlot, position)
   end
 
   return keybindingFontString
+end
+
+--[[
+  @param {string} keybindingFontString
+]]--
+function me.SetKeyBindingFont(keybindingFontString)
+  keybindingFontString:SetFont(
+    STANDARD_TEXT_FONT,
+    mod.configuration.GetSlotSize() * RGGM_CONSTANTS.GEAR_BAR_CHANGE_KEYBIND_TEXT_MODIFIER,
+    "THICKOUTLINE"
+  )
 end
 
 --[[
@@ -263,11 +274,7 @@ function me.UpdateGearBar()
         mod.configuration.GetSlotSize() * RGGM_CONSTANTS.GEAR_BAR_CHANGE_COOLDOWN_TEXT_MODIFIER
       )
 
-    gearSlot.keyBindingText
-      :SetFont(
-        STANDARD_TEXT_FONT,
-        mod.configuration.GetSlotSize() * RGGM_CONSTANTS.GEAR_BAR_CHANGE_KEYBIND_TEXT_MODIFIER
-      )
+    me.SetKeyBindingFont(gearSlot.keyBindingText)
   end
 
   me.UpdateGearBarSize(slotCount)
