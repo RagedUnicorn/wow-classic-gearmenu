@@ -14,7 +14,7 @@
     <addon.name>GearMenu</addon.name>
     <addon.name.short>GM</addon.name.short>
     <addon.tag.version>v${project.version}</addon.tag.version>
-    <addon.interface>11302</addon.interface>
+    <addon.interface>11303</addon.interface>
     <addon.identifier>${project.groupId}.${project.artifactId}</addon.identifier>
   </properties>
 
