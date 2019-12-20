@@ -42,8 +42,20 @@ function me.PrepareSlotTexture(slot)
   slot:SetNormalTexture("//dummy")
   local texture = slot:GetNormalTexture()
   texture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-  texture:SetPoint("TOPLEFT", slot, "TOPLEFT", 4, -4)
-  texture:SetPoint("BOTTOMRIGHT", slot, "BOTTOMRIGHT", -4, 4)
+  texture:SetPoint(
+    "TOPLEFT",
+    slot,
+    "TOPLEFT",
+    mod.configuration.GetSlotSize() * RGGM_CONSTANTS.GEAR_BAR_SLOT_BORDER_MODIFIER,
+    mod.configuration.GetSlotSize() * RGGM_CONSTANTS.GEAR_BAR_SLOT_BORDER_MODIFIER * -1
+  )
+  texture:SetPoint(
+    "BOTTOMRIGHT",
+    slot,
+    "BOTTOMRIGHT",
+    mod.configuration.GetSlotSize() * RGGM_CONSTANTS.GEAR_BAR_SLOT_BORDER_MODIFIER * -1,
+    mod.configuration.GetSlotSize() * RGGM_CONSTANTS.GEAR_BAR_SLOT_BORDER_MODIFIER
+  )
 end
 
 --[[
