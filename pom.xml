@@ -16,6 +16,8 @@
     <addon.tag.version>v${project.version}</addon.tag.version>
     <addon.interface>11303</addon.interface>
     <addon.identifier>${project.groupId}.${project.artifactId}</addon.identifier>
+    <addon.project.id>345496</addon.project.id>
+    <addon.project.categories>Action Bars Combat PvP</addon.project.categories>
   </properties>
 
   <profiles>
