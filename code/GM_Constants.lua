@@ -54,6 +54,7 @@ RGGM_CONSTANTS = {
     Unit ids
   ]]--
   UNIT_ID_PLAYER = "player",
+  UNIT_ID_TARGET = "target",
   ITEMQUALITY = {
     poor = 0,
     common = 1,
@@ -77,6 +78,7 @@ RGGM_CONSTANTS = {
   CHANGE_MENU_UPDATE_INTERVAL = 0.05,
   SLOT_COOLDOWN_UPDATE_INTERVAL = 0.1,
   COMBAT_QUEUE_UPDATE_INTERVAL = 0.1,
+  RANGE_CHECK_UPDATE_INTERVAL = 0.1,
   --[[
     Addon configuration
   ]]--

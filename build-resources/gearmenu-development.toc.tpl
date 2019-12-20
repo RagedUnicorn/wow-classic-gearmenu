@@ -22,6 +22,7 @@ code/GM_Ticker.lua
 code/GM_Constants.lua
 code/GM_Common.lua
 code/GM_Tooltip.lua
+code/GM_Target.lua
 code/GM_GearManager.lua
 code/GM_ItemManager.lua
 code/GM_CombatQueue.lua

@@ -73,6 +73,8 @@ function me.RegisterEvents(self)
   self:RegisterEvent("LOSS_OF_CONTROL_ADDED")
   -- Fires when the a loss of control is updated (or removed)
   self:RegisterEvent("LOSS_OF_CONTROL_UPDATE")
+  -- Register to the event that fires when the players target changes
+  self:RegisterEvent("PLAYER_TARGET_CHANGED")
 end
 
 --[[
@@ -137,6 +139,9 @@ function me.OnEvent(event, ...)
   elseif event == "PLAYER_REGEN_DISABLED" then
     me.logger.LogEvent(me.tag, "PLAYER_REGEN_DISABLED")
     me.ticker.StopTickerCombatQueue()
+  elseif event == "PLAYER_TARGET_CHANGED" then
+    me.logger.LogEvent(me.tag, "PLAYER_TARGET_CHANGED")
+    me.target.UpdateCurrentTarget()
   end
 end
 
@@ -159,6 +164,10 @@ function me.Initialize()
   me.ticker.StartTickerSlotCooldown()
   -- Update initial view of cooldowns after addon initialization
   me.gearBar.UpdateGearSlotCooldown()
+  -- start ticker range check
+  if me.configuration.IsShowKeyBindingsEnabled() then
+    me.ticker.StartTickerRangeCheck()
+  end
   -- update initial view of gearBar after addon initialization
   me.gearBar.UpdateGearBar()
 

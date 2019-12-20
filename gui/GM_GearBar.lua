@@ -26,7 +26,7 @@
 -- luacheck: globals CreateFrame UIParent GetBindingText GetBindingKey GetInventoryItemID GetItemCooldown
 -- luacheck: globals GetInventoryItemLink GetItemInfo GetContainerItemInfo C_Timer MouseIsOver
 -- luacheck: globals CursorCanGoInSlot EquipCursorItem ClearCursor IsInventoryItemLocked PickupInventoryItem
--- luacheck: globals InCombatLockdown STANDARD_TEXT_FONT
+-- luacheck: globals InCombatLockdown STANDARD_TEXT_FONT IsItemInRange
 
 local mod = rggm
 local me = {}
@@ -232,6 +232,36 @@ function me.UpdateKeyBindings()
 
     if keyBindingText ~= nil then
       gearSlot.keyBindingText:SetText(keyBindingText)
+    end
+  end
+end
+
+--[[
+  Update visual display of itemrange for all gearslots
+]]--
+function me.UpdateSpellRange()
+  for index, gearSlot in pairs(gearSlots) do
+    if mod.target.GetCurrentTargetGuid() == "" then
+      gearSlot.keyBindingText:SetTextColor(1, 1, 1, 1)
+    else
+      local slot = mod.configuration.GetSlotForPosition(index)
+      local gearSlotMetaData = mod.gearManager.GetGearSlotForSlotId(slot)
+
+      if gearSlotMetaData ~= nil then
+        local itemLink = GetInventoryItemLink(RGGM_CONSTANTS.UNIT_ID_PLAYER, gearSlotMetaData.slotId)
+        --[[
+          - Returns true if item is in range
+          - Returns false if item is not in range
+          - Returns nil if not applicable(e.g. item is passive only) or the slot might be empty
+        ]]--
+        local isInRange = IsItemInRange(itemLink, RGGM_CONSTANTS.UNIT_ID_TARGET)
+
+        if isInRange == nil or isInRange == true then
+          gearSlot.keyBindingText:SetTextColor(1, 1, 1, 1)
+        else
+          gearSlot.keyBindingText:SetTextColor(1, 0, 0, 1)
+        end
+      end
     end
   end
 end

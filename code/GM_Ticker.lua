@@ -34,6 +34,7 @@ me.tag = "Ticker"
 local changeMenuTicker
 local slotCooldownTicker
 local combatQueueTicker
+local rangeCheckTicker
 
 --[[
   Start the repeating update ticker for changeMenu
@@ -95,5 +96,26 @@ function me.StopTickerCombatQueue()
   if combatQueueTicker then
     combatQueueTicker:Cancel()
     mod.logger.LogInfo(me.tag, "Stopped 'CombatQueueTicker'")
+  end
+end
+
+--[[
+  Start the repeating update ticker for rangeCheck
+]]--
+function me.StartTickerRangeCheck()
+  if rangeCheckTicker == nil or rangeCheckTicker._cancelled then
+    rangeCheckTicker = C_Timer.NewTicker(
+      RGGM_CONSTANTS.RANGE_CHECK_UPDATE_INTERVAL, mod.gearBar.UpdateSpellRange)
+      mod.logger.LogInfo(me.tag, "Started 'StartTickerRangeCheck'")
+  end
+end
+
+--[[
+  Stop the repeating update ticker for rangeCheck
+]]--
+function me.StopTickerRangeCheck()
+  if rangeCheckTicker then
+    rangeCheckTicker:Cancel()
+    mod.logger.LogInfo(me.tag, "Stopped 'StopTickerRangeCheck'")
   end
 end

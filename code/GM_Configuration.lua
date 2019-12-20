@@ -272,6 +272,7 @@ end
 function me.EnableShowKeyBindings()
   GearMenuConfiguration.showKeyBindings = true
   mod.gearBar.ShowKeyBindings()
+  mod.ticker.StartTickerRangeCheck()
 end
 
 --[[
@@ -280,6 +281,7 @@ end
 function me.DisableShowKeyBindings()
   GearMenuConfiguration.showKeyBindings = false
   mod.gearBar.HideKeyBindings()
+  mod.ticker.StopTickerRangeCheck()
 end
 
 --[[
