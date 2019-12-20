@@ -139,7 +139,7 @@ function me.CreateGearSlot(gearBarFrame, position)
   gearSlot.position = position
 
   mod.uiHelper.CreateHighlightFrame(gearSlot)
-  mod.uiHelper.PrepareSlotTexture(gearSlot)
+  mod.uiHelper.UpdateSlotTextureAttributes(gearSlot)
   mod.uiHelper.CreateCooldownOverlay(
     gearSlot,
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT_COOLDOWN_FRAME,
@@ -288,6 +288,7 @@ function me.UpdateGearBar()
       gearSlot:SetAttribute("type1", "item")
       gearSlot:SetAttribute("item", gearSlotMetaData.slotId)
       me.UpdateTexture(gearSlot, gearSlotMetaData)
+      mod.uiHelper.UpdateSlotTextureAttributes(gearSlot)
       slotCount = slotCount + 1
       gearSlot:Show()
     else

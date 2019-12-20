@@ -37,9 +37,12 @@ me.tag = "UiHelper"
 
   @param {table} slot
 ]]--
-function me.PrepareSlotTexture(slot)
-  -- set a dummy texture - otherwise GetNormalTexture will return nil
-  slot:SetNormalTexture("//dummy")
+function me.UpdateSlotTextureAttributes(slot)
+  if slot:GetNormalTexture() == nil then
+    -- set a dummy texture - otherwise GetNormalTexture will return nil
+    slot:SetNormalTexture("//dummy")
+  end
+
   local texture = slot:GetNormalTexture()
   texture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
   texture:SetPoint(

@@ -173,7 +173,7 @@ function me.UpdateChangeMenu(gearSlot)
       end
 
       local changeMenuSlot = changeMenuSlots[index]
-      mod.uiHelper.PrepareSlotTexture(changeMenuSlot)
+      mod.uiHelper.UpdateSlotTextureAttributes(changeMenuSlot)
 
       -- update metadata for slot
       changeMenuSlot.slotId = gearSlotMetaData.slotId
