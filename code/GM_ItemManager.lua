@@ -188,6 +188,7 @@ function me.SwitchItems(itemId, slotId)
       end
     else
       mod.logger.LogDebug(me.tag, "Was unable to switch because the item to switch to could not be found")
+      mod.combatQueue.RemoveFromQueue(slotId)
     end
   end
 end
