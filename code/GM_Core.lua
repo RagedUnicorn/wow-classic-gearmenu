@@ -120,11 +120,19 @@ function me.OnEvent(event, ...)
     me.combatQueue.UpdateEquipChangeBlockStatus()
   elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
     me.logger.LogEvent(me.tag, "UNIT_SPELLCAST_SUCCEEDED")
-    me.quickChange.OnUnitSpellCastSucceeded(...)
-    me.combatQueue.ProcessQueue()
+    local unit = ...
+
+    if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER then
+      me.quickChange.OnUnitSpellCastSucceeded(...)
+      me.combatQueue.ProcessQueue()
+    end
   elseif event == "UNIT_SPELLCAST_INTERRUPTED" then
     me.logger.LogEvent(me.tag, "UNIT_SPELLCAST_INTERRUPTED")
-    me.combatQueue.ProcessQueue()
+    local unit = ...
+
+    if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER then
+      me.combatQueue.ProcessQueue()
+    end
   elseif (event == "PLAYER_REGEN_ENABLED" or event == "PLAYER_UNGHOST" or event == "PLAYER_ALIVE")
     and not me.common.IsPlayerReallyDead() then
       if event == "PLAYER_REGEN_ENABLED" then
