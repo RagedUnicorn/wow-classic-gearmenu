@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals GetItemInfo C_LossOfControl
+-- luacheck: globals GetItemInfo C_LossOfControl InCombatLockdown
 
 local mod = rggm
 local me = {}
@@ -60,6 +60,7 @@ function me.AddToQueue(itemId, slotId)
   mod.logger.LogDebug(me.tag, "Added item with id " .. itemId .. " in slotId "
     .. slotId .. " to combatQueueStore")
   mod.gearBar.UpdateCombatQueue(slotId)
+  mod.ticker.StartTickerCombatQueue()
 end
 
 --[[
@@ -90,20 +91,17 @@ end
   Weapons will always be switched immediately because they can be changed while in combat
 ]]--
 function me.ProcessQueue()
-  if mod.common.IsPlayerCasting() then
-    return -- cannot change gear while player is casting
-  end
-
   if me.IsCombatQueueEmpty() then
     -- stop combat queue ticker when combat queue is empty
     mod.ticker.StopTickerCombatQueue()
     return
   end
 
-  local gearSlots = mod.gearManager.GetGearSlots()
+  -- cannot change gear while player is in combat or is casting
+  if InCombatLockdown() or mod.common.IsPlayerCasting() then return end
 
   -- update queue for all slotpositions
-  for _, gearSlot in pairs(gearSlots) do
+  for _, gearSlot in pairs(mod.gearManager.GetGearSlots()) do
     if combatQueueStore[gearSlot.slotId] ~= nil then
       local _, _, _, _, _, _, _, equipSlot = GetItemInfo(combatQueueStore[gearSlot.slotId])
       mod.itemManager.EquipItemById(combatQueueStore[gearSlot.slotId], gearSlot.slotId, equipSlot)
