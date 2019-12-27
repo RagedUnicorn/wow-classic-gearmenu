@@ -230,6 +230,7 @@ function me.UpdateChangeMenuSize(items)
   if rows < 1 then rows = 1 end
 
   changeMenuFrame:SetHeight(math.ceil(rows) * mod.configuration.GetSlotSize())
+  changeMenuFrame:SetWidth(RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT * mod.configuration.GetSlotSize())
 end
 
 --[[
