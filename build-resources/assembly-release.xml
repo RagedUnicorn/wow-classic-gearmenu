@@ -5,7 +5,7 @@
   <formats>
     <format>zip</format>
   </formats>
-  <includeBaseDirectory>false</includeBaseDirectory>
+  <includeBaseDirectory>${package.includeBaseDirectory}</includeBaseDirectory>
   <fileSets>
     <fileSet>
       <directory>${basedir}</directory>

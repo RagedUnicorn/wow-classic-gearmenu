@@ -204,6 +204,8 @@ mvn package -Dgenerate.sources.overwrite=true -P release
 
 **Note:** This packaging and switching resources can also be done one after another.
 
+**Note:** The packaging is not fit to be used for twitch because twitch expects a specific packaging
+
 ```
 # switch environment to release
 mvn generate-resources -Dgenerate.sources.overwrite=true -P release
@@ -211,18 +213,29 @@ mvn generate-resources -Dgenerate.sources.overwrite=true -P release
 mvn package -P release
 ```
 
-### Deploy a Release
+### Deploy GitHub Release
 
 Before creating a new release update `addon.tag.version` in `pom.xml`. Afterwards to create a new release and deploy to GitHub the `deploy` profile has to be used.
 
 ```
 # switch environment to release
 mvn generate-resources -Dgenerate.sources.overwrite=true -P release
-# deploy release to GitHub
-mvn package -P deploy
+# deploy release
+mvn package -P deploy-github
 ```
 
 For this to work an oauth token for GitHub is required and has to be configured in your `.m2` settings file.
+
+### Deploy Twitch Release
+
+**Note:** Its best to create the release for GitHub first and only afterwards the twitch release. That way the tag was already created.
+
+```
+# switch environment to release
+mvn generate-resources -Dgenerate.sources.overwrite=true -P release
+# deploy release
+mvn package -P deploy-twitch
+```
 
 ## License
 

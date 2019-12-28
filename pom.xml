@@ -46,6 +46,7 @@
         <package.filter>${basedir}/build-resources/addon-release.properties</package.filter>
         <package.finalName>${addon.name}</package.finalName>
         <package.appendAssemblyId>false</package.appendAssemblyId>
+        <package.includeBaseDirectory>false</package.includeBaseDirectory>
         <generate.sources.skip>false</generate.sources.skip>
         <generate.sources.filter>${basedir}/build-resources/addon-release.properties</generate.sources.filter>
         <generate.sources.descriptor>${basedir}/build-resources/generate-release.xml</generate.sources.descriptor>
@@ -53,13 +54,14 @@
       </properties>
     </profile>
     <profile>
-      <id>deploy</id>
+      <id>deploy-github</id>
       <properties>
         <profile.id.value>deploy</profile.id.value>
         <package.descriptor>${basedir}/build-resources/assembly-release.xml</package.descriptor>
         <package.filter>${basedir}/build-resources/addon-release.properties</package.filter>
         <package.finalName>${addon.name}</package.finalName>
         <package.appendAssemblyId>false</package.appendAssemblyId>
+        <package.includeBaseDirectory>false</package.includeBaseDirectory>
         <generate.sources.skip>true</generate.sources.skip>
       </properties>
       <build>
@@ -85,6 +87,49 @@
                   <assets>
                     <asset>${basedir}/target/${addon.name}.zip</asset>
                   </assets>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>deploy-twitch</id>
+      <properties>
+        <profile.id.value>deploy</profile.id.value>
+        <package.descriptor>${basedir}/build-resources/assembly-release.xml</package.descriptor>
+        <package.filter>${basedir}/build-resources/addon-release.properties</package.filter>
+        <package.finalName>${addon.name}</package.finalName>
+        <package.appendAssemblyId>false</package.appendAssemblyId>
+        <package.includeBaseDirectory>true</package.includeBaseDirectory>
+        <generate.sources.skip>true</generate.sources.skip>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.ragedunicorn.tools.maven</groupId>
+            <artifactId>twitch-release-maven-plugin</artifactId>
+            <version>1.0.0</version>
+            <executions>
+              <execution>
+                <id>default-cli</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>twitch-release</goal>
+                </goals>
+                <configuration>
+                  <game>wow</game>
+                  <projectId>345496</projectId>
+                  <displayName>${addon.name}-${addon.tag.version}</displayName>
+                  <changelogFile>${basedir}/build-resources/release-notes.md</changelogFile>
+                  <changelogType>markdown</changelogType>
+                  <gameVersions>
+                    <gameVersion>7668</gameVersion>
+                  </gameVersions>
+                  <releaseType>release</releaseType>
+                  <file>${basedir}/target/${addon.name}.zip</file>
+                  <server>twitch-token</server>
                 </configuration>
               </execution>
             </executions>
