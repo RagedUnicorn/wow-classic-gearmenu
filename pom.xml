@@ -32,6 +32,7 @@
         <package.filter>${basedir}/build-resources/addon-development.properties</package.filter>
         <package.finalName>${addon.name}</package.finalName>
         <package.appendAssemblyId>true</package.appendAssemblyId>
+        <package.includeBaseDirectory>false</package.includeBaseDirectory>
         <generate.sources.skip>false</generate.sources.skip>
         <generate.sources.filter>${basedir}/build-resources/addon-development.properties</generate.sources.filter>
         <generate.sources.descriptor>${basedir}/build-resources/generate-development.xml</generate.sources.descriptor>
