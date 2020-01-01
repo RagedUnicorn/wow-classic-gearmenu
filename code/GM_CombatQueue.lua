@@ -87,8 +87,7 @@ function me.RemoveFromQueue(slotId)
 end
 
 --[[
-  Process through combat queue and equip item if there is one waiting in the queue.
-  Weapons will always be switched immediately because they can be changed while in combat
+  Process through combat queue and equip item if there is one waiting in the queue
 ]]--
 function me.ProcessQueue()
   if me.IsCombatQueueEmpty() then
