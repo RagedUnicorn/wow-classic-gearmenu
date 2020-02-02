@@ -130,10 +130,9 @@ end
 
   @param {number} itemId
   @param {number} slotId
-  @param {string} itemSlotType
 ]]--
-function me.EquipItemById(itemId, slotId, itemSlotType)
-  if not itemId or not slotId or not itemSlotType then return end
+function me.EquipItemById(itemId, slotId)
+  if not itemId or not slotId then return end
 
   mod.logger.LogDebug(me.tag, "EquipItem: " .. itemId .. " in slot: " .. slotId)
   --[[

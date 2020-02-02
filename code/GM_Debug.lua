@@ -51,10 +51,10 @@ _G["__GM__DEBUG__EXECUTE_QUICK_CHANGE_RULE"] = function()
 
     if quickChangeRule.delay > 0 then
       C_Timer.After(quickChangeRule.delay, function()
-        mod.itemManager.EquipItemById(quickChangeRule.changeToItemId, INVSLOT_TRINKET1, quickChangeRule.equipSlot)
+        mod.itemManager.EquipItemById(quickChangeRule.changeToItemId, INVSLOT_TRINKET1)
       end)
     else
-      mod.itemManager.EquipItemById(quickChangeRule.changeToItemId, INVSLOT_TRINKET1, quickChangeRule.equipSlot)
+      mod.itemManager.EquipItemById(quickChangeRule.changeToItemId, INVSLOT_TRINKET1)
     end
   end
 end

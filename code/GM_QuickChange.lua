@@ -162,7 +162,7 @@ function me.ExecuteQuickChangeRule(quickChangeRule, slotIds)
     if slotMetadata.itemId == quickChangeRule.changeFromItemId then
       C_Timer.After(quickChangeRule.delay or 0, function()
         mod.itemManager.EquipItemById(
-          quickChangeRule.changeToItemId, slotMetadata.slotId, quickChangeRule.equipSlot
+          quickChangeRule.changeToItemId, slotMetadata.slotId
         )
       end)
 

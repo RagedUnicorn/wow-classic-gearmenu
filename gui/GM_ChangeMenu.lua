@@ -357,7 +357,7 @@ end
 ]]--
 function me.ChangeSlotOnClick(self, button)
   if button == "LeftButton" then
-    mod.itemManager.EquipItemById(self.itemId, self.slotId, self.equipSlot)
+    mod.itemManager.EquipItemById(self.itemId, self.slotId)
     me.CloseChangeMenu()
   end
 end
