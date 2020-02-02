@@ -66,6 +66,8 @@ me.colors.info = "|cff18f3ff"   -- blue
 me.colors.debug = "|cff7413d9"  -- magenta
 me.colors.event = "|cff1cdb4f"  -- green
 
+local userMessageTag = "User"
+
 --[[
   Writes string message to the default chat frame
 
@@ -141,4 +143,8 @@ end
 ]]--
 function me.PrintUserError(msg)
   UIErrorsFrame:AddMessage(msg, 1.0, 0.0, 0.0, 53, 5)
+end
+
+function me.PrintUserChatError(message)
+  PrintLogMessage(me.colors.error, userMessageTag, message)
 end

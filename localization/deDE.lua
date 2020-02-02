@@ -108,4 +108,8 @@ if (GetLocale() == "deDE") then
   rggm.L["slot_name_main_hand"] = "Waffenhand"
   rggm.L["slot_name_off_hand"] = "Schildhand"
   rggm.L["slot_name_ranged"] = "Distanz"
+
+  -- macro bridge user errors
+  rggm.L["unable_to_find_equipslot"] = "Konnte keinen passenden slot für itemdId %s finden"
+  rggm.L["unable_to_find_item"] = "Konnte keine Iteminformationen für itemId %s finden"
 end

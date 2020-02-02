@@ -28,6 +28,7 @@ code/GM_ItemManager.lua
 code/GM_CombatQueue.lua
 code/GM_QuickChange.lua
 code/GM_Configuration.lua
+code/GM_Macro.lua
 
 # debug
 code/GM_Debug.lua

@@ -220,3 +220,26 @@ function me.GetGearSlotForSlotId(slotId)
 
   return nil
 end
+
+--[[
+  Searches and returns all slots found that match a certain type such as
+  INVTYPE_CLOAK etc.
+
+  @param {string} type
+
+   @return {table}
+    A table with all found gearSlots. Can be empty.
+]]--
+function me.GetGearSlotsForType(type)
+  local foundGearSlots = {}
+
+  for _, slot in pairs(gearSlots) do
+    for _, value in pairs(slot.type) do
+      if value == type then
+        table.insert(foundGearSlots, slot)
+      end
+    end
+  end
+
+  return foundGearSlots
+end

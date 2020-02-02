@@ -103,8 +103,15 @@ function me.ProcessQueue()
   for _, gearSlot in pairs(mod.gearManager.GetGearSlots()) do
     if combatQueueStore[gearSlot.slotId] ~= nil then
       local _, _, _, _, _, _, _, equipSlot = GetItemInfo(combatQueueStore[gearSlot.slotId])
-      mod.itemManager.EquipItemById(combatQueueStore[gearSlot.slotId], gearSlot.slotId, equipSlot)
-      mod.gearBar.UpdateCombatQueue(gearSlot.slotId)
+      if equipSlot ~= nil then
+        mod.itemManager.EquipItemById(combatQueueStore[gearSlot.slotId], gearSlot.slotId, equipSlot)
+        mod.gearBar.UpdateCombatQueue(gearSlot.slotId)
+      else
+        mod.logger.LogWarn(me.tag,
+          string.format("Was unable to obtain iteminfo for %s. Invalid itemId?", gearSlot.slotId)
+        )
+        me.RemoveFromQueue(gearSlot.slotId)
+      end
     end
   end
 end
