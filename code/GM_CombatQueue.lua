@@ -50,7 +50,7 @@ end
 --[[
   Add item to combatQueue. There can only be one item per slot
 
-  @param {string} itemId
+  @param {number} itemId
   @param {number} slotId
 ]]--
 function me.AddToQueue(itemId, slotId)
