@@ -26,7 +26,7 @@
 -- luacheck: globals CreateFrame UIParent GetBindingText GetBindingKey GetInventoryItemID GetItemCooldown
 -- luacheck: globals GetInventoryItemLink GetItemInfo GetContainerItemInfo C_Timer MouseIsOver
 -- luacheck: globals CursorCanGoInSlot EquipCursorItem ClearCursor IsInventoryItemLocked PickupInventoryItem
--- luacheck: globals InCombatLockdown STANDARD_TEXT_FONT IsItemInRange
+-- luacheck: globals InCombatLockdown STANDARD_TEXT_FONT IsItemInRange GetCursorInfo
 
 local mod = rggm
 local me = {}
@@ -433,12 +433,10 @@ function me.UpdateCombatQueue(slotId)
   end
 
   if itemId then
-    local bagNumber, bagPos = mod.itemManager.FindItemInBag(itemId)
+    local _, _, _, _, _, _, _, _, _, itemIcon = GetItemInfo(itemId)
 
-    if bagNumber ~= nil and bagPos ~= nil then
-      icon:SetTexture(GetContainerItemInfo(bagNumber, bagPos))
-      icon:Show()
-    end
+    icon:SetTexture(itemIcon)
+    icon:Show()
   else
     icon:Hide()
   end
@@ -610,7 +608,14 @@ function me.GearSlotOnReceiveDrag(self)
   if gearSlotMetaData == nil then return end
 
   if CursorCanGoInSlot(gearSlotMetaData.slotId) then
-    EquipCursorItem(gearSlotMetaData.slotId)
+    if InCombatLockdown() or mod.common.IsPlayerCasting() then
+      local _, itemId = GetCursorInfo()
+
+      mod.combatQueue.AddToQueue(itemId, gearSlotMetaData.slotId)
+      ClearCursor()
+    else
+      EquipCursorItem(gearSlotMetaData.slotId)
+    end
   else
     mod.logger.LogInfo(me.tag, "Invalid item for slotId - " .. gearSlotMetaData.slotId)
     ClearCursor() -- clear cursor from item
