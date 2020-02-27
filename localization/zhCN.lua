@@ -34,6 +34,8 @@ if (GetLocale() == "zhCN") then
   rggm.L["enable_simple_tooltips"] = "简单鼠标提示"
   rggm.L["enable_simple_tooltips_tooltip"] = "仅显示当前悬停项的标题 "
   .. "而不是完整的工具提示"
+  rggm.L["enable_fastpress"] = "启动快速按键"
+  rggm.L["enable_fastpress_tooltip"] = "允许在按键下压时触发操作而不是在按键抬起时触发操作"
   rggm.L["enable_drag_and_drop"] = "启用可拖动"
   rggm.L["enable_drag_and_drop_tooltip"] = "启用可拖动物品"
   rggm.L["filter_item_quality"] = "过滤物品品质:"
@@ -43,6 +45,9 @@ if (GetLocale() == "zhCN") then
   rggm.L["item_quality_rare"] = "蓝色"
   rggm.L["item_quality_epic"] = "紫色"
   rggm.L["item_quality_legendary"] = "橙色"
+  rggm.L["size_slider_title"] = "齿槽大小"
+  rggm.L["size_slider_tooltip"] = "修改齿轮槽的大小.不同的元素也会适应 "
+  .. "齿轮槽的大小"
 
 -- gearslots
   rggm.L["gearslot_category_name"] = "装备槽"
@@ -98,4 +103,8 @@ if (GetLocale() == "zhCN") then
   rggm.L["slot_name_main_hand"] = "主手"
   rggm.L["slot_name_off_hand"] = "副手"
   rggm.L["slot_name_ranged"] = "远程"
+  
+-- macro bridge user errors
+  rggm.L["unable_to_find_equipslot"] = "无法为物品Id找到匹配的槽位 %s"
+  rggm.L["unable_to_find_item"] = "无法为物品Id找到指定的物品信息 %s"
 end
