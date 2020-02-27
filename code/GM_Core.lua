@@ -91,6 +91,8 @@ function me.OnEvent(event, ...)
     me.logger.LogEvent(me.tag, "BAG_UPDATE")
     if initializationDone then
       me.gearBar.UpdateGearBarTextures()
+      -- TODO new
+      me.gearBarMenu.UpdateGearBarTextures()
       -- trigger UpdateChangeMenu again to update items after an item was equiped
       if _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_FRAME]:IsVisible() then
         me.changeMenu.UpdateChangeMenu()
@@ -100,6 +102,8 @@ function me.OnEvent(event, ...)
     me.logger.LogEvent(me.tag, "PLAYER_EQUIPMENT_CHANGED")
     if initializationDone then
       me.gearBar.UpdateGearBarTextures()
+      -- TODO new
+      me.gearBarMenu.UpdateGearBarTextures()
       me.gearBar.UpdateGearSlotCooldown()
     end
   elseif event == "BAG_UPDATE_COOLDOWN" then
@@ -166,6 +170,7 @@ function me.Initialize()
   me.addonConfiguration.SetupAddonConfiguration()
   -- build ui for gearBar
   local gearBarFrame = me.gearBar.BuildGearBar()
+  -- TODO new build all gearbars
   -- build ui for changeMenu
   me.changeMenu.BuildChangeMenu(gearBarFrame)
   -- start ticker intervals
@@ -178,6 +183,8 @@ function me.Initialize()
   end
   -- update initial view of gearBar after addon initialization
   me.gearBar.UpdateGearBar()
+  -- TODO new update all gearbars
+  -- me.gearBarManager.UpdateGearBars()
 
   -- initialization is done
   initializationDone = true

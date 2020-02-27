@@ -67,6 +67,14 @@ function me.GetNewGearBar()
 end
 
 --[[
+  @return {table}
+    Return a clone of all gearBars
+]]--
+function me.GetGearBars()
+  return mod.common.Clone(gearBars)
+end
+
+--[[
   Retrieve a gearBar by its id
 
   @param {number} gearBarId
@@ -173,6 +181,12 @@ end
 function me.AddNewGearSlot(gearBarId)
   local gearSlot = me.GetNewGearSlot()
   local gearBar = me.GetGearBar(gearBarId)
+
+  -- TODO hardoced for testing
+  gearSlot.name = "slot_name_head"
+  gearSlot.type = {"INVTYPE_HEAD"}
+  gearSlot.textureId = 136516
+  gearSlot.slotId = INVSLOT_HEAD
 
   if gearBar ~= nil then
     table.insert(gearBar.slots, gearSlot)

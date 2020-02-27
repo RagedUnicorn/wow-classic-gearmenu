@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals CreateFrame UIParent
+-- luacheck: globals CreateFrame UIParent InCombatLockdown STANDARD_TEXT_FONT C_Timer
 
 local mod = rggm
 local me = {}
@@ -195,16 +195,20 @@ function me.BuildGearBar(gearBar)
   return gearBarFrame
 end
 
+--[[
+  Build configuration buttons for adding and removing gearSlots
+
+  @param {table} gearBarFrame
+]]--
 function me.BuildConfigurationButtons(gearBarFrame)
   -- TODO should only be shown in edit-mode
-  me.CreateAddGearSlotButton(gearBarFrame, gearBarFrame.id)
-  me.CreateRemoveGearSlotButton(gearBarFrame, gearBarFrame.id)
+  me.CreateAddGearSlotButton(gearBarFrame)
+  me.CreateRemoveGearSlotButton(gearBarFrame)
 end
-
-
 
 --[[
   TODO describe that this is a ui function only
+  TODO this function cannot be called while in combatlockdown
   Create a single gearSlot. Note that a gearSlot inherits from the SecureActionButtonTemplate to enable the usage
   of clicking items.
 
@@ -250,8 +254,8 @@ function me.BuilGearSlot(gearBarFrame, position)
     }
   }
 
-  local slot = mod.configuration.GetSlotForPosition(position)
-  local gearSlotMetaData = mod.gearManager.GetGearSlotForSlotId(slot)
+  local gearBar = mod.gearBarManager.GetGearBar(gearBarFrame.id)
+  local gearSlotMetaData = gearBar.slots[position]
 
   if gearSlotMetaData ~= nil then
     gearSlot:SetAttribute("type1", "item")
@@ -262,27 +266,106 @@ function me.BuilGearSlot(gearBarFrame, position)
   gearSlot:SetBackdropColor(0.15, 0.15, 0.15, 1)
   gearSlot:SetBackdropBorderColor(0, 0, 0, 1)
 
-  -- gearSlot.combatQueueSlot = me.CreateCombatQueueSlot(gearSlot)
-  -- gearSlot.keyBindingText = me.CreateKeyBindingText(gearSlot, position)
+  gearSlot.combatQueueSlot = mod.gearBar.CreateCombatQueueSlot(gearSlot)
+  gearSlot.keyBindingText = mod.gearBar.CreateKeyBindingText(gearSlot, position)
   gearSlot.position = position
 
-  -- mod.uiHelper.CreateHighlightFrame(gearSlot)
-  -- mod.uiHelper.UpdateSlotTextureAttributes(gearSlot)
-  -- mod.uiHelper.CreateCooldownOverlay(
-    -- gearSlot,
-    -- RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT_COOLDOWN_FRAME,
-    -- gearBarSlotSize
-  -- )
+  mod.uiHelper.CreateHighlightFrame(gearSlot)
+  mod.uiHelper.UpdateSlotTextureAttributes(gearSlot)
+  mod.uiHelper.CreateCooldownOverlay(
+    gearSlot,
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT_COOLDOWN_FRAME,
+    gearBarSlotSize
+  )
 
-  -- me.SetupEvents(gearSlot)
-  -- store gearSlot
-  -- table.insert(gearSlots, gearSlot)
-  -- initially hide slots
-  -- gearSlot:Show()
+  me.SetupEvents(gearSlot)
 
   mod.gearBar.AddGearSlot(gearBarFrame.id, gearSlot)
 
   return gearSlot
+end
+
+--[[
+  Setup event for a changeSlot
+
+  @param {table} gearSlot
+]]--
+function me.SetupEvents(gearSlot)
+  --[[
+    Note: SecureActionButtons ignore right clicks by default - reenable right clicks
+  ]]--
+  if mod.configuration.IsFastpressEnabled() then
+    gearSlot:RegisterForClicks("LeftButtonDown", "RightButtonDown")
+  else
+    gearSlot:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+  end
+  gearSlot:RegisterForDrag("LeftButton")
+  --[[
+    Replacement for OnCLick. Do not overwrite click event for protected button
+  ]]--
+  gearSlot:SetScript("PreClick", function(self, button, down)
+    me.GearSlotOnClick(self, button, down)
+  end)
+
+  gearSlot:SetScript("OnEnter", me.GearSlotOnEnter)
+  gearSlot:SetScript("OnLeave", me.GearSlotOnLeave)
+
+  gearSlot:SetScript("OnReceiveDrag", function(self)
+    -- me.GearSlotOnReceiveDrag(self) -- TODO drag and drop support
+  end)
+
+  gearSlot:SetScript("OnDragStart", function(self)
+    -- me.GearSlotOnDragStart(self) -- TODO drag and drop support
+  end)
+end
+
+--[[
+  Callback for a gearBarSlot OnClick
+
+  @param {table} self
+  @param {string} button
+]]--
+function me.GearSlotOnClick(self, button)
+  self.highlightFrame:Show()
+
+  if button == "LeftButton" then
+    self.highlightFrame:SetBackdropBorderColor(unpack(RGGM_CONSTANTS.HIGHLIGHT.highlight))
+  elseif button == "RightButton" then
+    self.highlightFrame:SetBackdropBorderColor(unpack(RGGM_CONSTANTS.HIGHLIGHT.remove))
+    mod.combatQueue.RemoveFromQueue(self:GetAttribute("item"))
+  else
+    return -- ignore other buttons
+  end
+
+  C_Timer.After(.5, function()
+    if MouseIsOver(_G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME]) then
+      self.highlightFrame:SetBackdropBorderColor(unpack(RGGM_CONSTANTS.HIGHLIGHT.hover))
+    else
+      self.highlightFrame:Hide()
+    end
+  end)
+end
+
+--[[
+  Callback for a changeSlot OnEnter
+
+  @param {table} self
+]]--
+function me.GearSlotOnEnter(self)
+  self.highlightFrame:SetBackdropBorderColor(unpack(RGGM_CONSTANTS.HIGHLIGHT.hover))
+  self.highlightFrame:Show()
+  mod.changeMenu.DuplicateUpdateChangeMenu(self, self:GetParent().id)
+  mod.tooltip.BuildTooltipForWornItem(self:GetAttribute("item"))
+end
+
+--[[
+  Callback for a gearSlot OnLeave
+
+  @param {table} self
+]]--
+function me.GearSlotOnLeave(self)
+  self.highlightFrame:Hide()
+  mod.tooltip.TooltipClear()
 end
 
 --[[
@@ -293,6 +376,58 @@ end
 function me.UpdateGearBar(gearBarId)
   me.UpdateGearSlots(gearBarId)
   me.UpdateGearBarSize(gearBarId)
+
+  -- TODO temporary placement
+  me.TempUpdateGearBars()
+end
+
+--[[
+  Update all GearBars
+]]--
+function me.TempUpdateGearBars()
+  local gearBars = mod.gearBarManager.GetGearBars()
+
+  for _, gearBar in pairs(gearBars) do
+    me.TempUpdateGearBar(gearBar)
+  end
+end
+
+--[[
+  Update a single gearBar
+
+  @param {table} gearBar
+]]--
+function me.TempUpdateGearBar(gearBar)
+  if InCombatLockdown() then
+    -- temporary fix for in combat configuration of slots
+    mod.logger.LogError(me.tag, "Unable to update slots in combat. Please /reload after your are out of combat")
+    return
+  end
+
+  local gearBarSlotSize = mod.configuration.GetSlotSize()
+
+  for index, gearSlotMetaData in pairs(gearBar.slots) do
+    mod.logger.LogError(me.tag, "Gearslot index: " .. index)
+
+    local uiGearBar = mod.gearBar.GetGearBar(gearBar.id)
+    local uiGearSlot = uiGearBar.gearSlotReferences[index]
+
+    uiGearSlot:SetAttribute("type1", "item")
+    uiGearSlot:SetAttribute("item", gearSlotMetaData.slotId)
+    mod.gearBar.UpdateTexture(uiGearSlot, gearSlotMetaData)
+    mod.uiHelper.UpdateSlotTextureAttributes(uiGearSlot)
+
+    -- update slotsize to match configuration
+    uiGearSlot:SetSize(gearBarSlotSize, gearBarSlotSize)
+    uiGearSlot.cooldownOverlay:SetSize(gearBarSlotSize, gearBarSlotSize)
+    uiGearSlot.cooldownOverlay:GetRegions()
+      :SetFont(
+        STANDARD_TEXT_FONT,
+        mod.configuration.GetSlotSize() * RGGM_CONSTANTS.GEAR_BAR_CHANGE_COOLDOWN_TEXT_MODIFIER
+      )
+
+    mod.gearBar.SetKeyBindingFont(uiGearSlot.keyBindingText)
+  end
 end
 
 --[[
@@ -305,7 +440,6 @@ function me.UpdateGearSlots(gearBarId)
   local gearBar = mod.gearBarManager.GetGearBar(gearBarId)
 
   for i = 1, #gearBar.slots do
-    mod.logger.LogError(me.tag, "Index: " .. i .. " searching for already created gearSlot")
     local gearSlot = gearBarUi.gearSlotReferences[i]
 
     if gearSlot ~= nil then
@@ -329,6 +463,26 @@ function me.UpdateGearSlots(gearBarId)
       -- means the element is no longer known and should be "removed"
       gearBarUi.gearSlotReferences[i]:Hide()
       gearBarUi.gearSlotReferences[i] = nil
+    end
+  end
+end
+
+--[[
+  Update the gearBar after one of PLAYER_EQUIPMENT_CHANGED, BAG_UPDATE events
+
+  Textures are changed separately from UpdateGearBar because it can be done at any point
+  even if in InCombatLockdown while gearSlots cannot be reconfigured or even deleted while
+  in combatlockdown
+]]--
+function me.UpdateGearBarTextures()
+  local gearBars = mod.gearBarManager.GetGearBars()
+
+  for _, gearBar in pairs(gearBars) do
+    local uiGearBar = mod.gearBar.GetGearBar(gearBar.id)
+
+    for index, gearSlot in pairs(gearBar.slots) do
+      local uiGearSlot = uiGearBar.gearSlotReferences[index]
+      mod.gearBar.UpdateTexture(uiGearSlot, gearSlot)
     end
   end
 end
