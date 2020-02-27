@@ -82,6 +82,12 @@ rggm.L["quick_change_unable_to_add_rule_from"] = "Unable to add new rule - missi
 rggm.L["quick_change_unable_to_add_rule_to"] = "Unable to add new rule - missing a 'To' item"
 rggm.L["quick_change_unable_to_add_rule_duplicate"] = "Unable to add new rule - A rule for this item already exists"
 
+-- gearbar
+rggm.L["gear_bar_configuration_category_name"] = "GearBar"
+rggm.L["gear_bar_configuration_add_gearbar"] = "Create new GearBar"
+rggm.L["gear_bar_configuration_add_gearslot"] = "+"
+rggm.L["gear_bar_configuration_remove_gearslot"] = "-"
+
 -- slot translations
 rggm.L["slot_name_head"] = "Head"
 rggm.L["slot_name_neck"] = "Neck"

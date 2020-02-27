@@ -88,6 +88,12 @@ if (GetLocale() == "deDE") then
   rggm.L["quick_change_unable_to_add_rule_duplicate"] = "Konnte neue Regel nicht hinzufügen "
     .. "- Eine Regel für diesen Gegenstand existiert bereits"
 
+  -- gearbar
+  rggm.L["gear_bar_configuration_category_name"] = "GearBar"
+  rggm.L["gear_bar_configuration_add_gearbar"] = "Erstelle neue GearBar"
+  rggm.L["gear_bar_configuration_add_gearslot"] = "+"
+  rggm.L["gear_bar_configuration_remove_gearslot"] = "-"
+
   -- slot translations
   rggm.L["slot_name_head"] = "Kopf"
   rggm.L["slot_name_neck"] = "Hals"

@@ -56,6 +56,13 @@ function me.SetupAddonConfiguration()
     rggm.L["quick_change_category_name"],
     mod.quickChangeMenu.BuildUi
   )
+
+  me.BuildCategory(
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SUB_OPTION_FRAME,
+    panel.main,
+    rggm.L["gear_bar_configuration_category_name"],
+    mod.gearBarMenu.BuildUi
+  )
   --[[
     For development purpose the InterfaceOptionsFrame_OpenToCategory function can be used to directly
     open a specific category. Because of a blizzard bug this usually has to be called twice to actually work.
@@ -69,6 +76,8 @@ function me.SetupAddonConfiguration()
     Because of this it is important that the "normal" manuall way of opening the menu is tested as well.
   ]]--
   mod.aboutContent.BuildAboutContent(panel.main)
+
+  me.OpenAddonPanel() -- TODO DEBUG REMOVE
 end
 
 --[[

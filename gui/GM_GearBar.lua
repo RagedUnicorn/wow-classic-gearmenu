@@ -36,6 +36,62 @@ mod.gearBar = me
 me.tag = "GearBar"
 
 --[[
+  Storage for gearBar ui elements
+]]--
+local gearBarUiStorage = {}
+
+--[[
+  Retrieve a gearBar object from the storage by its id
+
+  @param {number} gearBarId
+    An id of a gearBar
+
+  @return {table | nil}
+    table - A table containing all relevant ui elements for that gearBar
+    nil - If no gearBar with the passed id could be found
+]]--
+function me.GetGearBar(gearBarId)
+  if gearBarUiStorage[gearBarId] == nil then
+    mod.logger.LogError(me.tag, "Unable to find a GearBar with id: " .. gearBarId)
+    return nil
+  end
+
+  return gearBarUiStorage[gearBarId]
+end
+
+--[[
+  Store a gearBar object
+
+  @param {number} gearBarId
+    An id of a gearBar
+  @param {table} gearBarReference
+    A ui reference to a gearBar
+]]--
+function me.AddGearBar(gearBarId, gearBarReference)
+  gearBarUiStorage[gearBarId] = {
+    ["gearBarReference"] = gearBarReference,
+    ["gearSlotReferences"] = {}
+  }
+end
+
+--[[
+  Store a gearSlot object to a gearBar object
+
+  @param {number} gearBarId
+    An id of a gearBar
+  @param {table} gearSlotReference
+    A ui reference to a gearSlot
+]]--
+function me.AddGearSlot(gearBarId, gearSlotReference)
+  if gearBarUiStorage[gearBarId] == nil then
+    mod.logger.LogError(me.tag, "Unable to find a GearBar with id: " .. gearBarId)
+    return
+  end
+
+  table.insert(gearBarUiStorage[gearBarId].gearSlotReferences, gearSlotReference)
+end
+
+--[[
   Local references to heavily accessed ui elements
 ]]--
 local gearSlots = {}

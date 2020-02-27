@@ -24,6 +24,7 @@ code/GM_Common.lua
 code/GM_Tooltip.lua
 code/GM_Target.lua
 code/GM_GearManager.lua
+code/GM_GearBarManager.lua
 code/GM_ItemManager.lua
 code/GM_CombatQueue.lua
 code/GM_QuickChange.lua
@@ -37,6 +38,7 @@ code/GM_Debug.lua
 gui/GM_Frame.xml
 gui/GM_UiHelper.lua
 gui/GM_GearBar.lua
+gui/GM_GearBarMenu.lua
 gui/GM_ChangeMenu.lua
 gui/GM_AddonConfiguration.lua
 gui/GM_AboutContent.lua
