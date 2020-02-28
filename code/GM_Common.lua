@@ -39,7 +39,7 @@ me.tag = "Common"
     nil - alive
 ]]--
 function me.IsPlayerReallyDead()
-  local FEIGN_DEATH = "Interface\\Icons\\Ability_Rogue_FeignDeath"
+  local FEIGN_DEATH = "Feign Death"
   local dead = UnitIsDeadOrGhost(RGGM_CONSTANTS.UNIT_ID_PLAYER)
 
   for i = 1, 24 do
