@@ -184,6 +184,7 @@ function me.SwitchItems(itemId, slotId)
 
         -- make sure to clear combatQueue
         mod.combatQueue.RemoveFromQueue(slotId)
+
         return -- abort
       end
     end
@@ -202,6 +203,7 @@ function me.SwitchItems(itemId, slotId)
       PickupInventoryItem(slotId)
 
       mod.combatQueue.RemoveFromQueue(slotId)
+
       return -- abort
     end
 

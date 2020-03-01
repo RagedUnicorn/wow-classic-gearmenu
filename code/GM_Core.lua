@@ -51,8 +51,8 @@ function me.RegisterEvents(self)
   self:RegisterEvent("PLAYER_LOGIN")
   -- Fires when a bags inventory changes
   self:RegisterEvent("BAG_UPDATE")
-  -- Fires when the players gear changes
-  self:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
+  -- Fires when the player equips or unequips an item
+  self:RegisterEvent("UNIT_INVENTORY_CHANGED")
   -- Fires when the player leaves combat status
   self:RegisterEvent("PLAYER_REGEN_ENABLED")
   -- Fires when the player enters combat status
@@ -96,8 +96,8 @@ function me.OnEvent(event, ...)
         me.changeMenu.UpdateChangeMenu()
       end
     end
-  elseif event == "PLAYER_EQUIPMENT_CHANGED" then
-    me.logger.LogEvent(me.tag, "PLAYER_EQUIPMENT_CHANGED")
+  elseif event == "UNIT_INVENTORY_CHANGED" then
+    me.logger.LogEvent(me.tag, "UNIT_INVENTORY_CHANGED")
     if initializationDone then
       me.gearBar.UpdateGearBarTextures()
       me.gearBar.UpdateGearSlotCooldown()

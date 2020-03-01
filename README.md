@@ -45,6 +45,7 @@ GearMenus goal is to help the player switching between items on certain slots. O
 | MainhandSlot      | Main-hand slot               |
 | SecondaryHandSlot | Secondary-hand/Off-hand slot |
 | RangedSlot        | Ranged slot                  |
+| AmmoSlot           | Ammo slot                    |
 
 ## Features of GearMenu
 

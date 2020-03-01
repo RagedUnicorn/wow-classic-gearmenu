@@ -25,7 +25,7 @@
 
 -- luacheck: globals INVSLOT_HEAD INVSLOT_NECK INVSLOT_SHOULDER INVSLOT_CHEST INVSLOT_WAIST INVSLOT_LEGS INVSLOT_FEET
 -- luacheck: globals INVSLOT_WRIST INVSLOT_HAND INVSLOT_FINGER1 INVSLOT_FINGER2 INVSLOT_TRINKET1 INVSLOT_TRINKET2
--- luacheck: globals INVSLOT_BACK INVSLOT_MAINHAND INVSLOT_OFFHAND INVSLOT_RANGED GetAddOnMetadata
+-- luacheck: globals INVSLOT_BACK INVSLOT_MAINHAND INVSLOT_OFFHAND INVSLOT_RANGED INVSLOT_AMMO GetAddOnMetadata
 
 local mod = rggm
 local me = {}
@@ -186,24 +186,25 @@ function me.SetupConfiguration()
 
   if GearMenuConfiguration.slots == nil then
     mod.logger.LogInfo(me.tag, "slots has unexpected nil value")
+
     GearMenuConfiguration.slots = {
       [1] = INVSLOT_HEAD,
-      [2] = INVSLOT_NECK,
-      [3] = INVSLOT_SHOULDER,
+      [2] = RGGM_CONSTANTS.INVSLOT_NONE,
+      [3] = RGGM_CONSTANTS.INVSLOT_NONE,
       [4] = INVSLOT_CHEST,
       [5] = INVSLOT_WAIST,
-      [6] = INVSLOT_LEGS,
+      [6] = RGGM_CONSTANTS.INVSLOT_NONE,
       [7] = INVSLOT_FEET,
-      [8] = INVSLOT_WRIST,
-      [9] = INVSLOT_HAND,
-      [10] = INVSLOT_FINGER1,
-      [11] = INVSLOT_FINGER2,
+      [8] = RGGM_CONSTANTS.INVSLOT_NONE,
+      [9] = RGGM_CONSTANTS.INVSLOT_NONE,
+      [10] = RGGM_CONSTANTS.INVSLOT_NONE,
+      [11] = RGGM_CONSTANTS.INVSLOT_NONE,
       [12] = INVSLOT_TRINKET1,
       [13] = INVSLOT_TRINKET2,
-      [14] = INVSLOT_BACK,
+      [14] = RGGM_CONSTANTS.INVSLOT_NONE,
       [15] = INVSLOT_MAINHAND,
       [16] = INVSLOT_OFFHAND,
-      [17] = INVSLOT_RANGED
+      [17] = RGGM_CONSTANTS.INVSLOT_NONE
     }
   end
 
@@ -234,9 +235,49 @@ function me.SetAddonVersion()
     GearMenuConfiguration.addonVersion = GetAddOnMetadata(RGGM_CONSTANTS.ADDON_NAME, "Version")
   end
 
-  -- me.MigrationPath()
+  me.MigrationPath()
   -- migration done update addon version to current
   GearMenuConfiguration.addonVersion = GetAddOnMetadata(RGGM_CONSTANTS.ADDON_NAME, "Version")
+end
+
+--[[
+  Run through all migration paths. Each migration path needs to decide by itself whether it
+  should run or not.
+]]--
+function me.MigrationPath()
+  me.UpgradeToV1_3_0()
+end
+
+--[[
+  Should be run by versions: All < v1.3.0
+  Description: RGGM_CONSTANTS.INVSLOT_NONE was previously defined as 0 (zero) for slots
+  that where inactive and did not have an active slot. 0 (zero) however is the ammo slots in wow
+  because of that we change the definition to 99. All old configurations need to be adapted to reflect this.
+]]--
+function me.UpgradeToV1_3_0()
+  local versions = {"v1.2.0", "v1.1.0", "v1.0.1", "v1.0.0"}
+  local shouldRunUpgradePath = false
+
+  for _, version in pairs(versions) do
+    if GearMenuConfiguration.addonVersion == version then
+      shouldRunUpgradePath = true
+      break
+    end
+  end
+
+  if not shouldRunUpgradePath then return end
+
+  mod.logger.LogDebug(me.tag, "Running upgrade path from " .. GearMenuConfiguration.addonVersion .. " to v1.3.0")
+
+  local slots = GearMenuConfiguration.slots
+
+  for i = 0, #slots do
+    if slots[i] == 0 then
+      slots[i] = RGGM_CONSTANTS.INVSLOT_NONE
+    end
+  end
+
+  mod.logger.LogDebug(me.tag, "Finished upgrade path from " .. GearMenuConfiguration.addonVersion .. " to v1.3.0")
 end
 
 --[[

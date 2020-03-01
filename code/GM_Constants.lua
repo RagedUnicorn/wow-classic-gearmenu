@@ -63,7 +63,7 @@ RGGM_CONSTANTS = {
     epic = 4,
     legendary = 5
   },
-  INVSLOT_NONE = 0,
+  INVSLOT_NONE = 99,
   --[[
     Highlight Frame Status colors
   ]]--

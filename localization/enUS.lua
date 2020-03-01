@@ -102,6 +102,7 @@ rggm.L["slot_name_back"] = "Cloak"
 rggm.L["slot_name_main_hand"] = "MainHand"
 rggm.L["slot_name_off_hand"] = "OffHand"
 rggm.L["slot_name_ranged"] = "Ranged"
+rggm.L["slot_name_ammo"] = "Ammo"
 
 -- macro bridge user errors
 rggm.L["unable_to_find_equipslot"] = "Unable to find a matching slot for itemId %s"

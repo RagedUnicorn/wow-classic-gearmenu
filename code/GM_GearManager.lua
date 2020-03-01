@@ -25,7 +25,7 @@
 
 -- luacheck: globals INVSLOT_HEAD INVSLOT_NECK INVSLOT_SHOULDER INVSLOT_CHEST INVSLOT_WAIST INVSLOT_LEGS INVSLOT_FEET
 -- luacheck: globals INVSLOT_WRIST INVSLOT_HAND INVSLOT_FINGER1 INVSLOT_FINGER2 INVSLOT_TRINKET1 INVSLOT_TRINKET2
--- luacheck: globals INVSLOT_BACK INVSLOT_MAINHAND INVSLOT_OFFHAND INVSLOT_RANGED UnitClass
+-- luacheck: globals INVSLOT_BACK INVSLOT_MAINHAND INVSLOT_OFFHAND INVSLOT_RANGED INVSLOT_AMMO UnitClass
 
 local mod = rggm
 local me = {}
@@ -193,6 +193,11 @@ local gearSlots = {
     ["type"] = {"INVTYPE_RANGED", "INVTYPE_THROWN", "INVTYPE_RANGEDRIGHT"},
     ["textureId"] = 136520,
     ["slotId"] = INVSLOT_RANGED
+  }, {
+    ["name"] = "slot_name_ammo",
+    ["type"] = {"INVTYPE_AMMO"},
+    ["textureId"] = 136520,
+    ["slotId"] = INVSLOT_AMMO
   }
 }
 

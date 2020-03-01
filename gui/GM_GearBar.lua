@@ -349,7 +349,7 @@ function me.UpdateSlotPosition()
   for index, gearSlot in pairs(gearSlots) do
     local slotId = mod.configuration.GetSlotForPosition(index)
 
-    if slotId == 0 then
+    if slotId == RGGM_CONSTANTS.INVSLOT_NONE then
       -- slot is inactive
       position = position -1
     end
@@ -402,10 +402,10 @@ end
   @param {table} slotMetaData
 ]]--
 function me.UpdateTexture(gearSlot, slotMetaData)
-  local itemLink = GetInventoryItemLink(RGGM_CONSTANTS.UNIT_ID_PLAYER, slotMetaData.slotId)
+  local itemId = GetInventoryItemID(RGGM_CONSTANTS.UNIT_ID_PLAYER, slotMetaData.slotId)
 
-  if itemLink then
-    local _, _, _, _, _, _, _, _, _, itemIcon = GetItemInfo(itemLink)
+  if itemId then
+    local _, _, _, _, _, _, _, _, _, itemIcon = GetItemInfo(itemId)
     -- If an actual item was found in the inventoryslot said icon is used
     gearSlot:SetNormalTexture(itemIcon or slotMetaData.textureId)
   else
