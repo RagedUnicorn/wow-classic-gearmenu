@@ -11,7 +11,7 @@ GearMenus goal is to help the player switching between items on certain slots. O
 **Supported slots:**
 
 * Head/Helmet slot
-* NeckSlot
+* Neck slot
 * Shoulder slot
 * Chest/Robe slot
 * Waist/Belt slot
