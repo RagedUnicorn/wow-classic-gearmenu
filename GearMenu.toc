@@ -13,6 +13,7 @@ code/GM_Environment.lua
 # localization
 localization/enUS.lua
 localization/deDE.lua
+localization/zhCN.lua
 
 code/GM_Core.lua
 code/GM_Logger.lua

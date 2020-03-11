@@ -33,6 +33,21 @@ me.tag = "Core"
 local initializationDone = false
 
 --[[
+  Testing
+  Hook GetLocale to return a fixed value.
+  Note: This is used for testing only. If the locale doesn't match with the actual
+  locale of the combatlog the addon is unable to parse the log.
+]]--
+
+--[[
+local _G = getfenv(0)
+
+function _G.GetLocale()
+  return "[language code]"
+end
+]]--
+
+--[[
   Addon load
 
   @param {table} self
