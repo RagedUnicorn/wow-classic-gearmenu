@@ -37,15 +37,15 @@ GearMenus goal is to help the player switching between items on certain slots. O
 | FeetSlot          | Feet/Boots slot              |
 | WristSlot         | Wrist/Bracers slot           |
 | HandsSlot         | Hands slot                   |
-| Finger0Slot       | First/Upper ring slot        |
-| Finger1Slot       | Second/Upper ring slot       |
-| Trinket0Slot      | First/Upper trinket slot     |
-| Trinket1Slot      | Second/Lower trinket slot    |
+| Finger0Slot       | First/Upper Ring slot        |
+| Finger1Slot       | Second/Upper Ring slot       |
+| Trinket0Slot      | First/Upper Trinket slot     |
+| Trinket1Slot      | Second/Lower Trinket slot    |
 | BackSlot          | Back/Cloak slot              |
 | MainhandSlot      | Main-hand slot               |
 | SecondaryHandSlot | Secondary-hand/Off-hand slot |
 | RangedSlot        | Ranged slot                  |
-| AmmoSlot           | Ammo slot                    |
+| AmmoSlot          | Ammo slot                    |
 
 ## Features of GearMenu
 
