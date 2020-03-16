@@ -12,6 +12,7 @@
     <addon.author>Michael Wiesendanger &lt;michael.wiesendanger@gmail.com&gt;</addon.author>
     <addon.description>Addon to manage and keybind usable gear</addon.description>
     <addon.name>GearMenu</addon.name>
+    <addon.twitch.displayName>gearmenu</addon.twitch.displayName>
     <addon.name.short>GM</addon.name.short>
     <addon.tag.version>v${project.version}</addon.tag.version>
     <addon.interface>11304</addon.interface>
@@ -122,11 +123,11 @@
                 <configuration>
                   <game>wow</game>
                   <projectId>345496</projectId>
-                  <displayName>${addon.name}-${addon.tag.version}</displayName>
+                  <displayName>${addon.twitch.displayName}-${addon.tag.version}.zip</displayName>
                   <changelogFile>${basedir}/build-resources/release-notes.md</changelogFile>
                   <changelogType>markdown</changelogType>
                   <gameVersions>
-                    <gameVersion>7668</gameVersion>
+                    <gameVersion>7773</gameVersion>
                   </gameVersions>
                   <releaseType>release</releaseType>
                   <file>${basedir}/target/${addon.name}.zip</file>
