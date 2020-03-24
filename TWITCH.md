@@ -88,39 +88,24 @@ GearMenu allows to drag and drop items onto slots, remove from slots and slots c
 If you prefer having certain items in your actionslots GearMenu can still be of use. By using the macro-bridge you get all the advantages of the combatQueue in a normal macro.
 
 #### Add Item to CombatQueue
-```
-/run GM_AddToCombatQueue(itemId, slotId)
 
-# Example - Equip Hand of Justice into the lower trinket slot
-/run GM_AddToCombatQueue(11815, 14)
-```
+`/run GM_AddToCombatQueue(itemId, slotId)`
 
 **Note:** It is not recommended to use this for weapons because addons cannot switch weapons during combat (GearMenu will put the item into the combatQueue). With a normal weaponswitch macro however this is still possible.
 
 #### Clear Slot From CombatQueue
-```
-/run GM_RemoveFromCombatQueue(slotId)
 
-# Example - Clear headSlot queue
-/run GM_AddToCombatQueue(1)
-```
+`/run GM_RemoveFromCombatQueue(slotId)`
 
 ##### Finding itemId
 
-Finding the id of a certain item is easiest with websites such as [wowhead](https://classic.wowhead.com/).
-
-```
-# Example:
-https://classic.wowhead.com/item=11815/hand-of-justice
-```
-
-The number after item is the itemId we search for.
+Finding the id of a certain item is easiest with websites such as [wowhead](https://classic.wowhead.com/ "").
 
 ##### Finding slotId
 
 For finding the correct slotId refer to the image below. Only InventorySlotIds are valid targets for GearMenu
 
-![](/docs/gm_interface_slots.png)
+![](https://raw.githubusercontent.com/RagedUnicorn/wow-classic-gearmenu/master/docs/gm_interface_slots.png)
 
 ## Configurability
 
