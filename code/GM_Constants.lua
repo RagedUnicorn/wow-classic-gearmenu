@@ -208,6 +208,21 @@ RGGM_CONSTANTS = {
     GearBar
   ]]--
   ELEMENT_GEAR_BAR_SUB_OPTION_FRAME = "GM_GearBarMenuOptionFrame",
+  ELEMENT_GEAR_BAR_LIST_SCROLL_FRAME = "GM_GearBarListScrollFrame",
+  ELEMENT_GEAR_BAR_LIST_CONTENT_FRAME = "GM_GearBarListContentFrame",
+  ELEMENT_GEAR_BAR_LIST_SCROLL_FRAME_SLIDER = "GM_GearBarListScrollFrameSlider",
+
+  GEAR_BAR_LIST_CONTENT_FRAME_WIDTH = 560,
+  GEAR_BAR_LIST_CONTENT_FRAME_HEIGHT = 500,
+
+  --[[
+    Configuration values for scrollframe slider
+    0 is all the way up
+    100 is all the way down
+  ]]--
+  GEAR_BAR_LIST_SLIDER_MIN_VALUE = 0,
+  GEAR_BAR_LIST_SLIDER_MAX_VALUE = 100,
+
   BUTTON_DEFAULT_PADDING = 10,
   BUTTON_DEFAULT_HEIGHT = 25,
   BUTTON_ADD_GEAR_SLOT_HEIGHT = 20,

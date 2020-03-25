@@ -43,6 +43,9 @@ function me.BuildUi(frame)
   if builtMenu then return end
 
   me.CreateNewGearBarButton(frame)
+  me.CreateGearBarList(frame)
+
+  builtMenu = true
 end
 
 --[[
@@ -89,4 +92,166 @@ function me.CreateNewGearBar()
   mod.gearBarManager.AddNewGearSlot(gearBar.id)
 
   mod.gearBar.BuildGearBar(gearBar)
+end
+
+--[[
+  Create the list that contains the visual representation of all configurations for all the gearBars
+
+  @param {table} frame
+]]--
+function me.CreateGearBarList(frame)
+  local gearBarListScrollFrame = CreateFrame(
+    "ScrollFrame",
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_LIST_SCROLL_FRAME,
+    frame
+  )
+
+  gearBarListScrollFrame:SetWidth(RGGM_CONSTANTS.GEAR_BAR_LIST_CONTENT_FRAME_WIDTH)
+  gearBarListScrollFrame:SetHeight(RGGM_CONSTANTS.GEAR_BAR_LIST_CONTENT_FRAME_HEIGHT)
+  gearBarListScrollFrame:SetPoint("TOPLEFT", 10, -50)
+  gearBarListScrollFrame:EnableMouseWheel(true)
+  gearBarListScrollFrame:SetBackdrop({
+    bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background"
+  })
+
+  gearBarListScrollFrame:SetScript("OnMouseWheel", me.ScrollFrameOnMouseWheel)
+
+  gearBarListScrollFrame.scrollContentFrame = me.CreateGearBarContentFrame(gearBarListScrollFrame)
+  gearBarListScrollFrame.frameSlider = me.CreateGearBarListFrameSlider(gearBarListScrollFrame)
+end
+
+--[[
+  Scroll callback for scrollable content. Also updates the associated
+  scrollFrameSlider to its new position
+
+  @param {table} self
+  @param {number} arg1
+    1 for spinning up
+    -1 for spinning down
+
+]]--
+function me.ScrollFrameOnMouseWheel(self, arg1)
+  local maxScroll = self:GetVerticalScrollRange()
+  local scroll = self:GetVerticalScroll()
+  local toScroll = (scroll - (20 * arg1))
+  local scrollFrameSlider
+
+  for _, child in ipairs({self:GetChildren()}) do
+    if child:GetObjectType() == "Slider" then
+      scrollFrameSlider = child
+    end
+  end
+
+  if toScroll < 0 then
+    self:SetVerticalScroll(0)
+    me.UpdateSliderPosition(scrollFrameSlider, 0, maxScroll)
+  elseif toScroll > maxScroll then
+    self:SetVerticalScroll(maxScroll)
+    me.UpdateSliderPosition(scrollFrameSlider, maxScroll, maxScroll)
+  else
+    self:SetVerticalScroll(toScroll)
+    me.UpdateSliderPosition(scrollFrameSlider, toScroll, maxScroll)
+  end
+end
+
+--[[
+  Update scrollframeslider position
+
+  @param {table} scrollFrameSlider
+    reference to the scrollframeslider that should get updated
+  @param {number} scrollPosition
+  @param {number} maxScroll
+]]--
+function me.UpdateSliderPosition(scrollFrameSlider, scrollPosition, maxScroll)
+  local position
+
+  mod.logger.LogDebug(me.tag, "Content scrollposition: " .. scrollPosition)
+
+  if scrollFrameSlider == nil then
+    mod.logger.LogError(me.tag, "Unable to find frameslider for current scrollframe")
+    return
+  end
+
+  position = 100 / (maxScroll / math.floor(scrollPosition))
+  mod.logger.LogDebug(me.tag, "New Slider scrollposition: " .. math.ceil(position))
+  scrollFrameSlider:SetValue(math.ceil(position))
+end
+
+--[[
+  Creates a contentFrame for the scrollFrame
+
+  @param {table} scrollFrame
+
+  @return {table}
+    The created contentFrame
+]]--
+function me.CreateGearBarContentFrame(scrollFrame)
+  local contentFrame = CreateFrame(
+    "Frame",
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_LIST_CONTENT_FRAME,
+    scrollFrame
+  )
+
+  contentFrame:SetWidth(RGGM_CONSTANTS.GEAR_BAR_LIST_CONTENT_FRAME_WIDTH)
+  contentFrame:SetHeight(320) -- TODO hardcoded will be dynamic maybe remove it even?
+  scrollFrame:SetScrollChild(contentFrame)
+
+  return contentFrame
+end
+
+--[[
+  Creates a draggable slider for the scrollFrame
+
+  @param {table} scrollFrame
+
+  @return {table}
+    The created frameSlider
+]]--
+function me.CreateGearBarListFrameSlider(scrollFrame)
+  local scrollFrameSlider = CreateFrame(
+    "Slider",
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_LIST_SCROLL_FRAME_SLIDER,
+    scrollFrame,
+    "UIPanelScrollBarTemplate"
+  )
+
+  scrollFrameSlider:SetPoint("TOPLEFT", scrollFrame, "TOPRIGHT", 4, -16)
+  scrollFrameSlider:SetPoint("BOTTOMLEFT", scrollFrame, "BOTTOMRIGHT", 4, 16)
+  scrollFrameSlider:SetMinMaxValues(
+    RGGM_CONSTANTS.GEAR_BAR_LIST_SLIDER_MIN_VALUE,
+    RGGM_CONSTANTS.GEAR_BAR_LIST_SLIDER_MAX_VALUE
+  )
+  scrollFrameSlider:SetValueStep(1)
+  scrollFrameSlider:SetValue(0)
+  scrollFrameSlider:SetWidth(16)
+  -- sets the stepsize that is made when clicking on up or down arrow button
+  scrollFrameSlider:SetHeight(10)
+  scrollFrameSlider:SetScript("OnValueChanged", me.ScrollFrameSliderOnValueChanged)
+
+  local scrollBackground = scrollFrameSlider:CreateTexture(nil, "BACKGROUND")
+  scrollBackground:SetAllPoints(scrollFrameSlider)
+  scrollBackground:SetTexture(0, 0, 0, 0.4)
+
+  return scrollFrameSlider
+end
+
+--[[
+  Callback for slider - called each time the value of the slider changes
+
+  @param {table} self
+]]--
+function me.ScrollFrameSliderOnValueChanged(self)
+  local maxScroll, stepSize
+  local scrollFrame = self:GetParent()
+
+  if scrollFrame == nil then
+    mod.logger.LogError(me.tag, "Unable to find scrollFrame")
+    return
+  end
+  -- getmaxscroll of scrollFrame
+  maxScroll = scrollFrame:GetVerticalScrollRange()
+  -- translate max/min 0 - 100 to maxScroll
+  stepSize = maxScroll / RGGM_CONSTANTS.GEAR_BAR_LIST_SLIDER_MAX_VALUE
+  -- set vertical scroll of the contenframe - (currentslider value * stepsize)
+  scrollFrame:SetVerticalScroll(self:GetValue() * stepSize)
 end
