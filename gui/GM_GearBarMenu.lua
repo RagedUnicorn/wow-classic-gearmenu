@@ -35,6 +35,13 @@ me.tag = "GearBarMenu"
 -- track whether the menu was already built
 local builtMenu = false
 
+--[[
+  Saves currently created configuration frames for the gearBars
+]]--
+local gearBarConfigurationFrames = {}
+--
+local gearBarListContentFrame
+
 
 --[[
   @param {table} frame
@@ -44,6 +51,10 @@ function me.BuildUi(frame)
 
   me.CreateNewGearBarButton(frame)
   me.CreateGearBarList(frame)
+
+  me.CreateNewGearBar() -- TODO DEBUG
+
+  me.UpdateGearBarMenu()
 
   builtMenu = true
 end
@@ -92,6 +103,7 @@ function me.CreateNewGearBar()
   mod.gearBarManager.AddNewGearSlot(gearBar.id)
 
   mod.gearBar.BuildGearBar(gearBar)
+  me.UpdateGearBarMenu()
 end
 
 --[[
@@ -117,6 +129,7 @@ function me.CreateGearBarList(frame)
   gearBarListScrollFrame:SetScript("OnMouseWheel", me.ScrollFrameOnMouseWheel)
 
   gearBarListScrollFrame.scrollContentFrame = me.CreateGearBarContentFrame(gearBarListScrollFrame)
+  gearBarListContentFrame = gearBarListScrollFrame.scrollContentFrame
   gearBarListScrollFrame.frameSlider = me.CreateGearBarListFrameSlider(gearBarListScrollFrame)
 end
 
@@ -254,4 +267,83 @@ function me.ScrollFrameSliderOnValueChanged(self)
   stepSize = maxScroll / RGGM_CONSTANTS.GEAR_BAR_LIST_SLIDER_MAX_VALUE
   -- set vertical scroll of the contenframe - (currentslider value * stepsize)
   scrollFrame:SetVerticalScroll(self:GetValue() * stepSize)
+end
+
+--[[
+  Update the gearBar configuration menu. Work through current gearBar configuration and update the ui accordingly
+]]--
+function me.UpdateGearBarMenu()
+  local gearBars = mod.gearBarManager.GetGearBars()
+  --[[
+    parentFrame is only set if there was a configurationFrame built or found previously. It will then be
+    subsequently used as anchorpoint for new configurations frames. They go at the end of the list.
+  ]]--
+  local parentFrame
+
+  for index, gearBar in pairs(gearBars) do
+    local gearBarConfigFrame = gearBarConfigurationFrames[index]
+
+    if gearBarConfigFrame == nil then
+      mod.logger.LogDebug(me.tag, "Creating new configFrame because it did not yet exist")
+
+      parentFrame = me.CreateGearBarConfigFrame(parentFrame, gearBarListContentFrame, index, gearBar)
+      table.insert(gearBarConfigurationFrames, parentFrame)
+    else
+      parentFrame = gearBarConfigFrame
+      mod.logger.LogDebug(me.tag, "Configframe already exists reusing")
+    end
+  end
+end
+
+--[[
+  Creates a frame that holds all elements for configuring a specific gearbar
+
+  @param {table} parentFrame
+    Optional frame that is used as a parent for the newly created configurationFrame
+  @param {table} contentFrame
+    The frame that contains all the configurationFrames
+  @param {number} position
+  @param {table} gearBar
+    A gearbar object containing all metadata related to a gearBar
+
+  @return {table}
+    The created configFrame
+]]--
+function me.CreateGearBarConfigFrame(parentFrame, contentFrame, position, gearBar)
+  local gearBarConfigFrame = CreateFrame(
+    "Frame",
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_FRAME .. position,
+    contentFrame
+  )
+
+  gearBarConfigFrame:SetWidth(RGGM_CONSTANTS.GEAR_BAR_LIST_CONFIG_CONTENT_FRAME_WIDTH)
+  gearBarConfigFrame:SetHeight(RGGM_CONSTANTS.GEAR_BAR_LIST_CONFIG_CONTENT_FRAME_DEFAULT_HEIGHT)
+
+  gearBarConfigFrame:SetBackdrop({
+    bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background"
+  })
+
+  if math.fmod(position, 2) == 0 then
+    gearBarConfigFrame:SetBackdropColor(0.37, 0.37, 0.37, .4)
+  else
+    gearBarConfigFrame:SetBackdropColor(.25, .25, .25, .8)
+  end
+
+  gearBarConfigFrame.gearBarId = gearBar.id
+  -- gearBarConfigFrame.title = me.CreateGearBarName(gearBarConfigFrame)
+  -- gearBarConfigFrame.deleteButton = me.CreateDeleteGearBarButton(gearBarConfigFrame)
+
+  --[[
+    Creating a list of frames with different heights each frame should follow after another.
+    The first frame in the list is the only one that does not have a parentframe.
+  ]]--
+  if parentFrame ~= nil then
+    gearBarConfigFrame:SetPoint("TOPLEFT", parentFrame, "TOPLEFT", 0, -parentFrame:GetHeight())
+  else
+    gearBarConfigFrame:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", 0, 0)
+  end
+
+  mod.logger.LogDebug(me.tag, "Created new gearbar configframe")
+
+  return gearBarConfigFrame
 end
