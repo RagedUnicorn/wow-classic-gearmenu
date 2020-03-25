@@ -168,23 +168,20 @@ function me.Initialize()
   me.configuration.SetupConfiguration()
   -- setup addon configuration ui
   me.addonConfiguration.SetupAddonConfiguration()
-  -- build ui for gearBar
-  local gearBarFrame = me.gearBar.BuildGearBar()
-  -- TODO new build all gearbars
+  -- build ui for all gearBars
+  me.gearBar.BuildGearBars()
   -- build ui for changeMenu
-  me.changeMenu.BuildChangeMenu(gearBarFrame)
+  me.changeMenu.BuildChangeMenu()
   -- start ticker intervals
-  me.ticker.StartTickerSlotCooldown()
+  -- me.ticker.StartTickerSlotCooldown()
   -- Update initial view of cooldowns after addon initialization
   me.gearBar.UpdateGearSlotCooldown()
   -- start ticker range check
   if me.configuration.IsShowKeyBindingsEnabled() then
-    me.ticker.StartTickerRangeCheck()
+    -- me.ticker.StartTickerRangeCheck()
   end
-  -- update initial view of gearBar after addon initialization
-  me.gearBar.UpdateGearBar()
-  -- TODO new update all gearbars
-  -- me.gearBarManager.UpdateGearBars()
+  -- update initial view of gearBars after addon initialization
+  me.gearBar.UpdateGearBars()
 
   -- initialization is done
   initializationDone = true

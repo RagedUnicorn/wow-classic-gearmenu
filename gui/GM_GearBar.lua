@@ -96,43 +96,64 @@ end
 ]]--
 local gearSlots = {}
 
+function me.BuildGearBars()
+  local gearBars = mod.gearBarManager.GetGearBars()
+
+  for _, gearBar in pairs(gearBars) do
+    me.BuildGearBar(gearBar)
+  end
+end
+
 --[[
-  Build the initial gearBar for equiped items
+  Build a gearBar based on the passed metadata
+
+  @param {table} gearBar
 
   @return {table}
     The created gearBarFrame
 ]]--
-function me.BuildGearBar()
-  local gearBarFrame = CreateFrame("Frame", RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME, UIParent)
+function me.BuildGearBar(gearBar)
+  local gearBarFrame = CreateFrame(
+    "Frame",
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_BASE_FRAME_NAME .. gearBar.id,
+    UIParent
+  )
+  gearBarFrame.id = gearBar.id
+
   local gearBarSlotSize = mod.configuration.GetSlotSize()
 
+  -- TODO magic value
   gearBarFrame:SetWidth(
-    RGGM_CONSTANTS.GEAR_BAR_SLOT_AMOUNT * gearBarSlotSize + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN
+    gearBarSlotSize + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN
   )
   gearBarFrame:SetHeight(gearBarSlotSize + RGGM_CONSTANTS.GEAR_BAR_HEIGHT_MARGIN)
 
-  if not mod.configuration.IsGearBarLocked() then
-    gearBarFrame:SetBackdrop({
-      bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background"
-    })
-  end
-
   gearBarFrame:SetPoint("CENTER", 0, 0)
   gearBarFrame:SetMovable(true)
+  -- prevent dragging the frame outside the actual 3d-window
   gearBarFrame:SetClampedToScreen(true)
 
-  mod.uiHelper.LoadFramePosition(gearBarFrame, RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME)
-  me.SetupDragFrame(gearBarFrame)
+  gearBarFrame:SetBackdrop({
+    bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background"
+  })
 
-  -- create all gearSlots
-  for i = 1, RGGM_CONSTANTS.GEAR_BAR_SLOT_AMOUNT do
-    me.CreateGearSlot(gearBarFrame, i)
+  mod.logger.LogError(me.tag, "Building gearBar")
+  me.SetupDragFrame(gearBarFrame)
+  mod.gearBar.AddGearBar(gearBar.id, gearBarFrame)
+
+  --[[
+    Create all configured slots for the gearBar
+  ]]--
+  for i = 1, #gearBar.slots do
+    me.BuilGearSlot(gearBarFrame, i)
   end
 
   return gearBarFrame
 end
 
 --[[
+  TODO describe that this is a ui function only
+  TODO this function cannot be called while in combatlockdown
   Create a single gearSlot. Note that a gearSlot inherits from the SecureActionButtonTemplate to enable the usage
   of clicking items.
 
@@ -144,7 +165,7 @@ end
   @return {table}
     The created gearSlot
 ]]--
-function me.CreateGearSlot(gearBarFrame, position)
+function me.BuilGearSlot(gearBarFrame, position)
   local gearSlot = CreateFrame(
     "Button",
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT .. position,
@@ -178,8 +199,8 @@ function me.CreateGearSlot(gearBarFrame, position)
     }
   }
 
-  local slot = mod.configuration.GetSlotForPosition(position)
-  local gearSlotMetaData = mod.gearManager.GetGearSlotForSlotId(slot)
+  local gearBar = mod.gearBarManager.GetGearBar(gearBarFrame.id)
+  local gearSlotMetaData = gearBar.slots[position]
 
   if gearSlotMetaData ~= nil then
     gearSlot:SetAttribute("type1", "item")
@@ -190,8 +211,8 @@ function me.CreateGearSlot(gearBarFrame, position)
   gearSlot:SetBackdropColor(0.15, 0.15, 0.15, 1)
   gearSlot:SetBackdropBorderColor(0, 0, 0, 1)
 
-  gearSlot.combatQueueSlot = me.CreateCombatQueueSlot(gearSlot)
-  gearSlot.keyBindingText = me.CreateKeyBindingText(gearSlot, position)
+  gearSlot.combatQueueSlot = mod.gearBar.CreateCombatQueueSlot(gearSlot)
+  gearSlot.keyBindingText = mod.gearBar.CreateKeyBindingText(gearSlot, position)
   gearSlot.position = position
 
   mod.uiHelper.CreateHighlightFrame(gearSlot)
@@ -203,10 +224,8 @@ function me.CreateGearSlot(gearBarFrame, position)
   )
 
   me.SetupEvents(gearSlot)
-  -- store gearSlot
-  table.insert(gearSlots, gearSlot)
-  -- initially hide slots
-  gearSlot:Show()
+
+  mod.gearBar.AddGearSlot(gearBarFrame.id, gearSlot)
 
   return gearSlot
 end
@@ -280,120 +299,255 @@ function me.SetKeyBindingFont(keybindingFontString)
 end
 
 --[[
-  Update keybindings whenever the event UPDATE_BINDINGS is fired
-]]--
-function me.UpdateKeyBindings()
-  for index, gearSlot in pairs(gearSlots) do
-    local keyBindingText = GetBindingText(GetBindingKey("CLICK GM_GearBarSlot_" .. index .. ":LeftButton"), "KEY_", 1)
+  Setup event for a changeSlot
 
-    if keyBindingText ~= nil then
-      gearSlot.keyBindingText:SetText(keyBindingText)
-    end
+  @param {table} gearSlot
+]]--
+function me.SetupEvents(gearSlot)
+  --[[
+    Note: SecureActionButtons ignore right clicks by default - reenable right clicks
+  ]]--
+  if mod.configuration.IsFastpressEnabled() then
+    gearSlot:RegisterForClicks("LeftButtonDown", "RightButtonDown")
+  else
+    gearSlot:RegisterForClicks("LeftButtonUp", "RightButtonUp")
   end
+  gearSlot:RegisterForDrag("LeftButton")
+  --[[
+    Replacement for OnCLick. Do not overwrite click event for protected button
+  ]]--
+  gearSlot:SetScript("PreClick", function(self, button, down)
+    me.GearSlotOnClick(self, button, down)
+  end)
+
+  gearSlot:SetScript("OnEnter", me.GearSlotOnEnter)
+  gearSlot:SetScript("OnLeave", me.GearSlotOnLeave)
+
+  gearSlot:SetScript("OnReceiveDrag", function(self)
+    -- me.GearSlotOnReceiveDrag(self) -- TODO drag and drop support
+  end)
+
+  gearSlot:SetScript("OnDragStart", function(self)
+    -- me.GearSlotOnDragStart(self) -- TODO drag and drop support
+  end)
 end
 
 --[[
-  Update visual display of itemrange for all gearslots
+  Callback for a gearBarSlot OnClick
+
+  @param {table} self
+  @param {string} button
 ]]--
-function me.UpdateSpellRange()
-  for index, gearSlot in pairs(gearSlots) do
-    if mod.target.GetCurrentTargetGuid() == "" then
-      gearSlot.keyBindingText:SetTextColor(1, 1, 1, 1)
+function me.GearSlotOnClick(self, button)
+  self.highlightFrame:Show()
+
+  if button == "LeftButton" then
+    self.highlightFrame:SetBackdropBorderColor(unpack(RGGM_CONSTANTS.HIGHLIGHT.highlight))
+  elseif button == "RightButton" then
+    self.highlightFrame:SetBackdropBorderColor(unpack(RGGM_CONSTANTS.HIGHLIGHT.remove))
+    mod.combatQueue.RemoveFromQueue(self:GetAttribute("item"))
+  else
+    return -- ignore other buttons
+  end
+
+  C_Timer.After(.5, function()
+    if MouseIsOver(_G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME]) then
+      self.highlightFrame:SetBackdropBorderColor(unpack(RGGM_CONSTANTS.HIGHLIGHT.hover))
     else
-      local slot = mod.configuration.GetSlotForPosition(index)
-      local gearSlotMetaData = mod.gearManager.GetGearSlotForSlotId(slot)
-
-      if gearSlotMetaData ~= nil then
-        local itemLink = GetInventoryItemLink(RGGM_CONSTANTS.UNIT_ID_PLAYER, gearSlotMetaData.slotId)
-        --[[
-          - Returns true if item is in range
-          - Returns false if item is not in range
-          - Returns nil if not applicable(e.g. item is passive only) or the slot might be empty
-        ]]--
-        local isInRange = IsItemInRange(itemLink, RGGM_CONSTANTS.UNIT_ID_TARGET)
-
-        if isInRange == nil or isInRange == true then
-          gearSlot.keyBindingText:SetTextColor(1, 1, 1, 1)
-        else
-          gearSlot.keyBindingText:SetTextColor(1, 0, 0, 1)
-        end
-      end
+      self.highlightFrame:Hide()
     end
+  end)
+end
+
+--[[
+  Callback for a changeSlot OnEnter
+
+  @param {table} self
+]]--
+function me.GearSlotOnEnter(self)
+  self.highlightFrame:SetBackdropBorderColor(unpack(RGGM_CONSTANTS.HIGHLIGHT.hover))
+  self.highlightFrame:Show()
+  mod.changeMenu.DuplicateUpdateChangeMenu(self, self:GetParent().id)
+  mod.tooltip.BuildTooltipForWornItem(self:GetAttribute("item"))
+end
+
+--[[
+  Callback for a gearSlot OnLeave
+
+  @param {table} self
+]]--
+function me.GearSlotOnLeave(self)
+  self.highlightFrame:Hide()
+  mod.tooltip.TooltipClear()
+end
+
+--[[
+  Update all GearBars
+]]--
+function me.UpdateGearBars()
+  local gearBars = mod.gearBarManager.GetGearBars()
+
+  for _, gearBar in pairs(gearBars) do
+    me.UpdateGearBar(gearBar)
   end
 end
 
 --[[
-  Update the gearBar after one of the slots was hidden or shown again
+  Update a single gearBar
+
+  @param {table} gearBar
 ]]--
-function me.UpdateGearBar()
+function me.UpdateGearBar(gearBar)
   if InCombatLockdown() then
     -- temporary fix for in combat configuration of slots
     mod.logger.LogError(me.tag, "Unable to update slots in combat. Please /reload after your are out of combat")
     return
   end
 
-  local slotCount = 0
   local gearBarSlotSize = mod.configuration.GetSlotSize()
 
-  for index, gearSlot in pairs(gearSlots) do
-    local slot = mod.configuration.GetSlotForPosition(index)
-    local gearSlotMetaData = mod.gearManager.GetGearSlotForSlotId(slot)
+  for index, gearSlotMetaData in pairs(gearBar.slots) do
+    mod.logger.LogError(me.tag, "Gearslot index: " .. index)
 
-    if gearSlotMetaData ~= nil then
-      -- slot is active
-      gearSlot:SetAttribute("type1", "item")
-      gearSlot:SetAttribute("item", gearSlotMetaData.slotId)
-      me.UpdateTexture(gearSlot, gearSlotMetaData)
-      mod.uiHelper.UpdateSlotTextureAttributes(gearSlot)
-      slotCount = slotCount + 1
-      gearSlot:Show()
-    else
-      -- slot is inactive
-      gearSlot:Hide()
-    end
+    local uiGearBar = mod.gearBar.GetGearBar(gearBar.id)
+    local uiGearSlot = uiGearBar.gearSlotReferences[index]
+
+    uiGearSlot:SetAttribute("type1", "item")
+    uiGearSlot:SetAttribute("item", gearSlotMetaData.slotId)
+    mod.gearBar.UpdateTexture(uiGearSlot, gearSlotMetaData)
+    mod.uiHelper.UpdateSlotTextureAttributes(uiGearSlot)
 
     -- update slotsize to match configuration
-    gearSlot:SetSize(gearBarSlotSize, gearBarSlotSize)
-    gearSlot.cooldownOverlay:SetSize(gearBarSlotSize, gearBarSlotSize)
-    gearSlot.cooldownOverlay:GetRegions()
+    uiGearSlot:SetSize(gearBarSlotSize, gearBarSlotSize)
+    uiGearSlot.cooldownOverlay:SetSize(gearBarSlotSize, gearBarSlotSize)
+    uiGearSlot.cooldownOverlay:GetRegions()
       :SetFont(
         STANDARD_TEXT_FONT,
         mod.configuration.GetSlotSize() * RGGM_CONSTANTS.GEAR_BAR_CHANGE_COOLDOWN_TEXT_MODIFIER
       )
 
-    me.SetKeyBindingFont(gearSlot.keyBindingText)
+    mod.gearBar.SetKeyBindingFont(uiGearSlot.keyBindingText)
   end
-
-  me.UpdateGearBarSize(slotCount)
-  me.UpdateSlotPosition()
 end
 
 --[[
-  Update the gearBar after one of PLAYER_EQUIPMENT_CHANGED, BAG_UPDATE events
-]]--
-function me.UpdateGearBarTextures()
-  for index, gearSlot in pairs(gearSlots) do
-    local slot = mod.configuration.GetSlotForPosition(index)
-    local gearSlotMetaData = mod.gearManager.GetGearSlotForSlotId(slot)
+  Update gearSlots in cases such as a new gearSlots was added or one was removed
 
-    if gearSlotMetaData ~= nil then
-      me.UpdateTexture(gearSlot, gearSlotMetaData)
+  @param {number} gearBarId
+]]--
+function me.UpdateGearSlots(gearBarId)
+  local gearBarUi = mod.gearBar.GetGearBar(gearBarId)
+  local gearBar = mod.gearBarManager.GetGearBar(gearBarId)
+
+  for i = 1, #gearBar.slots do
+    local gearSlot = gearBarUi.gearSlotReferences[i]
+
+    if gearSlot ~= nil then
+      mod.logger.LogWarn(me.tag, "Found a slot")
+    else
+      mod.logger.LogWarn(me.tag, "Slot not found. Should be created")
+      me.BuilGearSlot(gearBarUi.gearBarReference, i)
+    end
+  end
+
+
+  --[[
+    TODO maybe there is a better way
+
+    Search for orphan gearSlots that should be removed. Note it is not possible to delete
+    a frame. It can only be hidden but will of course not be recreated once the user reloads the ui
+  ]]--
+
+  for i = 1, #gearBarUi.gearSlotReferences do
+    if gearBar.slots[i] == nil then
+      -- means the element is no longer known and should be "removed"
+      gearBarUi.gearSlotReferences[i]:Hide()
+      gearBarUi.gearSlotReferences[i] = nil
     end
   end
 end
 
 --[[
-  Update the size of the gearBar itself depending on how many slots are active
+  Update the gearBar after one of PLAYER_EQUIPMENT_CHANGED, BAG_UPDATE events
 
-  @param {number} slotCount
+  Textures are changed separately from UpdateGearBar because it can be done at any point
+  even if in InCombatLockdown while gearSlots cannot be reconfigured or even deleted while
+  in combatlockdown
 ]]--
-function me.UpdateGearBarSize(slotCount)
-  local gearBarSlotSize = mod.configuration.GetSlotSize()
-  local gearBarWidth = slotCount * gearBarSlotSize
-    + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN
-  local gearBarHeight = gearBarSlotSize + RGGM_CONSTANTS.GEAR_BAR_HEIGHT_MARGIN
+function me.UpdateGearBarTextures()
+  local gearBars = mod.gearBarManager.GetGearBars()
 
-  _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME]:SetSize(gearBarWidth, gearBarHeight)
+  for _, gearBar in pairs(gearBars) do
+    local uiGearBar = mod.gearBar.GetGearBar(gearBar.id)
+
+    for index, gearSlot in pairs(gearBar.slots) do
+      local uiGearSlot = uiGearBar.gearSlotReferences[index]
+      mod.gearBar.UpdateTexture(uiGearSlot, gearSlot)
+    end
+  end
+end
+
+--[[
+  Update gearBar in cases such as a new gearSlot was adder or one was removed. Should
+  always be called after me.UpdateGearSlots otherwise the size calculation will be off.
+
+  @param {number} gearBarId
+]]--
+function me.UpdateGearBarSize(gearBarId)
+  local gearBarUi = mod.gearBar.GetGearBar(gearBarId)
+  local slotAmount = #gearBarUi.gearSlotReferences + 1 -- TODO explain
+
+  mod.logger.LogError(me.tag, string.format("Updating GearBar for %s slots", slotAmount))
+
+  local gearBarSlotSize = mod.configuration.GetSlotSize()
+
+  gearBarUi.gearBarReference:SetWidth(
+    slotAmount * gearBarSlotSize + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN
+  )
+end
+
+--[[
+  @param {table} frame
+    The frame to attach the drag handlers to
+]]--
+function me.SetupDragFrame(frame)
+  frame:SetScript("OnMouseDown", me.StartDragFrame)
+  frame:SetScript("OnMouseUp", me.StopDragFrame)
+end
+
+--[[
+  Frame callback to start moving the passed (self) frame
+
+  @param {table} self
+]]--
+function me.StartDragFrame(self)
+  -- if mod.configuration.IsGearBarLocked() then return end TODO
+
+  self:StartMoving()
+end
+
+--[[
+  Frame callback to stop moving the passed (self) frame
+
+  @param {table} self
+]]--
+function me.StopDragFrame(self)
+  -- if mod.configuration.IsGearBarLocked() then return end TODO
+
+  self:StopMovingOrSizing()
+
+  -- local point, relativeTo, relativePoint, posX, posY = self:GetPoint()
+
+  --[[
+  mod.configuration.SaveUserPlacedFramePosition(
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME,
+    point,
+    relativeTo,
+    relativePoint,
+    posX,
+    posY
+  )
+  ]]--
 end
 
 --[[
@@ -498,48 +652,6 @@ function me.UpdateCombatQueue(slotId)
   else
     icon:Hide()
   end
-end
-
---[[
-  @param {table} frame
-    The frame to attach the drag handlers to
-]]--
-function me.SetupDragFrame(frame)
-  frame:SetScript("OnMouseDown", me.StartDragFrame)
-  frame:SetScript("OnMouseUp", me.StopDragFrame)
-end
-
---[[
-  Frame callback to start moving the passed (self) frame
-
-  @param {table} self
-]]--
-function me.StartDragFrame(self)
-  if mod.configuration.IsGearBarLocked() then return end
-
-  self:StartMoving()
-end
-
---[[
-  Frame callback to stop moving the passed (self) frame
-
-  @param {table} self
-]]--
-function me.StopDragFrame(self)
-  if mod.configuration.IsGearBarLocked() then return end
-
-  self:StopMovingOrSizing()
-
-  local point, relativeTo, relativePoint, posX, posY = self:GetPoint()
-
-  mod.configuration.SaveUserPlacedFramePosition(
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME,
-    point,
-    relativeTo,
-    relativePoint,
-    posX,
-    posY
-  )
 end
 
 --[[

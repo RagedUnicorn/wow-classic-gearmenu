@@ -42,18 +42,15 @@ local lastGearSlotHovered
 
 --[[
   Build the initial changeMenu for bagged items
-
-  @param {table} gearBarFrame
 ]]--
-function me.BuildChangeMenu(gearBarFrame)
+function me.BuildChangeMenu()
   local changeSlotSize = mod.configuration.GetSlotSize()
 
-  changeMenuFrame = CreateFrame("Frame", RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_FRAME, gearBarFrame)
+  changeMenuFrame = CreateFrame("Frame", RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_FRAME)
   changeMenuFrame:SetWidth(RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT * changeSlotSize)
   changeMenuFrame:SetHeight(RGGM_CONSTANTS.GEAR_BAR_CHANGE_DEFAULT_HEIGHT)
   changeMenuFrame:SetBackdropColor(0, 0, 0, .5)
   changeMenuFrame:SetBackdropBorderColor(0, 0, 0, .8)
-  changeMenuFrame:SetPoint("BOTTOMLEFT", gearBarFrame, "TOPLEFT", 5, 0)
 
   local row
   local col = 0
