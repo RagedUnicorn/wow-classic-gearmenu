@@ -291,8 +291,48 @@ function me.UpdateGearBarMenu()
     else
       parentFrame = gearBarConfigFrame
       mod.logger.LogDebug(me.tag, "Configframe already exists reusing")
+
+      me.UpdateGearBarConfigurationFrame(gearBar, gearBarConfigFrame)
+      gearBarConfigFrame:Show()
     end
   end
+
+  --[[
+    When a gearBar is deleted and it is not the only gearBar or the one at the last spot of the list
+    all other elements have to adapt and effectively move up in the list. This has the effect that afterwards
+    an orphan exists in the list and needs to be cleaned up.
+  ]]--
+  for index, gearBarConfigurationFrame in pairs(gearBarConfigurationFrames) do
+    if index > #gearBars then
+      mod.logger.LogDebug(me.tag, "Cleaning up orphaned configurationframe")
+      me.ResetGearBarConfigurationFrame(gearBarConfigurationFrame)
+      gearBarConfigurationFrame:Hide()
+    end
+  end
+end
+
+--[[
+  Update a gearBarConfigFrames properties. This happens because the configframes are reused
+  and all necessary properties need to be updated to match the new list entry
+
+  @param {table} gearBar
+  @param {table} gearBarConfigurationFrame
+]]--
+function me.UpdateGearBarConfigurationFrame(gearBar, gearBarConfigurationFrame)
+  gearBarConfigurationFrame.gearBarId = gearBar.id
+  gearBarConfigurationFrame.deleteButton.gearBarId = gearBar.id
+  gearBarConfigurationFrame.title:SetText(RGGM_CONSTANTS.GEAR_BAR_CONFIG_DEFAULT_TITLE .. gearBar.id)
+end
+
+--[[
+  Reset a configuration frame into a default state
+
+  @param {table} gearBarConfigurationFrame
+]]--
+function me.ResetGearBarConfigurationFrame(gearBarConfigurationFrame)
+  gearBarConfigurationFrame.gearBarId = nil
+  gearBarConfigurationFrame.deleteButton.gearBarId = nil
+  gearBarConfigurationFrame.title:SetText("")
 end
 
 --[[
@@ -329,9 +369,10 @@ function me.CreateGearBarConfigFrame(parentFrame, contentFrame, position, gearBa
     gearBarConfigFrame:SetBackdropColor(.25, .25, .25, .8)
   end
 
+  gearBarConfigFrame.position = position -- position in the gearBarList
   gearBarConfigFrame.gearBarId = gearBar.id
-  -- gearBarConfigFrame.title = me.CreateGearBarName(gearBarConfigFrame)
-  -- gearBarConfigFrame.deleteButton = me.CreateDeleteGearBarButton(gearBarConfigFrame)
+  gearBarConfigFrame.title = me.CreateGearBarName(gearBarConfigFrame)
+  gearBarConfigFrame.deleteButton = me.CreateDeleteGearBarButton(gearBarConfigFrame)
 
   --[[
     Creating a list of frames with different heights each frame should follow after another.
@@ -346,4 +387,76 @@ function me.CreateGearBarConfigFrame(parentFrame, contentFrame, position, gearBa
   mod.logger.LogDebug(me.tag, "Created new gearbar configframe")
 
   return gearBarConfigFrame
+end
+
+--[[
+  Create a fontString holder for the name of the GearBar
+
+  @param {table} gearBarConfigFrame
+
+  @return {table}
+    The created fontString
+]]--
+function me.CreateGearBarName(gearBarConfigFrame)
+  local gearBarNameFontString = gearBarConfigFrame:CreateFontString(
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_FRAME_TITLE,
+    "OVERLAY"
+  )
+  gearBarNameFontString:SetFont(STANDARD_TEXT_FONT, 15)
+  gearBarNameFontString:SetPoint("TOPLEFT", gearBarConfigFrame, 25, -20)
+  gearBarNameFontString:SetText(RGGM_CONSTANTS.GEAR_BAR_CONFIG_DEFAULT_TITLE .. gearBarConfigFrame.gearBarId)
+
+  return gearBarNameFontString
+end
+
+--[[
+  @param {table} gearBarConfigFrame
+
+  @return {table}
+    The created button
+]]--
+function me.CreateDeleteGearBarButton(gearBarConfigFrame)
+  local button = CreateFrame(
+    "Button",
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_MENU_BUTTON_DELETE_GEAR_BAR,
+    gearBarConfigFrame,
+    "UIPanelButtonTemplate"
+  )
+
+  button:SetHeight(RGGM_CONSTANTS.BUTTON_DEFAULT_HEIGHT)
+  button:SetText(rggm.L["gear_bar_configuration_delete_gearbar"])
+  button:SetPoint("TOPLEFT", 100, -20)
+  button:SetScript('OnClick', me.DeleteGearBar)
+
+  button.gearBarId = gearBarConfigFrame.gearBarId
+
+  local buttonFontString = button:GetFontString()
+
+  button:SetWidth(
+    buttonFontString:GetStringWidth() + RGGM_CONSTANTS.BUTTON_DEFAULT_PADDING
+  )
+
+  return button
+end
+
+--[[
+  Delete a gearBar. This includes both from the gearBarManager and from the gearBarMenu
+
+  @param {table} self
+
+]]--
+function me.DeleteGearBar(self)
+  mod.gearBarManager.RemoveGearBar(self.gearBarId)
+  -- remove the actual ui gearBar element
+  mod.gearBar.RemoveGearBar(self.gearBarId)
+  --[[
+    Remove the configuration for the gearBar from the gearBarMenu by checking the position in the
+    gearBar list and hiding it.
+
+    TODO in the end we need a way to reset an entry inside the list that we can then later reuse
+  ]]--
+  local position = self:GetParent().position
+  gearBarConfigurationFrames[position]:Hide()
+
+  me.UpdateGearBarMenu()
 end

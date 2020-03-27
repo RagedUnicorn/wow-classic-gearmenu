@@ -218,6 +218,8 @@ RGGM_CONSTANTS = {
   GEAR_BAR_LIST_CONFIG_CONTENT_FRAME_WIDTH = 560,
   GEAR_BAR_LIST_CONFIG_CONTENT_FRAME_DEFAULT_HEIGHT = 200,
 
+  GEAR_BAR_CONFIG_DEFAULT_TITLE = "GearBar_",
+
   --[[
     Configuration values for scrollframe slider
     0 is all the way up

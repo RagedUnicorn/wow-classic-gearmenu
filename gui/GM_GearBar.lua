@@ -75,6 +75,19 @@ function me.AddGearBar(gearBarId, gearBarReference)
 end
 
 --[[
+  Not possible to destroy frames. In this case the frame is hidden and the reference
+  nullified.
+
+  @param {number} gearBarId
+    An id of a gearBar
+]]--
+function me.RemoveGearBar(gearBarId)
+  local gearBar = me.GetGearBar(gearBarId)
+  gearBar.gearBarReference:Hide()
+  gearBarUiStorage[gearBarId] = nil
+end
+
+--[[
   Store a gearSlot object to a gearBar object
 
   @param {number} gearBarId
