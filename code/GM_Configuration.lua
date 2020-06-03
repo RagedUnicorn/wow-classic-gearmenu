@@ -65,7 +65,7 @@ GearMenuConfiguration = {
   ]]--
   ["enableFastpress"] = false,
     --[[
-    Whether the Change Menu is in the foreground
+    Whether the Changemenu is in the foreground
   ]]--
   ["changeMenuToForeground"] = false,
   --[[

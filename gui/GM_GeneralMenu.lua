@@ -508,7 +508,7 @@ function me.EnableFastPressOnClick(self)
 end
 
 --[[
-  OnShow callback for checkbuttons - Change Menu to foreground
+  OnShow callback for checkbuttons - Changemenu to foreground
 
   @param {table} self
 ]]--
@@ -521,7 +521,7 @@ function me.ChangeMenutoForegroundOnShow(self)
 end
 
 --[[
-  OnClick callback for checkbuttons - enable fastpress
+  OnClick callback for checkbuttons - Changemenu to foreground
 
   @param {table} self
 ]]--
