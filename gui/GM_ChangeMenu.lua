@@ -54,6 +54,11 @@ function me.BuildChangeMenu(gearBarFrame)
   changeMenuFrame:SetBackdropColor(0, 0, 0, .5)
   changeMenuFrame:SetBackdropBorderColor(0, 0, 0, .8)
   changeMenuFrame:SetPoint("BOTTOMLEFT", gearBarFrame, "TOPLEFT", 5, 0)
+  if mod.configuration.IsChangeMenuToForegroundEnabled() then
+    changeMenuFrame:SetFrameStrata("HIGH")
+  else
+    changeMenuFrame:SetFrameStrata("MEDIUM")
+  end
 
   local row
   local col = 0

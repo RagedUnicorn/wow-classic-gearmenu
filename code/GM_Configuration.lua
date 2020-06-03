@@ -64,6 +64,10 @@ GearMenuConfiguration = {
     triggered as soon as a key is pressed down instead of waiting for the keyup event
   ]]--
   ["enableFastpress"] = false,
+    --[[
+    Whether the Change Menu is in the foreground
+  ]]--
+  ["changeMenuToForeground"] = false,
   --[[
     Itemquality to filter items by their quality. Everything that is below the settings value
     will not be considered a valid item to display when building the changemenu.
@@ -171,6 +175,11 @@ function me.SetupConfiguration()
 
   if GearMenuConfiguration.enableFastpress == nil then
     mod.logger.LogInfo(me.tag, "enableFastpress has unexpected nil value")
+    GearMenuConfiguration.enableFastpress = false
+  end
+
+  if GearMenuConfiguration.changeMenuToForeground == nil then
+    mod.logger.LogInfo(me.tag, "changeMenuToForeground has unexpected nil value")
     GearMenuConfiguration.enableFastpress = false
   end
 
@@ -451,6 +460,31 @@ end
 ]]--
 function me.IsFastpressEnabled()
   return GearMenuConfiguration.enableFastpress
+end
+
+--[[
+  Enable Changemenu to foreground
+]]--
+function me.EnableChangeMenuToForeground()
+  GearMenuConfiguration.changeMenuToForeground = true
+  mod.gearBar.UpdateClickHandler()
+end
+
+--[[
+  Disable Changemenu to foreground
+]]--
+function me.DisableChangeMenuToForeground()
+  GearMenuConfiguration.changeMenuToForeground = false
+  mod.gearBar.UpdateClickHandler()
+end
+
+--[[
+  @return {boolean}
+    true - if Changemenu to foreground is enabled
+    false - if Changemenu to foreground is disabled
+]]--
+function me.IsChangeMenuToForegroundEnabled()
+  return GearMenuConfiguration.changeMenuToForeground
 end
 
 --[[

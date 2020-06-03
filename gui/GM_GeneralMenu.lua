@@ -41,7 +41,8 @@ local options = {
   {"EnableTooltips", rggm.L["enable_tooltips"], rggm.L["enable_tooltips_tooltip"]},
   {"EnableSimpleTooltips", rggm.L["enable_simple_tooltips"], rggm.L["enable_simple_tooltips_tooltip"]},
   {"EnableDragAndDrop", rggm.L["enable_drag_and_drop"], rggm.L["enable_drag_and_drop_tooltip"]},
-  {"EnableFastpress", rggm.L["enable_fastpress"], rggm.L["enable_fastpress_tooltip"]}
+  {"EnableFastpress", rggm.L["enable_fastpress"], rggm.L["enable_fastpress_tooltip"]},
+  {"ChangeMenutoForeground", rggm.L["changemenu_to_foreground"], rggm.L["changemenu_to_foreground_tooltip"]}
 }
 
 -- track whether the menu was already built
@@ -123,6 +124,15 @@ function me.BuildUi(frame)
     -260,
     me.EnableFastPressOnShow,
     me.EnableFastPressOnClick
+  )
+
+  me.BuildCheckButtonOption(
+    frame,
+    RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_CHANGEMENU_TO_FOREGROUND,
+    20,
+    -290,
+    me.ChangeMenutoForegroundOnShow,
+    me.ChangeMenutoForegroundOnClick
   )
 
   me.CreateItemQualityLabel(frame)
@@ -220,7 +230,7 @@ function me.CreateItemQualityLabel(frame)
     RGGM_CONSTANTS.ELEMENT_GENERAL_LABEL_FILTER_ITEM_QUALITY,
     "OVERLAY"
   )
-  filterItemQualityLabel:SetPoint("TOPLEFT", 20, -300)
+  filterItemQualityLabel:SetPoint("TOPLEFT", 20, -330)
   filterItemQualityLabel:SetFont(STANDARD_TEXT_FONT, 12)
   filterItemQualityLabel:SetTextColor(1, 1, 1)
   filterItemQualityLabel:SetText(rggm.L["filter_item_quality"])
@@ -236,7 +246,7 @@ function me.CreateItemQualityDropdown(frame)
     frame,
     "UIDropDownMenuTemplate"
   )
-  itemQualityDropdownMenu:SetPoint("TOPLEFT", 20, -320)
+  itemQualityDropdownMenu:SetPoint("TOPLEFT", 20, -350)
 
   UIDropDownMenu_Initialize(itemQualityDropdownMenu, me.InitializeDropdownMenu)
 end
@@ -256,7 +266,7 @@ function me.CreateSizeSlider(frame)
   sizeSlider:SetWidth(RGGM_CONSTANTS.GENERAL_SIZE_SLIDER_WIDTH)
   sizeSlider:SetHeight(RGGM_CONSTANTS.GENERAL_SIZE_SLIDER_HEIGHT)
   sizeSlider:SetOrientation('HORIZONTAL')
-  sizeSlider:SetPoint("TOPLEFT", 20, -380)
+  sizeSlider:SetPoint("TOPLEFT", 20, -410)
   sizeSlider:SetMinMaxValues(RGGM_CONSTANTS.GENERAL_SIZE_SLIDER_MIN, RGGM_CONSTANTS.GENERAL_SIZE_SLIDER_MAX)
   sizeSlider:SetValueStep(RGGM_CONSTANTS.QUICK_CHANGE_DELAY_SLIDER_STEP)
   sizeSlider:SetObeyStepOnDrag(true)
@@ -494,6 +504,34 @@ function me.EnableFastPressOnClick(self)
     mod.configuration.EnableFastpress()
   else
     mod.configuration.DisableFastpress()
+  end
+end
+
+--[[
+  OnShow callback for checkbuttons - Change Menu to foreground
+
+  @param {table} self
+]]--
+function me.ChangeMenutoForegroundOnShow(self)
+  if mod.configuration.IsChangeMenuToForegroundEnabled() then
+    self:SetChecked(true)
+  else  
+    self:SetChecked(false)
+  end
+end
+
+--[[
+  OnClick callback for checkbuttons - enable fastpress
+
+  @param {table} self
+]]--
+function me.ChangeMenutoForegroundOnClick(self)
+  local enabled = self:GetChecked()
+
+  if enabled then
+    mod.configuration.EnableChangeMenuToForeground()
+  else
+    mod.configuration.DisableChangeMenuToForeground()
   end
 end
 
