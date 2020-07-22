@@ -38,6 +38,8 @@ me.tag = "GearManager"
   Gearslots metadata
 
   {
+    ["inventoryTypeId"] = 1,
+      {number} - A simple number identifying the type of the slot. E.g. trinket1 and trinket2 have the same id. Used by quickChange
     ["name"] = "",
       {string} - The name of the slot. Used for translation
     ["simplifiedName"] = "",
@@ -53,85 +55,101 @@ me.tag = "GearManager"
 ]]--
 local gearSlots = {
   {
+    ["inventoryTypeId"] = 1,
     ["name"] = "slot_name_head",
     ["type"] = {"INVTYPE_HEAD"},
     ["textureId"] = 136516,
     ["slotId"] = INVSLOT_HEAD
   }, {
+    ["inventoryTypeId"] = 2,
     ["name"] = "slot_name_neck",
     ["type"] = {"INVTYPE_NECK"},
     ["textureId"] = 136519,
     ["slotId"] = INVSLOT_NECK
   }, {
+    ["inventoryTypeId"] = 3,
     ["name"] = "slot_name_shoulders",
     ["type"] = {"INVTYPE_SHOULDER"},
     ["textureId"] = 136526,
     ["slotId"] = INVSLOT_SHOULDER
   }, {
+    ["inventoryTypeId"] = 4,
     ["name"] = "slot_name_chest",
     ["type"] = {"INVTYPE_CHEST", "INVTYPE_ROBE"},
     ["textureId"] = 136512,
     ["slotId"] = INVSLOT_CHEST
   }, {
+    ["inventoryTypeId"] = 5,
     ["name"] = "slot_name_waist",
     ["type"] = {"INVTYPE_WAIST"},
     ["textureId"] = 136529,
     ["slotId"] = INVSLOT_WAIST
   }, {
+    ["inventoryTypeId"] = 6,
     ["name"] = "slot_name_legs",
     ["type"] = {"INVTYPE_LEGS"},
     ["textureId"] = 136517,
     ["slotId"] = INVSLOT_LEGS
   }, {
+    ["inventoryTypeId"] = 7,
     ["name"] = "slot_name_feet",
     ["type"] = {"INVTYPE_FEET"},
     ["textureId"] = 136513,
     ["slotId"] = INVSLOT_FEET
   }, {
+    ["inventoryTypeId"] = 8,
     ["name"] = "slot_name_wrist",
     ["type"] = {"INVTYPE_WRIST"},
     ["textureId"] = 136530,
     ["slotId"] = INVSLOT_WRIST
   }, {
+    ["inventoryTypeId"] = 9,
     ["name"] = "slot_name_hands",
     ["type"] = {"INVTYPE_HAND"},
     ["textureId"] = 136515,
     ["slotId"] = INVSLOT_HAND
   }, {
+    ["inventoryTypeId"] = 10,
     ["name"] = "slot_name_upper_finger",
     ["simplifiedName"] = "slot_name_finger",
     ["type"] = {"INVTYPE_FINGER"},
     ["textureId"] = 136514,
     ["slotId"] = INVSLOT_FINGER1
   }, {
+    ["inventoryTypeId"] = 10,
     ["name"] = "slot_name_lower_finger",
     ["simplifiedName"] = "slot_name_finger",
     ["type"] = {"INVTYPE_FINGER"},
     ["textureId"] = 136514,
     ["slotId"] = INVSLOT_FINGER2
   }, {
+    ["inventoryTypeId"] = 11,
     ["name"] = "slot_name_upper_trinket",
     ["simplifiedName"] = "slot_name_trinket",
     ["type"] = {"INVTYPE_TRINKET"},
     ["textureId"] = 136528,
     ["slotId"] = INVSLOT_TRINKET1
   }, {
+    ["inventoryTypeId"] = 11,
     ["name"] = "slot_name_lower_trinket",
     ["simplifiedName"] = "slot_name_trinket",
     ["type"] = {"INVTYPE_TRINKET"},
     ["textureId"] = 136528,
     ["slotId"] = INVSLOT_TRINKET2
   }, {
+    ["inventoryTypeId"] = 12,
     ["name"] = "slot_name_back",
     ["type"] = {"INVTYPE_CLOAK"},
     ["textureId"] = 136512,
     ["slotId"] = INVSLOT_BACK
   }, {
+    ["inventoryTypeId"] = 13,
     ["name"] = "slot_name_main_hand",
     ["type"] = {"INVTYPE_WEAPONMAINHAND", "INVTYPE_2HWEAPON", "INVTYPE_WEAPON"},
     ["textureId"] = 136518,
     ["slotId"] = INVSLOT_MAINHAND
   }, {
+    ["inventoryTypeId"] = 14,
     ["name"] = "slot_name_off_hand",
     ["type"] = (function()
       local _, class = UnitClass(RGGM_CONSTANTS.UNIT_ID_PLAYER)
@@ -189,11 +207,13 @@ local gearSlots = {
     ["textureId"] = 136524,
     ["slotId"] = INVSLOT_OFFHAND
   }, {
+    ["inventoryTypeId"] = 15,
     ["name"] = "slot_name_ranged",
     ["type"] = {"INVTYPE_RANGED", "INVTYPE_THROWN", "INVTYPE_RANGEDRIGHT"},
     ["textureId"] = 136520,
     ["slotId"] = INVSLOT_RANGED
   }, {
+    ["inventoryTypeId"] = 15,
     ["name"] = "slot_name_ammo",
     ["type"] = {"INVTYPE_AMMO"},
     ["textureId"] = 136520,

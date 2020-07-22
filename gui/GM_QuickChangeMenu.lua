@@ -287,7 +287,7 @@ function me.InitializeInventoryTypeDropdownMenu()
       Prevent duplicate entries of inventoryTypes by using the textureId. Slots such
       as upper and lower trinket have the same texture and are thus only added once
     ]]--
-    if registeredInventoryTypes[gearSlot.textureId] == nil then
+    if registeredInventoryTypes[gearSlot.inventoryTypeId] == nil then
       local button
 
       if gearSlot.simplifiedName ~= nil then
@@ -305,7 +305,7 @@ function me.InitializeInventoryTypeDropdownMenu()
       end
 
       UIDropDownMenu_AddButton(button)
-      registeredInventoryTypes[gearSlot.textureId] = true
+      registeredInventoryTypes[gearSlot.inventoryTypeId] = true
     end
   end
 
