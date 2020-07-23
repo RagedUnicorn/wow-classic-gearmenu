@@ -221,6 +221,51 @@ local gearSlots = {
   }
 }
 
+local combinedEquipMap = {
+  ["INVTYPE_TRINKET"] = {
+    INVSLOT_TRINKET1, INVSLOT_TRINKET2
+  },
+  ["INVTYPE_FINGER"] = {
+    INVSLOT_FINGER1, INVSLOT_FINGER2
+  }
+}
+
+--[[
+  @param {string} equipSlot
+
+  @return {boolean}
+    true - if the slot is enabled for combined equipping
+    false - if the slot is not enabled for combined equipping
+]]--
+function me.IsEnabledCombinedEquipSlot(equipSlot)
+  if combinedEquipMap[equipSlot] ~= nil then
+    return true
+  end
+
+  return false
+end
+
+--[[
+  Will check the passed slotId and return the opposite slotId of that
+
+  E.g. for INVSLOT_TRINKET1 the function will return INVSLOT_TRINKET2
+
+  @param {string} equipSlot
+  @param {number} slotId
+
+  @return {number}
+    The opposite slotId
+]]--
+function me.GetMatchedCombinedEquipSlot(equipSlot, slotId)
+  local slots = combinedEquipMap[equipSlot]
+
+  if slots[1] == slotId then
+    return slots[2]
+  else
+    return slots[1]
+  end
+end
+
 --[[
   @return {table}
 ]]--

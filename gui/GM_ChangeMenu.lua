@@ -312,7 +312,7 @@ end
 ]]--
 function me.SetupEvents(changeSlot)
   -- register button to receive leftclick
-  changeSlot:RegisterForClicks("LeftButtonUp")
+  changeSlot:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 
   changeSlot:SetScript("OnEnter", function(self)
     me.ChangeSlotOnEnter(self)
@@ -356,10 +356,17 @@ end
   @param {string} button
 ]]--
 function me.ChangeSlotOnClick(self, button)
-  if button == "LeftButton" then
-    mod.itemManager.EquipItemById(self.itemId, self.slotId)
-    me.CloseChangeMenu()
+  --[[
+    If right button was used to equip we need to check whether the slot is a match for combined equipping
+  ]]--
+  if button == "RightButton" then
+    if mod.gearManager.IsEnabledCombinedEquipSlot(self.equipSlot) then
+      self.slotId = mod.gearManager.GetMatchedCombinedEquipSlot(self.equipSlot, self.slotId)
+    end
   end
+
+  mod.itemManager.EquipItemById(self.itemId, self.slotId, self.equipSlot)
+  me.CloseChangeMenu()
 end
 
 --[[
