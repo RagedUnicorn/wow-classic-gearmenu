@@ -221,6 +221,25 @@ local gearSlots = {
   }
 }
 
+--[[
+  Mapping bags 1 to 4 to their respective inventory slot id
+]]--
+local bagMap = {
+  [1] = 20,
+  [2] = 21,
+  [3] = 22,
+  [4] = 23
+}
+
+--[[
+  @param {number} position
+
+  @return {number}
+]]--
+function me.GetMappedBag(position)
+  return bagMap[position]
+end
+
 local combinedEquipMap = {
   ["INVTYPE_TRINKET"] = {
     INVSLOT_TRINKET1, INVSLOT_TRINKET2

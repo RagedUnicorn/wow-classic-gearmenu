@@ -167,23 +167,15 @@ function me.UpdateChangeMenu(gearSlot)
     local items = mod.itemManager.GetItemsForInventoryType(gearSlotMetaData.type)
 
     for index, item in ipairs(items) do
-      if index > RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT then
+      if index > RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT_ITEMS then
         mod.logger.LogInfo(me.tag, "All changeMenuSlots are in use skipping rest of items...")
         break
       end
 
-      local changeMenuSlot = changeMenuSlots[index]
-      mod.uiHelper.UpdateSlotTextureAttributes(changeMenuSlot)
-
-      -- update metadata for slot
-      changeMenuSlot.slotId = gearSlotMetaData.slotId
-      changeMenuSlot.itemId = item.id
-      changeMenuSlot.equipSlot = item.equipSlot
-
-      changeMenuSlot:SetNormalTexture(item.icon)
-      changeMenuSlot:Show()
+      me.UpdateChangeSlot(index, gearSlotMetaData, item)
     end
 
+    me.UpdateEmptyChangeSlot(items, gearSlotMetaData)
     me.UpdateChangeMenuSize(items)
     me.UpdateChangeMenuPosition(gearSlot)
     me.UpdateChangeMenuCooldownState()
@@ -197,6 +189,54 @@ function me.UpdateChangeMenu(gearSlot)
     end
   end
 end
+
+--[[
+  Visually update a changeslot
+
+  @param {number} index
+  @param {table} gearSlotMetaData
+  @param {table} item
+]]--
+function me.UpdateChangeSlot(index, gearSlotMetaData, item)
+  local changeMenuSlot = changeMenuSlots[index]
+  mod.uiHelper.UpdateSlotTextureAttributes(changeMenuSlot)
+
+  -- update metadata for slot
+  changeMenuSlot.slotId = gearSlotMetaData.slotId
+  changeMenuSlot.itemId = item.id
+  changeMenuSlot.equipSlot = item.equipSlot
+
+  changeMenuSlot:SetNormalTexture(item.icon)
+  changeMenuSlot:Show()
+end
+
+--[[
+  Visually update an empty changeslot
+
+  @param {table} gearSlotMetaData
+  @param {table} items
+]]--
+function me.UpdateEmptyChangeSlot(items, gearSlotMetaData)
+  local itemCount = table.getn(items)
+  local emptyChangeMenuSlot
+
+  if itemCount >= RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT_ITEMS then
+    emptyChangeMenuSlot = changeMenuSlots[itemCount]
+  else
+    emptyChangeMenuSlot = changeMenuSlots[itemCount + 1]
+  end
+
+  mod.uiHelper.UpdateSlotTextureAttributes(emptyChangeMenuSlot)
+
+  emptyChangeMenuSlot.slotId = gearSlotMetaData.slotId
+  emptyChangeMenuSlot.itemId = nil
+  emptyChangeMenuSlot.equipSlot = nil
+
+  emptyChangeMenuSlot:SetNormalTexture(gearSlotMetaData.textureId)
+  emptyChangeMenuSlot:Show()
+end
+
+
 
 --[[
   Reset all changeMenuSlots into their initial state
@@ -223,7 +263,7 @@ function me.UpdateChangeMenuSize(items)
   if table.getn(items) > RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT then
     rows = RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT / RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT
   else
-    rows = table.getn(items) / RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT
+    rows = (table.getn(items) + 1) / RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT
   end
 
   -- special case for if only one row needs to be displayed
@@ -365,7 +405,15 @@ function me.ChangeSlotOnClick(self, button)
     end
   end
 
-  mod.itemManager.EquipItemById(self.itemId, self.slotId, self.equipSlot)
+  --[[
+    Check for empty slot
+  ]]--
+  if self.itemId == nil and self.equipSlot == nil and self.slotId ~= nil then
+    mod.itemManager.UnequipItemToBag(self)
+  else
+    mod.itemManager.EquipItemById(self.itemId, self.slotId, self.equipSlot)
+  end
+
   me.CloseChangeMenu()
 end
 

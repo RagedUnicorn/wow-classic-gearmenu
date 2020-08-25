@@ -27,6 +27,8 @@
 -- luacheck: globals UnitAffectingCombat CursorHasItem SpellIsTargeting GetContainerItemInfo
 -- luacheck: globals IsInventoryItemLocked PickupContainerItem PickupInventoryItem GetContainerItemLink
 -- luacheck: globals GetInventoryItemLink GetInventoryItemID GetItemSpell
+-- luacheck: globals PickupInventoryItem GetContainerNumSlots GetContainerItemID
+-- luacheck: globals PutItemInBackpack PutItemInBag ClearCursor
 
 --[[
   Itemmanager manages all items. All itemslots muss register to work properly
@@ -376,4 +378,29 @@ function me.AddItemsMatchingInventoryType(inventoryType, itemId, mustHaveOnUse)
   end
 
   return item
+end
+
+--[[
+  Unequips the item from the referenced slot. Tries to unequip into the backpack first
+  and then through all bags in order. If no space can be found the action is aborted
+
+  @param {table} slot
+]]--
+function me.UnequipItemToBag(slot)
+  PickupInventoryItem(slot.slotId)
+
+  for i = 0, 4 do
+    for j = 1, GetContainerNumSlots(i) do
+      local itemId = GetContainerItemID(i, j)
+      if itemId == nil then
+        if i == 0 then
+          PutItemInBackpack()
+        else
+          PutItemInBag(mod.gearManager.GetMappedBag(i))
+          break
+        end
+      end
+    end
+  end
+  ClearCursor()
 end
