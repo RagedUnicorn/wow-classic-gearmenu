@@ -83,6 +83,18 @@ GearMenu allows to drag and drop items onto slots, remove from slots and slots c
 
 ![](https://raw.githubusercontent.com/RagedUnicorn/wow-classic-gearmenu/master/docs/gm_drag_and_drop_unequip.gif)
 
+### Combined Equipping
+
+Slots such as trinket and ring slots have combined equipping enabled. This means that in addition to a left click on the item the player wishes to equip they also support right click. Slots that do not support combined quipping (which most don't) will normally equip any item whether it was left- or right-clicked. If the slot has combined equipping enabled a right click will instead put the chosen item into the opposite slot.
+
+![](https://raw.githubusercontent.com/RagedUnicorn/wow-classic-gearmenu/master/docs/gm_combined_equip.gif)
+
+### Unequip Items
+
+Enable an empty slot in the changeMenu that allows for quicker and easier unequipping of items.
+
+![](https://raw.githubusercontent.com/RagedUnicorn/wow-classic-gearmenu/master/docs/gm_unequip.gif)
+
 ### Macro Support
 
 If you prefer having certain items in your actionslots GearMenu can still be of use. By using the macro-bridge you get all the advantages of the combatQueue in a normal macro.
