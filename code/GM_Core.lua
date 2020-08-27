@@ -33,10 +33,7 @@ me.tag = "Core"
 local initializationDone = false
 
 --[[
-  Testing
-  Hook GetLocale to return a fixed value.
-  Note: This is used for testing only. If the locale doesn't match with the actual
-  locale of the combatlog the addon is unable to parse the log.
+  Hook GetLocale to return a fixed value. This is used for testing only.
 ]]--
 
 --[[
