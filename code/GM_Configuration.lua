@@ -25,7 +25,7 @@
 
 -- luacheck: globals INVSLOT_HEAD INVSLOT_NECK INVSLOT_SHOULDER INVSLOT_CHEST INVSLOT_WAIST INVSLOT_LEGS INVSLOT_FEET
 -- luacheck: globals INVSLOT_WRIST INVSLOT_HAND INVSLOT_FINGER1 INVSLOT_FINGER2 INVSLOT_TRINKET1 INVSLOT_TRINKET2
--- luacheck: globals INVSLOT_BACK INVSLOT_MAINHAND INVSLOT_OFFHAND INVSLOT_RANGED INVSLOT_AMMO GetAddOnMetadata
+-- luacheck: globals INVSLOT_BACK INVSLOT_MAINHAND INVSLOT_OFFHAND INVSLOT_RANGED INVSLOT_AMMO GetAddOnMetadata ReloadUI
 
 local mod = rggm
 local me = {}
@@ -64,6 +64,10 @@ GearMenuConfiguration = {
     triggered as soon as a key is pressed down instead of waiting for the keyup event
   ]]--
   ["enableFastpress"] = false,
+  --[[
+    Whether an empty slot that enables unequipping items is displayed or not
+  ]]--
+  ["enableUnequipSlot"] = true,
   --[[
     Itemquality to filter items by their quality. Everything that is below the settings value
     will not be considered a valid item to display when building the changemenu.
@@ -172,6 +176,11 @@ function me.SetupConfiguration()
   if GearMenuConfiguration.enableFastpress == nil then
     mod.logger.LogInfo(me.tag, "enableFastpress has unexpected nil value")
     GearMenuConfiguration.enableFastpress = false
+  end
+
+  if GearMenuConfiguration.enableUnequipSlot == nil then
+    mod.logger.LogInfo(me.tag, "enableUnequipSlot has unexpected nil value")
+    GearMenuConfiguration.enableUnequipSlot = false
   end
 
   if GearMenuConfiguration.filterItemQuality == nil then
@@ -451,6 +460,29 @@ end
 ]]--
 function me.IsFastpressEnabled()
   return GearMenuConfiguration.enableFastpress
+end
+
+--[[
+  Enable enableUnequipSlot on GearMenu itemslots
+]]--
+function me.EnableUnequipSlot()
+  GearMenuConfiguration.enableUnequipSlot = true
+end
+
+--[[
+  Disable enableUnequipSlot on GearMenu itemslots
+]]--
+function me.DisableUnequipSlot()
+  GearMenuConfiguration.enableUnequipSlot = false
+end
+
+--[[
+  @return {boolean}
+    true - if unequipSlot is enabled
+    false - if unequipSlot is disable
+]]--
+function me.IsUnequipSlotEnabled()
+  return GearMenuConfiguration.enableUnequipSlot
 end
 
 --[[

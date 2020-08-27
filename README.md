@@ -109,6 +109,12 @@ Slots such as trinket and ring slots have combined equipping enabled. This means
 
 ![](/docs/gm_combined_equip.gif)
 
+### Unequip Items
+
+Enable an empty slot in the changeMenu that allows for quicker and easier unequipping of items.
+
+![](/docs/gm_unequip.gif)
+
 ### Macro Support
 
 If you prefer having certain items in your actionslots GearMenu can still be of use. By using the macro-bridge you get all the advantages of the combatQueue in a normal macro.

@@ -217,6 +217,8 @@ end
   @param {table} items
 ]]--
 function me.UpdateEmptyChangeSlot(items, gearSlotMetaData)
+  if not mod.configuration.IsUnequipSlotEnabled() then return end
+
   local itemCount = table.getn(items)
   local emptyChangeMenuSlot
 
@@ -263,7 +265,15 @@ function me.UpdateChangeMenuSize(items)
   if table.getn(items) > RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT then
     rows = RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT / RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT
   else
-    rows = (table.getn(items) + 1) / RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT
+    local totalItems
+
+    if mod.configuration.IsUnequipSlotEnabled() then
+      totalItems = table.getn(items) + 1
+    else
+      totalItems = table.getn(items)
+    end
+
+    rows = totalItems / RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT
   end
 
   -- special case for if only one row needs to be displayed
