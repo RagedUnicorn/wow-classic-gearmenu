@@ -2,7 +2,7 @@
 ## Title: GearMenu
 ## Author: Michael Wiesendanger <michael.wiesendanger@gmail.com>
 ## Notes: Addon to manage and keybind usable gear
-## Version: v1.3.0
+## Version: v1.4.0
 ## SavedVariablesPerCharacter: GearMenuConfiguration
 
 # constant values
