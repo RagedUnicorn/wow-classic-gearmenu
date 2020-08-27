@@ -493,7 +493,7 @@ function me.SetupEvents(gearSlot)
   --[[
     Note: SecureActionButtons ignore right clicks by default - reenable right clicks
   ]]--
-  if mod.configuration.IsFastpressEnabled() then
+  if mod.configuration.IsFastPressEnabled() then
     gearSlot:RegisterForClicks("LeftButtonDown", "RightButtonDown")
   else
     gearSlot:RegisterForClicks("LeftButtonUp", "RightButtonUp")
@@ -528,7 +528,7 @@ end
 ]]--
 function me.UpdateClickHandler()
   for _, gearSlot in pairs(gearSlots) do
-    if mod.configuration.IsFastpressEnabled() then
+    if mod.configuration.IsFastPressEnabled() then
       gearSlot:RegisterForClicks("LeftButtonDown", "RightButtonDown")
     else
       gearSlot:RegisterForClicks("LeftButtonUp", "RightButtonUp")

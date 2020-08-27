@@ -42,7 +42,7 @@ local options = {
   {"EnableTooltips", rggm.L["enable_tooltips"], rggm.L["enable_tooltips_tooltip"]},
   {"EnableSimpleTooltips", rggm.L["enable_simple_tooltips"], rggm.L["enable_simple_tooltips_tooltip"]},
   {"EnableDragAndDrop", rggm.L["enable_drag_and_drop"], rggm.L["enable_drag_and_drop_tooltip"]},
-  {"EnableFastpress", rggm.L["enable_fastpress"], rggm.L["enable_fastpress_tooltip"]},
+  {"EnableFastPress", rggm.L["enable_fast_press"], rggm.L["enable_fast_press_tooltip"]},
   {"EnableUnequipSlot", rggm.L["enable_unequip_slot"], rggm.L["enable_unequip_slot_tooltip"]}
 }
 
@@ -489,7 +489,7 @@ end
   @param {table} self
 ]]--
 function me.EnableFastPressOnShow(self)
-  if mod.configuration.IsFastpressEnabled() then
+  if mod.configuration.IsFastPressEnabled() then
     self:SetChecked(true)
   else
     self:SetChecked(false)
@@ -505,9 +505,9 @@ function me.EnableFastPressOnClick(self)
   local enabled = self:GetChecked()
 
   if enabled then
-    mod.configuration.EnableFastpress()
+    mod.configuration.EnableFastPress()
   else
-    mod.configuration.DisableFastpress()
+    mod.configuration.DisableFastPress()
   end
 end
 

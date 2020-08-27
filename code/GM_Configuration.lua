@@ -63,7 +63,7 @@ GearMenuConfiguration = {
     Whether fastpress is enabled or not. If fastpress is activated actions will be
     triggered as soon as a key is pressed down instead of waiting for the keyup event
   ]]--
-  ["enableFastpress"] = false,
+  ["enableFastPress"] = false,
   --[[
     Whether an empty slot that enables unequipping items is displayed or not
   ]]--
@@ -173,9 +173,9 @@ function me.SetupConfiguration()
     GearMenuConfiguration.enableDragAndDrop = true
   end
 
-  if GearMenuConfiguration.enableFastpress == nil then
-    mod.logger.LogInfo(me.tag, "enableFastpress has unexpected nil value")
-    GearMenuConfiguration.enableFastpress = false
+  if GearMenuConfiguration.enableFastPress == nil then
+    mod.logger.LogInfo(me.tag, "enableFastPress has unexpected nil value")
+    GearMenuConfiguration.enableFastPress = false
   end
 
   if GearMenuConfiguration.enableUnequipSlot == nil then
@@ -255,6 +255,7 @@ end
 ]]--
 function me.MigrationPath()
   me.UpgradeToV1_3_0()
+  me.UpgradeToV1_4_0()
 end
 
 --[[
@@ -287,6 +288,31 @@ function me.UpgradeToV1_3_0()
   end
 
   mod.logger.LogDebug(me.tag, "Finished upgrade path from " .. GearMenuConfiguration.addonVersion .. " to v1.3.0")
+end
+
+--[[
+  Should be run by versions: All < v1.4.0
+  Description: Renamed enableFastpress to enableFastPress
+]]--
+function me.UpgradeToV1_4_0()
+  local versions = {"v1.3.0", "v1.2.0", "v1.1.0", "v1.0.1", "v1.0.0"}
+  local shouldRunUpgradePath = false
+
+  for _, version in pairs(versions) do
+    if GearMenuConfiguration.addonVersion == version then
+      shouldRunUpgradePath = true
+      break
+    end
+  end
+
+  if not shouldRunUpgradePath then return end
+
+  mod.logger.LogDebug(me.tag, "Running upgrade path from " .. GearMenuConfiguration.addonVersion .. " to v1.4.0")
+
+  GearMenuConfiguration.enableFastPress = GearMenuConfiguration.enableFastpress
+  GearMenuConfiguration.enableFastpress = nil
+
+  mod.logger.LogDebug(me.tag, "Finished upgrade path from " .. GearMenuConfiguration.addonVersion .. " to v1.4.0")
 end
 
 --[[
@@ -440,16 +466,16 @@ end
 --[[
   Enable fastpress on GearMenu itemslots
 ]]--
-function me.EnableFastpress()
-  GearMenuConfiguration.enableFastpress = true
+function me.EnableFastPress()
+  GearMenuConfiguration.enableFastPress = true
   mod.gearBar.UpdateClickHandler()
 end
 
 --[[
   Disable fastpress on GearMenu itemslots
 ]]--
-function me.DisableFastpress()
-  GearMenuConfiguration.enableFastpress = false
+function me.DisableFastPress()
+  GearMenuConfiguration.enableFastPress = false
   mod.gearBar.UpdateClickHandler()
 end
 
@@ -458,8 +484,8 @@ end
     true - if fastpress on GearMenu itemslots is enabled
     false - if fastpress drop on GearMenu itemslots is disabled
 ]]--
-function me.IsFastpressEnabled()
-  return GearMenuConfiguration.enableFastpress
+function me.IsFastPressEnabled()
+  return GearMenuConfiguration.enableFastPress
 end
 
 --[[
