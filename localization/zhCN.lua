@@ -49,6 +49,7 @@ if (GetLocale() == "zhCN") then
   rggm.L["size_slider_title"] = "齿轮槽大小"
   rggm.L["size_slider_tooltip"] = "修改齿轮槽的大小.不同的元素也会适应"
   .. "齿轮槽的大小"
+  rggm.L["confirm_dialog_question"] = "这将重新加载您的界面。您要继续吗？"
 
 -- gearslots
   rggm.L["gearslot_category_name"] = "装备槽"
