@@ -54,6 +54,7 @@ function me.BuildChangeMenu(gearBarFrame)
   changeMenuFrame:SetBackdropColor(0, 0, 0, .5)
   changeMenuFrame:SetBackdropBorderColor(0, 0, 0, .8)
   changeMenuFrame:SetPoint("BOTTOMLEFT", gearBarFrame, "TOPLEFT", 5, 0)
+  changeMenuFrame:SetFrameStrata("HIGH")
 
   local row
   local col = 0
