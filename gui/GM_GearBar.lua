@@ -469,6 +469,11 @@ function me.UpdateGearBar(gearBar)
       -- TODO is it good enough to just hide the slot
     end
   end
+
+  -- update baseFrame size
+  uiGearBar.gearBarReference:SetWidth(
+    gearBarSlotSize * #uiGearBar.gearSlotReferences + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN
+  )
 end
 
 --[[
