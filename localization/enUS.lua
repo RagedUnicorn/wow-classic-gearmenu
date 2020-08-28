@@ -85,8 +85,9 @@ rggm.L["quick_change_unable_to_add_rule_duplicate"] = "Unable to add new rule - 
 -- gearbar
 rggm.L["gear_bar_configuration_category_name"] = "GearBar"
 rggm.L["gear_bar_configuration_add_gearbar"] = "Create new GearBar"
-rggm.L["gear_bar_configuration_add_gearslot"] = "+"
-rggm.L["gear_bar_configuration_remove_gearslot"] = "-"
+rggm.L["gear_bar_configuration_add_gearslot"] = " + "
+rggm.L["gear_bar_configuration_remove_gearslot"] = " - "
+rggm.L["gear_bar_configuration_delete_gearbar"] = "Delete GearBar"
 
 -- slot translations
 rggm.L["slot_name_head"] = "Head"

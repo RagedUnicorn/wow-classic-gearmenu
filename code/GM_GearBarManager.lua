@@ -190,7 +190,6 @@ function me.AddNewGearSlot(gearBarId)
 
   if gearBar ~= nil then
     table.insert(gearBar.slots, gearSlot)
-    mod.logger.LogError(me.tag, "added new gearslot")
     return true
   end
 

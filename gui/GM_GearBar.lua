@@ -412,17 +412,33 @@ end
 ]]--
 function me.UpdateGearBar(gearBar)
   if InCombatLockdown() then
-    -- temporary fix for in combat configuration of slots
+    -- temporary fix for in combat configuration of slots TODO
     mod.logger.LogError(me.tag, "Unable to update slots in combat. Please /reload after your are out of combat")
     return
   end
 
   local gearBarSlotSize = mod.configuration.GetSlotSize()
+  local uiGearBar = mod.gearBar.GetGearBar(gearBar.id)
 
   for index, gearSlotMetaData in pairs(gearBar.slots) do
-    mod.logger.LogError(me.tag, "Gearslot index: " .. index)
+    mod.logger.LogDebug(me.tag, "Updating gearBar with id: " .. gearBar.id)
 
-    local uiGearBar = mod.gearBar.GetGearBar(gearBar.id)
+    -- TODO GetGearBar can return nil
+    local gearBarReference = me.GetGearBar(gearBar.id).gearBarReference
+    --[[
+      TODO need to check if this is a good way for implenting the creation of a new slot
+      We essentialy tell the gearBar to update after we added a new slot
+      The slot does not exist the update process recognizes this and creates the slot
+
+      OR
+
+      Would it be better to make sure the slot is already created when we add the button to the gearBarmanager
+    ]]--
+    if uiGearBar.gearSlotReferences[index] == nil then
+      mod.logger.LogInfo(me.tag, "GearSlot does not yet exist. Creating a new one")
+      me.BuilGearSlot(gearBarReference, index)
+    end
+
     local uiGearSlot = uiGearBar.gearSlotReferences[index]
 
     uiGearSlot:SetAttribute("type1", "item")
@@ -440,6 +456,18 @@ function me.UpdateGearBar(gearBar)
       )
 
     mod.gearBar.SetKeyBindingFont(uiGearSlot.keyBindingText)
+
+    uiGearSlot:Show() -- finally make the slot visible
+  end
+
+  -- remove leftover gearSlots that are obsolete and should no longer be displayed
+  -- TODO what happens with hidden buttons that have keybinds to them?
+  for index, gearSlotReference in pairs(uiGearBar.gearSlotReferences) do
+    if index > #gearBar.slots then
+      mod.logger.LogDebug(me.tag, "GearBar(" .. gearBar.id .. ") - Index: " .. index .. " should be hidden")
+      gearSlotReference:Hide() -- hide leftover slot
+      -- TODO is it good enough to just hide the slot
+    end
   end
 end
 
