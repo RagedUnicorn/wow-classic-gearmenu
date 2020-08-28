@@ -103,7 +103,8 @@ function me.CreateNewGearBar()
   end
 
   mod.gearBar.BuildGearBar(gearBar)
-  me.UpdateGearBarMenu()
+  me.UpdateGearBarMenu() -- update the configuration menu
+  mod.gearBar.UpdateGearBar(gearBar) -- update the visual representation of the gearBar
 end
 
 --[[
