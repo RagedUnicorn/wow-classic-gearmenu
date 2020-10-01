@@ -53,14 +53,17 @@ local gearBars = {}
 --[[
   Creates a default object for a new GearBar
 
+  @param {string} gearBarName
+
   @return {table}
     Return a default object for a new GearBar
 ]]--
-function me.GetNewGearBar()
+function me.GetNewGearBar(gearBarName)
   local gearBar = {
-    ["id"] = math.floor(math.random() * 100000),
-    ["displayName"] = "",
-    ["slots"] = {}
+    ["id"] = math.floor(math.random() * 100000), -- TODO check for a better randomisation (length is variable currently)
+    ["displayName"] = gearBarName,
+    ["slots"] = {},
+    ["position"] = RGGM_CONSTANTS.GEAR_BAR_DEFAULT_POSITION -- default position
   }
 
   return gearBar
@@ -97,14 +100,24 @@ function me.GetGearBar(gearBarId)
 end
 
 --[[
-  Create a new entry for the passed GearBar in the gearbar storage.
+  Create a new entry for the passed GearBar in the gearbar storage and also create
+  the initial default gearSlot
 
-  @param {table} gearBar
-    The gearBar that should be added
+  @param {string} gearBarName
+    The gearBarName that should be used for display
+
+  @return {table}
+    The created gearBar
 ]]--
-function me.AddNewGearBar(gearBar)
+function me.AddNewGearBar(gearBarName)
+  local gearBar = me.GetNewGearBar(gearBarName)
+
   table.insert(gearBars, gearBar)
-  mod.logger.LogInfo(me.tag, "Added new GearBar with id: " .. gearBar.id)
+  mod.logger.LogInfo(me.tag, "Created new GearBar with id: " .. gearBar.id)
+
+  me.AddNewGearSlot(gearBar.id)
+
+  return gearBar
 end
 
 --[[
@@ -162,6 +175,7 @@ function me.GetNewGearSlot()
           INVSLOT_MAINHAND
           INVSLOT_OFFHAND
           INVSLOT_RANGED
+          INVSLOT_AMMO
       ]]--
   }
 
@@ -221,4 +235,27 @@ function me.RemoveGearSlot(gearBarId, position)
   mod.logger.LogError(me.tag, "Was unable to find GearBar with id: " .. gearBarId)
 
   return false
+end
+
+--[[
+  @param {number} gearBarId
+    An id of a gearBar
+  @param {number} position
+  @param {table} updatedGearSlot
+    A gearSlot table that will overwrite the configured values for the slot
+
+  @return {boolean}
+    true - if the operation was successful
+    false - if the operation was not successful
+]]--
+function me.UpdateGearSlot(gearBarId, position, updatedGearSlot)
+  local gearBar = me.GetGearBar(gearBarId)
+
+  if gearBar ~= nil and gearBar.slots[position] ~= nil then
+    gearBar.slots[position] = updatedGearSlot
+    return true
+  end
+
+  mod.logger.LogError(me.tag, "Failed to update gearBarSlot position {"
+    .. position .. "} for gearBar with id: " .. gearBarId)
 end

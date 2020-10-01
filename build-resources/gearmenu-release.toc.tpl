@@ -38,6 +38,7 @@ gui/GM_Frame.xml
 gui/GM_UiHelper.lua
 gui/GM_GearBar.lua
 gui/GM_GearBarMenu.lua
+gui/GM_GearBarConfigurationMenu.lua
 gui/GM_ChangeMenu.lua
 gui/GM_AddonConfiguration.lua
 gui/GM_AboutContent.lua

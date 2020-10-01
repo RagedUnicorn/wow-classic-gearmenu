@@ -24,6 +24,7 @@
 ]]--
 
 -- luacheck: globals CreateFrame UIParent InterfaceOptions_AddCategory InterfaceOptionsFrame_OpenToCategory
+-- luacheck: globals InterfaceAddOnsList_Update()
 
 local mod = rggm
 local me = {}
@@ -63,6 +64,14 @@ function me.SetupAddonConfiguration()
     rggm.L["gear_bar_configuration_category_name"],
     mod.gearBarMenu.BuildUi
   )
+
+  me.BuildCategory(
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SUB_OPTION_FRAME,
+    panel.main,
+    "GearBarConfigTODO",
+    mod.gearBarConfigurationMenu.BuildUi
+  )
+
   --[[
     For development purpose the InterfaceOptionsFrame_OpenToCategory function can be used to directly
     open a specific category. Because of a blizzard bug this usually has to be called twice to actually work.
@@ -106,7 +115,6 @@ function me.BuildCategory(frameName, parent, panelText, onShowCallback)
 
   -- Important to hide panel initially. Interface addon options will take care of showing the menu
   menu:Hide()
-
   -- Add the child to the Interface Options
   InterfaceOptions_AddCategory(menu)
 
@@ -120,4 +128,8 @@ function me.OpenAddonPanel()
   -- Because of a blizzard bug this usually has to be called twice to actually work
   InterfaceOptionsFrame_OpenToCategory(_G[RGGM_CONSTANTS.ELEMENT_ADDON_PANEL])
   InterfaceOptionsFrame_OpenToCategory(_G[RGGM_CONSTANTS.ELEMENT_ADDON_PANEL])
+end
+
+function me.UpdateAddonPanel()
+  InterfaceAddOnsList_Update()
 end

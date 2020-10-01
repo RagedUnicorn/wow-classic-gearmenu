@@ -28,6 +28,17 @@
 -- luacheck: globals CursorCanGoInSlot EquipCursorItem ClearCursor IsInventoryItemLocked PickupInventoryItem
 -- luacheck: globals InCombatLockdown STANDARD_TEXT_FONT IsItemInRange
 
+--[[
+  The gearBar (GM_Gearbar) module is responsible for building and showing gearBars to the user.
+  A gearBar can have n amount of slots where the user can define different gearSlot types and keybinds to activate them.
+
+  A gearBar is always bound to a gearBarConfiguration that was created in the ui configuration of the addon.
+  This configuration tells the gearBar exactly how many slots it should have. The module responsible for
+  holding and changing this information is the gearBarManager (GM_GearBarManager). The gearBar module however should
+  never change values in the gearBarManager. Its sole purpose is to read all of the present configurations
+  and display them exactly as described to the user.
+]]--
+
 local mod = rggm
 local me = {}
 
