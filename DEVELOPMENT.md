@@ -46,3 +46,4 @@ A list of slotTypes that are relevant to the addon
 * INVSLOT_MAINHAND
 * INVSLOT_OFFHAND
 * INVSLOT_RANGED
+* INVSLOT_AMMO
