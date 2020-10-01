@@ -470,6 +470,7 @@ function me.UpdateGearBar(gearBar)
     end
   end
 
+
   -- update baseFrame size
   uiGearBar.gearBarReference:SetWidth(
     gearBarSlotSize * #uiGearBar.gearSlotReferences + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN

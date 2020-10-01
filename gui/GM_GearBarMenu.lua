@@ -207,7 +207,8 @@ function me.CreateGearBarContentFrame(scrollFrame)
   )
 
   contentFrame:SetWidth(RGGM_CONSTANTS.GEAR_BAR_LIST_CONTENT_FRAME_WIDTH)
-  contentFrame:SetHeight(320) -- TODO hardcoded will be dynamic maybe remove it even?
+   -- TODO hardcoded will be dynamic maybe remove it even?
+  contentFrame:SetHeight(RGGM_CONSTANTS.GEAR_BAR_LIST_CONTENT_FRAME_HEIGHT)
   scrollFrame:SetScrollChild(contentFrame)
 
   return contentFrame
@@ -294,6 +295,10 @@ function me.UpdateGearBarMenu()
       mod.logger.LogDebug(me.tag, "Configframe already exists reusing")
     end
 
+
+    -- update slot configuration scrolllist
+    me.GearSlotConfigurationScrollFrameOnUpdate(parentFrame.scrollFrame)
+    --
     me.UpdateGearBarConfigurationFrame(gearBar, parentFrame)
     parentFrame:Show()
   end
@@ -324,19 +329,20 @@ function me.UpdateGearBarConfigurationFrame(gearBar, gearBarConfigurationFrame)
   gearBarConfigurationFrame.deleteButton.gearBarId = gearBar.id
   gearBarConfigurationFrame.title:SetText(RGGM_CONSTANTS.GEAR_BAR_CONFIG_DEFAULT_TITLE .. gearBar.id)
 
-  if gearBarConfigurationFrame.gearSlotHolder.slots == nil then
-    gearBarConfigurationFrame.gearSlotHolder.slots = {}
-  end
+  --if gearBarConfigurationFrame.gearSlotHolder.slots == nil then
+    --gearBarConfigurationFrame.gearSlotHolder.slots = {}
+  --end
 
   for position, gearBarSlot in pairs(gearBar.slots) do
-    if gearBarConfigurationFrame.gearSlotHolder.slots[position] == nil then
-      local gearSlot = me.CreateConfigurationGearSlot(gearBarConfigurationFrame.gearSlotHolder, position)
-      table.insert(gearBarConfigurationFrame.gearSlotHolder.slots, gearSlot)
-    end
+    --if gearBarConfigurationFrame.gearSlotHolder.slots[position] == nil then
+      -- local gearSlot = me.CreateConfigurationGearSlot(gearBarConfigurationFrame.gearSlotHolder, position)
+      -- table.insert(gearBarConfigurationFrame.gearSlotHolder.slots, gearSlot)
 
-    local gearBarConfigurationSlot = gearBarConfigurationFrame.gearSlotHolder.slots[position]
-    gearBarConfigurationSlot.itemIconHolder:SetTexture(gearBarSlot.textureId)
-    gearBarConfigurationSlot:Show()
+    --end
+
+    -- local gearBarConfigurationSlot = gearBarConfigurationFrame.gearSlotHolder.slots[position]
+    -- gearBarConfigurationSlot.itemIconHolder:SetTexture(gearBarSlot.textureId)
+    -- gearBarConfigurationSlot:Show()
   end
 
   --[[
@@ -345,12 +351,150 @@ function me.UpdateGearBarConfigurationFrame(gearBar, gearBarConfigurationFrame)
     it will reuse the deleted gearBar and thus already has 10 created slots even though it
     only needs the default one(1). Make sure to hide all other slots
   ]]--
-  for index, slot in pairs(gearBarConfigurationFrame.gearSlotHolder.slots) do
-    if index > #gearBar.slots then
-      slot:Hide()
+  --for index, slot in pairs(gearBarConfigurationFrame.gearSlotHolder.slots) do
+    --if index > #gearBar.slots then
+      --slot:Hide()
+    --end
+  --end
+end
+
+--[[
+  TODO
+]]--
+function me.CreateGearBarSlotConfigurationList(parentFrame, position)
+  local scrollFrame = CreateFrame(
+    "ScrollFrame",
+    RGGM_CONSTANTS.ELEMENT_GEAR_SLOT_CONFIGURATION_SCROLL_FRAME .. position,
+    parentFrame,
+    "FauxScrollFrameTemplate"
+  )
+
+  --[[
+    Store reference of the scroll container for all slot configurations
+    on gearBar configuration container
+  ]]--
+  parentFrame.scrollFrame = scrollFrame
+
+  scrollFrame:SetWidth(RGGM_CONSTANTS.GEAR_BAR_LIST_CONFIG_CONTENT_FRAME_WIDTH - 25) -- TODO
+  -- Formula max rows = GEAR_BAR_LIST_CONFIG_CONTENT_FRAME_HEIGHT - inital position / SLOT_CONFIGURATION_LIST_ROW_HEIGHT
+  scrollFrame:SetHeight(
+    RGGM_CONSTANTS.SLOT_CONFIGURATION_LIST_ROW_HEIGHT * RGGM_CONSTANTS.SLOT_CONFIGURATION_LIST_MAX_ROWS -- TODO
+  )
+  scrollFrame:SetPoint("TOPLEFT", 0, -100)
+  scrollFrame:EnableMouseWheel(true)
+
+
+  scrollFrame:SetBackdrop({
+    bgFile = "Interface\\AddOns\\GearMenu\\assets\\ui_slot_background", -- TODO development only
+    insets = {left = 0, right = 0, top = 0, bottom = 0},
+  })
+
+  scrollFrame:SetBackdropColor(0.37, 0, 0, .4)
+
+  scrollFrame:SetScript("OnVerticalScroll", me.GearBarSlotConfigurationListOnVerticalScroll)
+
+  --[[
+    TODO store created rows in gearBarConfigFrame
+  ]]--
+  parentFrame.rows = {}
+
+  for i = 1, RGGM_CONSTANTS.SLOT_CONFIGURATION_LIST_MAX_ROWS do
+    table.insert(parentFrame.rows, me.CreateGearSlotConfigurationRowFrame(scrollFrame, i))
+  end
+
+
+  -- scrollFrame:SetFrameLevel(parentFrame:GetFrameLevel() + 1)
+
+  return scrollFrame
+end
+
+--[[
+  OnVerticalScroll callback for scrollable rule list
+
+  @param {table} self
+  @param {number} offset
+]]--
+function me.GearBarSlotConfigurationListOnVerticalScroll(self, offset)
+  self.ScrollBar:SetValue(offset)
+  self.offset = math.floor(offset / RGGM_CONSTANTS.SLOT_CONFIGURATION_LIST_ROW_HEIGHT + 0.5)
+  me.GearSlotConfigurationScrollFrameOnUpdate(self)
+end
+
+--[[
+  @param {table} frame
+  @param {number} position
+
+  @return {table}
+    The created row
+]]--
+function me.CreateGearSlotConfigurationRowFrame(frame, position)
+  local row = CreateFrame("Button", "TODOTEST" .. position, frame) -- TODO
+  row:SetSize(frame:GetWidth() -5, RGGM_CONSTANTS.SLOT_CONFIGURATION_LIST_ROW_HEIGHT)-- TODO
+  row:SetPoint("TOPLEFT", frame, 8, (position -1) * RGGM_CONSTANTS.SLOT_CONFIGURATION_LIST_ROW_HEIGHT * -1) -- TODO
+
+  row:SetBackdrop({
+    bgFile = "Interface\\AddOns\\GearMenu\\assets\\ui_slot_background", -- TODO development only
+    insets = {left = 0, right = 0, top = 0, bottom = 0},
+  })
+
+  if math.fmod(position, 2) == 0 then
+    row:SetBackdropColor(0.37, 0, 0, .4)
+  else
+    row:SetBackdropColor(0, .25, .25, .8)
+  end
+
+  local itemIcon = row:CreateTexture(nil, "ARTWORK")
+  itemIcon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+  itemIcon:SetPoint("LEFT", 0, 0)
+  itemIcon:SetSize(
+    16,
+    16
+  )
+
+  row.itemIcon = itemIcon -- TODO
+
+  return row
+end
+
+--[[
+  Update a scrollable list holding configuration frames for gearBar slots
+
+  @param {table} scrollFrame
+]]--
+function me.GearSlotConfigurationScrollFrameOnUpdate(scrollFrame)
+  local gearBarId = scrollFrame:GetParent().gearBarId
+  mod.logger.LogError(me.tag, "ScrolLFrame update for gearBarId: " .. gearBarId)
+  local gearBar = mod.gearBarManager.GetGearBar(gearBarId)
+
+  local rows = scrollFrame:GetParent().rows
+  local maxValue = table.getn(gearBar.slots) or 0
+
+  if maxValue <= RGGM_CONSTANTS.SLOT_CONFIGURATION_LIST_MAX_ROWS then -- TODO
+    maxValue = RGGM_CONSTANTS.SLOT_CONFIGURATION_LIST_MAX_ROWS + 1 -- TODO
+  end
+  -- Note: maxValue needs to be at least max_rows + 1
+  FauxScrollFrame_Update(
+    scrollFrame,
+    maxValue,
+    RGGM_CONSTANTS.SLOT_CONFIGURATION_LIST_MAX_ROWS, -- TODO
+    RGGM_CONSTANTS.SLOT_CONFIGURATION_LIST_ROW_HEIGHT -- TODO
+  )
+
+  local offset = FauxScrollFrame_GetOffset(scrollFrame)
+  for index = 1, RGGM_CONSTANTS.SLOT_CONFIGURATION_LIST_MAX_ROWS do -- TODO
+    local value = index + offset
+
+    if value <= table.getn(gearBar.slots) then
+      local row = rows[index]
+
+      row.itemIcon:SetTexture(136516) -- TODO hardcoded
+      row:Show()
+    else
+      rows[index]:Hide()
     end
   end
 end
+
 
 --[[
   TODO creates gearslots for the purpose of configuring them
@@ -443,7 +587,7 @@ function me.CreateGearBarConfigFrame(parentFrame, contentFrame, position, gearBa
   )
 
   gearBarConfigFrame:SetWidth(RGGM_CONSTANTS.GEAR_BAR_LIST_CONFIG_CONTENT_FRAME_WIDTH)
-  gearBarConfigFrame:SetHeight(RGGM_CONSTANTS.GEAR_BAR_LIST_CONFIG_CONTENT_FRAME_DEFAULT_HEIGHT)
+  gearBarConfigFrame:SetHeight(RGGM_CONSTANTS.GEAR_BAR_LIST_CONFIG_CONTENT_FRAME_HEIGHT)
 
   gearBarConfigFrame:SetBackdrop({
     bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background"
@@ -462,6 +606,11 @@ function me.CreateGearBarConfigFrame(parentFrame, contentFrame, position, gearBa
   gearBarConfigFrame.addGearSlotButton = me.CreateAddGearSlotButton(gearBarConfigFrame)
   gearBarConfigFrame.removeGearSlotButton = me.CreateRemoveGearSlotButton(gearBarConfigFrame)
 
+  me.CreateGearBarSlotConfigurationList(gearBarConfigFrame, position) -- TODO
+  me.GearSlotConfigurationScrollFrameOnUpdate(
+    _G[RGGM_CONSTANTS.ELEMENT_GEAR_SLOT_CONFIGURATION_SCROLL_FRAME .. position]
+  )
+
   --[[
     Creating a list of frames with different heights each frame should follow after another.
     The first frame in the list is the only one that does not have a parentframe.
@@ -472,7 +621,7 @@ function me.CreateGearBarConfigFrame(parentFrame, contentFrame, position, gearBa
     gearBarConfigFrame:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", 0, 0)
   end
 
-  gearBarConfigFrame.gearSlotHolder = me.CreateConfigFrameGearSlotHolder(gearBarConfigFrame) --TODO
+  -- gearBarConfigFrame.gearSlotHolder = me.CreateConfigFrameGearSlotHolder(gearBarConfigFrame) --TODO
 
   mod.logger.LogDebug(me.tag, "Created new gearbar configframe")
 
