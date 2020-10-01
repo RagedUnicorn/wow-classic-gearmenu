@@ -41,11 +41,9 @@ me.tag = "ItemManager"
 
 --[[
   Retrieve all items from inventory bags matching any type of
-    INVTYPE_AMMO
     INVTYPE_HEAD
     INVTYPE_NECK
     INVTYPE_SHOULDER
-    INVTYPE_BODY
     INVTYPE_CHEST
     INVTYPE_ROBE
     INVTYPE_WAIST
@@ -61,6 +59,12 @@ me.tag = "ItemManager"
     INVTYPE_2HWEAPON
     INVTYPE_WEAPONMAINHAND
     INVTYPE_WEAPONOFFHAND
+    INVTYPE_HOLDABLE
+    INVTYPE_RANGED
+    INVTYPE_THROWN
+    INVTYPE_RANGEDRIGHT
+    INVTYPE_RELIC
+    INVTYPE_AMMO
 
   @param {table} inventoryType
 
