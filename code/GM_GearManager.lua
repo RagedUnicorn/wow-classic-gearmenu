@@ -209,7 +209,7 @@ local gearSlots = {
   }, {
     ["inventoryTypeId"] = 15,
     ["name"] = "slot_name_ranged",
-    ["type"] = {"INVTYPE_RANGED", "INVTYPE_THROWN", "INVTYPE_RANGEDRIGHT"},
+    ["type"] = {"INVTYPE_RANGED", "INVTYPE_THROWN", "INVTYPE_RANGEDRIGHT", "INVTYPE_RELIC"},
     ["textureId"] = 136520,
     ["slotId"] = INVSLOT_RANGED
   }, {
