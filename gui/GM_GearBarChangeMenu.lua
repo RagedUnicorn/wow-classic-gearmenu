@@ -28,17 +28,23 @@
 local mod = rggm
 local me = {}
 
-mod.changeMenu = me
+mod.gearBarChangeMenu = me
 
-me.tag = "ChangeMenu"
+me.tag = "GearBarChangeMenu"
 
 --[[
   Local references to heavily accessed targetcastbar ui elements
 ]]--
 local changeMenuFrame
 local changeMenuSlots = {}
-
+--[[
+  last slot that was hovered
+]]--
 local lastGearSlotHovered
+
+--[[
+  ELEMENTS
+]]--
 
 --[[
   Build the initial changeMenu for bagged items
@@ -139,73 +145,23 @@ function me.CreateChangeSlot(frame, position, xPos, yPos)
 end
 
 --[[
-  Update the changeMenu. Note that the gearSlot can be nil in case of a manual trigger
-  of UpdateChangeMenu instead of through a 'hover' event on a gearSlot. In this case the
-  last used gearSlot is used.
-
-  @param {table} gearSlot
-    The gearSlot that was hovered
+  UPDATE
 ]]--
-function me.UpdateChangeMenu(gearSlot)
-  me.ResetChangeMenu()
-
-  if gearSlot == nil then
-    if lastGearSlotHovered ~= nil then
-      gearSlot = lastGearSlotHovered
-    else
-      return
-    end
-  end
-
-  local slot = mod.configuration.GetSlotForPosition(tonumber(gearSlot.position))
-  local gearSlotMetaData = mod.gearManager.GetGearSlotForSlotId(slot)
-
-  if gearSlotMetaData ~= nil then
-    local items = mod.itemManager.GetItemsForInventoryType(gearSlotMetaData.type)
-
-    for index, item in ipairs(items) do
-      if index > RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT then
-        mod.logger.LogInfo(me.tag, "All changeMenuSlots are in use skipping rest of items...")
-        break
-      end
-
-      local changeMenuSlot = changeMenuSlots[index]
-      mod.uiHelper.UpdateSlotTextureAttributes(changeMenuSlot)
-
-      -- update metadata for slot
-      changeMenuSlot.slotId = gearSlotMetaData.slotId
-      changeMenuSlot.itemId = item.id
-      changeMenuSlot.equipSlot = item.equipSlot
-
-      changeMenuSlot:SetNormalTexture(item.icon)
-      changeMenuSlot:Show()
-    end
-
-    me.UpdateChangeMenuSize(items)
-    me.UpdateChangeMenuPosition(gearSlot)
-    me.UpdateChangeMenuCooldownState()
-
-    mod.ticker.StartTickerChangeMenu()
-
-    lastGearSlotHovered = gearSlot
-
-    if MouseIsOver(_G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME]) or MouseIsOver(changeMenuFrame) then
-      changeMenuFrame:Show()
-    end
-  end
-end
 
 --[[
-  -- TODO replaces me.UpdateChangeMenu(gearSlot)
   Update the changeMenu. Note that the gearSlot can be nil in case of a manual trigger
   of UpdateChangeMenu instead of through a 'hover' event on a gearSlot. In this case the
   last used gearSlot is used.
 
   @param {table} gearSlot
     The gearSlot that was hovered
+  --TODO
 ]]--
-function me.DuplicateUpdateChangeMenu(gearSlot, gearBarId)
+function me.UpdateChangeMenu(gearSlot, gearBarId)
   me.ResetChangeMenu()
+
+  -- update changeMenuFrame's Id to the currently hovered gearBarId
+  changeMenuFrame.gearBarId = gearBarId
 
   if gearSlot == nil then
     if lastGearSlotHovered ~= nil then
@@ -247,10 +203,9 @@ function me.DuplicateUpdateChangeMenu(gearSlot, gearBarId)
 
     lastGearSlotHovered = gearSlot
 
-    local gearBarFrame = gearSlot:GetParent()
-    changeMenuFrame.gearBarId = gearBarFrame.id
+    local gearBarUi = mod.gearBarStorage.GetGearBar(gearBarId)
 
-    if MouseIsOver(gearBarFrame) or MouseIsOver(changeMenuFrame) then
+    if gearBarUi and MouseIsOver(gearBarUi.gearBarReference) or MouseIsOver(changeMenuFrame) then
       changeMenuFrame:Show()
     end
   end
@@ -364,6 +319,24 @@ function me.UpdateChangeMenuSlotSize()
 end
 
 --[[
+  GUI callback for updating the changeMenu - invoked regularly by a timer
+
+  Close changeMenu frame after when mouse is not over either the main gearBarFrame or the
+  changeMenuFrame.
+]]--
+function me.ChangeMenuOnUpdate()
+  local gearBar = mod.gearBarStorage.GetGearBar(changeMenuFrame.gearBarId)
+
+  if not MouseIsOver(gearBar.gearBarReference) and not MouseIsOver(changeMenuFrame) then
+    me.CloseChangeMenu()
+  end
+end
+
+--[[
+  EVENTS
+]]--
+
+--[[
   Setup event for a changeSlot
 
   @param {table} changeSlot
@@ -416,20 +389,6 @@ end
 function me.ChangeSlotOnClick(self, button)
   if button == "LeftButton" then
     mod.itemManager.EquipItemById(self.itemId, self.slotId)
-    me.CloseChangeMenu()
-  end
-end
-
---[[
-  GUI callback for updating the changeMenu - invoked regularly by a timer
-
-  Close changeMenu frame after when mouse is not over either the main gearBarFrame or the
-  changeMenuFrame.
-]]--
-function me.ChangeMenuOnUpdate()
-  local gearBar = mod.gearBar.GetGearBar(changeMenuFrame.gearBarId)
-
-  if not MouseIsOver(gearBar.gearBarReference) and not MouseIsOver(changeMenuFrame) then
     me.CloseChangeMenu()
   end
 end

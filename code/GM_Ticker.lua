@@ -42,7 +42,7 @@ local rangeCheckTicker
 function me.StartTickerChangeMenu()
   if changeMenuTicker == nil or changeMenuTicker._cancelled then
     changeMenuTicker = C_Timer.NewTicker(
-      RGGM_CONSTANTS.CHANGE_MENU_UPDATE_INTERVAL, mod.changeMenu.ChangeMenuOnUpdate)
+      RGGM_CONSTANTS.CHANGE_MENU_UPDATE_INTERVAL, mod.gearBarChangeMenu.ChangeMenuOnUpdate)
       mod.logger.LogInfo(me.tag, "Started 'ChangeMenuTicker'")
   end
 end

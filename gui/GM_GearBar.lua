@@ -33,10 +33,10 @@
   A gearBar can have n amount of slots where the user can define different gearSlot types and keybinds to activate them.
 
   A gearBar is always bound to a gearBarConfiguration that was created in the ui configuration of the addon.
-  This configuration tells the gearBar exactly how many slots it should have. The module responsible for
-  holding and changing this information is the gearBarManager (GM_GearBarManager). The gearBar module however should
-  never change values in the gearBarManager. Its sole purpose is to read all of the present configurations
-  and display them exactly as described to the user.
+  This configuration tells the gearBar exactly how many slots it should have and how those are configured.
+  The module responsible for holding and changing this information is the gearBarManager (GM_GearBarManager).
+  The gearBar module however should never change values in the gearBarManager. Its sole purpose is to read
+  all of the present configurations and display them exactly as described to the user.
 ]]--
 
 local mod = rggm
@@ -47,79 +47,8 @@ mod.gearBar = me
 me.tag = "GearBar"
 
 --[[
-  Storage for gearBar ui elements
+  Initial setup of all configured gearBars. Used during addon startup
 ]]--
-local gearBarUiStorage = {}
-
---[[
-  Retrieve a gearBar object from the storage by its id
-
-  @param {number} gearBarId
-    An id of a gearBar
-
-  @return {table | nil}
-    table - A table containing all relevant ui elements for that gearBar
-    nil - If no gearBar with the passed id could be found
-]]--
-function me.GetGearBar(gearBarId)
-  if gearBarUiStorage[gearBarId] == nil then
-    mod.logger.LogError(me.tag, "Unable to find a GearBar with id: " .. gearBarId)
-    return nil
-  end
-
-  return gearBarUiStorage[gearBarId]
-end
-
---[[
-  Store a gearBar object
-
-  @param {number} gearBarId
-    An id of a gearBar
-  @param {table} gearBarReference
-    A ui reference to a gearBar
-]]--
-function me.AddGearBar(gearBarId, gearBarReference)
-  gearBarUiStorage[gearBarId] = {
-    ["gearBarReference"] = gearBarReference,
-    ["gearSlotReferences"] = {}
-  }
-end
-
---[[
-  Not possible to destroy frames. In this case the frame is hidden and the reference
-  nullified.
-
-  @param {number} gearBarId
-    An id of a gearBar
-]]--
-function me.RemoveGearBar(gearBarId)
-  local gearBar = me.GetGearBar(gearBarId)
-  gearBar.gearBarReference:Hide()
-  gearBarUiStorage[gearBarId] = nil
-end
-
---[[
-  Store a gearSlot object to a gearBar object
-
-  @param {number} gearBarId
-    An id of a gearBar
-  @param {table} gearSlotReference
-    A ui reference to a gearSlot
-]]--
-function me.AddGearSlot(gearBarId, gearSlotReference)
-  if gearBarUiStorage[gearBarId] == nil then
-    mod.logger.LogError(me.tag, "Unable to find a GearBar with id: " .. gearBarId)
-    return
-  end
-
-  table.insert(gearBarUiStorage[gearBarId].gearSlotReferences, gearSlotReference)
-end
-
---[[
-  Local references to heavily accessed ui elements
-]]--
-local gearSlots = {}
-
 function me.BuildGearBars()
   local gearBars = mod.gearBarManager.GetGearBars()
 
@@ -146,50 +75,93 @@ function me.BuildGearBar(gearBar)
 
   local gearBarSlotSize = mod.configuration.GetSlotSize()
 
-  -- TODO magic value
   gearBarFrame:SetWidth(
     gearBarSlotSize + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN
   )
   gearBarFrame:SetHeight(gearBarSlotSize + RGGM_CONSTANTS.GEAR_BAR_HEIGHT_MARGIN)
-
   gearBarFrame:SetPoint("CENTER", 0, 0)
   gearBarFrame:SetMovable(true)
   -- prevent dragging the frame outside the actual 3d-window
   gearBarFrame:SetClampedToScreen(true)
 
+  -- TODO buggy background path
   gearBarFrame:SetBackdrop({
-    bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background"
+    bgFile = "Interface\\AddOns\\GearMenu\\assets\\ui_slot_background"
   })
 
-  mod.logger.LogError(me.tag, "Building gearBar")
   me.SetupDragFrame(gearBarFrame)
-  mod.gearBar.AddGearBar(gearBar.id, gearBarFrame)
+  mod.gearBarStorage.AddGearBar(gearBar.id, gearBarFrame)
 
   --[[
     Create all configured slots for the gearBar
   ]]--
   for i = 1, #gearBar.slots do
-    me.BuilGearSlot(gearBarFrame, i)
+    local gearSlot = me.BuilGearSlot(gearBarFrame, gearBar, i)
+    mod.gearBarStorage.AddGearSlot(gearBar.id, gearSlot)
   end
 
   return gearBarFrame
 end
 
 --[[
-  TODO describe that this is a ui function only
+  @param {table} frame
+    The frame to attach the drag handlers to
+]]--
+function me.SetupDragFrame(frame)
+  frame:SetScript("OnMouseDown", me.StartDragFrame)
+  frame:SetScript("OnMouseUp", me.StopDragFrame)
+end
+
+--[[
+  Frame callback to start moving the passed (self) frame
+
+  @param {table} self
+]]--
+function me.StartDragFrame(self)
+  -- if mod.configuration.IsGearBarLocked() then return end TODO
+
+  self:StartMoving()
+end
+
+--[[
+  Frame callback to stop moving the passed (self) frame
+
+  @param {table} self
+]]--
+function me.StopDragFrame(self)
+  -- if mod.configuration.IsGearBarLocked() then return end TODO
+
+  self:StopMovingOrSizing()
+
+  -- local point, relativeTo, relativePoint, posX, posY = self:GetPoint()
+
+  --[[
+  mod.configuration.SaveUserPlacedFramePosition(
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME,
+    point,
+    relativeTo,
+    relativePoint,
+    posX,
+    posY
+  )
+  ]]--
+end
+
+--[[
   TODO this function cannot be called while in combatlockdown
   Create a single gearSlot. Note that a gearSlot inherits from the SecureActionButtonTemplate to enable the usage
   of clicking items.
 
   @param {table} gearBarFrame
     The gearBarFrame where the gearSlot gets attached to
+  @param {table} gearBar
   @param {number} position
     Position on the gearBar
 
   @return {table}
     The created gearSlot
 ]]--
-function me.BuilGearSlot(gearBarFrame, position)
+function me.BuilGearSlot(gearBarFrame, gearBar, position)
   local gearSlot = CreateFrame(
     "Button",
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT .. position,
@@ -223,7 +195,6 @@ function me.BuilGearSlot(gearBarFrame, position)
     }
   }
 
-  local gearBar = mod.gearBarManager.GetGearBar(gearBarFrame.id)
   local gearSlotMetaData = gearBar.slots[position]
 
   if gearSlotMetaData ~= nil then
@@ -235,8 +206,8 @@ function me.BuilGearSlot(gearBarFrame, position)
   gearSlot:SetBackdropColor(0.15, 0.15, 0.15, 1)
   gearSlot:SetBackdropBorderColor(0, 0, 0, 1)
 
-  gearSlot.combatQueueSlot = mod.gearBar.CreateCombatQueueSlot(gearSlot)
-  gearSlot.keyBindingText = mod.gearBar.CreateKeyBindingText(gearSlot, position)
+  gearSlot.combatQueueSlot = me.CreateCombatQueueSlot(gearSlot)
+  gearSlot.keyBindingText = me.CreateKeyBindingText(gearSlot, position)
   gearSlot.position = position
 
   mod.uiHelper.CreateHighlightFrame(gearSlot)
@@ -248,8 +219,6 @@ function me.BuilGearSlot(gearBarFrame, position)
   )
 
   me.SetupEvents(gearSlot)
-
-  mod.gearBar.AddGearSlot(gearBarFrame.id, gearSlot)
 
   return gearSlot
 end
@@ -391,7 +360,7 @@ end
 function me.GearSlotOnEnter(self)
   self.highlightFrame:SetBackdropBorderColor(unpack(RGGM_CONSTANTS.HIGHLIGHT.hover))
   self.highlightFrame:Show()
-  mod.changeMenu.DuplicateUpdateChangeMenu(self, self:GetParent().id)
+  mod.gearBarChangeMenu.UpdateChangeMenu(self, self:GetParent().id) -- TODO next step
   mod.tooltip.BuildTooltipForWornItem(self:GetAttribute("item"))
 end
 
@@ -404,6 +373,22 @@ function me.GearSlotOnLeave(self)
   self.highlightFrame:Hide()
   mod.tooltip.TooltipClear()
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 --[[
   Update all GearBars
@@ -429,32 +414,22 @@ function me.UpdateGearBar(gearBar)
   end
 
   local gearBarSlotSize = mod.configuration.GetSlotSize()
-  local uiGearBar = mod.gearBar.GetGearBar(gearBar.id)
+  local uiGearBar = mod.gearBarStorage.GetGearBar(gearBar.id)
 
   for index, gearSlotMetaData in pairs(gearBar.slots) do
     mod.logger.LogDebug(me.tag, "Updating gearBar with id: " .. gearBar.id)
 
-    -- TODO GetGearBar can return nil
-    local gearBarReference = me.GetGearBar(gearBar.id).gearBarReference
-    --[[
-      TODO need to check if this is a good way for implenting the creation of a new slot
-      We essentialy tell the gearBar to update after we added a new slot
-      The slot does not exist the update process recognizes this and creates the slot
-
-      OR
-
-      Would it be better to make sure the slot is already created when we add the button to the gearBarmanager
-    ]]--
     if uiGearBar.gearSlotReferences[index] == nil then
       mod.logger.LogInfo(me.tag, "GearSlot does not yet exist. Creating a new one")
-      me.BuilGearSlot(gearBarReference, index)
+      local gearSlot = me.BuilGearSlot(uiGearBar.gearBarReference, gearBar, index)
+      mod.gearBarStorage.AddGearSlot(gearBar.id, gearSlot)
     end
 
     local uiGearSlot = uiGearBar.gearSlotReferences[index]
 
     uiGearSlot:SetAttribute("type1", "item")
     uiGearSlot:SetAttribute("item", gearSlotMetaData.slotId)
-    mod.gearBar.UpdateTexture(uiGearSlot, gearSlotMetaData)
+    me.UpdateTexture(uiGearSlot, gearSlotMetaData)
     mod.uiHelper.UpdateSlotTextureAttributes(uiGearSlot)
 
     -- update slotsize to match configuration
@@ -466,13 +441,14 @@ function me.UpdateGearBar(gearBar)
         mod.configuration.GetSlotSize() * RGGM_CONSTANTS.GEAR_BAR_CHANGE_COOLDOWN_TEXT_MODIFIER
       )
 
-    mod.gearBar.SetKeyBindingFont(uiGearSlot.keyBindingText)
+    me.SetKeyBindingFont(uiGearSlot.keyBindingText)
 
     uiGearSlot:Show() -- finally make the slot visible
   end
 
   -- remove leftover gearSlots that are obsolete and should no longer be displayed
   -- TODO what happens with hidden buttons that have keybinds to them?
+  -- Should probably remove the keybind before deleting
   for index, gearSlotReference in pairs(uiGearBar.gearSlotReferences) do
     if index > #gearBar.slots then
       mod.logger.LogDebug(me.tag, "GearBar(" .. gearBar.id .. ") - Index: " .. index .. " should be hidden")
@@ -498,24 +474,28 @@ function me.UpdateGearSlots(gearBarId)
   local gearBar = mod.gearBarManager.GetGearBar(gearBarId)
 
   for i = 1, #gearBar.slots do
-    local gearSlot = gearBarUi.gearSlotReferences[i]
-
-    if gearSlot ~= nil then
-      mod.logger.LogWarn(me.tag, "Found a slot")
+    if gearBarUi.gearSlotReferences[i] ~= nil then
+      mod.logger.LogDebug(me.tag, "Found already present slot")
     else
-      mod.logger.LogWarn(me.tag, "Slot not found. Should be created")
-      me.BuilGearSlot(gearBarUi.gearBarReference, i)
+      mod.logger.LogDebug(me.tag, "Not slout found. Creating a new one")
+      local gearSlot = me.BuilGearSlot(gearBarUi.gearBarReference, gearBar, i)
+      mod.gearBarStorage.AddGearSlot(gearBar.id, gearSlot)
     end
   end
 
+  me.CleanupOrphanedGearSlots(gearBar, gearBarUi)
+end
 
-  --[[
-    TODO maybe there is a better way
+--[[
+  Search for orphan gearSlots that should be removed. Note it is not possible to delete
+  a frame. It can only be hidden but will of course not be recreated once the user reloads the ui
 
-    Search for orphan gearSlots that should be removed. Note it is not possible to delete
-    a frame. It can only be hidden but will of course not be recreated once the user reloads the ui
-  ]]--
-
+  @param {table} gearBar
+    The configuration of a gearBar
+  @param {table} gearBarUi
+    The visual representation of a gearBar
+]]--
+function me.CleanupOrphanedGearSlots(gearBar, gearBarUi)
   for i = 1, #gearBarUi.gearSlotReferences do
     if gearBar.slots[i] == nil then
       -- means the element is no longer known and should be "removed"
@@ -540,124 +520,7 @@ function me.UpdateGearBarTextures()
 
     for index, gearSlot in pairs(gearBar.slots) do
       local uiGearSlot = uiGearBar.gearSlotReferences[index]
-      mod.gearBar.UpdateTexture(uiGearSlot, gearSlot)
-    end
-  end
-end
-
---[[
-  Update gearBar in cases such as a new gearSlot was adder or one was removed. Should
-  always be called after me.UpdateGearSlots otherwise the size calculation will be off.
-
-  @param {number} gearBarId
-]]--
-function me.UpdateGearBarSize(gearBarId)
-  local gearBarUi = mod.gearBar.GetGearBar(gearBarId)
-  local slotAmount = #gearBarUi.gearSlotReferences + 1 -- TODO explain
-
-  mod.logger.LogError(me.tag, string.format("Updating GearBar for %s slots", slotAmount))
-
-  local gearBarSlotSize = mod.configuration.GetSlotSize()
-
-  gearBarUi.gearBarReference:SetWidth(
-    slotAmount * gearBarSlotSize + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN
-  )
-end
-
---[[
-  @param {table} frame
-    The frame to attach the drag handlers to
-]]--
-function me.SetupDragFrame(frame)
-  frame:SetScript("OnMouseDown", me.StartDragFrame)
-  frame:SetScript("OnMouseUp", me.StopDragFrame)
-end
-
---[[
-  Frame callback to start moving the passed (self) frame
-
-  @param {table} self
-]]--
-function me.StartDragFrame(self)
-  -- if mod.configuration.IsGearBarLocked() then return end TODO
-
-  self:StartMoving()
-end
-
---[[
-  Frame callback to stop moving the passed (self) frame
-
-  @param {table} self
-]]--
-function me.StopDragFrame(self)
-  -- if mod.configuration.IsGearBarLocked() then return end TODO
-
-  self:StopMovingOrSizing()
-
-  -- local point, relativeTo, relativePoint, posX, posY = self:GetPoint()
-
-  --[[
-  mod.configuration.SaveUserPlacedFramePosition(
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME,
-    point,
-    relativeTo,
-    relativePoint,
-    posX,
-    posY
-  )
-  ]]--
-end
-
---[[
-  Update the slotPositions based on the slots that are inactive
-]]--
-function me.UpdateSlotPosition()
-  local position = 1
-
-  for index, gearSlot in pairs(gearSlots) do
-    local slotId = mod.configuration.GetSlotForPosition(index)
-
-    if slotId == 0 then
-      -- slot is inactive
-      position = position -1
-    end
-
-    if position < 0 then
-      position = 0
-    end
-
-    gearSlot:SetPoint(
-      "LEFT",
-      _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME],
-      "LEFT",
-      RGGM_CONSTANTS.GEAR_BAR_SLOT_X + (position - 1) * mod.configuration.GetSlotSize(),
-      RGGM_CONSTANTS.GEAR_BAR_SLOT_Y
-    )
-
-    position = position + 1
-  end
-end
-
---[[
-  Update the cooldown of items on gearBar after a BAG_UPDATE_COOLDOWN event or a manual
-  invoke after a configuration change (show/hide) cooldowns
-]]--
-function me.UpdateGearSlotCooldown()
-  for index, gearSlot in pairs(gearSlots) do
-    local slot = mod.configuration.GetSlotForPosition(index)
-    local gearSlotMetaData = mod.gearManager.GetGearSlotForSlotId(slot)
-
-    if gearSlotMetaData ~= nil then
-      local itemId = GetInventoryItemID(RGGM_CONSTANTS.UNIT_ID_PLAYER, gearSlotMetaData.slotId)
-
-      if itemId ~= nil then
-        if mod.configuration.IsShowCooldownsEnabled() then
-          local startTime, duration = GetItemCooldown(itemId)
-          gearSlot.cooldownOverlay:SetCooldown(startTime, duration)
-        else
-          gearSlot.cooldownOverlay:Hide()
-        end
-      end
+      me.UpdateTexture(uiGearSlot, gearSlot)
     end
   end
 end
@@ -684,32 +547,22 @@ function me.UpdateTexture(gearSlot, slotMetaData)
 end
 
 --[[
-  Update the visual representation of the combatQueue on the gearBar
+  Update gearBar in cases such as a new gearSlot was added or one was removed. Should
+  always be called after me.UpdateGearSlots otherwise the size calculation will be off.
 
-  @param {table} slotId
+  @param {number} gearBarId
 ]]--
-function me.UpdateCombatQueue(slotId)
-  local position = mod.configuration.GetSlotForSlotId(slotId)
-  local combatQueue = mod.combatQueue.GetCombatQueueStore()
-  local itemId = combatQueue[slotId]
-  local icon
+function me.UpdateGearBarSize(gearBarId)
+  local gearBarUi = mod.gearBar.GetGearBar(gearBarId)
+  local slotAmount = #gearBarUi.gearSlotReferences + 1 -- TODO explain
 
-  for i = 1, table.getn(gearSlots) do
-    if gearSlots[i].position == position then
-      icon = gearSlots[i].combatQueueSlot.icon
-    end
-  end
+  mod.logger.LogError(me.tag, string.format("Updating GearBar for %s slots", slotAmount))
 
-  if itemId then
-    local bagNumber, bagPos = mod.itemManager.FindItemInBag(itemId)
+  local gearBarSlotSize = mod.configuration.GetSlotSize()
 
-    if bagNumber ~= nil and bagPos ~= nil then
-      icon:SetTexture(GetContainerItemInfo(bagNumber, bagPos))
-      icon:Show()
-    end
-  else
-    icon:Hide()
-  end
+  gearBarUi.gearBarReference:SetWidth(
+    slotAmount * gearBarSlotSize + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN
+  )
 end
 
 --[[
@@ -749,150 +602,4 @@ function me.SetupEvents(gearSlot)
   gearSlot:SetScript("OnDragStart", function(self)
     me.GearSlotOnDragStart(self)
   end)
-end
-
---[[
-  Update clickhandler to match fastpress configuration. Only register to events that are needed
-]]--
-function me.UpdateClickHandler()
-  for _, gearSlot in pairs(gearSlots) do
-    if mod.configuration.IsFastpressEnabled() then
-      gearSlot:RegisterForClicks("LeftButtonDown", "RightButtonDown")
-    else
-      gearSlot:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-    end
-  end
-end
-
---[[
-  Callback for a gearBarSlot OnClick
-
-  @param {table} self
-  @param {string} button
-]]--
-function me.GearSlotOnClick(self, button)
-  self.highlightFrame:Show()
-
-  if button == "LeftButton" then
-    self.highlightFrame:SetBackdropBorderColor(unpack(RGGM_CONSTANTS.HIGHLIGHT.highlight))
-  elseif button == "RightButton" then
-    self.highlightFrame:SetBackdropBorderColor(unpack(RGGM_CONSTANTS.HIGHLIGHT.remove))
-
-    local slot = mod.configuration.GetSlotForPosition(self.position)
-    local gearSlotMetaData = mod.gearManager.GetGearSlotForSlotId(slot)
-    mod.combatQueue.RemoveFromQueue(gearSlotMetaData.slotId)
-  else
-    return -- ignore other buttons
-  end
-
-  C_Timer.After(.5, function()
-    if MouseIsOver(_G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME]) then
-      self.highlightFrame:SetBackdropBorderColor(unpack(RGGM_CONSTANTS.HIGHLIGHT.hover))
-    else
-      self.highlightFrame:Hide()
-    end
-  end)
-end
-
---[[
-  Callback for a changeSlot OnEnter
-
-  @param {table} self
-]]--
-function me.GearSlotOnEnter(self)
-  self.highlightFrame:SetBackdropBorderColor(unpack(RGGM_CONSTANTS.HIGHLIGHT.hover))
-  self.highlightFrame:Show()
-  mod.changeMenu.UpdateChangeMenu(self)
-
-  local slot = mod.configuration.GetSlotForPosition(self.position)
-  local gearSlotMetaData = mod.gearManager.GetGearSlotForSlotId(slot)
-
-  if gearSlotMetaData ~= nil then
-    mod.tooltip.BuildTooltipForWornItem(gearSlotMetaData.slotId)
-  end
-end
-
---[[
-  Callback for a gearSlot OnLeave
-
-  @param {table} self
-]]--
-function me.GearSlotOnLeave(self)
-  self.highlightFrame:Hide()
-  mod.tooltip.TooltipClear()
-end
-
---[[
-  Callback for a gearSlot OnReceiveDrag
-
-  @param {table} self
-]]--
-function me.GearSlotOnReceiveDrag(self)
-  if not mod.configuration.IsDragAndDropEnabled() then return end
-
-  local slot = mod.configuration.GetSlotForPosition(self.position)
-  local gearSlotMetaData = mod.gearManager.GetGearSlotForSlotId(slot)
-  -- abort if no item could be found
-  if gearSlotMetaData == nil then return end
-
-  if CursorCanGoInSlot(gearSlotMetaData.slotId) then
-    EquipCursorItem(gearSlotMetaData.slotId)
-  else
-    mod.logger.LogInfo(me.tag, "Invalid item for slotId - " .. gearSlotMetaData.slotId)
-    ClearCursor() -- clear cursor from item
-  end
-end
-
---[[
-  Callback for a gearSlot OnDragStart
-
-  @param {table} self
-]]--
-function me.GearSlotOnDragStart(self)
-  if not mod.configuration.IsDragAndDropEnabled() then return end
-
-  local slot = mod.configuration.GetSlotForPosition(self.position)
-  local gearSlotMetaData = mod.gearManager.GetGearSlotForSlotId(slot)
-  -- abort if no item could be found
-  if gearSlotMetaData == nil then return end
-
-  if not IsInventoryItemLocked(gearSlotMetaData.slotId) then
-    PickupInventoryItem(gearSlotMetaData.slotId)
-  end
-end
-
---[[
-  Show keybindings for all registered items
-]]--
-function me.ShowKeyBindings()
-  for _, gearSlot in pairs(gearSlots) do
-    gearSlot.keyBindingText:Show()
-  end
-end
-
---[[
-  Hide keybindings for all registered items
-]]--
-function me.HideKeyBindings()
-  for _, gearSlot in pairs(gearSlots) do
-    gearSlot.keyBindingText:Hide()
-  end
-end
-
---[[
-  Hide cooldowns for worn items
-]]--
-function me.HideCooldowns()
-  for _, gearSlot in pairs(gearSlots) do
-    gearSlot.cooldownOverlay:Hide()
-  end
-end
-
---[[
-  Show cooldowns for worn items
-]]--
-function me.ShowCooldowns()
-  for _, gearSlot in pairs(gearSlots) do
-    gearSlot.cooldownOverlay:Show()
-  end
 end

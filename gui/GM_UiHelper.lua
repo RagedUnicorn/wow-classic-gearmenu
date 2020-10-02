@@ -125,7 +125,7 @@ end
 ]]--
 function me.UpdateSlotCooldown()
   mod.gearBar.UpdateGearSlotCooldown()
-  mod.changeMenu.UpdateChangeMenuCooldownState()
+  mod.gearBarChangeMenu.UpdateChangeMenuCooldownState()
 end
 
 --[[
@@ -206,7 +206,7 @@ end
 ]]--
 function me.HideCooldowns()
   mod.gearBar.HideCooldowns()
-  mod.changeMenu.HideCooldowns()
+  mod.gearBarChangeMenu.HideCooldowns()
 end
 
 --[[
@@ -215,5 +215,5 @@ end
 function me.ShowCooldowns()
   mod.gearBar.ShowCooldowns()
   mod.gearBar.UpdateGearSlotCooldown()
-  mod.changeMenu.ShowCooldowns()
+  mod.gearBarChangeMenu.ShowCooldowns()
 end

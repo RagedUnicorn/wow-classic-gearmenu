@@ -115,6 +115,8 @@ end
 ]]--
 function me.CreateNewGearBar(gearBarFrame)
   local gearBar = mod.gearBarManager.AddNewGearBar("testgearbarname") -- TODO HARDCODED
+  -- build visual gearBar representation
+  mod.gearBar.BuildGearBar(gearBar)
   gearBarConfiguration = gearBar
 
   mod.addonConfiguration.BuildCategory(
@@ -199,21 +201,20 @@ end
     A reference to the button that was clicked
 ]]--
 function me.AddGearSlot(self)
-  mod.logger.LogWarn(me.tag, "Called addgearslot??")
-  local gearBar = mod.gearBarManager.GetGearBar(self.gearBarId)
+  local gearBar = mod.gearBarManager.GetGearBar(gearBarConfiguration.id)
 
   if gearBar == nil then
-    mod.logger.LogError(me.tag, "Failed to find gearBar with id: " .. self.gearBarId)
+    mod.logger.LogError(me.tag, "Failed to find gearBar with id: " .. gearBarConfiguration.id)
     return
   end
 
-  if not mod.gearBarManager.AddNewGearSlot(self.gearBarId) then
-    mod.logger.LogError(me.tag, "Failed to add new gearSlot to gearBar with id: " .. self.id)
+  if not mod.gearBarManager.AddNewGearSlot(gearBarConfiguration.id) then
+    mod.logger.LogError(me.tag, "Failed to add new gearSlot to gearBar with id: " .. gearBarConfiguration.id)
     return
   end
 
   me.UpdateGearBarConfigurationMenu()
-  -- mod.gearBar.UpdateGearBar(gearBar)
+  mod.gearBar.UpdateGearBar(gearBarConfiguration)
 end
 
 --[[
@@ -278,7 +279,7 @@ end
 ]]--
 function me.GearBarOnUpdate()
   me.UpdateGearBarConfigurationMenu()
-  -- mod.gearBar.UpdateGearBar(gearBar) -- TODO
+  mod.gearBar.UpdateGearBar(gearBarConfiguration)
 end
 
 --[[

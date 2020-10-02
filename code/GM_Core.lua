@@ -95,7 +95,7 @@ function me.OnEvent(event, ...)
       -- me.gearBarMenu.UpdateGearBarTextures()
       -- trigger UpdateChangeMenu again to update items after an item was equiped
       if _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_FRAME]:IsVisible() then
-        me.changeMenu.UpdateChangeMenu()
+        me.gearBarChangeMenu.UpdateChangeMenu()
       end
     end
   elseif event == "PLAYER_EQUIPMENT_CHANGED" then
@@ -104,38 +104,38 @@ function me.OnEvent(event, ...)
       -- me.gearBar.UpdateGearBarTextures()
       -- TODO new
       -- me.gearBarMenu.UpdateGearBarTextures()
-      me.gearBar.UpdateGearSlotCooldown()
+      -- me.gearBar.UpdateGearSlotCooldown()
     end
   elseif event == "BAG_UPDATE_COOLDOWN" then
     me.logger.LogEvent(me.tag, "BAG_UPDATE_COOLDOWN")
     if initializationDone then
-      me.gearBar.UpdateGearSlotCooldown()
+      -- me.gearBar.UpdateGearSlotCooldown()
     end
   elseif event == "UPDATE_BINDINGS" then
     me.logger.LogEvent(me.tag, "UPDATE_BINDINGS")
     if initializationDone then
-      me.gearBar.UpdateKeyBindings()
+      -- me.gearBar.UpdateKeyBindings()
     end
   elseif event == "LOSS_OF_CONTROL_ADDED" then
     me.logger.LogEvent(me.tag, "LOSS_OF_CONTROL_ADDED")
-    me.combatQueue.UpdateEquipChangeBlockStatus()
+    -- me.combatQueue.UpdateEquipChangeBlockStatus()
   elseif event == "LOSS_OF_CONTROL_UPDATE" then
     me.logger.LogEvent(me.tag, "LOSS_OF_CONTROL_UPDATE")
-    me.combatQueue.UpdateEquipChangeBlockStatus()
+    -- me.combatQueue.UpdateEquipChangeBlockStatus()
   elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
     me.logger.LogEvent(me.tag, "UNIT_SPELLCAST_SUCCEEDED")
     local unit = ...
 
     if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER then
       me.quickChange.OnUnitSpellCastSucceeded(...)
-      me.combatQueue.ProcessQueue()
+      -- me.combatQueue.ProcessQueue()
     end
   elseif event == "UNIT_SPELLCAST_INTERRUPTED" then
     me.logger.LogEvent(me.tag, "UNIT_SPELLCAST_INTERRUPTED")
     local unit = ...
 
     if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER then
-      me.combatQueue.ProcessQueue()
+      -- me.combatQueue.ProcessQueue()
     end
   elseif (event == "PLAYER_REGEN_ENABLED" or event == "PLAYER_UNGHOST" or event == "PLAYER_ALIVE")
     and not me.common.IsPlayerReallyDead() then
@@ -171,11 +171,11 @@ function me.Initialize()
   -- build ui for all gearBars
   me.gearBar.BuildGearBars()
   -- build ui for changeMenu
-  me.changeMenu.BuildChangeMenu()
+  me.gearBarChangeMenu.BuildChangeMenu()
   -- start ticker intervals
   -- me.ticker.StartTickerSlotCooldown()
   -- Update initial view of cooldowns after addon initialization
-  me.gearBar.UpdateGearSlotCooldown()
+  -- me.gearBar.UpdateGearSlotCooldown()
   -- start ticker range check
   if me.configuration.IsShowKeyBindingsEnabled() then
     -- me.ticker.StartTickerRangeCheck()
