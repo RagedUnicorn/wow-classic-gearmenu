@@ -51,9 +51,9 @@ function me.BuildGearBar()
   local gearBarSlotSize = mod.configuration.GetSlotSize()
 
   gearBarFrame:SetWidth(
-    RGGM_CONSTANTS.GEAR_BAR_SLOT_AMOUNT * gearBarSlotSize + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN
+    RGGM_CONSTANTS.GEAR_BAR_SLOT_AMOUNT * gearBarSlotSize
   )
-  gearBarFrame:SetHeight(gearBarSlotSize + RGGM_CONSTANTS.GEAR_BAR_HEIGHT_MARGIN)
+  gearBarFrame:SetHeight(gearBarSlotSize)
 
   if not mod.configuration.IsGearBarLocked() then
     gearBarFrame:SetBackdrop({
@@ -66,7 +66,6 @@ function me.BuildGearBar()
   gearBarFrame:SetClampedToScreen(true)
 
   mod.uiHelper.LoadFramePosition(gearBarFrame, RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME)
-  me.SetupDragFrame(gearBarFrame)
 
   -- create all gearSlots
   for i = 1, RGGM_CONSTANTS.GEAR_BAR_SLOT_AMOUNT do
@@ -147,6 +146,7 @@ function me.CreateGearSlot(gearBarFrame, position)
   )
 
   me.SetupEvents(gearSlot)
+  me.SetupDragFrame(gearSlot)
   -- store gearSlot
   table.insert(gearSlots, gearSlot)
   -- initially hide slots
@@ -334,10 +334,8 @@ end
 function me.UpdateGearBarSize(slotCount)
   local gearBarSlotSize = mod.configuration.GetSlotSize()
   local gearBarWidth = slotCount * gearBarSlotSize
-    + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN
-  local gearBarHeight = gearBarSlotSize + RGGM_CONSTANTS.GEAR_BAR_HEIGHT_MARGIN
 
-  _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME]:SetSize(gearBarWidth, gearBarHeight)
+  _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME]:SetSize(gearBarWidth, gearBarSlotSize)
 end
 
 --[[
@@ -452,27 +450,29 @@ function me.SetupDragFrame(frame)
 end
 
 --[[
-  Frame callback to start moving the passed (self) frame
+  Frame callback to start moving the parent (gearBar) of the passed self (gearSlot) frame
 
   @param {table} self
 ]]--
 function me.StartDragFrame(self)
   if mod.configuration.IsGearBarLocked() then return end
 
-  self:StartMoving()
+  self:GetParent():StartMoving()
 end
 
 --[[
-  Frame callback to stop moving the passed (self) frame
+  Frame callback to stop moving the parent (gearBar) of the passed self (gearSlot) frame
 
   @param {table} self
 ]]--
 function me.StopDragFrame(self)
   if mod.configuration.IsGearBarLocked() then return end
 
-  self:StopMovingOrSizing()
+  local gearBarFrame = self:GetParent()
 
-  local point, relativeTo, relativePoint, posX, posY = self:GetPoint()
+  gearBarFrame:StopMovingOrSizing()
+
+  local point, relativeTo, relativePoint, posX, posY = gearBarFrame:GetPoint()
 
   mod.configuration.SaveUserPlacedFramePosition(
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME,
