@@ -530,7 +530,7 @@ function me.GearSlotOnClick(self, button)
   end
 
   C_Timer.After(.5, function()
-    if MouseIsOver(_G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME]) then
+    if MouseIsOver(self:GetParent()) then
       self.highlightFrame:SetBackdropBorderColor(unpack(RGGM_CONSTANTS.HIGHLIGHT.hover))
     else
       self.highlightFrame:Hide()
