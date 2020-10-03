@@ -209,7 +209,11 @@ RGGM_CONSTANTS = {
 
     Elements that are related to the configuration of a gearBar
   ]]--
-  ELEMENT_GEAR_BAR_SUB_OPTION_FRAME = "GM_GearBarMenuOptionFrame",
+  ELEMENT_GEAR_BAR_CONFIG_GENERAL_OPTIONS_FRAME = "GM_GearBarConfigGeneralOptionsFrame",
+  ELEMENT_GEAR_BAR_CONFIG_QUICK_CHANGE_FRAME = "GM_GearBarConfigQuickChangeFrame",
+  ELEMENT_GEAR_BAR_CONFIG_GEAR_BAR_CONFIG_FRAME = "GM_GearBarConfigGearBarConfigFrame",
+  ELEMENT_GEAR_BAR_CONFIG_GEAR_BAR_SUB_CONFIG_FRAME = "GM_GearBarConfigGearBarSubConfigFrame_",
+
   ELEMENT_GEAR_BAR_LIST_SCROLL_FRAME = "GM_GearBarListScrollFrame",
   ELEMENT_GEAR_BAR_LIST_CONTENT_FRAME = "GM_GearBarListContentFrame",
   ELEMENT_GEAR_BAR_LIST_SCROLL_FRAME_SLIDER = "GM_GearBarListScrollFrameSlider",

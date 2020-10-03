@@ -41,32 +41,19 @@ function me.SetupAddonConfiguration()
 
   panel.main = me.BuildCategory(RGGM_CONSTANTS.ELEMENT_ADDON_PANEL, nil, rggm.L["addon_name"])
   me.BuildCategory(
-    RGGM_CONSTANTS.ELEMENT_GENERAL_SUB_OPTION_FRAME,
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_GENERAL_OPTIONS_FRAME,
     panel.main,
     rggm.L["general_category_name"],
     mod.generalMenu.BuildUi
   )
   me.BuildCategory(
-    RGGM_CONSTANTS.ELEMENT_GEAR_SLOTS_SUB_OPTION_FRAME,
-    panel.main, rggm.L["gearslot_category_name"],
-    mod.gearSlotMenu.BuildUi
-  )
-  me.BuildCategory(
-    RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_SUB_OPTION_FRAME,
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_QUICK_CHANGE_FRAME,
     panel.main,
     rggm.L["quick_change_category_name"],
     mod.quickChangeMenu.BuildUi
   )
-
   me.BuildCategory(
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SUB_OPTION_FRAME,
-    panel.main,
-    rggm.L["gear_bar_configuration_category_name"],
-    mod.gearBarMenu.BuildUi
-  )
-
-  me.BuildCategory(
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SUB_OPTION_FRAME,
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_GEAR_BAR_CONFIG_FRAME,
     panel.main,
     "GearBarConfigTODO",
     mod.gearBarConfigurationMenu.BuildUi

@@ -95,7 +95,7 @@ function me.CreateNewGearBarButton(gearBarFrame)
   button:SetText(rggm.L["gear_bar_configuration_add_gearbar"])
   button:SetPoint("TOPLEFT", 10, -100)
   button:SetScript('OnClick', function()
-    me.CreateNewGearBar(gearBarFrame)
+    me.CreateNewGearBar(gearBarFrame, "woot")
   end)
 
   local buttonFontString = button:GetFontString()
@@ -108,20 +108,21 @@ function me.CreateNewGearBarButton(gearBarFrame)
 end
 
 --[[
+  TODO DEVELOPMENT only
   Create a new gearBar with the gearBarManager - then adds a new interface option
   for the created gearBar
 
   @param {table} gearBarFrame
 ]]--
-function me.CreateNewGearBar(gearBarFrame)
-  local gearBar = mod.gearBarManager.AddNewGearBar("testgearbarname") -- TODO HARDCODED
+function me.CreateNewGearBar(gearBarFrame, name)
+  local gearBar = mod.gearBarManager.AddNewGearBar(name)
   -- build visual gearBar representation
   mod.gearBar.BuildGearBar(gearBar)
   gearBarConfiguration = gearBar
 
   mod.addonConfiguration.BuildCategory(
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SUB_OPTION_FRAME,
-    gearBarFrame,
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_GEAR_BAR_SUB_CONFIG_FRAME .. gearBarConfiguration.id,
+    _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_GEAR_BAR_CONFIG_FRAME],
     gearBar.displayName .. gearBarConfiguration.id, -- TODO id only development
     me.GearBarConfigurationCategoryContainerOnCallback
   )

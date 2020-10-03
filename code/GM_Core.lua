@@ -170,6 +170,7 @@ function me.Initialize()
   me.addonConfiguration.SetupAddonConfiguration()
   -- build ui for all gearBars
   me.gearBar.BuildGearBars()
+
   -- build ui for changeMenu
   me.gearBarChangeMenu.BuildChangeMenu()
   -- start ticker intervals
@@ -180,6 +181,11 @@ function me.Initialize()
   if me.configuration.IsShowKeyBindingsEnabled() then
     -- me.ticker.StartTickerRangeCheck()
   end
+
+  -- TODO DEVELOPMENT
+  me.gearBarConfigurationMenu.CreateNewGearBar(nil, "test1")
+  me.gearBarConfigurationMenu.CreateNewGearBar(nil, "test2")
+
   -- update initial view of gearBars after addon initialization
   me.gearBar.UpdateGearBars()
 
