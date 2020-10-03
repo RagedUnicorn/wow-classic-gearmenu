@@ -80,9 +80,10 @@ function me.BuildGearBar(gearBar)
   local gearBarSlotSize = mod.configuration.GetSlotSize()
 
   gearBarFrame:SetWidth(
-    gearBarSlotSize + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN
-  )
-  gearBarFrame:SetHeight(gearBarSlotSize + RGGM_CONSTANTS.GEAR_BAR_HEIGHT_MARGIN)
+      RGGM_CONSTANTS.GEAR_BAR_SLOT_AMOUNT * gearBarSlotSize
+    )
+  gearBarFrame:SetHeight(gearBarSlotSize)
+
   gearBarFrame:SetPoint("CENTER", 0, 0)
   gearBarFrame:SetMovable(true)
   -- prevent dragging the frame outside the actual 3d-window
@@ -93,7 +94,6 @@ function me.BuildGearBar(gearBar)
     bgFile = "Interface\\AddOns\\GearMenu\\assets\\ui_slot_background"
   })
 
-  me.SetupDragFrame(gearBarFrame)
   mod.gearBarStorage.AddGearBar(gearBar.id, gearBarFrame)
 
   --[[
@@ -179,6 +179,7 @@ function me.BuilGearSlot(gearBarFrame, gearBar, position)
   )
 
   me.SetupEvents(gearSlot)
+  me.SetupDragFrame(gearSlot)
 
   return gearSlot
 end
@@ -324,9 +325,7 @@ function me.UpdateGearBar(gearBar)
 
 
   -- update baseFrame size
-  uiGearBar.gearBarReference:SetWidth(
-    gearBarSlotSize * #uiGearBar.gearSlotReferences + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN
-  )
+  uiGearBar.gearBarReference:SetWidth(gearBarSlotSize * #uiGearBar.gearSlotReferences)
 end
 
 --[[
@@ -425,9 +424,7 @@ function me.UpdateGearBarSize(gearBarId)
 
   local gearBarSlotSize = mod.configuration.GetSlotSize()
 
-  gearBarUi.gearBarReference:SetWidth(
-    slotAmount * gearBarSlotSize + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN
-  )
+  gearBarUi.gearBarReference:SetWidth(slotAmount * gearBarSlotSize)
 end
 
 --[[
@@ -446,27 +443,27 @@ function me.SetupDragFrame(frame)
 end
 
 --[[
-  Frame callback to start moving the passed (self) frame
+  Frame callback to start moving the parent (gearBar) of the passed self (gearSlot) frame
 
   @param {table} self
 ]]--
 function me.StartDragFrame(self)
   -- if mod.configuration.IsGearBarLocked() then return end TODO
 
-  self:StartMoving()
+  self:GetParent():StartMoving()
 end
 
 --[[
-  Frame callback to stop moving the passed (self) frame
+  Frame callback to stop moving the parent (gearBar) of the passed self (gearSlot) frame
 
   @param {table} self
 ]]--
 function me.StopDragFrame(self)
   -- if mod.configuration.IsGearBarLocked() then return end TODO
+  local gearBarFrame = self:GetParent()
+  gearBarFrame:StopMovingOrSizing()
 
-  self:StopMovingOrSizing()
-
-  -- local point, relativeTo, relativePoint, posX, posY = self:GetPoint()
+  -- local point, relativeTo, relativePoint, posX, posY = gearBarFrame:GetPoint()
 
   --[[
   mod.configuration.SaveUserPlacedFramePosition(
