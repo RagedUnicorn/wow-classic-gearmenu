@@ -47,6 +47,10 @@ mod.gearBar = me
 me.tag = "GearBar"
 
 --[[
+  ELEMENTS
+]]--
+
+--[[
   Initial setup of all configured gearBars. Used during addon startup
 ]]--
 function me.BuildGearBars()
@@ -101,50 +105,6 @@ function me.BuildGearBar(gearBar)
   end
 
   return gearBarFrame
-end
-
---[[
-  @param {table} frame
-    The frame to attach the drag handlers to
-]]--
-function me.SetupDragFrame(frame)
-  frame:SetScript("OnMouseDown", me.StartDragFrame)
-  frame:SetScript("OnMouseUp", me.StopDragFrame)
-end
-
---[[
-  Frame callback to start moving the passed (self) frame
-
-  @param {table} self
-]]--
-function me.StartDragFrame(self)
-  -- if mod.configuration.IsGearBarLocked() then return end TODO
-
-  self:StartMoving()
-end
-
---[[
-  Frame callback to stop moving the passed (self) frame
-
-  @param {table} self
-]]--
-function me.StopDragFrame(self)
-  -- if mod.configuration.IsGearBarLocked() then return end TODO
-
-  self:StopMovingOrSizing()
-
-  -- local point, relativeTo, relativePoint, posX, posY = self:GetPoint()
-
-  --[[
-  mod.configuration.SaveUserPlacedFramePosition(
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME,
-    point,
-    relativeTo,
-    relativePoint,
-    posX,
-    posY
-  )
-  ]]--
 end
 
 --[[
@@ -292,103 +252,8 @@ function me.SetKeyBindingFont(keybindingFontString)
 end
 
 --[[
-  Setup event for a changeSlot
-
-  @param {table} gearSlot
+  UPDATE
 ]]--
-function me.SetupEvents(gearSlot)
-  --[[
-    Note: SecureActionButtons ignore right clicks by default - reenable right clicks
-  ]]--
-  if mod.configuration.IsFastpressEnabled() then
-    gearSlot:RegisterForClicks("LeftButtonDown", "RightButtonDown")
-  else
-    gearSlot:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-  end
-  gearSlot:RegisterForDrag("LeftButton")
-  --[[
-    Replacement for OnCLick. Do not overwrite click event for protected button
-  ]]--
-  gearSlot:SetScript("PreClick", function(self, button, down)
-    me.GearSlotOnClick(self, button, down)
-  end)
-
-  gearSlot:SetScript("OnEnter", me.GearSlotOnEnter)
-  gearSlot:SetScript("OnLeave", me.GearSlotOnLeave)
-
-  gearSlot:SetScript("OnReceiveDrag", function(self)
-    -- me.GearSlotOnReceiveDrag(self) -- TODO drag and drop support
-  end)
-
-  gearSlot:SetScript("OnDragStart", function(self)
-    -- me.GearSlotOnDragStart(self) -- TODO drag and drop support
-  end)
-end
-
---[[
-  Callback for a gearBarSlot OnClick
-
-  @param {table} self
-  @param {string} button
-]]--
-function me.GearSlotOnClick(self, button)
-  self.highlightFrame:Show()
-
-  if button == "LeftButton" then
-    self.highlightFrame:SetBackdropBorderColor(unpack(RGGM_CONSTANTS.HIGHLIGHT.highlight))
-  elseif button == "RightButton" then
-    self.highlightFrame:SetBackdropBorderColor(unpack(RGGM_CONSTANTS.HIGHLIGHT.remove))
-    mod.combatQueue.RemoveFromQueue(self:GetAttribute("item"))
-  else
-    return -- ignore other buttons
-  end
-
-  C_Timer.After(.5, function()
-    if MouseIsOver(_G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME]) then
-      self.highlightFrame:SetBackdropBorderColor(unpack(RGGM_CONSTANTS.HIGHLIGHT.hover))
-    else
-      self.highlightFrame:Hide()
-    end
-  end)
-end
-
---[[
-  Callback for a changeSlot OnEnter
-
-  @param {table} self
-]]--
-function me.GearSlotOnEnter(self)
-  self.highlightFrame:SetBackdropBorderColor(unpack(RGGM_CONSTANTS.HIGHLIGHT.hover))
-  self.highlightFrame:Show()
-  mod.gearBarChangeMenu.UpdateChangeMenu(self, self:GetParent().id) -- TODO next step
-  mod.tooltip.BuildTooltipForWornItem(self:GetAttribute("item"))
-end
-
---[[
-  Callback for a gearSlot OnLeave
-
-  @param {table} self
-]]--
-function me.GearSlotOnLeave(self)
-  self.highlightFrame:Hide()
-  mod.tooltip.TooltipClear()
-end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 --[[
   Update all GearBars
@@ -566,6 +431,56 @@ function me.UpdateGearBarSize(gearBarId)
 end
 
 --[[
+  EVENTS
+]]--
+
+--[[
+  Setup events for gearBar frame
+
+  @param {table} frame
+    The frame to attach the drag handlers to
+]]--
+function me.SetupDragFrame(frame)
+  frame:SetScript("OnMouseDown", me.StartDragFrame)
+  frame:SetScript("OnMouseUp", me.StopDragFrame)
+end
+
+--[[
+  Frame callback to start moving the passed (self) frame
+
+  @param {table} self
+]]--
+function me.StartDragFrame(self)
+  -- if mod.configuration.IsGearBarLocked() then return end TODO
+
+  self:StartMoving()
+end
+
+--[[
+  Frame callback to stop moving the passed (self) frame
+
+  @param {table} self
+]]--
+function me.StopDragFrame(self)
+  -- if mod.configuration.IsGearBarLocked() then return end TODO
+
+  self:StopMovingOrSizing()
+
+  -- local point, relativeTo, relativePoint, posX, posY = self:GetPoint()
+
+  --[[
+  mod.configuration.SaveUserPlacedFramePosition(
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME,
+    point,
+    relativeTo,
+    relativePoint,
+    posX,
+    posY
+  )
+  ]]--
+end
+
+--[[
   Setup event for a changeSlot
 
   @param {table} gearSlot
@@ -587,19 +502,63 @@ function me.SetupEvents(gearSlot)
     me.GearSlotOnClick(self, button, down)
   end)
 
-  gearSlot:SetScript("OnEnter", function(self)
-    me.GearSlotOnEnter(self)
-  end)
-
-  gearSlot:SetScript("OnLeave", function(self)
-    me.GearSlotOnLeave(self)
-  end)
+  gearSlot:SetScript("OnEnter", me.GearSlotOnEnter)
+  gearSlot:SetScript("OnLeave", me.GearSlotOnLeave)
 
   gearSlot:SetScript("OnReceiveDrag", function(self)
-    me.GearSlotOnReceiveDrag(self)
+    -- me.GearSlotOnReceiveDrag(self) -- TODO drag and drop support
   end)
 
   gearSlot:SetScript("OnDragStart", function(self)
-    me.GearSlotOnDragStart(self)
+    -- me.GearSlotOnDragStart(self) -- TODO drag and drop support
   end)
+end
+
+--[[
+  Callback for a gearBarSlot OnClick
+
+  @param {table} self
+  @param {string} button
+]]--
+function me.GearSlotOnClick(self, button)
+  self.highlightFrame:Show()
+
+  if button == "LeftButton" then
+    self.highlightFrame:SetBackdropBorderColor(unpack(RGGM_CONSTANTS.HIGHLIGHT.highlight))
+  elseif button == "RightButton" then
+    self.highlightFrame:SetBackdropBorderColor(unpack(RGGM_CONSTANTS.HIGHLIGHT.remove))
+    mod.combatQueue.RemoveFromQueue(self:GetAttribute("item"))
+  else
+    return -- ignore other buttons
+  end
+
+  C_Timer.After(.5, function()
+    if MouseIsOver(_G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME]) then
+      self.highlightFrame:SetBackdropBorderColor(unpack(RGGM_CONSTANTS.HIGHLIGHT.hover))
+    else
+      self.highlightFrame:Hide()
+    end
+  end)
+end
+
+--[[
+  Callback for a changeSlot OnEnter
+
+  @param {table} self
+]]--
+function me.GearSlotOnEnter(self)
+  self.highlightFrame:SetBackdropBorderColor(unpack(RGGM_CONSTANTS.HIGHLIGHT.hover))
+  self.highlightFrame:Show()
+  mod.gearBarChangeMenu.UpdateChangeMenu(self, self:GetParent().id)
+  mod.tooltip.BuildTooltipForWornItem(self:GetAttribute("item"))
+end
+
+--[[
+  Callback for a gearSlot OnLeave
+
+  @param {table} self
+]]--
+function me.GearSlotOnLeave(self)
+  self.highlightFrame:Hide()
+  mod.tooltip.TooltipClear()
 end
