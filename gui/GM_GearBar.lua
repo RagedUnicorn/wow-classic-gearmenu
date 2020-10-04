@@ -80,7 +80,7 @@ function me.BuildGearBar(gearBar)
   local gearBarSlotSize = mod.configuration.GetSlotSize()
 
   gearBarFrame:SetWidth(
-      RGGM_CONSTANTS.GEAR_BAR_SLOT_AMOUNT * gearBarSlotSize
+      RGGM_CONSTANTS.GEAR_BAR_SLOT_AMOUNT * gearBarSlotSize + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN
     )
   gearBarFrame:SetHeight(gearBarSlotSize)
 
@@ -88,10 +88,11 @@ function me.BuildGearBar(gearBar)
   gearBarFrame:SetMovable(true)
   -- prevent dragging the frame outside the actual 3d-window
   gearBarFrame:SetClampedToScreen(true)
+  me.SetupDragFrame(gearBarFrame)
 
-  -- TODO buggy background path
   gearBarFrame:SetBackdrop({
-    bgFile = "Interface\\AddOns\\GearMenu\\assets\\ui_slot_background"
+    bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+    insets = {left = 0, right = 0, top = 0, bottom = 0},
   })
 
   mod.gearBarStorage.AddGearBar(gearBar.id, gearBarFrame)
@@ -179,7 +180,6 @@ function me.BuilGearSlot(gearBarFrame, gearBar, position)
   )
 
   me.SetupEvents(gearSlot)
-  me.SetupDragFrame(gearSlot)
 
   return gearSlot
 end
@@ -325,7 +325,8 @@ function me.UpdateGearBar(gearBar)
 
 
   -- update baseFrame size
-  uiGearBar.gearBarReference:SetWidth(gearBarSlotSize * #uiGearBar.gearSlotReferences)
+  --uiGearBar.gearBarReference:SetWidth(gearBarSlotSize * #uiGearBar.gearSlotReferences)
+  me.UpdateGearBarSize(gearBar.id)
 end
 
 --[[
@@ -417,14 +418,14 @@ end
   @param {number} gearBarId
 ]]--
 function me.UpdateGearBarSize(gearBarId)
-  local gearBarUi = mod.gearBar.GetGearBar(gearBarId)
-  local slotAmount = #gearBarUi.gearSlotReferences + 1 -- TODO explain
+  local gearBarUi = mod.gearBarStorage.GetGearBar(gearBarId)
+  local slotAmount = #gearBarUi.gearSlotReferences
 
   mod.logger.LogError(me.tag, string.format("Updating GearBar for %s slots", slotAmount))
 
   local gearBarSlotSize = mod.configuration.GetSlotSize()
 
-  gearBarUi.gearBarReference:SetWidth(slotAmount * gearBarSlotSize)
+  gearBarUi.gearBarReference:SetWidth(slotAmount * gearBarSlotSize + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN)
 end
 
 --[[
@@ -481,7 +482,7 @@ end
 function me.StartDragFrame(self)
   -- if mod.configuration.IsGearBarLocked() then return end TODO
 
-  self:GetParent():StartMoving()
+  self:StartMoving()
 end
 
 --[[
@@ -491,8 +492,7 @@ end
 ]]--
 function me.StopDragFrame(self)
   -- if mod.configuration.IsGearBarLocked() then return end TODO
-  local gearBarFrame = self:GetParent()
-  gearBarFrame:StopMovingOrSizing()
+  self:StopMovingOrSizing()
 
   -- local point, relativeTo, relativePoint, posX, posY = gearBarFrame:GetPoint()
 
