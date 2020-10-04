@@ -428,6 +428,38 @@ function me.UpdateGearBarSize(gearBarId)
 end
 
 --[[
+  Update the visual representation of the combatQueue on all present gearBars by
+  locking through all gearBars and whether they have a slot with a matching slotId or
+  not. This catches cases where multiple gearBars have the same slot present
+
+  @param {table} slotId
+]]--
+function me.UpdateCombatQueue(slotId, itemId)
+  if slotId == nil or itemId == nil then
+    mod.logger.LogError(me.tag, "UpdateCombatQueue invalid arguments cannot update combatQueue")
+    return
+  end
+
+  mod.logger.LogDebug(me.tag, "Updating combatqueues for slotId - " .. slotId .. " with item - " .. itemId)
+
+  for _, gearBar in pairs(mod.gearBarStorage.GetGearBars()) do
+    local gearSlots = gearBar.gearSlotReferences
+
+    for i = 1, table.getn(gearSlots) do
+      if gearSlots[i]:GetAttribute("item") == slotId then
+        local icon = gearSlots[i].combatQueueSlot.icon
+        local bagNumber, bagPos = mod.itemManager.FindItemInBag(itemId)
+
+        if bagNumber ~= nil and bagPos ~= nil then
+          icon:SetTexture(GetContainerItemInfo(bagNumber, bagPos))
+          icon:Show()
+        end
+      end
+    end
+  end
+end
+
+--[[
   EVENTS
 ]]--
 

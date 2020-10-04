@@ -59,7 +59,7 @@ function me.AddToQueue(itemId, slotId)
   combatQueueStore[slotId] = itemId
   mod.logger.LogDebug(me.tag, "Added item with id " .. itemId .. " in slotId "
     .. slotId .. " to combatQueueStore")
-  mod.gearBar.UpdateCombatQueue(slotId)
+  mod.gearBar.UpdateCombatQueue(slotId, itemId)
   mod.ticker.StartTickerCombatQueue()
 end
 
@@ -83,7 +83,7 @@ function me.RemoveFromQueue(slotId)
   combatQueueStore[slotId] = nil
   mod.logger.LogDebug(me.tag, "Removed item with id " .. itemId .. " in slotId "
     .. slotId .. " from combatQueueStore")
-  mod.gearBar.UpdateCombatQueue(slotId)
+  mod.gearBar.UpdateCombatQueue(slotId, itemId)
 end
 
 --[[
@@ -103,7 +103,7 @@ function me.ProcessQueue()
   for _, gearSlot in pairs(mod.gearManager.GetGearSlots()) do
     if combatQueueStore[gearSlot.slotId] ~= nil then
       mod.itemManager.EquipItemById(combatQueueStore[gearSlot.slotId], gearSlot.slotId)
-      mod.gearBar.UpdateCombatQueue(gearSlot.slotId)
+      mod.gearBar.UpdateCombatQueue(gearSlot.slotId, combatQueueStore[gearSlot.slotId])
     end
   end
 end

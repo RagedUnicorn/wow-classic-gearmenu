@@ -51,6 +51,15 @@ me.tag = "GearBarStorage"
 local gearBarUiStorage = {}
 
 --[[
+  Retrieve all stored gearBars
+
+  @return {table}
+]]--
+function me.GetGearBars()
+  return gearBarUiStorage
+end
+
+--[[
   Retrieve a gearBar object from the storage by its id
 
   @param {number} gearBarId
