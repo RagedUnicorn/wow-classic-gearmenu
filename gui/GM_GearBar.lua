@@ -435,12 +435,7 @@ end
   @param {table} slotId
 ]]--
 function me.UpdateCombatQueue(slotId, itemId)
-  if slotId == nil or itemId == nil then
-    mod.logger.LogError(me.tag, "UpdateCombatQueue invalid arguments cannot update combatQueue")
-    return
-  end
-
-  mod.logger.LogDebug(me.tag, "Updating combatqueues for slotId - " .. slotId .. " with item - " .. itemId)
+  mod.logger.LogDebug(me.tag, "Updating combatqueues for slotId - " .. slotId)
 
   for _, gearBar in pairs(mod.gearBarStorage.GetGearBars()) do
     local gearSlots = gearBar.gearSlotReferences
@@ -450,9 +445,13 @@ function me.UpdateCombatQueue(slotId, itemId)
         local icon = gearSlots[i].combatQueueSlot.icon
         local bagNumber, bagPos = mod.itemManager.FindItemInBag(itemId)
 
-        if bagNumber ~= nil and bagPos ~= nil then
-          icon:SetTexture(GetContainerItemInfo(bagNumber, bagPos))
-          icon:Show()
+        if itemId then
+          if bagNumber ~= nil and bagPos ~= nil then
+            icon:SetTexture(GetContainerItemInfo(bagNumber, bagPos))
+            icon:Show()
+          end
+        else
+          icon:Hide()
         end
       end
     end
