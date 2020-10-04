@@ -51,7 +51,7 @@ function me.BuildGearBar()
   local gearBarSlotSize = mod.configuration.GetSlotSize()
 
   gearBarFrame:SetWidth(
-    RGGM_CONSTANTS.GEAR_BAR_SLOT_AMOUNT * gearBarSlotSize
+    RGGM_CONSTANTS.GEAR_BAR_SLOT_AMOUNT * gearBarSlotSize + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN
   )
   gearBarFrame:SetHeight(gearBarSlotSize)
 
@@ -64,6 +64,7 @@ function me.BuildGearBar()
   gearBarFrame:SetPoint("CENTER", 0, 0)
   gearBarFrame:SetMovable(true)
   gearBarFrame:SetClampedToScreen(true)
+  me.SetupDragFrame(gearBarFrame)
 
   mod.uiHelper.LoadFramePosition(gearBarFrame, RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME)
 
@@ -146,7 +147,6 @@ function me.CreateGearSlot(gearBarFrame, position)
   )
 
   me.SetupEvents(gearSlot)
-  me.SetupDragFrame(gearSlot)
   -- store gearSlot
   table.insert(gearSlots, gearSlot)
   -- initially hide slots
@@ -333,9 +333,11 @@ end
 ]]--
 function me.UpdateGearBarSize(slotCount)
   local gearBarSlotSize = mod.configuration.GetSlotSize()
-  local gearBarWidth = slotCount * gearBarSlotSize
 
-  _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME]:SetSize(gearBarWidth, gearBarSlotSize)
+  _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME]:SetSize(
+    slotCount * gearBarSlotSize + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN,
+    gearBarSlotSize
+  )
 end
 
 --[[
@@ -457,7 +459,7 @@ end
 function me.StartDragFrame(self)
   if mod.configuration.IsGearBarLocked() then return end
 
-  self:GetParent():StartMoving()
+  self:StartMoving()
 end
 
 --[[
@@ -468,11 +470,9 @@ end
 function me.StopDragFrame(self)
   if mod.configuration.IsGearBarLocked() then return end
 
-  local gearBarFrame = self:GetParent()
+  self:StopMovingOrSizing()
 
-  gearBarFrame:StopMovingOrSizing()
-
-  local point, relativeTo, relativePoint, posX, posY = gearBarFrame:GetPoint()
+  local point, relativeTo, relativePoint, posX, posY = self:GetPoint()
 
   mod.configuration.SaveUserPlacedFramePosition(
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME,
