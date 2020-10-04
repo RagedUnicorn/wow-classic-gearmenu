@@ -381,7 +381,7 @@ function me.UpdateGearBarTextures()
   local gearBars = mod.gearBarManager.GetGearBars()
 
   for _, gearBar in pairs(gearBars) do
-    local uiGearBar = mod.gearBar.GetGearBar(gearBar.id)
+    local uiGearBar = mod.gearBarStorage.GetGearBar(gearBar.id)
 
     for index, gearSlot in pairs(gearBar.slots) do
       local uiGearSlot = uiGearBar.gearSlotReferences[index]
@@ -577,7 +577,8 @@ end
 function me.GearSlotOnEnter(self)
   self.highlightFrame:SetBackdropBorderColor(unpack(RGGM_CONSTANTS.HIGHLIGHT.hover))
   self.highlightFrame:Show()
-  mod.gearBarChangeMenu.UpdateChangeMenu(self, self:GetParent().id)
+
+  mod.gearBarChangeMenu.UpdateChangeMenu(self.position, self:GetParent().id)
   mod.tooltip.BuildTooltipForWornItem(self:GetAttribute("item"))
 end
 

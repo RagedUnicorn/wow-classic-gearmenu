@@ -101,9 +101,7 @@ function me.OnEvent(event, ...)
   elseif event == "PLAYER_EQUIPMENT_CHANGED" then
     me.logger.LogEvent(me.tag, "PLAYER_EQUIPMENT_CHANGED")
     if initializationDone then
-      -- me.gearBar.UpdateGearBarTextures()
-      -- TODO new
-      -- me.gearBarMenu.UpdateGearBarTextures()
+      me.gearBar.UpdateGearBarTextures()
       -- me.gearBar.UpdateGearSlotCooldown()
     end
   elseif event == "BAG_UPDATE_COOLDOWN" then
@@ -118,24 +116,24 @@ function me.OnEvent(event, ...)
     end
   elseif event == "LOSS_OF_CONTROL_ADDED" then
     me.logger.LogEvent(me.tag, "LOSS_OF_CONTROL_ADDED")
-    -- me.combatQueue.UpdateEquipChangeBlockStatus()
+    me.combatQueue.UpdateEquipChangeBlockStatus()
   elseif event == "LOSS_OF_CONTROL_UPDATE" then
     me.logger.LogEvent(me.tag, "LOSS_OF_CONTROL_UPDATE")
-    -- me.combatQueue.UpdateEquipChangeBlockStatus()
+    me.combatQueue.UpdateEquipChangeBlockStatus()
   elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
     me.logger.LogEvent(me.tag, "UNIT_SPELLCAST_SUCCEEDED")
     local unit = ...
 
     if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER then
       me.quickChange.OnUnitSpellCastSucceeded(...)
-      -- me.combatQueue.ProcessQueue()
+      me.combatQueue.ProcessQueue()
     end
   elseif event == "UNIT_SPELLCAST_INTERRUPTED" then
     me.logger.LogEvent(me.tag, "UNIT_SPELLCAST_INTERRUPTED")
     local unit = ...
 
     if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER then
-      -- me.combatQueue.ProcessQueue()
+      me.combatQueue.ProcessQueue()
     end
   elseif (event == "PLAYER_REGEN_ENABLED" or event == "PLAYER_UNGHOST" or event == "PLAYER_ALIVE")
     and not me.common.IsPlayerReallyDead() then

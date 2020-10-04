@@ -37,10 +37,6 @@ me.tag = "GearBarChangeMenu"
 ]]--
 local changeMenuFrame
 local changeMenuSlots = {}
---[[
-  last slot that was hovered
-]]--
-local lastGearSlotHovered
 
 --[[
   ELEMENTS
@@ -149,30 +145,34 @@ end
 ]]--
 
 --[[
-  Update the changeMenu. Note that the gearSlot can be nil in case of a manual trigger
+  Update the changeMenu. Note that the gearSlotPosition and gearBarId can be nil in case of a manual trigger
   of UpdateChangeMenu instead of through a 'hover' event on a gearSlot. In this case the
-  last used gearSlot is used.
+  last used gearbar and gearSlot are used.
 
-  @param {table} gearSlot
-    The gearSlot that was hovered
-  --TODO
+  @param {table} gearSlotPosition
+    The gearSlot position that was hovered
+  @param {number} gearBarId
+    The id of the hovered gearBar
 ]]--
-function me.UpdateChangeMenu(gearSlot, gearBarId)
+function me.UpdateChangeMenu(gearSlotPosition, gearBarId)
   me.ResetChangeMenu()
 
-  -- update changeMenuFrame's Id to the currently hovered gearBarId
-  changeMenuFrame.gearBarId = gearBarId
+  if gearSlotPosition == nil or gearBarId == nil then
+    if changeMenuFrame.gearBarId ~= nil then
+      gearBarId = changeMenuFrame.gearBarId
+    else
+      return
+    end
 
-  if gearSlot == nil then
-    if lastGearSlotHovered ~= nil then
-      gearSlot = lastGearSlotHovered
+    if changeMenuFrame.gearSlotPosition ~= nil then
+      gearSlotPosition = changeMenuFrame.gearSlotPosition
     else
       return
     end
   end
 
   local gearBar = mod.gearBarManager.GetGearBar(gearBarId)
-  local gearSlotMetaData = gearBar.slots[gearSlot.position]
+  local gearSlotMetaData = gearBar.slots[gearSlotPosition]
 
   if gearSlotMetaData ~= nil then
     local items = mod.itemManager.GetItemsForInventoryType(gearSlotMetaData.type)
@@ -196,12 +196,17 @@ function me.UpdateChangeMenu(gearSlot, gearBarId)
     end
 
     me.UpdateChangeMenuSize(items)
-    me.UpdateChangeMenuPosition(gearSlot)
+    me.UpdateChangeMenuPosition(
+      mod.gearBarStorage.GetGearBar(gearBarId).gearSlotReferences[gearSlotPosition]
+    )
     me.UpdateChangeMenuCooldownState()
 
     mod.ticker.StartTickerChangeMenu()
 
-    lastGearSlotHovered = gearSlot
+    -- update changeMenuFrame's Id to the currently hovered gearBarId
+    changeMenuFrame.gearBarId = gearBarId
+    -- update changeMenuFrame's gearSlot position to the currently hovered gearSlot
+    changeMenuFrame.gearSlotPosition = gearSlotPosition
 
     local gearBarUi = mod.gearBarStorage.GetGearBar(gearBarId)
 
@@ -325,6 +330,12 @@ end
   changeMenuFrame.
 ]]--
 function me.ChangeMenuOnUpdate()
+  pf = changeMenuFrame
+  if changeMenuFrame == nil then
+    mod.logger.LogError(me.tag, "Damn shit")
+
+  end
+
   local gearBar = mod.gearBarStorage.GetGearBar(changeMenuFrame.gearBarId)
 
   if not MouseIsOver(gearBar.gearBarReference) and not MouseIsOver(changeMenuFrame) then
