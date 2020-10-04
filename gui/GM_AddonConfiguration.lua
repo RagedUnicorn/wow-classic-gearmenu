@@ -117,6 +117,9 @@ function me.OpenAddonPanel()
   InterfaceOptionsFrame_OpenToCategory(_G[RGGM_CONSTANTS.ELEMENT_ADDON_PANEL])
 end
 
+--[[
+  Instruct Blizzard UI to update the interface addons list
+]]--
 function me.UpdateAddonPanel()
   InterfaceAddOnsList_Update()
 end
