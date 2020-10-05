@@ -27,6 +27,7 @@
 -- luacheck: globals GetInventoryItemLink GetItemInfo GetContainerItemInfo C_Timer MouseIsOver
 -- luacheck: globals CursorCanGoInSlot EquipCursorItem ClearCursor IsInventoryItemLocked PickupInventoryItem
 -- luacheck: globals InCombatLockdown STANDARD_TEXT_FONT IsItemInRange SetBindingClick SetBinding
+-- luacheck: globals GetBindingAction
 
 --[[
   The gearBar (GM_Gearbar) module is responsible for building and showing gearBars to the user.
@@ -279,14 +280,8 @@ function me.UpdateGearBar(gearBar)
 
     uiGearSlot:SetAttribute("type1", "item")
     uiGearSlot:SetAttribute("item", gearSlotMetaData.slotId)
-    if gearSlotMetaData.keyBinding ~= nil then
-      -- bind keybindings to gearSlot
-      SetBindingClick(gearSlotMetaData.keyBinding, uiGearSlot:GetName())
-    else
-      -- unbind keybindings on gearSlot
-      SetBinding(uiGearSlot:GetName())
-    end
 
+    me.SetKeyBinding(gearBar.id, uiGearSlot, gearSlotMetaData.keyBinding)
     me.UpdateTexture(uiGearSlot, gearSlotMetaData)
     mod.uiHelper.UpdateSlotTextureAttributes(uiGearSlot)
 
@@ -298,8 +293,6 @@ function me.UpdateGearBar(gearBar)
         STANDARD_TEXT_FONT,
         mod.configuration.GetSlotSize() * RGGM_CONSTANTS.GEAR_BAR_CHANGE_COOLDOWN_TEXT_MODIFIER
       )
-
-    me.UpdateKeyBinding(uiGearSlot.keyBindingText, gearSlotMetaData.keyBinding)
     uiGearSlot:Show() -- finally make the slot visible
   end
 
@@ -314,9 +307,72 @@ function me.UpdateGearBar(gearBar)
     end
   end
 
-  -- update baseFrame size
-  --uiGearBar.gearBarReference:SetWidth(gearBarSlotSize * #uiGearBar.gearSlotReferences)
   me.UpdateGearBarSize(gearBar.id)
+end
+
+--[[
+  Set keybinds ond gearSlots
+
+  Behavior:
+  If a keybinding is already being used outside of gearmenu it cannot be used (unbind it first in blizzard frames)
+  If a keybinding is detected outside of gearmenu the slot will reset its keybinding (to nil)
+
+  @param {number} gearBarId
+  @param {table} uiGearSlot
+  @param {string} keyBinding
+]]--
+function me.SetKeyBinding(gearBarId, uiGearSlot, keyBinding)
+  if keyBinding == nil then
+    -- unbind keybindings on gearSlot
+    SetBinding(uiGearSlot:GetName())
+    return
+  end
+
+  local action1, action2 = GetBindingAction(keyBinding)
+
+  if action1 ~= nil then
+    mod.logger.LogError(me.tag, "action1 " .. action1)
+  end
+
+  if action2 ~= nil then
+    mod.logger.LogError(me.tag, "action2 " .. action2)
+  end
+
+  if (action1 ~= "" and action1 ~= nil) or (action2 ~= "" and action2 ~= nil) then
+    --[[
+      This keybind is already in use somewhere. Make sure to log this information and reset
+      the keybinding.
+    ]]--
+    mod.logger.LogWarn(me.tag, "Keybinding: " .. keyBinding
+      .. " is already in use.")
+    local match1, match2
+
+    if action1 ~= nil then
+      match1 = string.match(action1, uiGearSlot:GetName())
+    end
+
+    if action2 ~= nil then
+      match2 = string.match(action2, uiGearSlot:GetName())
+    end
+
+    if match1 ~= nil or match2 ~= nil then
+      mod.logger.LogDebug(me.tag, "Binding is ours and already set no work to be done")
+      return
+    else
+      mod.logger.LogInfo(me.tag, "Binding is already used outside of gearmenu. Reset gearslot binding")
+      -- update gearSlot configuration
+      local gearSlot = mod.gearBarManager.GetGearSlot(gearBarId, uiGearSlot.position)
+      gearSlot.keyBinding = nil
+      mod.gearBarManager.UpdateGearSlot(gearBarId, uiGearSlot.position, gearSlot)
+    end
+    me.UpdateKeyBindingAppearance(uiGearSlot.keyBindingText, "")
+
+    return
+  else
+    SetBindingClick(keyBinding, uiGearSlot:GetName())
+    mod.logger.LogInfo(me.tag, "Set new keybinding " .. keyBinding .. " to " .. uiGearSlot:GetName())
+    me.UpdateKeyBindingAppearance(uiGearSlot.keyBindingText, keyBinding)
+  end
 end
 
 --[[
@@ -425,7 +481,7 @@ end
   @param {string} keybindingFontString
   @param {string} keyBindingText
 ]]--
-function me.UpdateKeyBinding(keybindingFontString, keyBindingText)
+function me.UpdateKeyBindingAppearance(keybindingFontString, keyBindingText)
   keybindingFontString:SetFont(
     STANDARD_TEXT_FONT,
     mod.configuration.GetSlotSize() * RGGM_CONSTANTS.GEAR_BAR_CHANGE_KEYBIND_TEXT_MODIFIER,
