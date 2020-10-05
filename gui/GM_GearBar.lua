@@ -460,6 +460,90 @@ function me.UpdateCombatQueue(slotId, itemId)
 end
 
 --[[
+  Update the cooldown of items on gearBar after a BAG_UPDATE_COOLDOWN event or a manual
+  invoke after a configuration change (show/hide) cooldowns
+]]--
+function me.UpdateGearSlotCooldown()
+  local uiGearBars = mod.gearBarStorage.GetGearBars()
+
+  for _, uiGearBar in pairs(uiGearBars) do
+    local gearBarId = uiGearBar.gearBarReference.id
+
+    for _, gearSlot in pairs(uiGearBar.gearSlotReferences) do
+        local gearBar = mod.gearBarManager.GetGearBar(gearBarId)
+        local gearSlotMetaData = gearBar.slots[gearSlot.position]
+
+        if gearSlotMetaData ~= nil then
+          local itemId = GetInventoryItemID(RGGM_CONSTANTS.UNIT_ID_PLAYER, gearSlotMetaData.slotId)
+
+          if itemId ~= nil then
+            if mod.configuration.IsShowCooldownsEnabled() then
+              local startTime, duration = GetItemCooldown(itemId)
+
+              gearSlot.cooldownOverlay:SetCooldown(startTime, duration)
+              gearSlot.cooldownOverlay:GetRegions():SetText("") -- Trigger textupdate
+            else
+              gearSlot.cooldownOverlay:Hide()
+            end
+          end
+        end
+    end
+  end
+end
+
+--[[
+  Show keybindings for all registered items
+]]--
+function me.ShowKeyBindings()
+  local uiGearBars = mod.gearBarStorage.GetGearBars()
+
+  for _, uiGearBar in pairs(uiGearBars) do
+    for _, gearSlot in pairs(uiGearBar.gearSlotReferences) do
+      gearSlot.keyBindingText:Show()
+    end
+  end
+end
+
+--[[
+  Hide keybindings for all registered items
+]]--
+function me.HideKeyBindings()
+  local uiGearBars = mod.gearBarStorage.GetGearBars()
+
+  for _, uiGearBar in pairs(uiGearBars) do
+    for _, gearSlot in pairs(uiGearBar.gearSlotReferences) do
+      gearSlot.keyBindingText:Hide()
+    end
+  end
+end
+
+--[[
+  Hide cooldowns for worn items
+]]--
+function me.HideCooldowns()
+  local uiGearBars = mod.gearBarStorage.GetGearBars()
+
+  for _, uiGearBar in pairs(uiGearBars) do
+    for _, gearSlot in pairs(uiGearBar.gearSlotReferences) do
+      gearSlot.cooldownOverlay:Hide()
+    end
+  end
+end
+
+--[[
+  Show cooldowns for worn items
+]]--
+function me.ShowCooldowns()
+  local uiGearBars = mod.gearBarStorage.GetGearBars()
+
+  for _, uiGearBar in pairs(uiGearBars) do
+    for _, gearSlot in pairs(uiGearBar.gearSlotReferences) do
+      gearSlot.cooldownOverlay:Show()
+    end
+  end
+end
+
+--[[
   EVENTS
 ]]--
 

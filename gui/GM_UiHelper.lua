@@ -121,14 +121,6 @@ function me.CreateHighlightFrame(slot)
 end
 
 --[[
-  Update visible cooldowns for slots on both the gearBar and the changeMenu
-]]--
-function me.UpdateSlotCooldown()
-  mod.gearBar.UpdateGearSlotCooldown()
-  mod.gearBarChangeMenu.UpdateChangeMenuCooldownState()
-end
-
---[[
   @param {widget} frame
   @param {number} start
   @param {number} duration

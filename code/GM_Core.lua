@@ -172,9 +172,9 @@ function me.Initialize()
   -- build ui for changeMenu
   me.gearBarChangeMenu.BuildChangeMenu()
   -- start ticker intervals
-  -- me.ticker.StartTickerSlotCooldown()
-  -- Update initial view of cooldowns after addon initialization
-  -- me.gearBar.UpdateGearSlotCooldown()
+  me.ticker.StartTickerGearSlotCooldown()
+  me.ticker.StartTickerChangeMenuGearSlotCooldown()
+
   -- start ticker range check
   if me.configuration.IsShowKeyBindingsEnabled() then
     -- me.ticker.StartTickerRangeCheck()

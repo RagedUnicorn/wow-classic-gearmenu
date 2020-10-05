@@ -199,7 +199,7 @@ function me.UpdateChangeMenu(gearSlotPosition, gearBarId)
     me.UpdateChangeMenuPosition(
       mod.gearBarStorage.GetGearBar(gearBarId).gearSlotReferences[gearSlotPosition]
     )
-    me.UpdateChangeMenuCooldownState()
+    me.UpdateChangeMenuGearSlotCooldown()
 
     mod.ticker.StartTickerChangeMenu()
 
@@ -224,6 +224,7 @@ function me.ResetChangeMenu()
     changeMenuSlots[i]:SetNormalTexture(nil)
     changeMenuSlots[i].highlightFrame:Hide()
     changeMenuSlots[i].cooldownOverlay:SetCooldown(0, 0)
+    changeMenuSlots[i].cooldownOverlay:GetRegions():SetText("") -- Trigger textupdate
     changeMenuSlots[i]:Hide()
   end
 
@@ -265,7 +266,7 @@ end
 --[[
   Updates the cooldown representations of all items in the changeMenu
 ]]--
-function me.UpdateChangeMenuCooldownState()
+function me.UpdateChangeMenuGearSlotCooldown()
   for _, changeMenuSlot in pairs(changeMenuSlots) do
     if changeMenuSlot.itemId ~= nil then
       if mod.configuration.IsShowCooldownsEnabled() then
@@ -330,12 +331,6 @@ end
   changeMenuFrame.
 ]]--
 function me.ChangeMenuOnUpdate()
-  pf = changeMenuFrame
-  if changeMenuFrame == nil then
-    mod.logger.LogError(me.tag, "Damn shit")
-
-  end
-
   local gearBar = mod.gearBarStorage.GetGearBar(changeMenuFrame.gearBarId)
 
   if not MouseIsOver(gearBar.gearBarReference) and not MouseIsOver(changeMenuFrame) then
