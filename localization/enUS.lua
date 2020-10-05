@@ -89,6 +89,11 @@ rggm.L["gear_bar_configuration_add_gearslot"] = " + "
 rggm.L["gear_bar_configuration_remove_gearslot"] = " - "
 rggm.L["gear_bar_configuration_delete_gearbar"] = "Delete GearBar"
 
+rggm.L["gear_bar_configuration_key_binding_dialog"] = "Set Keybinding to: "
+rggm.L["gear_bar_configuration_key_binding_dialog_initial"] = "(press keybind you want to use or leave empty to unbind)"
+rggm.L["gear_bar_configuration_key_binding_dialog_accept"] = "Accept"
+rggm.L["gear_bar_configuration_key_binding_dialog_cancel"] = "Cancel"
+
 -- slot translations
 rggm.L["slot_name_head"] = "Head"
 rggm.L["slot_name_neck"] = "Neck"

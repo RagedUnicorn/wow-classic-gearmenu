@@ -127,10 +127,8 @@ function me.CreateNewGearBar(gearBarFrame, name)
     me.GearBarConfigurationCategoryContainerOnCallback
   )
 
-
   mod.addonConfiguration.UpdateAddonPanel()
 end
-
 
 --[[
   Build the UI base for a specific gearBar with all its slots and configuration possibilities
@@ -158,9 +156,6 @@ function me.GearBarConfigurationCategoryContainerOnCallback(frame)
 
   builtConfigurationMenu = true
 end
-
-
-
 
 --[[
   Add a button to the gearBar configurationFrame that allows for adding more
@@ -197,11 +192,8 @@ end
 
 --[[
   Add a new gearSlot to a gearBar based on the gearBarId on the clicked button
-
-  @param {table} self
-    A reference to the button that was clicked
 ]]--
-function me.AddGearSlot(self)
+function me.AddGearSlot()
   local gearBar = mod.gearBarManager.GetGearBar(gearBarConfiguration.id)
 
   if gearBar == nil then
@@ -377,11 +369,40 @@ function me.CreateGearBarConfigurationSlotsListRowFrame(frame, position)
 
   row.slotIcon = me.CreateGearBarConfigurationSlotIcon(row)
   row.gearSlot = me.CreateGearBarConfigurationSlotDropdown(row, position)
-
-  -- TODO add other items from the row here
+  row.keybindButton = me.CreateGearBarConfigurationSlotKeybindButton(row, position)
 
   return row
 end
+
+--[[
+  Create a button that allows the user to set a keyBinding for the gearSlot
+
+  @param {table} row
+  @param {number} position
+    Position of the slot on the gearBar
+]]--
+function me.CreateGearBarConfigurationSlotKeybindButton(row, position)
+  local button = CreateFrame(
+    "Button",
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SLOTS_KEY_BINDING_BUTTON .. position,
+    row,
+    "UIPanelButtonTemplate"
+  )
+
+  button:SetHeight(RGGM_CONSTANTS.BUTTON_DEFAULT_HEIGHT)
+  button:SetText("todokeybind")
+  button:SetPoint("TOPLEFT", 200, 0)
+  button:SetScript("OnClick", function()
+    mod.keyBind.SetKeyBindingForGearSlot(gearBarConfiguration, position)
+  end)
+
+  button:SetWidth(
+    button:GetFontString():GetStringWidth() + RGGM_CONSTANTS.BUTTON_DEFAULT_PADDING
+  )
+
+  return button
+end
+
 
 --[[
   @param {table} row

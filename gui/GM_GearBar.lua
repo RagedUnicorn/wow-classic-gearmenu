@@ -26,7 +26,7 @@
 -- luacheck: globals CreateFrame UIParent GetBindingText GetBindingKey GetInventoryItemID GetItemCooldown
 -- luacheck: globals GetInventoryItemLink GetItemInfo GetContainerItemInfo C_Timer MouseIsOver
 -- luacheck: globals CursorCanGoInSlot EquipCursorItem ClearCursor IsInventoryItemLocked PickupInventoryItem
--- luacheck: globals InCombatLockdown STANDARD_TEXT_FONT IsItemInRange
+-- luacheck: globals InCombatLockdown STANDARD_TEXT_FONT IsItemInRange SetBindingClick SetBinding
 
 --[[
   The gearBar (GM_Gearbar) module is responsible for building and showing gearBars to the user.
@@ -168,7 +168,7 @@ function me.BuilGearSlot(gearBarFrame, gearBar, position)
   gearSlot:SetBackdropBorderColor(0, 0, 0, 1)
 
   gearSlot.combatQueueSlot = me.CreateCombatQueueSlot(gearSlot)
-  gearSlot.keyBindingText = me.CreateKeyBindingText(gearSlot, position)
+  gearSlot.keyBindingText = me.CreateKeyBindingText(gearSlot)
   gearSlot.position = position
 
   mod.uiHelper.CreateHighlightFrame(gearSlot)
@@ -217,20 +217,15 @@ end
 
 --[[
   @param {table} gearSlot
-  @param {number} position
 
   @return {table}
     The created keybindingFontString
 ]]--
-function me.CreateKeyBindingText(gearSlot, position)
+function me.CreateKeyBindingText(gearSlot)
   local keybindingFontString = gearSlot:CreateFontString(nil, "OVERLAY")
   keybindingFontString:SetTextColor(1, 1, 1, 1)
   keybindingFontString:SetPoint("TOP", 0, 1)
   keybindingFontString:SetSize(gearSlot:GetWidth(), 20)
-  me.SetKeyBindingFont(keybindingFontString)
-  keybindingFontString:SetText(
-    GetBindingText(GetBindingKey("CLICK GM_GearBarSlot_" .. position .. ":LeftButton"), "KEY_", 1)
-  )
 
   if mod.configuration.IsShowKeyBindingsEnabled() then
     keybindingFontString:Show()
@@ -239,17 +234,6 @@ function me.CreateKeyBindingText(gearSlot, position)
   end
 
   return keybindingFontString
-end
-
---[[
-  @param {string} keybindingFontString
-]]--
-function me.SetKeyBindingFont(keybindingFontString)
-  keybindingFontString:SetFont(
-    STANDARD_TEXT_FONT,
-    mod.configuration.GetSlotSize() * RGGM_CONSTANTS.GEAR_BAR_CHANGE_KEYBIND_TEXT_MODIFIER,
-    "THICKOUTLINE"
-  )
 end
 
 --[[
@@ -295,6 +279,14 @@ function me.UpdateGearBar(gearBar)
 
     uiGearSlot:SetAttribute("type1", "item")
     uiGearSlot:SetAttribute("item", gearSlotMetaData.slotId)
+    if gearSlotMetaData.keyBinding ~= nil then
+      -- bind keybindings to gearSlot
+      SetBindingClick(gearSlotMetaData.keyBinding, uiGearSlot:GetName())
+    else
+      -- unbind keybindings on gearSlot
+      SetBinding(uiGearSlot:GetName())
+    end
+
     me.UpdateTexture(uiGearSlot, gearSlotMetaData)
     mod.uiHelper.UpdateSlotTextureAttributes(uiGearSlot)
 
@@ -307,8 +299,7 @@ function me.UpdateGearBar(gearBar)
         mod.configuration.GetSlotSize() * RGGM_CONSTANTS.GEAR_BAR_CHANGE_COOLDOWN_TEXT_MODIFIER
       )
 
-    me.SetKeyBindingFont(uiGearSlot.keyBindingText)
-
+    me.UpdateKeyBinding(uiGearSlot.keyBindingText, gearSlotMetaData.keyBinding)
     uiGearSlot:Show() -- finally make the slot visible
   end
 
@@ -323,10 +314,26 @@ function me.UpdateGearBar(gearBar)
     end
   end
 
-
   -- update baseFrame size
   --uiGearBar.gearBarReference:SetWidth(gearBarSlotSize * #uiGearBar.gearSlotReferences)
   me.UpdateGearBarSize(gearBar.id)
+end
+
+--[[
+  Update gearBar in cases such as a new gearSlot was added or one was removed. Should
+  always be called after me.UpdateGearSlots otherwise the size calculation will be off.
+
+  @param {number} gearBarId
+]]--
+function me.UpdateGearBarSize(gearBarId)
+  local gearBarUi = mod.gearBarStorage.GetGearBar(gearBarId)
+  local slotAmount = #gearBarUi.gearSlotReferences
+
+  mod.logger.LogError(me.tag, string.format("Updating GearBar for %s slots", slotAmount))
+
+  local gearBarSlotSize = mod.configuration.GetSlotSize()
+
+  gearBarUi.gearBarReference:SetWidth(slotAmount * gearBarSlotSize + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN)
 end
 
 --[[
@@ -411,21 +418,20 @@ function me.UpdateTexture(gearSlot, slotMetaData)
   end
 end
 
+
 --[[
-  Update gearBar in cases such as a new gearSlot was added or one was removed. Should
-  always be called after me.UpdateGearSlots otherwise the size calculation will be off.
+  Update the keyBinding text and size of the fontstring
 
-  @param {number} gearBarId
+  @param {string} keybindingFontString
+  @param {string} keyBindingText
 ]]--
-function me.UpdateGearBarSize(gearBarId)
-  local gearBarUi = mod.gearBarStorage.GetGearBar(gearBarId)
-  local slotAmount = #gearBarUi.gearSlotReferences
-
-  mod.logger.LogError(me.tag, string.format("Updating GearBar for %s slots", slotAmount))
-
-  local gearBarSlotSize = mod.configuration.GetSlotSize()
-
-  gearBarUi.gearBarReference:SetWidth(slotAmount * gearBarSlotSize + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN)
+function me.UpdateKeyBinding(keybindingFontString, keyBindingText)
+  keybindingFontString:SetFont(
+    STANDARD_TEXT_FONT,
+    mod.configuration.GetSlotSize() * RGGM_CONSTANTS.GEAR_BAR_CHANGE_KEYBIND_TEXT_MODIFIER,
+    "THICKOUTLINE"
+  )
+  keybindingFontString:SetText(keyBindingText)
 end
 
 --[[

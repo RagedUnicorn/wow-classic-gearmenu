@@ -73,6 +73,8 @@ function me.SetupAddonConfiguration()
   ]]--
   mod.aboutContent.BuildAboutContent(panel.main)
 
+  me.UpdateAddonPanel()
+
   me.OpenAddonPanel() -- TODO DEBUG REMOVE
 end
 

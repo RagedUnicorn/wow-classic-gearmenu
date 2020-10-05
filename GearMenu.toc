@@ -47,3 +47,4 @@ gui/GM_AboutContent.lua
 gui/GM_GeneralMenu.lua
 gui/GM_GearSlotMenu.lua
 gui/GM_QuickChangeMenu.lua
+gui/GM_KeyBind.lua

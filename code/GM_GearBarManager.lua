@@ -155,7 +155,7 @@ function me.GetNewGearSlot()
       -- list of {string}
     ["textureId"] = nil,
       -- {number}
-    ["slotId"] = nil
+    ["slotId"] = nil,
       --[[
         {number} on of
           INVSLOT_HEAD
@@ -176,6 +176,10 @@ function me.GetNewGearSlot()
           INVSLOT_OFFHAND
           INVSLOT_RANGED
           INVSLOT_AMMO
+      ]]--
+    ["keyBinding"] = nil
+      --[[
+        {string}
       ]]--
   }
 
