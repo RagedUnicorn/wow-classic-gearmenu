@@ -624,11 +624,11 @@ function me.SetupEvents(gearSlot)
   gearSlot:SetScript("OnLeave", me.GearSlotOnLeave)
 
   gearSlot:SetScript("OnReceiveDrag", function(self)
-    -- me.GearSlotOnReceiveDrag(self) -- TODO drag and drop support
+    me.GearSlotOnReceiveDrag(self) -- TODO
   end)
 
   gearSlot:SetScript("OnDragStart", function(self)
-    -- me.GearSlotOnDragStart(self) -- TODO drag and drop support
+    me.GearSlotOnDragStart(self) -- TODO
   end)
 end
 
@@ -680,4 +680,49 @@ end
 function me.GearSlotOnLeave(self)
   self.highlightFrame:Hide()
   mod.tooltip.TooltipClear()
+end
+
+--[[
+  Callback for a gearSlot OnReceiveDrag
+
+  @param {table} self
+]]--
+function me.GearSlotOnReceiveDrag(self)
+  if not mod.configuration.IsDragAndDropEnabled() then return end
+
+  local gearSlot = mod.gearBarManager.GetGearSlot(self:GetParent().id, self.position)
+
+  if gearSlot == nil then return end
+
+  local gearSlotMetaData = mod.gearManager.GetGearSlotForSlotId(gearSlot.slotId)
+  -- abort if no item could be found
+  if gearSlotMetaData == nil then return end
+
+  if CursorCanGoInSlot(gearSlotMetaData.slotId) then
+    EquipCursorItem(gearSlotMetaData.slotId)
+  else
+    mod.logger.LogInfo(me.tag, "Invalid item for slotId - " .. gearSlotMetaData.slotId)
+    ClearCursor() -- clear cursor from item
+  end
+end
+
+--[[
+  Callback for a gearSlot OnDragStart
+
+  @param {table} self
+]]--
+function me.GearSlotOnDragStart(self)
+  if not mod.configuration.IsDragAndDropEnabled() then return end
+
+  local gearSlot = mod.gearBarManager.GetGearSlot(self:GetParent().id, self.position)
+
+  if gearSlot == nil then return end
+
+  local gearSlotMetaData = mod.gearManager.GetGearSlotForSlotId(gearSlot.slotId)
+  -- abort if no item could be found
+  if gearSlotMetaData == nil then return end
+
+  if not IsInventoryItemLocked(gearSlotMetaData.slotId) then
+    PickupInventoryItem(gearSlotMetaData.slotId)
+  end
 end

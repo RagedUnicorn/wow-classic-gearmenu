@@ -242,6 +242,27 @@ function me.RemoveGearSlot(gearBarId, position)
 end
 
 --[[
+  Retrieve a gearslot from a gearBar by its gearBarId and gearslot position
+
+  @param {number} gearBarId
+  @param {number} position
+
+  @retunr {table | nil}
+    table - the gearSlot that was found
+    nil - if no gearSlot was found
+]]--
+function me.GetGearSlot(gearBarId, position)
+  local gearBar = me.GetGearBar(gearBarId)
+
+  if gearBar == nil then
+    mod.logger.LogError(me.tag, "Was unable to find GearBar with id: " .. gearBarId)
+    return nil
+  end
+
+  return gearBar.slots[position]
+end
+
+--[[
   @param {number} gearBarId
     An id of a gearBar
   @param {number} position
