@@ -477,10 +477,14 @@ end
   @param {table} self
 ]]
 function me.DropDownMenuCallback(self)
+  -- retrieve offset in scrollable list
+  local offset = self:GetParent().dropdown:GetParent():GetParent().offset
+  -- get position in visible slots (GEAR_BAR_CONFIGURATION_SLOTS_LIST_MAX_ROWS)
   local position = self:GetParent().dropdown.position
   local gearSlotMetaData = mod.gearManager.GetGearSlotForSlotId(self.value)
 
-  mod.gearBarManager.UpdateGearSlot(gearBarConfiguration.id, position, gearSlotMetaData)
+  -- include offset to position to get the actual position
+  mod.gearBarManager.UpdateGearSlot(gearBarConfiguration.id, position + offset, gearSlotMetaData)
   me.GearBarOnUpdate()
   UIDropDownMenu_SetSelectedValue(
     _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SLOTS_GEAR_SLOT_DROPDOWN .. position], self.value
