@@ -5,7 +5,7 @@
 ## Version: ${addon.tag.version}
 ## SavedVariablesPerCharacter: ${addon.savedVariablesPerCharacter}
 ## X-Category: ${addon.project.categories}
-## X-Curse-Project-ID: ${addon.project.id}
+## X-Curse-Project-ID: ${addon.curseforge.projectid}
 
 # constant values
 code/GM_Constants.lua
