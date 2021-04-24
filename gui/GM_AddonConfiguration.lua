@@ -55,7 +55,7 @@ function me.SetupAddonConfiguration()
   me.BuildCategory(
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_GEAR_BAR_CONFIG_FRAME,
     panel.main,
-    "GearBarConfigTODO",
+    rggm.L["gear_bar_configuration_panel_text"],
     mod.gearBarConfigurationMenu.BuildUi
   )
 

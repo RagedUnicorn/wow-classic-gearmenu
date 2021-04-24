@@ -42,12 +42,18 @@ me.tag = "GearBarConfigurationMenu"
 
 -- track whether the menu was already built
 local builtMenu = false
-local builtConfigurationMenu = false
 
 --[[
   Reference to the scrollable slots list
 ]]--
 local gearBarConfigurationSlotsList
+
+--[[
+  Holds a reference to the reusable configuration content frame. This frame holds a list
+  of slots that are configurable. More slots can be added or removed. When this frame is reused
+  the parent needs to be adapted and the ui update to represent the state of the gearBar
+]]
+local gearBarConfigurationContentFrame = nil
 
 --[[
   The gearBarId of the gearBar that is currently getting configured
@@ -56,7 +62,46 @@ local gearBarConfigurationSlotsList
 local gearBarConfiguration = nil
 
 --[[
-  Build the ui for the general menu
+  Popup dialog for choosing a profile name
+]]--
+StaticPopupDialogs["RGGM_CHOOSE_GEAR_BAR_NAME"] = {
+  text = rggm.L["gear_bar_choose_name"],
+  button1 = rggm.L["gear_bar_choose_name_accept_button"],
+  button2 = rggm.L["gear_bar_choose_name_cancel_button"],
+  OnShow = function(self)
+    local editBox = self:GetParent().editBox
+    local button1 = self:GetParent().button1
+
+    if editBox ~= nil and button1 ~= nil then
+      button1:Disable()
+      editBox:SetText("") -- reset text to empty
+    end
+  end,
+  OnAccept = function(self)
+    me.CreateNewGearBar(self.editBox:GetText())
+    -- TODO
+  end,
+  EditBoxOnTextChanged = function(self)
+    local editBox = self:GetParent().editBox
+    local button1 = self:GetParent().button1
+
+    if editBox ~= nil and button1 ~= nil then
+      if string.len(editBox:GetText()) > 0 then
+        button1:Enable()
+      else
+        button1:Disable()
+      end
+    end
+  end,
+  timeout = 0,
+  whileDead = true,
+  preferredIndex = 3,
+  hasEditBox = true,
+  maxLetters = 20 -- TODO hardcoded
+}
+
+--[[
+  Build the ui for the general menu. The place where new gearBars are created.
 
   @param {table} frame
     The addon configuration frame to attach to
@@ -95,7 +140,7 @@ function me.CreateNewGearBarButton(gearBarFrame)
   button:SetText(rggm.L["gear_bar_configuration_add_gearbar"])
   button:SetPoint("TOPLEFT", 10, -100)
   button:SetScript('OnClick', function()
-    me.CreateNewGearBar(gearBarFrame, "woot")
+    StaticPopup_Show("RGGM_CHOOSE_GEAR_BAR_NAME")
   end)
 
   local buttonFontString = button:GetFontString()
@@ -108,38 +153,66 @@ function me.CreateNewGearBarButton(gearBarFrame)
 end
 
 --[[
-  TODO DEVELOPMENT only
   Create a new gearBar with the gearBarManager - then adds a new interface option
   for the created gearBar
 
-  @param {table} gearBarFrame
+  @param {string} name
 ]]--
-function me.CreateNewGearBar(gearBarFrame, name)
+function me.CreateNewGearBar(name)
   local gearBar = mod.gearBarManager.AddNewGearBar(name)
   -- build visual gearBar representation
   mod.gearBar.BuildGearBar(gearBar)
   gearBarConfiguration = gearBar
 
-  mod.addonConfiguration.BuildCategory(
+  local builtCategory = mod.addonConfiguration.BuildCategory(
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_GEAR_BAR_SUB_CONFIG_FRAME .. gearBarConfiguration.id,
     _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_GEAR_BAR_CONFIG_FRAME],
     gearBar.displayName .. gearBarConfiguration.id, -- TODO id only development
     me.GearBarConfigurationCategoryContainerOnCallback
   )
 
+  builtCategory.gearBarId = gearBar.id
+
   mod.addonConfiguration.UpdateAddonPanel()
 end
 
 --[[
-  Build the UI base for a specific gearBar with all its slots and configuration possibilities
-]]--
-function me.GearBarConfigurationCategoryContainerOnCallback(frame)
-  if builtConfigurationMenu then return end
+  Callback for when the menu entrypoint is clicked in the interface options. A callback
+  like this exists for every separate gearBar that was created.
 
-  local titleFontString = frame:CreateFontString(RGGM_CONSTANTS.ELEMENT_GENERAL_TITLE, "OVERLAY")
+  @param {table} parentFrame
+]]--
+function me.GearBarConfigurationCategoryContainerOnCallback(parentFrame)
+  if gearBarConfigurationContentFrame ~= nil then
+    -- update the current edited gearBar
+    gearBarConfiguration = mod.gearBarManager.GetGearBar(parentFrame.gearBarId)
+    -- update parent of the reused container
+    gearBarConfigurationContentFrame:SetParent(parentFrame)
+    -- trigger visual update
+    me.GearBarConfigurationSlotsListOnUpdate(gearBarConfigurationSlotsList)
+  else
+    -- menu was not yet created
+    me.BuildGearBarConfigurationMenu(parentFrame)
+  end
+end
+
+--[[
+  Build the UI base for a specific gearBar with all its slots and configuration possibilities
+
+  @param {table} parentFrame
+    The menu entry in the interface options
+]]
+function me.BuildGearBarConfigurationMenu(parentFrame)
+  gearBarConfigurationContentFrame = CreateFrame("Frame", "SOMENAMETODO", parentFrame)
+  gearBarConfigurationContentFrame:SetWidth(580)
+  gearBarConfigurationContentFrame:SetHeight(552)
+  gearBarConfigurationContentFrame:SetPoint("TOPLEFT", parentFrame, 5, -7)
+
+  local titleFontString =
+    gearBarConfigurationContentFrame:CreateFontString(RGGM_CONSTANTS.ELEMENT_GENERAL_TITLE, "OVERLAY")
   titleFontString:SetFont(STANDARD_TEXT_FONT, 20)
   titleFontString:SetPoint("TOP", 0, -20)
-  titleFontString:SetSize(frame:GetWidth(), 20)
+  titleFontString:SetSize(parentFrame:GetWidth(), 20)
 
   if RGGM_ENVIRONMENT.DEBUG then
     titleFontString:SetText(gearBarConfiguration.displayName .. "_" .. gearBarConfiguration.id)
@@ -147,14 +220,11 @@ function me.GearBarConfigurationCategoryContainerOnCallback(frame)
     titleFontString:SetText(gearBarConfiguration.displayName)
   end
 
-  me.CreateAddGearSlotButton(frame)
-  me.CreateRemoveGearSlotButton(frame)
+  me.CreateAddGearSlotButton(gearBarConfigurationContentFrame)
+  me.CreateRemoveGearSlotButton(gearBarConfigurationContentFrame)
 
-  gearBarConfigurationSlotsList = me.CreateGearBarConfigurationSlotsList(frame)
+  gearBarConfigurationSlotsList = me.CreateGearBarConfigurationSlotsList(gearBarConfigurationContentFrame)
   me.GearBarConfigurationSlotsListOnUpdate(gearBarConfigurationSlotsList)
-
-
-  builtConfigurationMenu = true
 end
 
 --[[

@@ -182,8 +182,8 @@ function me.Initialize()
   end
 
   -- TODO DEVELOPMENT
-  me.gearBarConfigurationMenu.CreateNewGearBar(nil, "test1")
-  me.gearBarConfigurationMenu.CreateNewGearBar(nil, "test2")
+  me.gearBarConfigurationMenu.CreateNewGearBar("test1")
+  me.gearBarConfigurationMenu.CreateNewGearBar("test2")
 
   -- update initial view of gearBars after addon initialization
   me.gearBar.UpdateGearBars()

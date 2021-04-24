@@ -84,7 +84,12 @@ rggm.L["quick_change_unable_to_add_rule_duplicate"] = "Unable to add new rule - 
 
 -- gearbar
 rggm.L["gear_bar_configuration_category_name"] = "GearBar"
+rggm.L["gear_bar_configuration_panel_text"] = "GearBar Configuration"
 rggm.L["gear_bar_configuration_add_gearbar"] = "Create new GearBar"
+rggm.L["gear_bar_choose_name"] = "Choose a name for the new GearBar"
+rggm.L["gear_bar_choose_name_accept_button"] = "Accept"
+rggm.L["gear_bar_choose_name_cancel_button"] = "Cancel"
+
 rggm.L["gear_bar_configuration_add_gearslot"] = " + "
 rggm.L["gear_bar_configuration_remove_gearslot"] = " - "
 rggm.L["gear_bar_configuration_delete_gearbar"] = "Delete GearBar"

@@ -265,6 +265,7 @@ RGGM_CONSTANTS = {
   --[[
     Experiment different setup
   ]]--
+  ELEMENT_GEAR_BAR_CONFIGURATION_MENU = "GM_GearBarConfigurationMenu",
   ELEMENT_GEAR_BAR_CONFIGURATION_ADD_GEAR_BAR = "GM_GearBarConfigurationAddGearBarButton",
   ELEMENT_GEAR_BAR_CONFIGURATION_CONTENT_FRAME = "GM_GearBarConfigurationContentFrame",
   ELEMENT_GEAR_BAR_CONFIGURATION_ADD_SLOT_BUTTON = "GM_GearBarConfigurationAddSlotButton",
