@@ -25,6 +25,7 @@
 
 -- luacheck: globals STANDARD_TEXT_FONT CreateFrame FauxScrollFrame_Update FauxScrollFrame_GetOffset
 -- luacheck: globals UIDropDownMenu_Initialize UIDropDownMenu_AddButton UIDropDownMenu_SetSelectedValue
+-- luacheck: globals StaticPopupDialogs StaticPopup_Show
 
 --[[
   The gearBarMenu (GM_GearBarConfigurationMenu) module has some similarities to the gearBar (GM_GearBar) module.
@@ -79,7 +80,6 @@ StaticPopupDialogs["RGGM_CHOOSE_GEAR_BAR_NAME"] = {
   end,
   OnAccept = function(self)
     me.CreateNewGearBar(self.editBox:GetText())
-    -- TODO
   end,
   EditBoxOnTextChanged = function(self)
     local editBox = self:GetParent().editBox
@@ -97,7 +97,7 @@ StaticPopupDialogs["RGGM_CHOOSE_GEAR_BAR_NAME"] = {
   whileDead = true,
   preferredIndex = 3,
   hasEditBox = true,
-  maxLetters = 20 -- TODO hardcoded
+  maxLetters = RGGM_CONSTANTS.GEAR_BAR_NAME_MAX_LENGTH
 }
 
 --[[
