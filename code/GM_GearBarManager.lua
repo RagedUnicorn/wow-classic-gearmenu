@@ -136,6 +136,43 @@ function me.UpdateGearBarPosition(gearBarId, point, relativeTo, relativePoint, p
 end
 
 --[[
+  Unlock the moving of a specific gearBar
+
+  @param {number} gearBarId
+]]--
+function me.UnlockGearBar(gearBarId)
+  local gearBar = me.GetGearBar(gearBarId)
+
+  gearBar.isLocked = false
+  mod.gearBar.UpdateGearBar(gearBar)
+end
+
+--[[
+  Lock the moving of a specific gearBar
+
+  @param {number} gearBarId
+]]--
+function me.LockGearBar(gearBarId)
+  local gearBar = me.GetGearBar(gearBarId)
+
+  gearBar.isLocked = true
+  mod.gearBar.UpdateGearBar(gearBar)
+end
+
+--[[
+  @param {number} gearBarId
+
+  @return {boolean}
+    true - if the gearBar is locked
+    false - if the gearBar is not locked
+]]--
+function me.IsGearBarLocked(gearBarId)
+  local gearBar = me.GetGearBar(gearBarId)
+
+  return gearBar.isLocked
+end
+
+--[[
   Create a new gearSlot and add it to passed gearBar
 
   @param {number} gearBarId

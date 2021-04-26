@@ -110,6 +110,7 @@ function me.BuildGearBarConfigurationMenu(parentFrame)
 
   me.CreateAddGearSlotButton(gearBarConfigurationContentFrame)
   me.CreateRemoveGearSlotButton(gearBarConfigurationContentFrame)
+  me.CreateLockGearBarCheckButton(gearBarConfigurationContentFrame)
 
   gearBarConfigurationSlotsList = me.CreateGearBarConfigurationSlotsList(gearBarConfigurationContentFrame)
   me.GearBarConfigurationSlotsListOnUpdate(gearBarConfigurationSlotsList)
@@ -222,6 +223,67 @@ function me.RemoveGearSlot(self)
   end
 
   me.GearBarOnUpdate()
+end
+
+--[[
+  TODO tooltip
+  TODO position
+
+  @param {table} parentFrame
+]]--
+function me.CreateLockGearBarCheckButton(parentFrame)
+  local checkButtonOptionFrame = CreateFrame(
+    "CheckButton", RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_WINDOW_LOCK_GEAR_BAR, parentFrame, "UICheckButtonTemplate")
+  checkButtonOptionFrame:SetSize(
+    RGGM_CONSTANTS.GENERAL_CHECK_OPTION_SIZE,
+    RGGM_CONSTANTS.GENERAL_CHECK_OPTION_SIZE
+  )
+  checkButtonOptionFrame:SetPoint("TOPLEFT", 0, 0)
+
+  for _, region in ipairs({checkButtonOptionFrame:GetRegions()}) do
+    if string.find(region:GetName() or "", "Text$") and region:IsObjectType("FontString") then
+      region:SetFont(STANDARD_TEXT_FONT, 15)
+      region:SetTextColor(.95, .95, .95)
+      region:SetText(rggm.L["window_lock_gear_bar"])
+      break
+    end
+  end
+
+  -- checkButtonOptionFrame:SetScript("OnEnter", me.OptTooltipOnEnter) TODO
+  -- checkButtonOptionFrame:SetScript("OnLeave", me.OptTooltipOnLeave) TODO
+  checkButtonOptionFrame:SetScript("OnShow", me.LockWindowGearBarOnShow)
+  checkButtonOptionFrame:SetScript("OnClick", me.LockWindowGearBarOnClick)
+  -- load initial state
+  me.LockWindowGearBarOnShow(checkButtonOptionFrame)
+end
+
+--[[
+  OnShow callback for checkbuttons - window lock gearBar
+
+  @param {table} self
+]]--
+function me.LockWindowGearBarOnShow(self)
+  if mod.gearBarManager.IsGearBarLocked(self:GetParent():GetParent().gearBarId) then
+    self:SetChecked(true)
+  else
+    self:SetChecked(false)
+  end
+end
+
+--[[
+  OnClick callback for checkbuttons - window lock gearBar
+
+  @param {table} self
+]]--
+function me.LockWindowGearBarOnClick(self)
+  local enabled = self:GetChecked()
+  local gearBarId = self:GetParent():GetParent().gearBarId
+
+  if enabled then
+    mod.gearBarManager.LockGearBar(gearBarId)
+  else
+    mod.gearBarManager.UnlockGearBar(gearBarId)
+  end
 end
 
 --[[

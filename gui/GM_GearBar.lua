@@ -275,6 +275,14 @@ function me.UpdateGearBar(gearBar)
   local gearBarSlotSize = mod.configuration.GetSlotSize()
   local uiGearBar = mod.gearBarStorage.GetGearBar(gearBar.id)
 
+  if gearBar.isLocked then
+    uiGearBar.gearBarReference:SetBackdrop(nil)
+  else
+    uiGearBar.gearBarReference:SetBackdrop({
+      bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background"
+    })
+  end
+
   for index, gearSlotMetaData in pairs(gearBar.slots) do
     mod.logger.LogDebug(me.tag, "Updating gearBar with id: " .. gearBar.id)
 
