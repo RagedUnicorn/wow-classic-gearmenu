@@ -35,78 +35,6 @@ mod.gearBarManager = me
 me.tag = "GearBarManager"
 
 --[[
-  Creates a default object for a new GearBar
-
-  @param {string} gearBarName
-
-  @return {table}
-    Return a default object for a new GearBar
-]]--
-function me.GetNewGearBar(gearBarName)
-  local gearBar = {
-    ["id"] = math.floor(math.random() * 100000), -- TODO check for a better randomisation (length is variable currently)
-    ["displayName"] = gearBarName,
-    ["slots"] = {},
-    ["position"] = { -- default position
-      ["point"] = RGGM_CONSTANTS.GEAR_BAR_DEFAULT_POSITION[1],
-      ["posX"] = RGGM_CONSTANTS.GEAR_BAR_DEFAULT_POSITION[2],
-      ["posY"] = RGGM_CONSTANTS.GEAR_BAR_DEFAULT_POSITION[3],
-    }
-  }
-
-  return gearBar
-end
-
---[[
-  Update the position of a specific gearBar
-
-  @param {number} gearBarId
-  @param {string} point
-  @param {string} relativeTo
-  @param {string} relativePoint
-  @param {number} posX
-  @param {number} posY
-]]--
-function me.UpdateGearBarPosition(gearBarId, point, relativeTo, relativePoint, posX, posY)
-  local gearBar = me.GetGearBar(gearBarId)
-  gearBar.position.point = point
-  gearBar.position.relativeTo = relativeTo
-  gearBar.position.relativePoint = relativePoint
-  gearBar.position.posX = posX
-  gearBar.position.posY = posY
-end
-
---[[
-  @return {table}
-    Return a clone of all gearBars
-]]--
-function me.GetGearBars()
-  return mod.common.Clone(GearMenuConfiguration.gearBars)
-end
-
---[[
-  Retrieve a gearBar by its id
-
-  @param {number} gearBarId
-    An id of a gearBar
-
-  @return {table | nil}
-    table - if the gearBar was found
-    nil - if no matching gearBar could be found
-]]--
-function me.GetGearBar(gearBarId)
-  for _, gearBar in pairs(GearMenuConfiguration.gearBars) do
-    if gearBar.id == gearBarId then
-      return gearBar
-    end
-  end
-
-  mod.logger.LogError(me.tag, "Could not find GearBar with id: " .. gearBarId)
-
-  return nil
-end
-
---[[
   Create a new entry for the passed GearBar in the gearbar storage and also create
   the initial default gearSlot
 
@@ -116,13 +44,23 @@ end
   @return {table}
     The created gearBar
 ]]--
-function me.AddNewGearBar(gearBarName)
-  local gearBar = me.GetNewGearBar(gearBarName)
+function me.AddGearBar(gearBarName)
+  local gearBar = {
+    ["id"] = math.floor(math.random() * 100000), -- TODO check for a better randomisation (length is variable currently)
+    ["displayName"] = gearBarName,
+    ["isLocked"] = false,
+    ["slots"] = {},
+    ["position"] = { -- default position
+      ["point"] = RGGM_CONSTANTS.GEAR_BAR_DEFAULT_POSITION[1],
+      ["posX"] = RGGM_CONSTANTS.GEAR_BAR_DEFAULT_POSITION[2],
+      ["posY"] = RGGM_CONSTANTS.GEAR_BAR_DEFAULT_POSITION[3],
+    }
+  }
 
   table.insert(GearMenuConfiguration.gearBars, gearBar)
   mod.logger.LogInfo(me.tag, "Created new GearBar with id: " .. gearBar.id)
 
-  me.AddNewGearSlot(gearBar.id)
+  me.AddGearSlot(gearBar.id)
 
   return gearBar
 end
@@ -149,12 +87,65 @@ function me.RemoveGearBar(gearBarId)
 end
 
 --[[
-  Creates a default object for a new GearSlot
+  Retrieve a gearBar by its id
 
-  @return {table}
-    Return a default object for a new GearSlot
+  @param {number} gearBarId
+    An id of a gearBar
+
+  @return {table | nil}
+    table - if the gearBar was found
+    nil - if no matching gearBar could be found
 ]]--
-function me.GetNewGearSlot()
+function me.GetGearBar(gearBarId)
+  for _, gearBar in pairs(GearMenuConfiguration.gearBars) do
+    if gearBar.id == gearBarId then
+      return gearBar
+    end
+  end
+
+  mod.logger.LogError(me.tag, "Could not find GearBar with id: " .. gearBarId)
+
+  return nil
+end
+
+--[[
+  @return {table}
+    Return a clone of all gearBars
+]]--
+function me.GetGearBars()
+  return mod.common.Clone(GearMenuConfiguration.gearBars)
+end
+
+--[[
+  Update the position of a specific gearBar
+
+  @param {number} gearBarId
+  @param {string} point
+  @param {string} relativeTo
+  @param {string} relativePoint
+  @param {number} posX
+  @param {number} posY
+]]--
+function me.UpdateGearBarPosition(gearBarId, point, relativeTo, relativePoint, posX, posY)
+  local gearBar = me.GetGearBar(gearBarId)
+  gearBar.position.point = point
+  gearBar.position.relativeTo = relativeTo
+  gearBar.position.relativePoint = relativePoint
+  gearBar.position.posX = posX
+  gearBar.position.posY = posY
+end
+
+--[[
+  Create a new gearSlot and add it to passed gearBar
+
+  @param {number} gearBarId
+    An id of a gearBar
+
+  @return {boolean}
+    true - if the operation was successful
+    false - if the operation was not successful
+]]--
+function me.AddGearSlot(gearBarId)
   local gearSlot = {
     ["name"] = "",
       -- {string}
@@ -189,22 +180,6 @@ function me.GetNewGearSlot()
         {string}
       ]]--
   }
-
-  return gearSlot
-end
-
---[[
-  Create a new gearSlot and add it to passed gearBar
-
-  @param {number} gearBarId
-    An id of a gearBar
-
-  @return {boolean}
-    true - if the operation was successful
-    false - if the operation was not successful
-]]--
-function me.AddNewGearSlot(gearBarId)
-  local gearSlot = me.GetNewGearSlot()
   local gearBar = me.GetGearBar(gearBarId)
 
   -- TODO hardoced for testing
@@ -222,7 +197,6 @@ function me.AddNewGearSlot(gearBarId)
 
   return false
 end
-
 
 --[[
   Remove a gearSlot from a gearBar
