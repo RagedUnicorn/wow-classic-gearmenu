@@ -181,10 +181,6 @@ function me.Initialize()
     -- me.ticker.StartTickerRangeCheck()
   end
 
-  -- TODO DEVELOPMENT
-  me.gearBarConfigurationMenu.CreateNewGearBar("test1")
-  me.gearBarConfigurationMenu.CreateNewGearBar("test2")
-
   -- update initial view of gearBars after addon initialization
   me.gearBar.UpdateGearBars()
 

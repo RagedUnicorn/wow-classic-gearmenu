@@ -84,8 +84,16 @@ function me.BuildGearBar(gearBar)
       RGGM_CONSTANTS.GEAR_BAR_SLOT_AMOUNT * gearBarSlotSize + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN
     )
   gearBarFrame:SetHeight(gearBarSlotSize)
+  -- load gearBars position
+  gearBarFrame:ClearAllPoints() -- very important to clear all points first
+  gearBarFrame:SetPoint(
+    gearBar.position.point,
+    gearBar.position.relativeTo,
+    gearBar.position.relativePoint,
+    gearBar.position.posX,
+    gearBar.position.posY
+  )
 
-  gearBarFrame:SetPoint("CENTER", 0, 0)
   gearBarFrame:SetMovable(true)
   -- prevent dragging the frame outside the actual 3d-window
   gearBarFrame:SetClampedToScreen(true)
@@ -102,7 +110,7 @@ function me.BuildGearBar(gearBar)
     Create all configured slots for the gearBar
   ]]--
   for i = 1, #gearBar.slots do
-    local gearSlot = me.BuilGearSlot(gearBarFrame, gearBar, i)
+    local gearSlot = me.BuildGearSlot(gearBarFrame, gearBar, i)
     mod.gearBarStorage.AddGearSlot(gearBar.id, gearSlot)
   end
 
@@ -123,7 +131,7 @@ end
   @return {table}
     The created gearSlot
 ]]--
-function me.BuilGearSlot(gearBarFrame, gearBar, position)
+function me.BuildGearSlot(gearBarFrame, gearBar, position)
   local gearSlot = CreateFrame(
     "Button",
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT .. position,
@@ -272,7 +280,7 @@ function me.UpdateGearBar(gearBar)
 
     if uiGearBar.gearSlotReferences[index] == nil then
       mod.logger.LogInfo(me.tag, "GearSlot does not yet exist. Creating a new one")
-      local gearSlot = me.BuilGearSlot(uiGearBar.gearBarReference, gearBar, index)
+      local gearSlot = me.BuildGearSlot(uiGearBar.gearBarReference, gearBar, index)
       mod.gearBarStorage.AddGearSlot(gearBar.id, gearSlot)
     end
 
@@ -405,8 +413,8 @@ function me.UpdateGearSlots(gearBarId)
     if gearBarUi.gearSlotReferences[i] ~= nil then
       mod.logger.LogDebug(me.tag, "Found already present slot")
     else
-      mod.logger.LogDebug(me.tag, "Not slout found. Creating a new one")
-      local gearSlot = me.BuilGearSlot(gearBarUi.gearBarReference, gearBar, i)
+      mod.logger.LogDebug(me.tag, "No slot found. Creating a new one")
+      local gearSlot = me.BuildGearSlot(gearBarUi.gearBarReference, gearBar, i)
       mod.gearBarStorage.AddGearSlot(gearBar.id, gearSlot)
     end
   end
@@ -496,6 +504,7 @@ end
   not. This catches cases where multiple gearBars have the same slot present
 
   @param {table} slotId
+  @param {number} itemId
 ]]--
 function me.UpdateCombatQueue(slotId, itemId)
   mod.logger.LogDebug(me.tag, "Updating combatqueues for slotId - " .. slotId)
@@ -640,18 +649,8 @@ function me.StopDragFrame(self)
   -- if mod.configuration.IsGearBarLocked() then return end TODO
   self:StopMovingOrSizing()
 
-  -- local point, relativeTo, relativePoint, posX, posY = gearBarFrame:GetPoint()
-
-  --[[
-  mod.configuration.SaveUserPlacedFramePosition(
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME,
-    point,
-    relativeTo,
-    relativePoint,
-    posX,
-    posY
-  )
-  ]]--
+  local point, relativeTo, relativePoint, posX, posY = self:GetPoint()
+  mod.gearBarManager.UpdateGearBarPosition(self.id, point, relativeTo, relativePoint, posX, posY)
 end
 
 --[[

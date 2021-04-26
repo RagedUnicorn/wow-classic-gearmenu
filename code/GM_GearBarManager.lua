@@ -23,32 +23,16 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
+--[[
+  Note this module modifies directly gearBars that are stored in GearMenuConfiguration
+]]--
+
 local mod = rggm
 local me = {}
 
 mod.gearBarManager = me
 
 me.tag = "GearBarManager"
-
---[[
-  Stores all relevant metadata for the users gearBars. It does only store data that should be persisted. This
-  does not include references to ui elements
-
-  {
-    ["id"] = {number},
-      A unique identifier for the gearBar. This identifier can be directly matched to the GearBar
-      UI-Element once it is created
-    ["displayName"] = {string},
-      A user friendly display name for the user to recognize
-    ["position"] = {table},
-      A position object that can be unpacked into SetPoint
-      e.g. {"LEFT", 150, 0}
-    [slots] = {},
-
-  }
-]]--
--- TODO this needs to be moved to the addon settings (savedvariable)
-local gearBars = {}
 
 --[[
   Creates a default object for a new GearBar
@@ -63,10 +47,33 @@ function me.GetNewGearBar(gearBarName)
     ["id"] = math.floor(math.random() * 100000), -- TODO check for a better randomisation (length is variable currently)
     ["displayName"] = gearBarName,
     ["slots"] = {},
-    ["position"] = RGGM_CONSTANTS.GEAR_BAR_DEFAULT_POSITION -- default position
+    ["position"] = { -- default position
+      ["point"] = RGGM_CONSTANTS.GEAR_BAR_DEFAULT_POSITION[1],
+      ["posX"] = RGGM_CONSTANTS.GEAR_BAR_DEFAULT_POSITION[2],
+      ["posY"] = RGGM_CONSTANTS.GEAR_BAR_DEFAULT_POSITION[3],
+    }
   }
 
   return gearBar
+end
+
+--[[
+  Update the position of a specific gearBar
+
+  @param {number} gearBarId
+  @param {string} point
+  @param {string} relativeTo
+  @param {string} relativePoint
+  @param {number} posX
+  @param {number} posY
+]]--
+function me.UpdateGearBarPosition(gearBarId, point, relativeTo, relativePoint, posX, posY)
+  local gearBar = me.GetGearBar(gearBarId)
+  gearBar.position.point = point
+  gearBar.position.relativeTo = relativeTo
+  gearBar.position.relativePoint = relativePoint
+  gearBar.position.posX = posX
+  gearBar.position.posY = posY
 end
 
 --[[
@@ -74,7 +81,7 @@ end
     Return a clone of all gearBars
 ]]--
 function me.GetGearBars()
-  return mod.common.Clone(gearBars)
+  return mod.common.Clone(GearMenuConfiguration.gearBars)
 end
 
 --[[
@@ -88,7 +95,7 @@ end
     nil - if no matching gearBar could be found
 ]]--
 function me.GetGearBar(gearBarId)
-  for _, gearBar in pairs(gearBars) do
+  for _, gearBar in pairs(GearMenuConfiguration.gearBars) do
     if gearBar.id == gearBarId then
       return gearBar
     end
@@ -112,7 +119,7 @@ end
 function me.AddNewGearBar(gearBarName)
   local gearBar = me.GetNewGearBar(gearBarName)
 
-  table.insert(gearBars, gearBar)
+  table.insert(GearMenuConfiguration.gearBars, gearBar)
   mod.logger.LogInfo(me.tag, "Created new GearBar with id: " .. gearBar.id)
 
   me.AddNewGearSlot(gearBar.id)
@@ -127,9 +134,9 @@ end
     An id of a gearBar
 ]]--
 function me.RemoveGearBar(gearBarId)
-  for index, gearBar in pairs(gearBars) do
+  for index, gearBar in pairs(GearMenuConfiguration.gearBars) do
     if gearBar.id == gearBarId then
-      table.remove(gearBars, index)
+      table.remove(GearMenuConfiguration.gearBars, index)
       mod.logger.LogInfo(me.tag, "Removed GearBar with id: " .. gearBarId)
 
       return -- abort

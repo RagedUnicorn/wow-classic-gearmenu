@@ -104,6 +104,24 @@ GearMenuConfiguration = {
     [17] = RGGM_CONSTANTS.INVSLOT_NONE
   },
   --[[
+    Stores all relevant metadata for the users gearBars. It does only store data that should be persisted. This
+    does not include references to ui elements
+
+    {
+      ["id"] = {number},
+        A unique identifier for the gearBar. This identifier can be directly matched to the GearBar
+        UI-Element once it is created
+      ["displayName"] = {string},
+        A user friendly display name for the user to recognize
+      ["position"] = {table},
+        A position object that can be unpacked into SetPoint
+        e.g. {"LEFT", 150, 0}
+      [slots] = {},
+
+    }
+  ]]--
+  ["gearBars"] = nil,
+  --[[
     example
     {
       ["changeFromName"] = {string},
@@ -119,20 +137,7 @@ GearMenuConfiguration = {
       ["delay"] = {number} -- delay in seconds
     }
   ]]--
-  ["quickChangeRules"] = {},
-  --[[
-    Framepositions for user draggable Frames
-    frames = {
-      -- should match the actual frame name
-      ["GM_Frame"] = {
-      point: "CENTER",
-        posX: 0,
-        posY: 0
-      }
-      ...
-    }
-  ]]--
-  ["frames"] = {}
+  ["quickChangeRules"] = {}
 }
 
 --[[
@@ -205,6 +210,11 @@ function me.SetupConfiguration()
       [16] = INVSLOT_OFFHAND,
       [17] = INVSLOT_RANGED
     }
+  end
+
+  if GearMenuConfiguration.gearBars == nil then
+    mod.logger.LogInfo(me.tag, "gearBars has unexpected nil value")
+    GearMenuConfiguration.gearBars = {}
   end
 
   if GearMenuConfiguration.quickChangeRules == nil then
@@ -508,48 +518,4 @@ end
 ]]--
 function me.RemoveQuickChangeRule(position)
   table.remove(GearMenuConfiguration.quickChangeRules, position)
-end
-
---[[
-  Save the position of a frame in the addon variables allowing to persist its position
-
-  @param {string} frameName
-  @param {string} point
-  @param {string} relativeTo
-  @param {string} relativePoint
-  @param {number} posX
-  @param {number} posY
-]]--
-function me.SaveUserPlacedFramePosition(frameName, point, relativeTo, relativePoint, posX, posY)
-  if GearMenuConfiguration.frames[frameName] == nil then
-    GearMenuConfiguration.frames[frameName] = {}
-  end
-
-  GearMenuConfiguration.frames[frameName].posX = posX
-  GearMenuConfiguration.frames[frameName].posY = posY
-  GearMenuConfiguration.frames[frameName].point = point
-  GearMenuConfiguration.frames[frameName].relativeTo = relativeTo
-  GearMenuConfiguration.frames[frameName].relativePoint = relativePoint
-
-  mod.logger.LogDebug(me.tag, "Saved frame position for - " .. frameName
-    .. " - new pos: posX " .. posX .. " posY " .. posY .. " point " .. point)
-end
-
---[[
-  Get the position of a saved frame
-
-  @param {string} frameName
-
-  @return {table | nil}
-    table - the returned x and y position
-    nil - if no frame with the passed name could be found
-]]--
-function me.GetUserPlacedFramePosition(frameName)
-  local frameConfig = GearMenuConfiguration.frames[frameName]
-
-  if type(frameConfig) == "table" then
-    return frameConfig
-  end
-
-  return nil
 end

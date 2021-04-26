@@ -58,6 +58,11 @@ function me.SetupAddonConfiguration()
     rggm.L["gear_bar_configuration_panel_text"],
     mod.gearBarConfigurationMenu.BuildUi
   )
+  --[[
+    load configured gearBars after the menu RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_GEAR_BAR_CONFIG_FRAME was
+    created to attach to
+  ]]--
+  mod.gearBarConfigurationMenu.LoadConfiguredGearBars()
 
   --[[
     For development purpose the InterfaceOptionsFrame_OpenToCategory function can be used to directly

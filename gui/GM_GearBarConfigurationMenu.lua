@@ -121,6 +121,29 @@ function me.BuildUi(frame)
 end
 
 --[[
+  Load all configured bar menus in Interfaces Options. This will create an entry for
+  each gearBar that is configured
+]]--
+function me.LoadConfiguredGearBars()
+  local gearBars = mod.gearBarManager.GetGearBars()
+
+  for i = 1, #gearBars do
+    mod.logger.LogDebug(me.tag, "Loading gearBar with id: " .. gearBars[i].id .. " from configuration")
+
+    local builtCategory = mod.addonConfiguration.BuildCategory(
+      RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_GEAR_BAR_SUB_CONFIG_FRAME .. gearBars[i].id,
+      _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_GEAR_BAR_CONFIG_FRAME],
+      gearBars[i].displayName .. gearBars[i].id, -- TODO id only development
+      me.GearBarConfigurationCategoryContainerOnCallback
+    )
+
+    builtCategory.gearBarId = gearBars[i].id
+
+    mod.addonConfiguration.UpdateAddonPanel()
+  end
+end
+
+--[[
   Create a button to create new gearBars
 
   @param {table} gearBarFrame
@@ -180,19 +203,20 @@ end
   Callback for when the menu entrypoint is clicked in the interface options. A callback
   like this exists for every separate gearBar that was created.
 
-  @param {table} parentFrame
+  @param {table} self
 ]]--
-function me.GearBarConfigurationCategoryContainerOnCallback(parentFrame)
+function me.GearBarConfigurationCategoryContainerOnCallback(self)
+  -- update the current edited gearBar
+  gearBarConfiguration = mod.gearBarManager.GetGearBar(self.gearBarId)
+
   if gearBarConfigurationContentFrame ~= nil then
-    -- update the current edited gearBar
-    gearBarConfiguration = mod.gearBarManager.GetGearBar(parentFrame.gearBarId)
     -- update parent of the reused container
-    gearBarConfigurationContentFrame:SetParent(parentFrame)
+    gearBarConfigurationContentFrame:SetParent(self)
     -- trigger visual update
     me.GearBarConfigurationSlotsListOnUpdate(gearBarConfigurationSlotsList)
   else
     -- menu was not yet created
-    me.BuildGearBarConfigurationMenu(parentFrame)
+    me.BuildGearBarConfigurationMenu(self)
   end
 end
 
