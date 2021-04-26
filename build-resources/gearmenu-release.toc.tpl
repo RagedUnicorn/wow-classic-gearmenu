@@ -40,6 +40,7 @@ gui/GM_GearBar.lua
 gui/GM_GearBarChangeMenu.lua
 gui/Gm_GearBarStorage.lua
 gui/GM_GearBarConfigurationMenu.lua
+gui/GM_GearBarConfigurationSubMenu.lua
 gui/GM_AddonConfiguration.lua
 gui/GM_AboutContent.lua
 gui/GM_GeneralMenu.lua
