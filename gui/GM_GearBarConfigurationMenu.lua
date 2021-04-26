@@ -23,9 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals STANDARD_TEXT_FONT CreateFrame FauxScrollFrame_Update FauxScrollFrame_GetOffset
--- luacheck: globals UIDropDownMenu_Initialize UIDropDownMenu_AddButton UIDropDownMenu_SetSelectedValue
--- luacheck: globals StaticPopupDialogs StaticPopup_Show
+-- luacheck: globals STANDARD_TEXT_FONT CreateFrame StaticPopupDialogs StaticPopup_Show
 
 --[[
   The gearBarMenu (GM_GearBarConfigurationMenu) module has some similarities to the gearBar (GM_GearBar) module.
