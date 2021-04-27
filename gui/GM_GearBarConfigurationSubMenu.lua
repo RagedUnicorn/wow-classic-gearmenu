@@ -64,6 +64,13 @@ local gearBarConfigurationContentFrame = nil
 local gearBarConfiguration = nil
 
 --[[
+  Option texts for checkbutton options
+]]--
+local options = {
+  {"LockGearBar", rggm.L["window_lock_gear_bar"], rggm.L["window_lock_gear_bar_tooltip"]}
+}
+
+--[[
   Callback for when the menu entrypoint is clicked in the interface options. A callback
   like this exists for every separate gearBar that was created.
 
@@ -91,9 +98,10 @@ end
     The menu entry in the interface options
 ]]
 function me.BuildGearBarConfigurationMenu(parentFrame)
-  gearBarConfigurationContentFrame = CreateFrame("Frame", "SOMENAMETODO", parentFrame)
-  gearBarConfigurationContentFrame:SetWidth(580)
-  gearBarConfigurationContentFrame:SetHeight(552)
+  gearBarConfigurationContentFrame = CreateFrame(
+    "Frame", RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SUB_MENU, parentFrame)
+  gearBarConfigurationContentFrame:SetWidth(RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SUB_MENU_CONTENT_FRAME_WIDTH)
+  gearBarConfigurationContentFrame:SetHeight(RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SUB_MENU_CONTENT_FRAME_HEIGHT)
   gearBarConfigurationContentFrame:SetPoint("TOPLEFT", parentFrame, 5, -7)
 
   local titleFontString =
@@ -226,19 +234,22 @@ function me.RemoveGearSlot(self)
 end
 
 --[[
-  TODO tooltip
-  TODO position
+  Checkbox button for locking/unlocking moving of a specific gearBar
 
   @param {table} parentFrame
 ]]--
 function me.CreateLockGearBarCheckButton(parentFrame)
   local checkButtonOptionFrame = CreateFrame(
-    "CheckButton", RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_WINDOW_LOCK_GEAR_BAR, parentFrame, "UICheckButtonTemplate")
+    "CheckButton",
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_OPT_LOCK_GEAR_BAR,
+    parentFrame,
+    "UICheckButtonTemplate"
+  )
   checkButtonOptionFrame:SetSize(
     RGGM_CONSTANTS.GENERAL_CHECK_OPTION_SIZE,
     RGGM_CONSTANTS.GENERAL_CHECK_OPTION_SIZE
   )
-  checkButtonOptionFrame:SetPoint("TOPLEFT", 0, 0)
+  checkButtonOptionFrame:SetPoint("TOPLEFT", 20, -100)
 
   for _, region in ipairs({checkButtonOptionFrame:GetRegions()}) do
     if string.find(region:GetName() or "", "Text$") and region:IsObjectType("FontString") then
@@ -249,8 +260,8 @@ function me.CreateLockGearBarCheckButton(parentFrame)
     end
   end
 
-  -- checkButtonOptionFrame:SetScript("OnEnter", me.OptTooltipOnEnter) TODO
-  -- checkButtonOptionFrame:SetScript("OnLeave", me.OptTooltipOnLeave) TODO
+  checkButtonOptionFrame:SetScript("OnEnter", me.OptTooltipOnEnter)
+  checkButtonOptionFrame:SetScript("OnLeave", me.OptTooltipOnLeave)
   checkButtonOptionFrame:SetScript("OnShow", me.LockWindowGearBarOnShow)
   checkButtonOptionFrame:SetScript("OnClick", me.LockWindowGearBarOnClick)
   -- load initial state
@@ -287,6 +298,31 @@ function me.LockWindowGearBarOnClick(self)
 end
 
 --[[
+  OnEnter callback for checkbuttons - show tooltip
+
+  @param {table} self
+]]--
+function me.OptTooltipOnEnter(self)
+  local name = self:GetName()
+
+  if not name then return end
+
+  for i = 1, table.getn(options) do
+    if name == RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_OPT_TOOLTIP .. options[i][1] then
+      mod.tooltip.BuildTooltipForOption(options[i][2], options[i][3])
+      break
+    end
+  end
+end
+
+--[[
+  OnEnter callback for checkbuttons - hide tooltip
+]]--
+function me.OptTooltipOnLeave()
+  _G[RGGM_CONSTANTS.ELEMENT_TOOLTIP]:Hide()
+end
+
+--[[
   @param {table} parentFrame
 
   @return {table}
@@ -311,7 +347,7 @@ function me.CreateGearBarConfigurationSlotsList(parentFrame)
     RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_ROW_HEIGHT
     * RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_MAX_ROWS
   )
-  scrollFrame:SetPoint("TOPLEFT", 20, -100)
+  scrollFrame:SetPoint("TOPLEFT", 20, -200)
   scrollFrame:EnableMouseWheel(true)
 
 
