@@ -90,7 +90,7 @@ rggm.L["gear_bar_choose_name"] = "Choose a name for the new GearBar"
 rggm.L["gear_bar_choose_name_accept_button"] = "Accept"
 rggm.L["gear_bar_choose_name_cancel_button"] = "Cancel"
 
-rggm.L["gear_bar_configuration_add_gearslot"] = " + "
+rggm.L["gear_bar_configuration_add_gearslot"] = "Add Gearslot"
 rggm.L["gear_bar_configuration_remove_gearslot"] = " - "
 rggm.L["gear_bar_configuration_delete_gearbar"] = "Delete GearBar"
 

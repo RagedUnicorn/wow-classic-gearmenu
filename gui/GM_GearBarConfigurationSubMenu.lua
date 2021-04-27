@@ -117,7 +117,6 @@ function me.BuildGearBarConfigurationMenu(parentFrame)
   end
 
   me.CreateAddGearSlotButton(gearBarConfigurationContentFrame)
-  me.CreateRemoveGearSlotButton(gearBarConfigurationContentFrame)
   me.CreateLockGearBarCheckButton(gearBarConfigurationContentFrame)
 
   gearBarConfigurationSlotsList = me.CreateGearBarConfigurationSlotsList(gearBarConfigurationContentFrame)
@@ -143,7 +142,7 @@ function me.CreateAddGearSlotButton(parentFrame)
 
   button:SetHeight(RGGM_CONSTANTS.BUTTON_DEFAULT_HEIGHT)
   button:SetText(rggm.L["gear_bar_configuration_add_gearslot"])
-  button:SetPoint("TOPLEFT", 50, -50)
+  button:SetPoint("TOPLEFT", 20, -170)
   button:SetScript('OnClick', me.AddGearSlot)
   -- Attach gearBarId to the button
   button.gearBarId = parentFrame.gearBarId
@@ -168,69 +167,13 @@ function me.AddGearSlot()
     return
   end
 
-  if not mod.gearBarManager.AddNewGearSlot(gearBarConfiguration.id) then
+  if not mod.gearBarManager.AddGearSlot(gearBarConfiguration.id) then
     mod.logger.LogError(me.tag, "Failed to add new gearSlot to gearBar with id: " .. gearBarConfiguration.id)
     return
   end
 
   me.UpdateGearBarConfigurationMenu()
   mod.gearBar.UpdateGearBar(gearBarConfiguration)
-end
-
---[[
-  Add a button to the gearBar configurationFrame that allows for removing
-  slots from a specific gearBar
-
-  @param {table} parentFrame
-
-  @return {table}
-    The created button
-]]--
-function me.CreateRemoveGearSlotButton(parentFrame)
-  local button = CreateFrame(
-    "Button",
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_REMOVE_SLOT_BUTTON,
-    parentFrame,
-    "UIPanelButtonTemplate"
-  )
-
-  button:SetHeight(RGGM_CONSTANTS.BUTTON_DEFAULT_HEIGHT)
-  button:SetText(rggm.L["gear_bar_configuration_remove_gearslot"])
-  button:SetPoint("TOPLEFT", 80, -50)
-  button:SetScript('OnClick', me.RemoveGearSlot)
-  -- Attach gearBarId to the button
-  button.gearBarId = parentFrame.gearBarId
-
-  local buttonFontString = button:GetFontString()
-
-  button:SetWidth(
-    buttonFontString:GetStringWidth() + RGGM_CONSTANTS.BUTTON_DEFAULT_PADDING
-  )
-
-  return button
-end
-
---[[
-  Remove a gearSlot from a gearBar based on the gearBarId on the clicked button
-  Will always remove the highest index in the gearBar
-
-  @param {table} self
-    A reference to the button that was clicked
-]]--
-function me.RemoveGearSlot(self)
-  local gearBar = mod.gearBarManager.GetGearBar(self.gearBarId)
-
-  if gearBar == nil then
-    mod.logger.LogError(me.tag, "Failed to find gearBar with id: " .. self.gearBarId)
-    return
-  end
-
-  if not mod.gearBarManager.RemoveGearSlot(self.gearBarId, #gearBar.slots) then
-    mod.logger.LogError(me.tag, "Failed to remove gearSlot from gearBar with id: " .. self.id)
-    return
-  end
-
-  me.GearBarOnUpdate()
 end
 
 --[[
@@ -408,40 +351,10 @@ function me.CreateGearBarConfigurationSlotsListRowFrame(frame, position)
   row.slotIcon = me.CreateGearBarConfigurationSlotIcon(row)
   row.gearSlot = me.CreateGearBarConfigurationSlotDropdown(row, position)
   row.keybindButton = me.CreateGearBarConfigurationSlotKeybindButton(row, position)
+  row.removeGearSlotButton = me.CreateRemoveGearSlotButton(row)
 
   return row
 end
-
-
---[[
-  Create a button that allows the user to set a keyBinding for the gearSlot
-
-  @param {table} row
-  @param {number} position
-    Position of the slot on the gearBar
-]]--
-function me.CreateGearBarConfigurationSlotKeybindButton(row, position)
-  local button = CreateFrame(
-    "Button",
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SLOTS_KEY_BINDING_BUTTON .. position,
-    row,
-    "UIPanelButtonTemplate"
-  )
-
-  button:SetHeight(RGGM_CONSTANTS.BUTTON_DEFAULT_HEIGHT)
-  button:SetText("todokeybind")
-  button:SetPoint("TOPLEFT", 200, 0)
-  button:SetScript("OnClick", function()
-    mod.keyBind.SetKeyBindingForGearSlot(gearBarConfiguration, position)
-  end)
-
-  button:SetWidth(
-    button:GetFontString():GetStringWidth() + RGGM_CONSTANTS.BUTTON_DEFAULT_PADDING
-  )
-
-  return button
-end
-
 
 --[[
   @param {table} row
@@ -450,13 +363,38 @@ end
     The created texture
 ]]--
 function me.CreateGearBarConfigurationSlotIcon(row)
-  local slotIcon = row:CreateTexture(nil, "ARTWORK")
+  local iconHolder = CreateFrame("Frame", nil, row)
+  iconHolder:SetSize(
+    RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_GEAR_SLOT_ICON_SIZE + 5,
+    RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_GEAR_SLOT_ICON_SIZE + 5
+  )
+  iconHolder:SetPoint("LEFT", 5, 0)
+
+  local slotIcon = iconHolder:CreateTexture(nil, "ARTWORK")
+  slotIcon.iconHolder = iconHolder
   slotIcon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
-  slotIcon:SetPoint("LEFT", 5, 0)
+  slotIcon:SetPoint("CENTER", 0, 0)
   slotIcon:SetSize(
     RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_GEAR_SLOT_ICON_SIZE,
     RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_GEAR_SLOT_ICON_SIZE
   )
+
+  local backdrop = {
+    bgFile = "Interface\\AddOns\\GearMenu\\assets\\ui_slot_background",
+    edgeFile = "Interface\\AddOns\\GearMenu\\assets\\ui_slot_background",
+    tile = false,
+    tileSize = 32,
+    edgeSize = 20,
+    insets = {
+      left = 12,
+      right = 12,
+      top = 12,
+      bottom = 12
+    }
+  }
+
+  iconHolder:SetBackdrop(backdrop)
+  iconHolder:SetBackdropBorderColor(0, 0.96, 0.83, 1)
 
   return slotIcon
 end
@@ -476,7 +414,7 @@ function me.CreateGearBarConfigurationSlotDropdown(row, position)
     "UIDropDownMenuTemplate"
   )
   gearSlotDropdownMenu.position = position
-  gearSlotDropdownMenu:SetPoint("TOPLEFT", 20, -5)
+  gearSlotDropdownMenu:SetPoint("TOPLEFT", 30, -10)
 
   UIDropDownMenu_Initialize(gearSlotDropdownMenu, me.InitializeDropdownMenu)
 
@@ -531,6 +469,87 @@ function me.DropDownMenuCallback(self)
 end
 
 --[[
+  Create a button that allows the user to set a keyBinding for the gearSlot
+
+  @param {table} row
+  @param {number} position
+    Position of the slot on the gearBar
+]]--
+function me.CreateGearBarConfigurationSlotKeybindButton(row, position)
+  local button = CreateFrame(
+    "Button",
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SLOTS_KEY_BINDING_BUTTON .. position,
+    row,
+    "UIPanelButtonTemplate"
+  )
+
+  button:SetHeight(RGGM_CONSTANTS.BUTTON_DEFAULT_HEIGHT)
+  button:SetText("todokeybind")
+  button:SetPoint("TOPLEFT", 200, 0)
+  button:SetScript("OnClick", function()
+    mod.keyBind.SetKeyBindingForGearSlot(gearBarConfiguration, position)
+  end)
+
+  button:SetWidth(
+    button:GetFontString():GetStringWidth() + RGGM_CONSTANTS.BUTTON_DEFAULT_PADDING
+  )
+
+  return button
+end
+
+--[[
+  Add a button to the gearBar configurationFrame that allows for removing
+  slots from a specific gearBar
+
+  @param {table} parentFrame
+
+  @return {table}
+    The created button
+]]--
+function me.CreateRemoveGearSlotButton(parentFrame)
+  local button = CreateFrame(
+    "Button",
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_REMOVE_SLOT_BUTTON,
+    parentFrame,
+    "UIPanelButtonTemplate"
+  )
+
+  button:SetHeight(RGGM_CONSTANTS.BUTTON_DEFAULT_HEIGHT)
+  button:SetText(rggm.L["gear_bar_configuration_remove_gearslot"])
+  button:SetPoint("RIGHT", -5, 0)
+  button:SetScript('OnClick', me.RemoveGearSlot)
+
+  local buttonFontString = button:GetFontString()
+
+  button:SetWidth(
+    buttonFontString:GetStringWidth() + RGGM_CONSTANTS.BUTTON_DEFAULT_PADDING
+  )
+
+  return button
+end
+
+--[[
+  Remove a gearSlot from a gearBar based on the gearBarId and the position of the clicked button
+
+  @param {table} self
+]]--
+function me.RemoveGearSlot(self)
+  local gearBar = mod.gearBarManager.GetGearBar(gearBarConfiguration.id)
+
+  if gearBar == nil then
+    mod.logger.LogError(me.tag, "Failed to find gearBar with id: " .. gearBarConfiguration.id)
+    return
+  end
+  mod.logger.LogError(me.tag, "Want to remove position: " .. self:GetParent().position)
+  if not mod.gearBarManager.RemoveGearSlot(gearBarConfiguration.id, self:GetParent().position) then
+    mod.logger.LogError(me.tag, "Failed to remove gearSlot from gearBar with id: " .. gearBarConfiguration.id)
+    return
+  end
+
+  me.GearBarOnUpdate()
+end
+
+--[[
   Update a scrollable list holding configuration frames for gearBar slots
 
   @param {table} scrollFrame
@@ -559,7 +578,7 @@ function me.GearBarConfigurationSlotsListOnUpdate(scrollFrame)
 
       local slot = gearBarConfiguration.slots[value]
       if slot == nil then return end -- no more slots available for that gearBar
-
+      row.position = value -- add actual gearSlot position
       row.slotIcon:SetTexture(slot.textureId)
       -- update preselected dropdown value for the slot
       UIDropDownMenu_SetSelectedValue(
