@@ -350,7 +350,8 @@ function me.CreateGearBarConfigurationSlotsListRowFrame(frame, position)
 
   row.slotIcon = me.CreateGearBarConfigurationSlotIcon(row)
   row.gearSlot = me.CreateGearBarConfigurationSlotDropdown(row, position)
-  row.keybindButton = me.CreateGearBarConfigurationSlotKeybindButton(row, position)
+  row.keyBindButton = me.CreateGearBarConfigurationSlotKeybindButton(row, position)
+  row.keyBindText = me.CreateKeyBindingText(row, row.keyBindButton)
   row.removeGearSlotButton = me.CreateRemoveGearSlotButton(row)
 
   return row
@@ -474,6 +475,9 @@ end
   @param {table} row
   @param {number} position
     Position of the slot on the gearBar
+
+  @return {table}
+    The created button
 ]]--
 function me.CreateGearBarConfigurationSlotKeybindButton(row, position)
   local button = CreateFrame(
@@ -484,8 +488,8 @@ function me.CreateGearBarConfigurationSlotKeybindButton(row, position)
   )
 
   button:SetHeight(RGGM_CONSTANTS.BUTTON_DEFAULT_HEIGHT)
-  button:SetText("todokeybind")
-  button:SetPoint("TOPLEFT", 200, 0)
+  button:SetText(rggm.L["gear_bar_configuration_key_binding_button"])
+  button:SetPoint("TOPLEFT", 200, -11)
   button:SetScript("OnClick", function()
     mod.keyBind.SetKeyBindingForGearSlot(gearBarConfiguration, position)
   end)
@@ -495,6 +499,32 @@ function me.CreateGearBarConfigurationSlotKeybindButton(row, position)
   )
 
   return button
+end
+
+--[[
+  Create fontstring for title of the spell to configure
+
+  @param {table} row
+  @param {table} parentFrame
+
+  @return {table}
+    The created fontstring
+]]--
+function me.CreateKeyBindingText(row, parentFrame)
+  local keybindingFontString = row:CreateFontString(
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SLOTS_KEY_BINDING_TEXT, "OVERLAY")
+  keybindingFontString:SetFont(STANDARD_TEXT_FONT, 15)
+  keybindingFontString:SetWidth(RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_KEY_BINDING_TEXT_WIDTH)
+  keybindingFontString:SetPoint(
+    "LEFT",
+    parentFrame,
+    "RIGHT",
+    0,
+    0
+  )
+  keybindingFontString:SetTextColor(.95, .95, .95)
+
+  return keybindingFontString
 end
 
 --[[
@@ -571,19 +601,26 @@ function me.GearBarConfigurationSlotsListOnUpdate(scrollFrame)
 
   local offset = FauxScrollFrame_GetOffset(scrollFrame)
   for index = 1, RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_MAX_ROWS do
-    local value = index + offset
+    local gearSlotPosition = index + offset
 
-    if value <= table.getn(gearBarConfiguration.slots) then
+    if gearSlotPosition <= table.getn(gearBarConfiguration.slots) then
       local row = rows[index]
 
-      local slot = gearBarConfiguration.slots[value]
+      local slot = gearBarConfiguration.slots[gearSlotPosition]
       if slot == nil then return end -- no more slots available for that gearBar
-      row.position = value -- add actual gearSlot position
+      row.position = gearSlotPosition -- add actual gearSlot position
       row.slotIcon:SetTexture(slot.textureId)
       -- update preselected dropdown value for the slot
       UIDropDownMenu_SetSelectedValue(
         row.gearSlot, slot.slotId
       )
+      -- update keybinding text
+      if slot.keyBinding ~= nil then
+        row.keyBindText:SetText(slot.keyBinding)
+      else
+        row.keyBindText:SetText(rggm.L["gear_bar_configuration_key_binding_not_set"])
+      end
+
       row:Show()
     else
       rows[index]:Hide()

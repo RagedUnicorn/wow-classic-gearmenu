@@ -94,10 +94,16 @@ rggm.L["gear_bar_configuration_add_gearslot"] = "Add Gearslot"
 rggm.L["gear_bar_configuration_remove_gearslot"] = " - "
 rggm.L["gear_bar_configuration_delete_gearbar"] = "Delete GearBar"
 
+rggm.L["gear_bar_configuration_key_binding_button"] = "Set/Unset Keybinding"
+rggm.L["gear_bar_configuration_key_binding_not_set"] = "No Keybind Set"
 rggm.L["gear_bar_configuration_key_binding_dialog"] = "Set Keybinding to: "
 rggm.L["gear_bar_configuration_key_binding_dialog_initial"] = "(press keybind you want to use or leave empty to unbind)"
 rggm.L["gear_bar_configuration_key_binding_dialog_accept"] = "Accept"
 rggm.L["gear_bar_configuration_key_binding_dialog_cancel"] = "Cancel"
+rggm.L["gear_bar_configuration_key_binding_override_dialog"] = "Keybind already in use. Do you want to override?"
+rggm.L["gear_bar_configuration_key_binding_dialog_override_yes"] = "Yes"
+rggm.L["gear_bar_configuration_key_binding_dialog_override_no"] = "No"
+rggm.L["gear_bar_configuration_key_binding_user_error"] = "Failed to set new Keybinding"
 
 -- slot translations
 rggm.L["slot_name_head"] = "Head"

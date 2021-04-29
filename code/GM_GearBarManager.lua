@@ -296,6 +296,7 @@ function me.UpdateGearSlot(gearBarId, position, updatedGearSlot)
 
   if gearBar ~= nil and gearBar.slots[position] ~= nil then
     gearBar.slots[position] = updatedGearSlot
+
     return true
   end
 

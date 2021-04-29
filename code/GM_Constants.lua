@@ -279,6 +279,8 @@ RGGM_CONSTANTS = {
   ELEMENT_GEAR_BAR_CONFIGURATION_SLOTS_ROW_FRAME = "GM_GearBarSlotConfigurationRowFrame_",
   ELEMENT_GEAR_BAR_CONFIGURATION_SLOTS_GEAR_SLOT_DROPDOWN = "GM_GearBarSlotConfigurationGearSlotDropdown_",
   ELEMENT_GEAR_BAR_CONFIGURATION_SLOTS_KEY_BINDING_BUTTON = "GM_GearBarSlotConfigurationKeyBindingButton_",
+  ELEMENT_GEAR_BAR_CONFIGURATION_SLOTS_KEY_BINDING_TEXT = "GM_GearBarSlotConfigurationKeyBindingText",
+  GEAR_BAR_CONFIGURATION_SLOTS_KEY_BINDING_TEXT_WIDTH = 150,
   ELEMENT_GEAR_BAR_CONFIGURATION_OPT_TOOLTIP = "GM_GearBarConfigurationOptTooltip",
   ELEMENT_GEAR_BAR_CONFIGURATION_OPT_LOCK_GEAR_BAR = "GM_GearBarConfigurationOptTooltipLockGearBar",
   GEAR_BAR_CONFIGURATION_SUB_MENU_CONTENT_FRAME_WIDTH = 580,
@@ -287,7 +289,14 @@ RGGM_CONSTANTS = {
   GEAR_BAR_CONFIGURATION_SLOTS_LIST_ROW_HEIGHT = 50,
   GEAR_BAR_CONFIGURATION_SLOTS_LIST_MAX_ROWS = 6,
   GEAR_BAR_DEFAULT_POSITION = {"CENTER", 0, 0},
-  GEAR_BAR_CONFIGURATION_GEAR_SLOT_ICON_SIZE = 32
+  GEAR_BAR_CONFIGURATION_GEAR_SLOT_ICON_SIZE = 32,
+  --[[
+    Integer - Can be the values 1 or 2. This value indicates whether the currently active key bindings
+    set is account or character specific. One of following constants should be used when examining the return value:
+      ACCOUNT_BINDINGS (1)
+      CHARACTER_BINDINGS (2)
+  ]]--
+  GEAR_BAR_STORE_CHARACTER_BINDINGS  = 2
 
 
 }

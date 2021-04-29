@@ -113,7 +113,7 @@ function me.OnEvent(event, ...)
     me.logger.LogEvent(me.tag, "UPDATE_BINDINGS")
 
     if initializationDone then
-      me.gearBar.UpdateGearBars()
+      me.keyBind.OnUpdateKeyBindings()
     end
   elseif event == "LOSS_OF_CONTROL_ADDED" then
     me.logger.LogEvent(me.tag, "LOSS_OF_CONTROL_ADDED")
