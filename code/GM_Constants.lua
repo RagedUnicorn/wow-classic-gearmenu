@@ -23,30 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals BINDING_HEADER_GEARMENU INVSLOT_HEAD
-
---[[
-  Misc Variables
-]]--
-BINDING_HEADER_GEARMENU = "GearMenu"
-
-_G["BINDING_NAME_CLICK GM_GearBarSlot_1:LeftButton"] = "Slot 1"
-_G["BINDING_NAME_CLICK GM_GearBarSlot_2:LeftButton"] = "Slot 2"
-_G["BINDING_NAME_CLICK GM_GearBarSlot_3:LeftButton"] = "Slot 3"
-_G["BINDING_NAME_CLICK GM_GearBarSlot_4:LeftButton"] = "Slot 4"
-_G["BINDING_NAME_CLICK GM_GearBarSlot_5:LeftButton"] = "Slot 5"
-_G["BINDING_NAME_CLICK GM_GearBarSlot_6:LeftButton"] = "Slot 6"
-_G["BINDING_NAME_CLICK GM_GearBarSlot_7:LeftButton"] = "Slot 7"
-_G["BINDING_NAME_CLICK GM_GearBarSlot_8:LeftButton"] = "Slot 8"
-_G["BINDING_NAME_CLICK GM_GearBarSlot_9:LeftButton"] = "Slot 9"
-_G["BINDING_NAME_CLICK GM_GearBarSlot_10:LeftButton"] = "Slot 10"
-_G["BINDING_NAME_CLICK GM_GearBarSlot_11:LeftButton"] = "Slot 11"
-_G["BINDING_NAME_CLICK GM_GearBarSlot_12:LeftButton"] = "Slot 12"
-_G["BINDING_NAME_CLICK GM_GearBarSlot_13:LeftButton"] = "Slot 13"
-_G["BINDING_NAME_CLICK GM_GearBarSlot_14:LeftButton"] = "Slot 14"
-_G["BINDING_NAME_CLICK GM_GearBarSlot_15:LeftButton"] = "Slot 15"
-_G["BINDING_NAME_CLICK GM_GearBarSlot_16:LeftButton"] = "Slot 16"
-_G["BINDING_NAME_CLICK GM_GearBarSlot_17:LeftButton"] = "Slot 17"
+-- luacheck: globals INVSLOT_HEAD
 
 RGGM_CONSTANTS = {
   ADDON_NAME = "GearMenu",
