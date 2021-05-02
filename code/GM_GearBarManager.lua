@@ -219,12 +219,11 @@ function me.AddGearSlot(gearBarId)
       ]]--
   }
   local gearBar = me.GetGearBar(gearBarId)
-
-  -- TODO hardoced for testing
-  gearSlot.name = "slot_name_head"
-  gearSlot.type = {"INVTYPE_HEAD"}
-  gearSlot.textureId = 136516
-  gearSlot.slotId = INVSLOT_HEAD
+  local defaultGearSlot = mod.gearManager.GetGearSlotForSlotId(RGGM_CONSTANTS.GEAR_BAR_GEAR_SLOT_DEFAULT_VALUE)
+  gearSlot.name = defaultGearSlot.name
+  gearSlot.type = defaultGearSlot.type
+  gearSlot.textureId = defaultGearSlot.textureId
+  gearSlot.slotId = defaultGearSlot.slotId
 
   if gearBar ~= nil then
     table.insert(gearBar.slots, gearSlot)
