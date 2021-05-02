@@ -37,6 +37,8 @@ local changeMenuGearSlotCooldownTicker
 local combatQueueTicker
 local rangeCheckTicker
 
+local tickerRangeCheckSubscribers = {}
+
 --[[
   Start the repeating update ticker for changeMenu
 ]]--
@@ -124,22 +126,54 @@ end
 --[[
   Start the repeating update ticker for rangeCheck
 ]]--
-function me.StartTickerRangeCheck()
-  --[[
+local function StartTickerRangeCheck()
   if rangeCheckTicker == nil or rangeCheckTicker._cancelled then
     rangeCheckTicker = C_Timer.NewTicker(
       RGGM_CONSTANTS.RANGE_CHECK_UPDATE_INTERVAL, mod.gearBar.UpdateSpellRange)
       mod.logger.LogInfo(me.tag, "Started 'StartTickerRangeCheck'")
   end
-  ]]--
 end
 
 --[[
   Stop the repeating update ticker for rangeCheck
 ]]--
-function me.StopTickerRangeCheck()
+local function StopTickerRangeCheck()
   if rangeCheckTicker then
     rangeCheckTicker:Cancel()
     mod.logger.LogInfo(me.tag, "Stopped 'StopTickerRangeCheck'")
+  end
+end
+
+--[[
+  @param {number} gearBarId
+]]--
+function me.RegisterForTickerRangeCheck(gearBarId)
+  for i = 1, #tickerRangeCheckSubscribers do
+    if tickerRangeCheckSubscribers[i] == gearBarId then
+      mod.logger.LogInfo(me.tag, "GearBar with id: " .. gearBarId .. " is already registered for range check")
+      return
+    end
+  end
+
+  table.insert(tickerRangeCheckSubscribers, gearBarId)
+
+  if #tickerRangeCheckSubscribers == 1 then
+    StartTickerRangeCheck()
+  end
+end
+
+--[[
+  @param {number} gearBarId
+]]--
+function me.UnregisterForTickerRangeCheck(gearBarId)
+  for i = 1, #tickerRangeCheckSubscribers do
+    if tickerRangeCheckSubscribers[i] == gearBarId then
+      table.remove(tickerRangeCheckSubscribers, gearBarId)
+      break
+    end
+  end
+
+  if #tickerRangeCheckSubscribers == 0 then
+    StopTickerRangeCheck()
   end
 end

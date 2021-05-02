@@ -76,13 +76,11 @@ function me.BuildGearBar(gearBar)
     UIParent
   )
   gearBarFrame.id = gearBar.id
-
-  local gearBarSlotSize = mod.configuration.GetSlotSize()
-
   gearBarFrame:SetWidth(
-      RGGM_CONSTANTS.GEAR_BAR_SLOT_AMOUNT * gearBarSlotSize + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN
-    )
-  gearBarFrame:SetHeight(gearBarSlotSize)
+    RGGM_CONSTANTS.GEAR_BAR_SLOT_AMOUNT * RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE
+      + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN
+  )
+  gearBarFrame:SetHeight(RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE)
   -- load gearBars position
   gearBarFrame:ClearAllPoints() -- very important to clear all points first
   gearBarFrame:SetPoint(
@@ -288,10 +286,10 @@ function me.UpdateGearBar(gearBar)
     uiGearSlot:SetAttribute("type1", "item")
     uiGearSlot:SetAttribute("item", gearSlotMetaData.slotId)
 
-    me.UpdateKeyBindingAppearance(gearBar, uiGearSlot.keyBindingText, gearSlotMetaData.keyBinding)
     me.UpdateTexture(uiGearSlot, gearSlotMetaData)
     mod.uiHelper.UpdateSlotTextureAttributes(uiGearSlot)
     me.UpdateGearSlotSize(gearBar, uiGearBar, uiGearSlot, index)
+    me.UpdateKeyBindingState(gearBar, uiGearSlot.keyBindingText, gearSlotMetaData.keyBinding)
 
     uiGearSlot:Show() -- finally make the slot visible
   end
@@ -308,6 +306,32 @@ function me.UpdateGearBar(gearBar)
   end
 
   me.UpdateGearBarSize(gearBar)
+end
+
+--[[
+  Update the keyBinding text and size of the fontstring and unregister or register
+  the gearBar to receive spellRange events
+
+  @param {table} gearBar
+  @param {string} keybindingFontString
+  @param {string} keyBindingText
+]]--
+function me.UpdateKeyBindingState(gearBar, keybindingFontString, keyBindingText)
+  if mod.gearBarManager.IsShowKeyBindingsEnabled(gearBar.id) then
+    mod.ticker.RegisterForTickerRangeCheck(gearBar.id)
+
+    keybindingFontString:SetFont(
+      STANDARD_TEXT_FONT,
+      mod.configuration.GetSlotSize() * RGGM_CONSTANTS.GEAR_BAR_CHANGE_KEYBIND_TEXT_MODIFIER,
+      "THICKOUTLINE"
+    )
+    keybindingFontString:SetText(keyBindingText)
+    keybindingFontString:Show()
+  else
+    mod.ticker.UnregisterForTickerRangeCheck(gearBar.id)
+
+    keybindingFontString:Hide()
+  end
 end
 
 --[[
@@ -498,23 +522,39 @@ function me.UpdateGearSlotCooldown()
 end
 
 --[[
-  Update the keyBinding text and size of the fontstring
-
-  @param {table} gearBar
-  @param {string} keybindingFontString
-  @param {string} keyBindingText
+  Update visual display of itemrange for all gearslots
 ]]--
-function me.UpdateKeyBindingAppearance(gearBar, keybindingFontString, keyBindingText)
-  if mod.gearBarManager.IsShowKeyBindingsEnabled(gearBar.id) then
-    keybindingFontString:SetFont(
-      STANDARD_TEXT_FONT,
-      mod.configuration.GetSlotSize() * RGGM_CONSTANTS.GEAR_BAR_CHANGE_KEYBIND_TEXT_MODIFIER,
-      "THICKOUTLINE"
-    )
-    keybindingFontString:SetText(keyBindingText)
-    keybindingFontString:Show()
-  else
-    keybindingFontString:Hide()
+function me.UpdateSpellRange()
+  local uiGearBars = mod.gearBarStorage.GetGearBars()
+
+  for _, uiGearBar in pairs(uiGearBars) do
+    local gearBarId = uiGearBar.gearBarReference.id
+
+    for _, gearSlot in pairs(uiGearBar.gearSlotReferences) do
+      local gearBar = mod.gearBarManager.GetGearBar(gearBarId)
+
+      if mod.target.GetCurrentTargetGuid() == "" then
+        gearSlot.keyBindingText:SetTextColor(1, 1, 1, 1)
+      else
+        local gearSlotMetaData = gearBar.slots[gearSlot.position]
+
+        if gearSlotMetaData ~= nil then
+          local itemLink = GetInventoryItemLink(RGGM_CONSTANTS.UNIT_ID_PLAYER, gearSlotMetaData.slotId)
+          --[[
+            - Returns true if item is in range
+            - Returns false if item is not in range
+            - Returns nil if not applicable(e.g. item is passive only) or the slot might be empty
+          ]]--
+          local isInRange = IsItemInRange(itemLink, RGGM_CONSTANTS.UNIT_ID_TARGET)
+
+          if isInRange == nil or isInRange == true then
+            gearSlot.keyBindingText:SetTextColor(1, 1, 1, 1)
+          else
+            gearSlot.keyBindingText:SetTextColor(1, 0, 0, 1)
+          end
+        end
+      end
+    end
   end
 end
 

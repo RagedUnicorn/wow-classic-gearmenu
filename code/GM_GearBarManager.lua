@@ -185,7 +185,7 @@ function me.EnableShowKeyBindings(gearBarId)
 
   gearBar.showKeyBindings = true
   mod.gearBar.UpdateGearBar(gearBar)
-  -- mod.ticker.StartTickerRangeCheck() TODO
+  mod.ticker.UnregisterForTickerRangeCheck(gearBarId)
 end
 
 --[[
@@ -198,7 +198,7 @@ function me.DisableShowKeyBindings(gearBarId)
 
   gearBar.showKeyBindings = false
   mod.gearBar.UpdateGearBar(gearBar)
-  -- mod.ticker.StopTickerRangeCheck() TODO
+  mod.ticker.RegisterForRangeCheck(gearBarId)
 end
 
 --[[
