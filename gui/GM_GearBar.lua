@@ -345,7 +345,7 @@ function me.UpdateGearBarSize(gearBar)
   local slotAmount = #gearBarUi.gearSlotReferences
 
   gearBarUi.gearBarReference:SetWidth(slotAmount * gearBar.slotSize + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN)
-  gearBarUi.gearBarReference:SetHeight(slotAmount * gearBar.slotSize)
+  gearBarUi.gearBarReference:SetHeight(gearBar.slotSize)
 end
 
 --[[
