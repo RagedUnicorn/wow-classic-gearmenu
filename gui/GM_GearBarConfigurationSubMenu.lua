@@ -67,7 +67,8 @@ local gearBarConfiguration = nil
   Option texts for checkbutton options
 ]]--
 local options = {
-  {"LockGearBar", rggm.L["window_lock_gear_bar"], rggm.L["window_lock_gear_bar_tooltip"]}
+  {"LockGearBar", rggm.L["window_lock_gear_bar"], rggm.L["window_lock_gear_bar_tooltip"]},
+  {"ShowKeyBindings", rggm.L["show_keybindings"], rggm.L["show_keybindings_tooltip"]}
 }
 
 --[[
@@ -117,7 +118,24 @@ function me.BuildGearBarConfigurationMenu(parentFrame)
   end
 
   me.CreateAddGearSlotButton(gearBarConfigurationContentFrame)
-  me.CreateLockGearBarCheckButton(gearBarConfigurationContentFrame)
+  -- me.CreateLockGearBarCheckButton(gearBarConfigurationContentFrame)
+
+  me.BuildCheckButtonOption(
+    gearBarConfigurationContentFrame,
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_OPT_LOCK_GEAR_BAR,
+    {"TOPLEFT", 20, -50},
+    me.LockWindowGearBarOnShow,
+    me.LockWindowGearBarOnClick
+  )
+
+  me.BuildCheckButtonOption(
+    gearBarConfigurationContentFrame,
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_OPT_SHOW_KEY_BINDINGS,
+    {"TOPLEFT", 20, -80},
+    me.ShowKeyBindingsOnShow,
+    me.ShowKeyBindingsOnClick
+  )
+
   me.CreateSizeSlider(gearBarConfigurationContentFrame)
 
   gearBarConfigurationSlotsList = me.CreateGearBarConfigurationSlotsList(gearBarConfigurationContentFrame)
@@ -178,38 +196,82 @@ function me.AddGearSlot()
 end
 
 --[[
-  Checkbox button for locking/unlocking moving of a specific gearBar
+  Build a checkbutton option
 
   @param {table} parentFrame
+  @param {string} optionFrameName
+  @param {table} position
+  @param {function} onShowCallback
+  @param {function} onClickCallback
 ]]--
-function me.CreateLockGearBarCheckButton(parentFrame)
-  local checkButtonOptionFrame = CreateFrame(
-    "CheckButton",
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_OPT_LOCK_GEAR_BAR,
-    parentFrame,
-    "UICheckButtonTemplate"
-  )
+function me.BuildCheckButtonOption(parentFrame, optionFrameName, position, onShowCallback, onClickCallback)
+  local checkButtonOptionFrame = CreateFrame("CheckButton", optionFrameName, parentFrame, "UICheckButtonTemplate")
   checkButtonOptionFrame:SetSize(
-    RGGM_CONSTANTS.GENERAL_CHECK_OPTION_SIZE,
-    RGGM_CONSTANTS.GENERAL_CHECK_OPTION_SIZE
+    RGGM_CONSTANTS.CHECK_OPTION_SIZE,
+    RGGM_CONSTANTS.CHECK_OPTION_SIZE
   )
-  checkButtonOptionFrame:SetPoint("TOPLEFT", 20, -50)
+  checkButtonOptionFrame:SetPoint(unpack(position))
 
   for _, region in ipairs({checkButtonOptionFrame:GetRegions()}) do
     if string.find(region:GetName() or "", "Text$") and region:IsObjectType("FontString") then
       region:SetFont(STANDARD_TEXT_FONT, 15)
       region:SetTextColor(.95, .95, .95)
-      region:SetText(rggm.L["window_lock_gear_bar"])
+      region:SetText(me.GetLabelText(checkButtonOptionFrame))
       break
     end
   end
 
   checkButtonOptionFrame:SetScript("OnEnter", me.OptTooltipOnEnter)
   checkButtonOptionFrame:SetScript("OnLeave", me.OptTooltipOnLeave)
-  checkButtonOptionFrame:SetScript("OnShow", me.LockWindowGearBarOnShow)
-  checkButtonOptionFrame:SetScript("OnClick", me.LockWindowGearBarOnClick)
+  checkButtonOptionFrame:SetScript("OnShow", onShowCallback)
+  checkButtonOptionFrame:SetScript("OnClick", onClickCallback)
   -- load initial state
-  me.LockWindowGearBarOnShow(checkButtonOptionFrame)
+  onShowCallback(checkButtonOptionFrame)
+end
+
+--[[
+  Get the label text for the checkbutton
+
+  @param {table} frame
+
+  @return {string}
+    The text for the label
+]]--
+function me.GetLabelText(frame)
+  local name = frame:GetName()
+
+  if not name then return end
+
+  for i = 1, table.getn(options) do
+    if name == RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_OPT_TOOLTIP .. options[i][1] then
+      return options[i][2]
+    end
+  end
+end
+
+--[[
+  OnEnter callback for checkbuttons - show tooltip
+
+  @param {table} self
+]]--
+function me.OptTooltipOnEnter(self)
+  local name = self:GetName()
+
+  if not name then return end
+
+  for i = 1, table.getn(options) do
+    if name == RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_OPT_TOOLTIP .. options[i][1] then
+      mod.tooltip.BuildTooltipForOption(options[i][2], options[i][3])
+      break
+    end
+  end
+end
+
+--[[
+  OnEnter callback for checkbuttons - hide tooltip
+]]--
+function me.OptTooltipOnLeave()
+  _G[RGGM_CONSTANTS.ELEMENT_TOOLTIP]:Hide()
 end
 
 --[[
@@ -242,28 +304,32 @@ function me.LockWindowGearBarOnClick(self)
 end
 
 --[[
-  OnEnter callback for checkbuttons - show tooltip
+  OnShow callback for checkbuttons - show keyBindings
 
   @param {table} self
 ]]--
-function me.OptTooltipOnEnter(self)
-  local name = self:GetName()
-
-  if not name then return end
-
-  for i = 1, table.getn(options) do
-    if name == RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_OPT_TOOLTIP .. options[i][1] then
-      mod.tooltip.BuildTooltipForOption(options[i][2], options[i][3])
-      break
-    end
+function me.ShowKeyBindingsOnShow(self)
+  if mod.gearBarManager.IsShowKeyBindingsEnabled(self:GetParent():GetParent().gearBarId) then
+    self:SetChecked(true)
+  else
+    self:SetChecked(false)
   end
 end
 
 --[[
-  OnEnter callback for checkbuttons - hide tooltip
+  OnClick callback for checkbuttons - show keyBindings
+
+  @param {table} self
 ]]--
-function me.OptTooltipOnLeave()
-  _G[RGGM_CONSTANTS.ELEMENT_TOOLTIP]:Hide()
+function me.ShowKeyBindingsOnClick(self)
+  local enabled = self:GetChecked()
+  local gearBarId = self:GetParent():GetParent().gearBarId
+
+  if enabled then
+    mod.gearBarManager.EnableShowKeyBindings(gearBarId)
+  else
+    mod.gearBarManager.DisableShowKeyBindings(gearBarId)
+  end
 end
 
 --[[

@@ -35,8 +35,6 @@ me.tag = "GeneralMenu"
   Option texts for checkbutton options
 ]]--
 local options = {
-  {"WindowLockGearBar", rggm.L["window_lock_gear_bar"], rggm.L["window_lock_gear_bar_tooltip"]},
-  {"ShowKeyBindings", rggm.L["show_keybindings"], rggm.L["show_keybindings_tooltip"]},
   {"ShowCooldowns", rggm.L["show_cooldowns"], rggm.L["show_cooldowns_tooltip"]},
   {"EnableTooltips", rggm.L["enable_tooltips"], rggm.L["enable_tooltips_tooltip"]},
   {"EnableSimpleTooltips", rggm.L["enable_simple_tooltips"], rggm.L["enable_simple_tooltips_tooltip"]},
@@ -64,27 +62,9 @@ function me.BuildUi(frame)
 
   me.BuildCheckButtonOption(
     frame,
-    RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_WINDOW_LOCK_GEAR_BAR,
-    20,
-    -80,
-    me.LockWindowGearBarOnShow,
-    me.LockWindowGearBarOnClick
-  )
-
-  me.BuildCheckButtonOption(
-    frame,
-    RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_SHOW_KEY_BINDINGS,
-    20,
-    -110,
-    me.ShowKeyBindingsOnShow,
-    me.ShowKeyBindingsOnClick
-  )
-
-  me.BuildCheckButtonOption(
-    frame,
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_SHOW_COOLDOWNS,
     20,
-    -140,
+    -80,
     me.ShowCooldownsOnShow,
     me.ShowCooldownsOnClick
   )
@@ -93,7 +73,7 @@ function me.BuildUi(frame)
     frame,
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_TOOLTIPS,
     20,
-    -170,
+    -110,
     me.EnableTooltipsOnShow,
     me.EnableTooltipsOnClick
   )
@@ -102,7 +82,7 @@ function me.BuildUi(frame)
     frame,
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_SIMPLE_TOOLTIPS,
     20,
-    -200,
+    -140,
     me.EnableSimpleTooltipsOnShow,
     me.EnableSimpleTooltipsOnClick
   )
@@ -111,7 +91,7 @@ function me.BuildUi(frame)
     frame,
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_DRAG_AND_DROP,
     20,
-    -230,
+    -170,
     me.EnableDragAndDropOnShow,
     me.EnableDragAndDropOnClick
   )
@@ -120,14 +100,13 @@ function me.BuildUi(frame)
     frame,
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_FASTPRESS,
     20,
-    -260,
+    -200,
     me.EnableFastPressOnShow,
     me.EnableFastPressOnClick
   )
 
   me.CreateItemQualityLabel(frame)
   me.CreateItemQualityDropdown(frame)
-  me.CreateSizeSlider(frame)
 
   builtMenu = true
 end
@@ -145,8 +124,8 @@ end
 function me.BuildCheckButtonOption(parentFrame, optionFrameName, posX, posY, onShowCallback, onClickCallback)
   local checkButtonOptionFrame = CreateFrame("CheckButton", optionFrameName, parentFrame, "UICheckButtonTemplate")
   checkButtonOptionFrame:SetSize(
-    RGGM_CONSTANTS.GENERAL_CHECK_OPTION_SIZE,
-    RGGM_CONSTANTS.GENERAL_CHECK_OPTION_SIZE
+    RGGM_CONSTANTS.CHECK_OPTION_SIZE,
+    RGGM_CONSTANTS.CHECK_OPTION_SIZE
   )
   checkButtonOptionFrame:SetPoint("TOPLEFT", posX, posY)
 
@@ -239,122 +218,6 @@ function me.CreateItemQualityDropdown(frame)
   itemQualityDropdownMenu:SetPoint("TOPLEFT", 20, -320)
 
   UIDropDownMenu_Initialize(itemQualityDropdownMenu, me.InitializeDropdownMenu)
-end
-
---[[
-  Create a slider for changing the size of the gearSlots
-
-  @param {table} frame
-]]--
-function me.CreateSizeSlider(frame)
-  local sizeSlider = CreateFrame(
-    "Slider",
-    RGGM_CONSTANTS.ELEMENT_GENERAL_SIZE_SLIDER,
-    frame,
-    "OptionsSliderTemplate"
-  )
-  sizeSlider:SetWidth(RGGM_CONSTANTS.GENERAL_SIZE_SLIDER_WIDTH)
-  sizeSlider:SetHeight(RGGM_CONSTANTS.GENERAL_SIZE_SLIDER_HEIGHT)
-  sizeSlider:SetOrientation('HORIZONTAL')
-  sizeSlider:SetPoint("TOPLEFT", 20, -380)
-  sizeSlider:SetMinMaxValues(RGGM_CONSTANTS.GENERAL_SIZE_SLIDER_MIN, RGGM_CONSTANTS.GENERAL_SIZE_SLIDER_MAX)
-  sizeSlider:SetValueStep(RGGM_CONSTANTS.QUICK_CHANGE_DELAY_SLIDER_STEP)
-  sizeSlider:SetObeyStepOnDrag(true)
-  sizeSlider:SetValue(mod.configuration.GetSlotSize())
-
-  -- Update slider texts
-  _G[sizeSlider:GetName() .. "Low"]:SetText(RGGM_CONSTANTS.GENERAL_SIZE_SLIDER_MIN)
-  _G[sizeSlider:GetName() .. "High"]:SetText(RGGM_CONSTANTS.GENERAL_SIZE_SLIDER_MAX)
-  _G[sizeSlider:GetName() .. "Text"]:SetText(rggm.L["size_slider_title"])
-  sizeSlider.tooltipText = rggm.L["size_slider_tooltip"]
-
-  local valueFontString = sizeSlider:CreateFontString(nil, "OVERLAY")
-  valueFontString:SetFont(STANDARD_TEXT_FONT, 12)
-  valueFontString:SetPoint("BOTTOM", 0, -15)
-  valueFontString:SetText(sizeSlider:GetValue())
-
-  sizeSlider.valueFontString = valueFontString
-  sizeSlider:SetScript("OnValueChanged", me.SizeSliderOnValueChange)
-end
-
---[[
-  OnValueChanged callback for size slider
-
-  @param {table} self
-  @param {number} value
-]]--
-function me.SizeSliderOnValueChange(self, value)
-  mod.configuration.SetSlotSize(value)
-
-  --[[
-    Update the gearBar and all of its slots. This includes the combatQueue and cooldown frames.
-  ]]--
-  mod.gearBar.UpdateGearBar()
-
-  --[[
-    Updating only the size of the changemenuslots and not the changeMenu that contains
-    those slots. The menu itself will automatically update once the player hovers over an
-    gearslot and those values need to be recalculated.
-  ]]--
-  mod.changeMenu.UpdateChangeMenuSlotSize()
-
-  self.valueFontString:SetText(value)
-end
-
---[[
-  OnShow callback for checkbuttons - window lock gearBar
-
-  @param {table} self
-]]--
-function me.LockWindowGearBarOnShow(self)
-  if mod.configuration.IsGearBarLocked() then
-    self:SetChecked(true)
-  else
-    self:SetChecked(false)
-  end
-end
-
---[[
-  OnClick callback for checkbuttons - window lock gearBar
-
-  @param {table} self
-]]--
-function me.LockWindowGearBarOnClick(self)
-  local enabled = self:GetChecked()
-
-  if enabled then
-    mod.configuration.LockGearBar()
-  else
-    mod.configuration.UnlockGearBar()
-  end
-end
-
---[[
-  OnShow callback for checkbuttons - show keyBindings
-
-  @param {table} self
-]]--
-function me.ShowKeyBindingsOnShow(self)
-  if mod.configuration.IsShowKeyBindingsEnabled() then
-    self:SetChecked(true)
-  else
-    self:SetChecked(false)
-  end
-end
-
---[[
-  OnClick callback for checkbuttons - show keyBindings
-
-  @param {table} self
-]]--
-function me.ShowKeyBindingsOnClick(self)
-  local enabled = self:GetChecked()
-
-  if enabled then
-    mod.configuration.EnableShowKeyBindings()
-  else
-    mod.configuration.DisableShowKeyBindings()
-  end
 end
 
 --[[

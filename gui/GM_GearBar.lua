@@ -234,12 +234,7 @@ function me.CreateKeyBindingText(gearSlot)
   keybindingFontString:SetTextColor(1, 1, 1, 1)
   keybindingFontString:SetPoint("TOP", 0, 1)
   keybindingFontString:SetSize(gearSlot:GetWidth(), 20)
-
-  if mod.configuration.IsShowKeyBindingsEnabled() then
-    keybindingFontString:Show()
-  else
-    keybindingFontString:Hide()
-  end
+  keybindingFontString:Hide()
 
   return keybindingFontString
 end
@@ -295,7 +290,7 @@ function me.UpdateGearBar(gearBar)
     uiGearSlot:SetAttribute("type1", "item")
     uiGearSlot:SetAttribute("item", gearSlotMetaData.slotId)
 
-    me.UpdateKeyBindingAppearance(uiGearSlot.keyBindingText, gearSlotMetaData.keyBinding)
+    me.UpdateKeyBindingAppearance(gearBar, uiGearSlot.keyBindingText, gearSlotMetaData.keyBinding)
     me.UpdateTexture(uiGearSlot, gearSlotMetaData)
     mod.uiHelper.UpdateSlotTextureAttributes(uiGearSlot)
     me.UpdateGearSlotSize(gearBar, uiGearSlot)
@@ -497,67 +492,21 @@ end
 --[[
   Update the keyBinding text and size of the fontstring
 
+  @param {table} gearBar
   @param {string} keybindingFontString
   @param {string} keyBindingText
 ]]--
-function me.UpdateKeyBindingAppearance(keybindingFontString, keyBindingText)
-  keybindingFontString:SetFont(
-    STANDARD_TEXT_FONT,
-    mod.configuration.GetSlotSize() * RGGM_CONSTANTS.GEAR_BAR_CHANGE_KEYBIND_TEXT_MODIFIER,
-    "THICKOUTLINE"
-  )
-  keybindingFontString:SetText(keyBindingText)
-end
-
---[[
-  Show keybindings for all registered items
-]]--
-function me.ShowKeyBindings()
-  local uiGearBars = mod.gearBarStorage.GetGearBars()
-
-  for _, uiGearBar in pairs(uiGearBars) do
-    for _, gearSlot in pairs(uiGearBar.gearSlotReferences) do
-      gearSlot.keyBindingText:Show()
-    end
-  end
-end
-
---[[
-  Hide keybindings for all registered items
-]]--
-function me.HideKeyBindings()
-  local uiGearBars = mod.gearBarStorage.GetGearBars()
-
-  for _, uiGearBar in pairs(uiGearBars) do
-    for _, gearSlot in pairs(uiGearBar.gearSlotReferences) do
-      gearSlot.keyBindingText:Hide()
-    end
-  end
-end
-
---[[
-  Hide cooldowns for worn items
-]]--
-function me.HideCooldowns()
-  local uiGearBars = mod.gearBarStorage.GetGearBars()
-
-  for _, uiGearBar in pairs(uiGearBars) do
-    for _, gearSlot in pairs(uiGearBar.gearSlotReferences) do
-      gearSlot.cooldownOverlay:Hide()
-    end
-  end
-end
-
---[[
-  Show cooldowns for worn items
-]]--
-function me.ShowCooldowns()
-  local uiGearBars = mod.gearBarStorage.GetGearBars()
-
-  for _, uiGearBar in pairs(uiGearBars) do
-    for _, gearSlot in pairs(uiGearBar.gearSlotReferences) do
-      gearSlot.cooldownOverlay:Show()
-    end
+function me.UpdateKeyBindingAppearance(gearBar, keybindingFontString, keyBindingText)
+  if mod.gearBarManager.IsShowKeyBindingsEnabled(gearBar.id) then
+    keybindingFontString:SetFont(
+      STANDARD_TEXT_FONT,
+      mod.configuration.GetSlotSize() * RGGM_CONSTANTS.GEAR_BAR_CHANGE_KEYBIND_TEXT_MODIFIER,
+      "THICKOUTLINE"
+    )
+    keybindingFontString:SetText(keyBindingText)
+    keybindingFontString:Show()
+  else
+    keybindingFontString:Hide()
   end
 end
 

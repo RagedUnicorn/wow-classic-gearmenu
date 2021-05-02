@@ -176,11 +176,6 @@ function me.Initialize()
   me.ticker.StartTickerGearSlotCooldown()
   me.ticker.StartTickerChangeMenuGearSlotCooldown()
 
-  -- start ticker range check
-  if me.configuration.IsShowKeyBindingsEnabled() then
-    -- me.ticker.StartTickerRangeCheck()
-  end
-
   -- update initial view of gearBars after addon initialization
   me.gearBar.UpdateGearBars()
 

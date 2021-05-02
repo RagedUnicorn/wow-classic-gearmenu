@@ -49,6 +49,7 @@ function me.AddGearBar(gearBarName)
     ["id"] = 100000 + math.floor(math.random() * 100000),
     ["displayName"] = gearBarName,
     ["isLocked"] = false,
+    ["showKeyBindings"] = true,
     ["slots"] = {},
     ["slotSize"] = RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE,
     ["position"] = { -- default position
@@ -171,6 +172,45 @@ function me.IsGearBarLocked(gearBarId)
   local gearBar = me.GetGearBar(gearBarId)
 
   return gearBar.isLocked
+end
+
+--[[
+  Show keybindings
+
+  @param {number} gearBarId
+]]--
+function me.EnableShowKeyBindings(gearBarId)
+  local gearBar = me.GetGearBar(gearBarId)
+
+  gearBar.showKeyBindings = true
+  mod.gearBar.UpdateGearBar(gearBar)
+  -- mod.ticker.StartTickerRangeCheck() TODO
+end
+
+--[[
+  Hide keybindings
+
+  @param {number} gearBarId
+]]--
+function me.DisableShowKeyBindings(gearBarId)
+  local gearBar = me.GetGearBar(gearBarId)
+
+  gearBar.showKeyBindings = false
+  mod.gearBar.UpdateGearBar(gearBar)
+  -- mod.ticker.StopTickerRangeCheck() TODO
+end
+
+--[[
+  @param {number} gearBarId
+
+  @return {boolean}
+    true - if showing of keybindings is enabled
+    false - if showing of keybindings is disabled
+]]--
+function me.IsShowKeyBindingsEnabled(gearBarId)
+  local gearBar = me.GetGearBar(gearBarId)
+
+  return gearBar.showKeyBindings
 end
 
 --[[
