@@ -573,7 +573,7 @@ end
   @param {table} self
 ]]--
 function me.StartDragFrame(self)
-  -- if mod.configuration.IsGearBarLocked() then return end TODO
+  if mod.gearBarManager.IsGearBarLocked(self.id) then return end
 
   self:StartMoving()
 end
@@ -584,7 +584,8 @@ end
   @param {table} self
 ]]--
 function me.StopDragFrame(self)
-  -- if mod.configuration.IsGearBarLocked() then return end TODO
+  if mod.gearBarManager.IsGearBarLocked(self.id) then return end
+
   self:StopMovingOrSizing()
 
   local point, relativeTo, relativePoint, posX, posY = self:GetPoint()
