@@ -46,7 +46,7 @@ me.tag = "GearBarManager"
 ]]--
 function me.AddGearBar(gearBarName)
   local gearBar = {
-    ["id"] = math.floor(math.random() * 100000), -- TODO check for a better randomisation (length is variable currently)
+    ["id"] = 100000 + math.floor(math.random() * 100000),
     ["displayName"] = gearBarName,
     ["isLocked"] = false,
     ["slots"] = {},
