@@ -118,6 +118,7 @@ function me.BuildGearBarConfigurationMenu(parentFrame)
 
   me.CreateAddGearSlotButton(gearBarConfigurationContentFrame)
   me.CreateLockGearBarCheckButton(gearBarConfigurationContentFrame)
+  me.CreateSizeSlider(gearBarConfigurationContentFrame)
 
   gearBarConfigurationSlotsList = me.CreateGearBarConfigurationSlotsList(gearBarConfigurationContentFrame)
   me.GearBarConfigurationSlotsListOnUpdate(gearBarConfigurationSlotsList)
@@ -142,7 +143,7 @@ function me.CreateAddGearSlotButton(parentFrame)
 
   button:SetHeight(RGGM_CONSTANTS.BUTTON_DEFAULT_HEIGHT)
   button:SetText(rggm.L["gear_bar_configuration_add_gearslot"])
-  button:SetPoint("TOPLEFT", 20, -170)
+  button:SetPoint("TOPLEFT", 20, -210)
   button:SetScript('OnClick', me.AddGearSlot)
   -- Attach gearBarId to the button
   button.gearBarId = parentFrame.gearBarId
@@ -192,7 +193,7 @@ function me.CreateLockGearBarCheckButton(parentFrame)
     RGGM_CONSTANTS.GENERAL_CHECK_OPTION_SIZE,
     RGGM_CONSTANTS.GENERAL_CHECK_OPTION_SIZE
   )
-  checkButtonOptionFrame:SetPoint("TOPLEFT", 20, -100)
+  checkButtonOptionFrame:SetPoint("TOPLEFT", 20, -50)
 
   for _, region in ipairs({checkButtonOptionFrame:GetRegions()}) do
     if string.find(region:GetName() or "", "Text$") and region:IsObjectType("FontString") then
@@ -266,6 +267,73 @@ function me.OptTooltipOnLeave()
 end
 
 --[[
+  Create a slider for changing the size of the gearSlots
+
+  @param {table} frame
+]]--
+function me.CreateSizeSlider(frame)
+  local sizeSlider = CreateFrame(
+    "Slider",
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SIZE_SLIDER,
+    frame,
+    "OptionsSliderTemplate"
+  )
+  sizeSlider:SetWidth(RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_WIDTH)
+  sizeSlider:SetHeight(RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_HEIGHT)
+  sizeSlider:SetOrientation('HORIZONTAL')
+  sizeSlider:SetPoint("TOPLEFT", 20, -150)
+  sizeSlider:SetMinMaxValues(
+    RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_MIN,
+    RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_MAX
+  )
+  sizeSlider:SetValueStep(RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_STEP)
+  sizeSlider:SetObeyStepOnDrag(true)
+  sizeSlider:SetValue(RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE)
+
+  -- Update slider texts
+  _G[sizeSlider:GetName() .. "Low"]:SetText(RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_MIN)
+  _G[sizeSlider:GetName() .. "High"]:SetText(RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_MAX)
+  _G[sizeSlider:GetName() .. "Text"]:SetText(rggm.L["size_slider_title"])
+  sizeSlider.tooltipText = rggm.L["size_slider_tooltip"]
+
+  local valueFontString = sizeSlider:CreateFontString(nil, "OVERLAY")
+  valueFontString:SetFont(STANDARD_TEXT_FONT, 12)
+  valueFontString:SetPoint("BOTTOM", 0, -15)
+  valueFontString:SetText(sizeSlider:GetValue())
+
+  sizeSlider.valueFontString = valueFontString
+  sizeSlider:SetScript("OnValueChanged", me.GearSlotSizeSliderOnValueChange)
+  sizeSlider:SetScript("OnShow", me.GearSlotSizeSliderOnShow)
+
+  -- load initial state
+  me.GearSlotSizeSliderOnShow(sizeSlider)
+end
+
+--[[
+  OnValueChanged callback for size slider
+
+  @param {table} self
+  @param {number} value
+]]--
+function me.GearSlotSizeSliderOnValueChange(self, value)
+  local gearBarId = self:GetParent():GetParent().gearBarId
+
+  mod.gearBarManager.SetGearSlotSize(gearBarId, value)
+  self.valueFontString:SetText(value)
+end
+
+--[[
+  Invoked when the gearSlot size slider is shown. Updates the configured value
+
+  @param {table} self
+]]--
+function me.GearSlotSizeSliderOnShow(self)
+  local gearBarId = self:GetParent():GetParent().gearBarId
+
+  self:SetValue(mod.gearBarManager.GetGearSlotSize(gearBarId))
+end
+
+--[[
   @param {table} parentFrame
 
   @return {table}
@@ -290,7 +358,7 @@ function me.CreateGearBarConfigurationSlotsList(parentFrame)
     RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_ROW_HEIGHT
     * RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_MAX_ROWS
   )
-  scrollFrame:SetPoint("TOPLEFT", 20, -200)
+  scrollFrame:SetPoint("TOPLEFT", 20, -240)
   scrollFrame:EnableMouseWheel(true)
   scrollFrame:SetBackdrop({
     bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",

@@ -50,6 +50,7 @@ function me.AddGearBar(gearBarName)
     ["displayName"] = gearBarName,
     ["isLocked"] = false,
     ["slots"] = {},
+    ["slotSize"] = RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE,
     ["position"] = { -- default position
       ["point"] = RGGM_CONSTANTS.GEAR_BAR_DEFAULT_POSITION[1],
       ["posX"] = RGGM_CONSTANTS.GEAR_BAR_DEFAULT_POSITION[2],
@@ -170,6 +171,43 @@ function me.IsGearBarLocked(gearBarId)
   local gearBar = me.GetGearBar(gearBarId)
 
   return gearBar.isLocked
+end
+
+--[[
+  Update the gearbar slotSize in the gearBars configuration and invoke an ui
+  update of the specific gearBar
+
+  @param {number} gearBarId
+    An id of a gearBar
+  @param {number} slotSize
+]]--
+function me.SetGearSlotSize(gearBarId, slotSize)
+  local gearBar = me.GetGearBar(gearBarId)
+  if gearBar then
+    gearBar.slotSize = slotSize
+    mod.gearBar.UpdateGearBar(gearBar)
+  else
+    mod.logger.LogError(me.tag, "Failed to update the gearSlotSize of the gearBar with id: " .. gearBarId)
+  end
+end
+
+--[[
+  Get the configured gearbar slotsize
+
+  @param {number} gearBarId
+    An id of a gearBar
+
+  @return {number}
+]]--
+function me.GetGearSlotSize(gearBarId)
+  local gearBar = me.GetGearBar(gearBarId)
+
+  if gearBar then
+    return gearBar.slotSize
+  else
+    mod.logger.LogError(me.tag, "Failed to retrieve gearSlotSize. Using default size")
+    return RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE
+  end
 end
 
 --[[

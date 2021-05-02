@@ -22,8 +22,7 @@ rggm.L["issues"] = "Issues: https://github.com/RagedUnicorn/wow-classic-gearmenu
 -- general
 rggm.L["general_category_name"] = "General"
 rggm.L["general_title"] = "General Configuration"
-rggm.L["window_lock_gear_bar"] = "Lock GearBar"
-rggm.L["window_lock_gear_bar_tooltip"] = "Prevents GearBar frame from being moved"
+
 rggm.L["show_keybindings"] = "Show Key Bindings"
 rggm.L["show_keybindings_tooltip"] = "Display the key bindings over the equipped items"
 rggm.L["show_cooldowns"] = "Show Cooldowns"
@@ -44,9 +43,6 @@ rggm.L["item_quality_uncommon"] = "Uncommon (Green)"
 rggm.L["item_quality_rare"] = "Rare (Blue)"
 rggm.L["item_quality_epic"] = "Epic (Purple)"
 rggm.L["item_quality_legendary"] = "Legendary (Orange)"
-rggm.L["size_slider_title"] = "Gearslot size"
-rggm.L["size_slider_tooltip"] = "Modify the size of the Gearslots. Different elements will also adapt to the "
-  .. "size of the Gearslot"
 
 -- gearslots
 rggm.L["gearslot_category_name"] = "Gearslots"
@@ -89,11 +85,17 @@ rggm.L["gear_bar_configuration_add_gearbar"] = "Create new GearBar"
 rggm.L["gear_bar_choose_name"] = "Choose a name for the new GearBar"
 rggm.L["gear_bar_choose_name_accept_button"] = "Accept"
 rggm.L["gear_bar_choose_name_cancel_button"] = "Cancel"
-
+-- gearbar options
+rggm.L["window_lock_gear_bar"] = "Lock GearBar"
+rggm.L["window_lock_gear_bar_tooltip"] = "Prevents GearBar frame from being moved"
+rggm.L["size_slider_title"] = "Gearslot size"
+rggm.L["size_slider_tooltip"] = "Modify the size of the Gearslots. Different elements will also adapt to the "
+  .. "size of the Gearslot"
+-- add/remove slots
 rggm.L["gear_bar_configuration_add_gearslot"] = "Add Gearslot"
 rggm.L["gear_bar_configuration_remove_gearslot"] = " - "
 rggm.L["gear_bar_configuration_delete_gearbar"] = "Delete GearBar"
-
+-- gearbar scrollmenu
 rggm.L["gear_bar_configuration_key_binding_button"] = "Set/Unset Keybinding"
 rggm.L["gear_bar_configuration_key_binding_not_set"] = "No Keybind Set"
 rggm.L["gear_bar_configuration_key_binding_dialog"] = "Set Keybinding to: "

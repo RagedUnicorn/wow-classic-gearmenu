@@ -271,7 +271,6 @@ function me.UpdateGearBar(gearBar)
     return
   end
 
-  local gearBarSlotSize = mod.configuration.GetSlotSize()
   local uiGearBar = mod.gearBarStorage.GetGearBar(gearBar.id)
 
   if gearBar.isLocked then
@@ -299,15 +298,8 @@ function me.UpdateGearBar(gearBar)
     me.UpdateKeyBindingAppearance(uiGearSlot.keyBindingText, gearSlotMetaData.keyBinding)
     me.UpdateTexture(uiGearSlot, gearSlotMetaData)
     mod.uiHelper.UpdateSlotTextureAttributes(uiGearSlot)
+    me.UpdateGearSlotSize(gearBar, uiGearSlot)
 
-    -- update slotsize to match configuration
-    uiGearSlot:SetSize(gearBarSlotSize, gearBarSlotSize)
-    uiGearSlot.cooldownOverlay:SetSize(gearBarSlotSize, gearBarSlotSize)
-    uiGearSlot.cooldownOverlay:GetRegions()
-      :SetFont(
-        STANDARD_TEXT_FONT,
-        mod.configuration.GetSlotSize() * RGGM_CONSTANTS.GEAR_BAR_CHANGE_COOLDOWN_TEXT_MODIFIER
-      )
     uiGearSlot:Show() -- finally make the slot visible
   end
 
@@ -322,21 +314,38 @@ function me.UpdateGearBar(gearBar)
     end
   end
 
-  me.UpdateGearBarSize(gearBar.id)
+  me.UpdateGearBarSize(gearBar)
+end
+
+--[[
+  Update the gearSlotSize to the configured one
+
+  @param {number} gearBar
+  @param {table} uiGearSlot
+]]--
+function me.UpdateGearSlotSize(gearBar, uiGearSlot)
+  -- update slotsize to match configuration
+  uiGearSlot:SetSize(gearBar.slotSize, gearBar.slotSize)
+  uiGearSlot.cooldownOverlay:SetSize(gearBar.slotSize, gearBar.slotSize)
+  uiGearSlot.cooldownOverlay:GetRegions()
+    :SetFont(
+      STANDARD_TEXT_FONT,
+      gearBar.slotSize * RGGM_CONSTANTS.GEAR_BAR_CHANGE_COOLDOWN_TEXT_MODIFIER
+    )
 end
 
 --[[
   Update gearBar in cases such as a new gearSlot was added or one was removed. Should
   always be called after me.UpdateGearSlots otherwise the size calculation will be off.
 
-  @param {number} gearBarId
+  @param {number} gearBar
 ]]--
-function me.UpdateGearBarSize(gearBarId)
-  local gearBarUi = mod.gearBarStorage.GetGearBar(gearBarId)
+function me.UpdateGearBarSize(gearBar)
+  local gearBarUi = mod.gearBarStorage.GetGearBar(gearBar.id)
   local slotAmount = #gearBarUi.gearSlotReferences
-  local gearBarSlotSize = mod.configuration.GetSlotSize()
 
-  gearBarUi.gearBarReference:SetWidth(slotAmount * gearBarSlotSize + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN)
+  gearBarUi.gearBarReference:SetWidth(slotAmount * gearBar.slotSize + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN)
+  gearBarUi.gearBarReference:SetHeight(slotAmount * gearBar.slotSize)
 end
 
 --[[
