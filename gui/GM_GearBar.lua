@@ -475,7 +475,7 @@ function me.UpdateGearSlotCooldown()
           local itemId = GetInventoryItemID(RGGM_CONSTANTS.UNIT_ID_PLAYER, gearSlotMetaData.slotId)
 
           if itemId ~= nil then
-            if mod.configuration.IsShowCooldownsEnabled() then
+            if mod.gearBarManager.IsShowCooldownsEnabled(gearBarId) then
               local startTime, duration = GetItemCooldown(itemId)
 
               gearSlot.cooldownOverlay:SetCooldown(startTime, duration)

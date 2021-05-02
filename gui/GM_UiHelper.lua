@@ -167,20 +167,3 @@ function me.CreateDropdownButton(text, value, callback)
 
   return button
 end
-
---[[
-  Hide cooldowns for both bagged and worn items
-]]--
-function me.HideCooldowns()
-  mod.gearBar.HideCooldowns()
-  mod.gearBarChangeMenu.HideCooldowns()
-end
-
---[[
-  Show cooldowns for both bagged and worn items
-]]--
-function me.ShowCooldowns()
-  mod.gearBar.ShowCooldowns()
-  mod.gearBar.UpdateGearSlotCooldown()
-  mod.gearBarChangeMenu.ShowCooldowns()
-end

@@ -35,7 +35,6 @@ me.tag = "GeneralMenu"
   Option texts for checkbutton options
 ]]--
 local options = {
-  {"ShowCooldowns", rggm.L["show_cooldowns"], rggm.L["show_cooldowns_tooltip"]},
   {"EnableTooltips", rggm.L["enable_tooltips"], rggm.L["enable_tooltips_tooltip"]},
   {"EnableSimpleTooltips", rggm.L["enable_simple_tooltips"], rggm.L["enable_simple_tooltips_tooltip"]},
   {"EnableDragAndDrop", rggm.L["enable_drag_and_drop"], rggm.L["enable_drag_and_drop_tooltip"]},
@@ -62,18 +61,9 @@ function me.BuildUi(frame)
 
   me.BuildCheckButtonOption(
     frame,
-    RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_SHOW_COOLDOWNS,
-    20,
-    -80,
-    me.ShowCooldownsOnShow,
-    me.ShowCooldownsOnClick
-  )
-
-  me.BuildCheckButtonOption(
-    frame,
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_TOOLTIPS,
     20,
-    -110,
+    -80,
     me.EnableTooltipsOnShow,
     me.EnableTooltipsOnClick
   )
@@ -82,7 +72,7 @@ function me.BuildUi(frame)
     frame,
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_SIMPLE_TOOLTIPS,
     20,
-    -140,
+    -110,
     me.EnableSimpleTooltipsOnShow,
     me.EnableSimpleTooltipsOnClick
   )
@@ -91,7 +81,7 @@ function me.BuildUi(frame)
     frame,
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_DRAG_AND_DROP,
     20,
-    -170,
+    -140,
     me.EnableDragAndDropOnShow,
     me.EnableDragAndDropOnClick
   )
@@ -100,7 +90,7 @@ function me.BuildUi(frame)
     frame,
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_FASTPRESS,
     20,
-    -200,
+    -170,
     me.EnableFastPressOnShow,
     me.EnableFastPressOnClick
   )
@@ -199,7 +189,7 @@ function me.CreateItemQualityLabel(frame)
     RGGM_CONSTANTS.ELEMENT_GENERAL_LABEL_FILTER_ITEM_QUALITY,
     "OVERLAY"
   )
-  filterItemQualityLabel:SetPoint("TOPLEFT", 20, -300)
+  filterItemQualityLabel:SetPoint("TOPLEFT", 20, -220)
   filterItemQualityLabel:SetFont(STANDARD_TEXT_FONT, 12)
   filterItemQualityLabel:SetTextColor(1, 1, 1)
   filterItemQualityLabel:SetText(rggm.L["filter_item_quality"])
@@ -215,37 +205,9 @@ function me.CreateItemQualityDropdown(frame)
     frame,
     "UIDropDownMenuTemplate"
   )
-  itemQualityDropdownMenu:SetPoint("TOPLEFT", 20, -320)
+  itemQualityDropdownMenu:SetPoint("TOPLEFT", 20, -240)
 
   UIDropDownMenu_Initialize(itemQualityDropdownMenu, me.InitializeDropdownMenu)
-end
-
---[[
-  OnShow callback for checkbuttons - show cooldowns
-
-  @param {table} self
-]]--
-function me.ShowCooldownsOnShow(self)
-  if mod.configuration.IsShowCooldownsEnabled() then
-    self:SetChecked(true)
-  else
-    self:SetChecked(false)
-  end
-end
-
---[[
-  OnClick callback for checkbuttons - show cooldowns
-
-  @param {table} self
-]]--
-function me.ShowCooldownsOnClick(self)
-  local enabled = self:GetChecked()
-
-  if enabled then
-    mod.configuration.EnableShowCooldowns()
-  else
-    mod.configuration.DisableShowCooldowns()
-  end
 end
 
 --[[

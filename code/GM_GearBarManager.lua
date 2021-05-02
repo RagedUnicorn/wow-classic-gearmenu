@@ -50,6 +50,7 @@ function me.AddGearBar(gearBarName)
     ["displayName"] = gearBarName,
     ["isLocked"] = false,
     ["showKeyBindings"] = true,
+    ["showCooldowns"] = true,
     ["slots"] = {},
     ["slotSize"] = RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE,
     ["position"] = { -- default position
@@ -172,6 +173,83 @@ function me.IsGearBarLocked(gearBarId)
   local gearBar = me.GetGearBar(gearBarId)
 
   return gearBar.isLocked
+end
+
+--[[
+  Show keybindings
+
+  @param {number} gearBarId
+]]--
+function me.EnableShowKeyBindings(gearBarId)
+  local gearBar = me.GetGearBar(gearBarId)
+
+  gearBar.showKeyBindings = true
+  mod.gearBar.UpdateGearBar(gearBar)
+  -- mod.ticker.StartTickerRangeCheck() TODO
+end
+
+--[[
+  Hide keybindings
+
+  @param {number} gearBarId
+]]--
+function me.DisableShowKeyBindings(gearBarId)
+  local gearBar = me.GetGearBar(gearBarId)
+
+  gearBar.showKeyBindings = false
+  mod.gearBar.UpdateGearBar(gearBar)
+  -- mod.ticker.StopTickerRangeCheck() TODO
+end
+
+--[[
+  @param {number} gearBarId
+
+  @return {boolean}
+    true - if showing of keybindings is enabled
+    false - if showing of keybindings is disabled
+]]--
+function me.IsShowKeyBindingsEnabled(gearBarId)
+  local gearBar = me.GetGearBar(gearBarId)
+
+  return gearBar.showKeyBindings
+end
+
+--[[
+  Show cooldowns
+
+  @param {number} gearBarId
+]]--
+function me.EnableShowCooldowns(gearBarId)
+  local gearBar = me.GetGearBar(gearBarId)
+
+  gearBar.showCooldowns = true
+  mod.gearBar.UpdateGearBar(gearBar)
+end
+
+--[[
+  Hide cooldowns
+
+  @param {number} gearBarId
+]]--
+function me.DisableShowCooldowns(gearBarId)
+  local gearBar = me.GetGearBar(gearBarId)
+
+  gearBar.showCooldowns = false
+  mod.gearBar.UpdateGearBar(gearBar)
+  GearMenuConfiguration.showCooldowns = false
+end
+
+--[[
+  @param {number} gearBarId
+
+  @return {boolean}
+    true - if showing of cooldown is enabled
+    false - if showing of cooldown is disabled
+]]--
+function me.IsShowCooldownsEnabled(gearBarId)
+  local gearBar = me.GetGearBar(gearBarId)
+
+  return gearBar.showCooldowns
 end
 
 --[[

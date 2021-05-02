@@ -68,7 +68,8 @@ local gearBarConfiguration = nil
 ]]--
 local options = {
   {"LockGearBar", rggm.L["window_lock_gear_bar"], rggm.L["window_lock_gear_bar_tooltip"]},
-  {"ShowKeyBindings", rggm.L["show_keybindings"], rggm.L["show_keybindings_tooltip"]}
+  {"ShowKeyBindings", rggm.L["show_keybindings"], rggm.L["show_keybindings_tooltip"]},
+  {"ShowCooldowns", rggm.L["show_cooldowns"], rggm.L["show_cooldowns_tooltip"]}
 }
 
 --[[
@@ -134,6 +135,14 @@ function me.BuildGearBarConfigurationMenu(parentFrame)
     {"TOPLEFT", 20, -80},
     me.ShowKeyBindingsOnShow,
     me.ShowKeyBindingsOnClick
+  )
+
+  me.BuildCheckButtonOption(
+    gearBarConfigurationContentFrame,
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_OPT_SHOW_COOLDOWNS,
+    {"TOPLEFT", 20, -110},
+    me.ShowCooldownsOnShow,
+    me.ShowCooldownsOnClick
   )
 
   me.CreateSizeSlider(gearBarConfigurationContentFrame)
@@ -329,6 +338,35 @@ function me.ShowKeyBindingsOnClick(self)
     mod.gearBarManager.EnableShowKeyBindings(gearBarId)
   else
     mod.gearBarManager.DisableShowKeyBindings(gearBarId)
+  end
+end
+
+--[[
+  OnShow callback for checkbuttons - show cooldowns
+
+  @param {table} self
+]]--
+function me.ShowCooldownsOnShow(self)
+  if mod.gearBarManager.IsShowCooldownsEnabled(self:GetParent():GetParent().gearBarId) then
+    self:SetChecked(true)
+  else
+    self:SetChecked(false)
+  end
+end
+
+--[[
+  OnClick callback for checkbuttons - show cooldowns
+
+  @param {table} self
+]]--
+function me.ShowCooldownsOnClick(self)
+  local enabled = self:GetChecked()
+  local gearBarId = self:GetParent():GetParent().gearBarId
+
+  if enabled then
+    mod.gearBarManager.EnableShowCooldowns(gearBarId)
+  else
+    mod.gearBarManager.DisableShowCooldowns(gearBarId)
   end
 end
 

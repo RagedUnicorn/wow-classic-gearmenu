@@ -250,31 +250,6 @@ function me.SetAddonVersion()
 end
 
 --[[
-  Show cooldowns
-]]--
-function me.EnableShowCooldowns()
-  GearMenuConfiguration.showCooldowns = true
-  mod.uiHelper.ShowCooldowns()
-end
-
---[[
-  Hide cooldowns
-]]--
-function me.DisableShowCooldowns()
-  GearMenuConfiguration.showCooldowns = false
-  mod.uiHelper.HideCooldowns()
-end
-
---[[
-  @return {boolean}
-    true - if showing of cooldown is enabled
-    false - if showing of cooldown is disabled
-]]--
-function me.IsShowCooldownsEnabled()
-  return GearMenuConfiguration.showCooldowns
-end
-
---[[
   Enable tooltips
 ]]--
 function me.EnableTooltips()

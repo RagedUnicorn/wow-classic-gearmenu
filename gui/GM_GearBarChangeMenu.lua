@@ -199,6 +199,7 @@ function me.UpdateChangeMenu(gearSlotPosition, gearBarId)
     me.UpdateChangeMenuPosition(
       mod.gearBarStorage.GetGearBar(gearBarId).gearSlotReferences[gearSlotPosition]
     )
+
     me.UpdateChangeMenuGearSlotCooldown()
 
     mod.ticker.StartTickerChangeMenu()
@@ -207,6 +208,13 @@ function me.UpdateChangeMenu(gearSlotPosition, gearBarId)
     changeMenuFrame.gearBarId = gearBarId
     -- update changeMenuFrame's gearSlot position to the currently hovered gearSlot
     changeMenuFrame.gearSlotPosition = gearSlotPosition
+
+    -- cache whether cooldowns should be shown in the changemenu or not
+    if mod.gearBarManager.IsShowCooldownsEnabled(gearBarId) then
+      changeMenuFrame.showCooldowns = true
+    else
+      changeMenuFrame.showCooldowns = false
+    end
 
     local gearBarUi = mod.gearBarStorage.GetGearBar(gearBarId)
 
@@ -265,11 +273,14 @@ end
 
 --[[
   Updates the cooldown representations of all items in the changeMenu
+
+  @param {number} gearBarId
+    The id of the hovered gearBar
 ]]--
 function me.UpdateChangeMenuGearSlotCooldown()
   for _, changeMenuSlot in pairs(changeMenuSlots) do
     if changeMenuSlot.itemId ~= nil then
-      if mod.configuration.IsShowCooldownsEnabled() then
+      if changeMenuFrame.showCooldowns then
         local startTime, duration = GetItemCooldown(changeMenuSlot.itemId)
         changeMenuSlot.cooldownOverlay:SetCooldown(startTime, duration)
       else

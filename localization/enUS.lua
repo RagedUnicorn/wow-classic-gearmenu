@@ -22,11 +22,6 @@ rggm.L["issues"] = "Issues: https://github.com/RagedUnicorn/wow-classic-gearmenu
 -- general
 rggm.L["general_category_name"] = "General"
 rggm.L["general_title"] = "General Configuration"
-
-rggm.L["show_keybindings"] = "Show Key Bindings"
-rggm.L["show_keybindings_tooltip"] = "Display the key bindings over the equipped items"
-rggm.L["show_cooldowns"] = "Show Cooldowns"
-rggm.L["show_cooldowns_tooltip"] = "Display a cooldown for all itemslots"
 rggm.L["enable_tooltips"] = "Enable Tooltips"
 rggm.L["enable_tooltips_tooltip"] = "Whether to show a tooltip when hovering an item or not"
 rggm.L["enable_simple_tooltips"] = "Display simple Tooltips"
@@ -88,6 +83,10 @@ rggm.L["gear_bar_choose_name_cancel_button"] = "Cancel"
 -- gearbar options
 rggm.L["window_lock_gear_bar"] = "Lock GearBar"
 rggm.L["window_lock_gear_bar_tooltip"] = "Prevents GearBar frame from being moved"
+rggm.L["show_keybindings"] = "Show Key Bindings"
+rggm.L["show_keybindings_tooltip"] = "Display the key bindings over the equipped items"
+rggm.L["show_cooldowns"] = "Show Cooldowns"
+rggm.L["show_cooldowns_tooltip"] = "Display a cooldown for all itemslots"
 rggm.L["size_slider_title"] = "Gearslot size"
 rggm.L["size_slider_tooltip"] = "Modify the size of the Gearslots. Different elements will also adapt to the "
   .. "size of the Gearslot"
