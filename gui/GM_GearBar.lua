@@ -138,15 +138,13 @@ function me.BuildGearSlot(gearBarFrame, gearBar, position)
     "SecureActionButtonTemplate"
   )
 
-  local gearBarSlotSize = mod.configuration.GetSlotSize()
-
   gearSlot:SetFrameLevel(gearBarFrame:GetFrameLevel() + 1)
-  gearSlot:SetSize(gearBarSlotSize, gearBarSlotSize)
+  gearSlot:SetSize(RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE, RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE)
   gearSlot:SetPoint(
     "LEFT",
     gearBarFrame,
     "LEFT",
-    RGGM_CONSTANTS.GEAR_BAR_SLOT_X + (position - 1) * gearBarSlotSize,
+    RGGM_CONSTANTS.GEAR_BAR_SLOT_X + (position - 1) * RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE,
     RGGM_CONSTANTS.GEAR_BAR_SLOT_Y
   )
 
@@ -184,7 +182,7 @@ function me.BuildGearSlot(gearBarFrame, gearBar, position)
   mod.uiHelper.CreateCooldownOverlay(
     gearSlot,
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT_COOLDOWN_FRAME,
-    gearBarSlotSize
+    RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE
   )
 
   me.SetupEvents(gearSlot)
@@ -293,7 +291,7 @@ function me.UpdateGearBar(gearBar)
     me.UpdateKeyBindingAppearance(gearBar, uiGearSlot.keyBindingText, gearSlotMetaData.keyBinding)
     me.UpdateTexture(uiGearSlot, gearSlotMetaData)
     mod.uiHelper.UpdateSlotTextureAttributes(uiGearSlot)
-    me.UpdateGearSlotSize(gearBar, uiGearSlot)
+    me.UpdateGearSlotSize(gearBar, uiGearBar, uiGearSlot, index)
 
     uiGearSlot:Show() -- finally make the slot visible
   end
@@ -316,9 +314,11 @@ end
   Update the gearSlotSize to the configured one
 
   @param {number} gearBar
+  @param {table} uiGearBar
   @param {table} uiGearSlot
+  @param {number} position
 ]]--
-function me.UpdateGearSlotSize(gearBar, uiGearSlot)
+function me.UpdateGearSlotSize(gearBar, uiGearBar, uiGearSlot, position)
   -- update slotsize to match configuration
   uiGearSlot:SetSize(gearBar.slotSize, gearBar.slotSize)
   uiGearSlot.cooldownOverlay:SetSize(gearBar.slotSize, gearBar.slotSize)
@@ -327,6 +327,14 @@ function me.UpdateGearSlotSize(gearBar, uiGearSlot)
       STANDARD_TEXT_FONT,
       gearBar.slotSize * RGGM_CONSTANTS.GEAR_BAR_CHANGE_COOLDOWN_TEXT_MODIFIER
     )
+
+  uiGearSlot:SetPoint(
+    "LEFT",
+    uiGearBar.gearBarReference,
+    "LEFT",
+    RGGM_CONSTANTS.GEAR_BAR_SLOT_X + (position - 1) * gearBar.slotSize,
+    RGGM_CONSTANTS.GEAR_BAR_SLOT_Y
+  )
 end
 
 --[[
