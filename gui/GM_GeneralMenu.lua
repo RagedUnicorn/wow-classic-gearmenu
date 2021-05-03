@@ -349,42 +349,18 @@ function me.EnableUnequipSlotOnShow(self)
   end
 end
 
-StaticPopupDialogs["RGGM_ASK_BEFORE_RELOAD"] = {
-  text = rggm.L["confirm_dialog_question"],
-  button1 = "Yes",
-  button2 = "No",
-  OnAccept = function(_, checkBoxReference)
-    local enabled = checkBoxReference:GetChecked()
-
-    if enabled then
-      mod.configuration.DisableUnequipSlot()
-      checkBoxReference:SetChecked(false)
-    else
-      mod.configuration.EnableUnequipSlot()
-      checkBoxReference:SetChecked(true)
-    end
-    ReloadUI()
-  end,
-  whileDead = true,
-  hideOnEscape = true
-}
-
 --[[
   OnClick callback for checkbuttons - enable unequipSlot
 
   @param {table} self
 ]]--
 function me.EnableUnequipSlotOnClick(self)
+  local enabled = self:GetChecked()
   -- force checkbox to keep checked state until the user decided in the dialog what to do
-  if mod.configuration.IsUnequipSlotEnabled() then
-    self:SetChecked(true)
+  if enabled then
+    mod.configuration.EnableUnequipSlot()
   else
-    self:SetChecked(false)
-  end
-
-  local dialog = StaticPopup_Show("RGGM_ASK_BEFORE_RELOAD")
-  if dialog then
-    dialog.data = self -- add reference to clicked checkbox button
+    mod.configuration.DisableUnequipSlot()
   end
 end
 
