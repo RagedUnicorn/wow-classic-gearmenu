@@ -731,12 +731,19 @@ end
 ]]--
 function me.RemoveGearSlot(self)
   local gearBar = mod.gearBarManager.GetGearBar(gearBarConfiguration.id)
+  local gearSlotPosition = self:GetParent().position
 
   if gearBar == nil then
     mod.logger.LogError(me.tag, "Failed to find gearBar with id: " .. gearBarConfiguration.id)
     return
   end
-  mod.logger.LogError(me.tag, "Want to remove position: " .. self:GetParent().position)
+
+  local gearSlot = gearBar.slots[gearSlotPosition]
+
+  if gearSlot.keyBinding ~= nil and gearSlot.keyBinding ~= "" then
+    mod.keyBind.UnsetKeyBindingFromGearSlot(gearSlot)
+  end
+
   if not mod.gearBarManager.RemoveGearSlot(gearBarConfiguration.id, self:GetParent().position) then
     mod.logger.LogError(me.tag, "Failed to remove gearSlot from gearBar with id: " .. gearBarConfiguration.id)
     return

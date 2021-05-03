@@ -123,6 +123,3 @@ function me.AddGearSlot(gearBarId, gearSlotReference)
   table.insert(gearBarUiStorage[gearBarId].gearSlotReferences, gearSlotReference)
   mod.logger.LogDebug(me.tag, "Added new slot to gearBar with id: " .. gearBarId)
 end
-
-
--- TODO remove gearSlot needed?

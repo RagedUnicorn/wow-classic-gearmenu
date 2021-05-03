@@ -303,7 +303,7 @@ function me.UnsetKeyBinding(gearBarId, gearSlotPosition)
   end
 
   mod.logger.LogInfo(me.tag,
-    "Keybinding is nil - resetting gearBar{" .. gearBarId .. "}gearSlot{" .. gearSlotPosition .. "} keybind")
+    "Keybinding - resetting gearBar{" .. gearBarId .. "}gearSlot{" .. gearSlotPosition .. "} keybind")
 
   mod.logger.LogDebug(me.tag, "Current keybinding before resetting: " .. gearSlot.keyBinding)
   SetBinding(gearSlot.keyBinding)
@@ -311,6 +311,29 @@ function me.UnsetKeyBinding(gearBarId, gearSlotPosition)
 
   me.UpdateGearBarConfigurationSubMenu()
   me.AttemptToSaveBindings()
+end
+
+--[[
+  Remove keybinding from slot if the keybinding is ours
+
+  @param {table} gearSlot
+]]--
+function me.UnsetKeyBindingFromGearSlot(gearSlot)
+  local action = GetBindingAction(gearSlot.keyBinding)
+
+  if action ~= "" and action ~= nil then
+    mod.logger.LogInfo(me.tag, "GearSlot has keyBinding set: " .. action)
+
+    local match = string.match(action, RGGM_CONSTANTS.ELEMENT_GEAR_BAR_BASE_FRAME_NAME)
+
+    if match then
+      mod.logger.LogInfo(me.tag, "Action found does match GearMenus keyBinding pattern. Removing...")
+      SetBinding(gearSlot.keyBinding)
+      me.AttemptToSaveBindings()
+    else
+      mod.logger.LogDebug("Action does not match GearMenus keyBinding pattern. Ignoring keyBinding...")
+    end
+  end
 end
 
 --[[
