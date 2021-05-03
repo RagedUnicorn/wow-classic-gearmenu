@@ -80,6 +80,11 @@ rggm.L["gear_bar_configuration_add_gearbar"] = "Create new GearBar"
 rggm.L["gear_bar_choose_name"] = "Choose a name for the new GearBar"
 rggm.L["gear_bar_choose_name_accept_button"] = "Accept"
 rggm.L["gear_bar_choose_name_cancel_button"] = "Cancel"
+rggm.L["gear_bar_remove_button"] = "Remove GearBar"
+rggm.L["gear_bar_confirm_delete"] = "Do you really want to delete this GearBar?"
+rggm.L["gear_bar_confirm_delete_yes_button"] = "Yes"
+rggm.L["gear_bar_confirm_delete_no_button"] = "No"
+
 -- gearbar options
 rggm.L["window_lock_gear_bar"] = "Lock GearBar"
 rggm.L["window_lock_gear_bar_tooltip"] = "Prevents GearBar frame from being moved"
