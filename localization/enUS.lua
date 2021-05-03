@@ -22,12 +22,6 @@ rggm.L["issues"] = "Issues: https://github.com/RagedUnicorn/wow-classic-gearmenu
 -- general
 rggm.L["general_category_name"] = "General"
 rggm.L["general_title"] = "General Configuration"
-rggm.L["window_lock_gear_bar"] = "Lock GearBar"
-rggm.L["window_lock_gear_bar_tooltip"] = "Prevents GearBar frame from being moved"
-rggm.L["show_keybindings"] = "Show Key Bindings"
-rggm.L["show_keybindings_tooltip"] = "Display the key bindings over the equipped items"
-rggm.L["show_cooldowns"] = "Show Cooldowns"
-rggm.L["show_cooldowns_tooltip"] = "Display a cooldown for all itemslots"
 rggm.L["enable_tooltips"] = "Enable Tooltips"
 rggm.L["enable_tooltips_tooltip"] = "Whether to show a tooltip when hovering an item or not"
 rggm.L["enable_simple_tooltips"] = "Display simple Tooltips"
@@ -47,10 +41,6 @@ rggm.L["item_quality_uncommon"] = "Uncommon (Green)"
 rggm.L["item_quality_rare"] = "Rare (Blue)"
 rggm.L["item_quality_epic"] = "Epic (Purple)"
 rggm.L["item_quality_legendary"] = "Legendary (Orange)"
-rggm.L["size_slider_title"] = "Gearslot size"
-rggm.L["size_slider_tooltip"] = "Modify the size of the Gearslots. Different elements will also adapt to the "
-  .. "size of the Gearslot"
-rggm.L["confirm_dialog_question"] = "This will reload your interface. Do you want to proceed?"
 
 -- gearslots
 rggm.L["gearslot_category_name"] = "Gearslots"
@@ -85,6 +75,44 @@ rggm.L["quick_change_unable_to_remove_rule"] = "Unable to remove rule - Please s
 rggm.L["quick_change_unable_to_add_rule_from"] = "Unable to add new rule - missing a 'From' item"
 rggm.L["quick_change_unable_to_add_rule_to"] = "Unable to add new rule - missing a 'To' item"
 rggm.L["quick_change_unable_to_add_rule_duplicate"] = "Unable to add new rule - A rule for this item already exists"
+
+-- gearbar
+rggm.L["gear_bar_configuration_category_name"] = "GearBar"
+rggm.L["gear_bar_configuration_panel_text"] = "GearBar Configuration"
+rggm.L["gear_bar_configuration_add_gearbar"] = "Create new GearBar"
+rggm.L["gear_bar_choose_name"] = "Choose a name for the new GearBar"
+rggm.L["gear_bar_choose_name_accept_button"] = "Accept"
+rggm.L["gear_bar_choose_name_cancel_button"] = "Cancel"
+rggm.L["gear_bar_remove_button"] = "Remove GearBar"
+rggm.L["gear_bar_confirm_delete"] = "Do you really want to delete this GearBar?"
+rggm.L["gear_bar_confirm_delete_yes_button"] = "Yes"
+rggm.L["gear_bar_confirm_delete_no_button"] = "No"
+
+-- gearbar options
+rggm.L["window_lock_gear_bar"] = "Lock GearBar"
+rggm.L["window_lock_gear_bar_tooltip"] = "Prevents GearBar frame from being moved"
+rggm.L["show_keybindings"] = "Show Key Bindings"
+rggm.L["show_keybindings_tooltip"] = "Display the key bindings over the equipped items"
+rggm.L["show_cooldowns"] = "Show Cooldowns"
+rggm.L["show_cooldowns_tooltip"] = "Display a cooldown for all itemslots"
+rggm.L["size_slider_title"] = "Gearslot size"
+rggm.L["size_slider_tooltip"] = "Modify the size of the Gearslots. Different elements will also adapt to the "
+  .. "size of the Gearslot"
+-- add/remove slots
+rggm.L["gear_bar_configuration_add_gearslot"] = "Add Gearslot"
+rggm.L["gear_bar_configuration_remove_gearslot"] = " - "
+rggm.L["gear_bar_configuration_delete_gearbar"] = "Delete GearBar"
+-- gearbar scrollmenu
+rggm.L["gear_bar_configuration_key_binding_button"] = "Set/Unset Keybinding"
+rggm.L["gear_bar_configuration_key_binding_not_set"] = "No Keybind Set"
+rggm.L["gear_bar_configuration_key_binding_dialog"] = "Set Keybinding to: "
+rggm.L["gear_bar_configuration_key_binding_dialog_initial"] = "(press keybind you want to use or leave empty to unbind)"
+rggm.L["gear_bar_configuration_key_binding_dialog_accept"] = "Accept"
+rggm.L["gear_bar_configuration_key_binding_dialog_cancel"] = "Cancel"
+rggm.L["gear_bar_configuration_key_binding_override_dialog"] = "Keybind already in use. Do you want to override?"
+rggm.L["gear_bar_configuration_key_binding_dialog_override_yes"] = "Yes"
+rggm.L["gear_bar_configuration_key_binding_dialog_override_no"] = "No"
+rggm.L["gear_bar_configuration_key_binding_user_error"] = "Failed to set new Keybinding"
 
 -- slot translations
 rggm.L["slot_name_head"] = "Head"

@@ -24,6 +24,7 @@
 ]]--
 
 -- luacheck: globals CreateFrame UIParent InterfaceOptions_AddCategory InterfaceOptionsFrame_OpenToCategory
+-- luacheck: globals InterfaceAddOnsList_Update()
 
 local mod = rggm
 local me = {}
@@ -40,22 +41,29 @@ function me.SetupAddonConfiguration()
 
   panel.main = me.BuildCategory(RGGM_CONSTANTS.ELEMENT_ADDON_PANEL, nil, rggm.L["addon_name"])
   me.BuildCategory(
-    RGGM_CONSTANTS.ELEMENT_GENERAL_SUB_OPTION_FRAME,
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_GENERAL_OPTIONS_FRAME,
     panel.main,
     rggm.L["general_category_name"],
     mod.generalMenu.BuildUi
   )
   me.BuildCategory(
-    RGGM_CONSTANTS.ELEMENT_GEAR_SLOTS_SUB_OPTION_FRAME,
-    panel.main, rggm.L["gearslot_category_name"],
-    mod.gearSlotMenu.BuildUi
-  )
-  me.BuildCategory(
-    RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_SUB_OPTION_FRAME,
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_QUICK_CHANGE_FRAME,
     panel.main,
     rggm.L["quick_change_category_name"],
     mod.quickChangeMenu.BuildUi
   )
+  me.BuildCategory(
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_GEAR_BAR_CONFIG_FRAME,
+    panel.main,
+    rggm.L["gear_bar_configuration_panel_text"],
+    mod.gearBarConfigurationMenu.BuildUi
+  )
+  --[[
+    load configured gearBars after the menu RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_GEAR_BAR_CONFIG_FRAME was
+    created to attach to
+  ]]--
+  mod.gearBarConfigurationMenu.LoadConfiguredGearBars()
+
   --[[
     For development purpose the InterfaceOptionsFrame_OpenToCategory function can be used to directly
     open a specific category. Because of a blizzard bug this usually has to be called twice to actually work.
@@ -69,6 +77,12 @@ function me.SetupAddonConfiguration()
     Because of this it is important that the "normal" manuall way of opening the menu is tested as well.
   ]]--
   mod.aboutContent.BuildAboutContent(panel.main)
+
+  me.UpdateAddonPanel()
+
+  me.OpenAddonPanel() -- TODO DEBUG REMOVE
+  -- TODO this can sometimes create a strange bug where other addons only update after running InterfaceAddOnsList_Update()
+  -- again. Retest this once this debug functionality is removed
 end
 
 --[[
@@ -97,7 +111,6 @@ function me.BuildCategory(frameName, parent, panelText, onShowCallback)
 
   -- Important to hide panel initially. Interface addon options will take care of showing the menu
   menu:Hide()
-
   -- Add the child to the Interface Options
   InterfaceOptions_AddCategory(menu)
 
@@ -111,4 +124,11 @@ function me.OpenAddonPanel()
   -- Because of a blizzard bug this usually has to be called twice to actually work
   InterfaceOptionsFrame_OpenToCategory(_G[RGGM_CONSTANTS.ELEMENT_ADDON_PANEL])
   InterfaceOptionsFrame_OpenToCategory(_G[RGGM_CONSTANTS.ELEMENT_ADDON_PANEL])
+end
+
+--[[
+  Instruct Blizzard UI to update the interface addons list
+]]--
+function me.UpdateAddonPanel()
+  InterfaceAddOnsList_Update()
 end

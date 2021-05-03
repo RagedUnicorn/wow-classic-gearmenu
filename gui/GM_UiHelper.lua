@@ -121,14 +121,6 @@ function me.CreateHighlightFrame(slot)
 end
 
 --[[
-  Update visible cooldowns for slots on both the gearBar and the changeMenu
-]]--
-function me.UpdateSlotCooldown()
-  mod.gearBar.UpdateGearSlotCooldown()
-  mod.changeMenu.UpdateChangeMenuCooldownState()
-end
-
---[[
   @param {widget} frame
   @param {number} start
   @param {number} duration
@@ -174,46 +166,4 @@ function me.CreateDropdownButton(text, value, callback)
   button.func = callback
 
   return button
-end
-
---[[
-  Load a frames position from SavedVariablesPerCharacter
-
-  @param {table} slot
-]]--
-function me.LoadFramePosition(frame, frameName)
-  local framePosition = mod.configuration.GetUserPlacedFramePosition(frameName)
-  --[[
-    Set user frame position if there is one saved
-  ]]--
-  if framePosition ~= nil then
-    frame:ClearAllPoints() -- very important to clear all points first
-    frame:SetPoint(
-      framePosition.point,
-      framePosition.relativeTo,
-      framePosition.relativePoint,
-      framePosition.posX,
-      framePosition.posY
-    )
-  else
-    -- initial position for first time use
-    frame:SetPoint("CENTER", 0, 0)
-  end
-end
-
---[[
-  Hide cooldowns for both bagged and worn items
-]]--
-function me.HideCooldowns()
-  mod.gearBar.HideCooldowns()
-  mod.changeMenu.HideCooldowns()
-end
-
---[[
-  Show cooldowns for both bagged and worn items
-]]--
-function me.ShowCooldowns()
-  mod.gearBar.ShowCooldowns()
-  mod.gearBar.UpdateGearSlotCooldown()
-  mod.changeMenu.ShowCooldowns()
 end

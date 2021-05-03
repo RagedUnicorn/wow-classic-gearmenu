@@ -108,6 +108,24 @@ GearMenuConfiguration = {
     [17] = RGGM_CONSTANTS.INVSLOT_NONE
   },
   --[[
+    Stores all relevant metadata for the users gearBars. It does only store data that should be persisted. This
+    does not include references to ui elements
+
+    {
+      ["id"] = {number},
+        A unique identifier for the gearBar. This identifier can be directly matched to the GearBar
+        UI-Element once it is created
+      ["displayName"] = {string},
+        A user friendly display name for the user to recognize
+      ["position"] = {table},
+        A position object that can be unpacked into SetPoint
+        e.g. {"LEFT", 150, 0}
+      [slots] = {},
+
+    }
+  ]]--
+  ["gearBars"] = nil,
+  --[[
     example
     {
       ["changeFromName"] = {string},
@@ -123,20 +141,7 @@ GearMenuConfiguration = {
       ["delay"] = {number} -- delay in seconds
     }
   ]]--
-  ["quickChangeRules"] = {},
-  --[[
-    Framepositions for user draggable Frames
-    frames = {
-      -- should match the actual frame name
-      ["GM_Frame"] = {
-      point: "CENTER",
-        posX: 0,
-        posY: 0
-      }
-      ...
-    }
-  ]]--
-  ["frames"] = {}
+  ["quickChangeRules"] = {}
 }
 
 --[[
@@ -215,6 +220,11 @@ function me.SetupConfiguration()
       [16] = INVSLOT_OFFHAND,
       [17] = RGGM_CONSTANTS.INVSLOT_NONE
     }
+  end
+
+  if GearMenuConfiguration.gearBars == nil then
+    mod.logger.LogInfo(me.tag, "gearBars has unexpected nil value")
+    GearMenuConfiguration.gearBars = {}
   end
 
   if GearMenuConfiguration.quickChangeRules == nil then
@@ -313,85 +323,6 @@ function me.UpgradeToV1_4_0()
   GearMenuConfiguration.enableFastpress = nil
 
   mod.logger.LogDebug(me.tag, "Finished upgrade path from " .. GearMenuConfiguration.addonVersion .. " to v1.4.0")
-end
-
---[[
-  Enable moving of gearBar window
-]]--
-function me.UnlockGearBar()
-  GearMenuConfiguration.lockGearBar = false
-  _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME]:SetBackdrop({
-    bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background"
-  })
-end
-
---[[
-  Disable moving of gearBar window
-]]--
-function me.LockGearBar()
-  GearMenuConfiguration.lockGearBar = true
-  _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_FRAME]:SetBackdrop(nil)
-end
-
---[[
-  @return {boolean}
-    true - if the gearBar is locked
-    false - if the gearBar is not locked
-]]--
-function me.IsGearBarLocked()
-  return GearMenuConfiguration.lockGearBar
-end
-
---[[
-  Show keybindings
-]]--
-function me.EnableShowKeyBindings()
-  GearMenuConfiguration.showKeyBindings = true
-  mod.gearBar.ShowKeyBindings()
-  mod.ticker.StartTickerRangeCheck()
-end
-
---[[
-  Hide keybindings
-]]--
-function me.DisableShowKeyBindings()
-  GearMenuConfiguration.showKeyBindings = false
-  mod.gearBar.HideKeyBindings()
-  mod.ticker.StopTickerRangeCheck()
-end
-
---[[
-  @return {boolean}
-    true - if showing of keybindings is enabled
-    false - if showing of keybindings is disabled
-]]--
-function me.IsShowKeyBindingsEnabled()
-  return GearMenuConfiguration.showKeyBindings
-end
-
---[[
-  Show cooldowns
-]]--
-function me.EnableShowCooldowns()
-  GearMenuConfiguration.showCooldowns = true
-  mod.uiHelper.ShowCooldowns()
-end
-
---[[
-  Hide cooldowns
-]]--
-function me.DisableShowCooldowns()
-  GearMenuConfiguration.showCooldowns = false
-  mod.uiHelper.HideCooldowns()
-end
-
---[[
-  @return {boolean}
-    true - if showing of cooldown is enabled
-    false - if showing of cooldown is disabled
-]]--
-function me.IsShowCooldownsEnabled()
-  return GearMenuConfiguration.showCooldowns
 end
 
 --[[
@@ -607,48 +538,4 @@ end
 ]]--
 function me.RemoveQuickChangeRule(position)
   table.remove(GearMenuConfiguration.quickChangeRules, position)
-end
-
---[[
-  Save the position of a frame in the addon variables allowing to persist its position
-
-  @param {string} frameName
-  @param {string} point
-  @param {string} relativeTo
-  @param {string} relativePoint
-  @param {number} posX
-  @param {number} posY
-]]--
-function me.SaveUserPlacedFramePosition(frameName, point, relativeTo, relativePoint, posX, posY)
-  if GearMenuConfiguration.frames[frameName] == nil then
-    GearMenuConfiguration.frames[frameName] = {}
-  end
-
-  GearMenuConfiguration.frames[frameName].posX = posX
-  GearMenuConfiguration.frames[frameName].posY = posY
-  GearMenuConfiguration.frames[frameName].point = point
-  GearMenuConfiguration.frames[frameName].relativeTo = relativeTo
-  GearMenuConfiguration.frames[frameName].relativePoint = relativePoint
-
-  mod.logger.LogDebug(me.tag, "Saved frame position for - " .. frameName
-    .. " - new pos: posX " .. posX .. " posY " .. posY .. " point " .. point)
-end
-
---[[
-  Get the position of a saved frame
-
-  @param {string} frameName
-
-  @return {table | nil}
-    table - the returned x and y position
-    nil - if no frame with the passed name could be found
-]]--
-function me.GetUserPlacedFramePosition(frameName)
-  local frameConfig = GearMenuConfiguration.frames[frameName]
-
-  if type(frameConfig) == "table" then
-    return frameConfig
-  end
-
-  return nil
 end

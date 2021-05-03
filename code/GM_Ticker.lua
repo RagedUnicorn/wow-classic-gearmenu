@@ -32,9 +32,12 @@ mod.ticker = me
 me.tag = "Ticker"
 
 local changeMenuTicker
-local slotCooldownTicker
+local gearSlotCooldownTicker
+local changeMenuGearSlotCooldownTicker
 local combatQueueTicker
 local rangeCheckTicker
+
+local tickerRangeCheckSubscribers = {}
 
 --[[
   Start the repeating update ticker for changeMenu
@@ -42,7 +45,7 @@ local rangeCheckTicker
 function me.StartTickerChangeMenu()
   if changeMenuTicker == nil or changeMenuTicker._cancelled then
     changeMenuTicker = C_Timer.NewTicker(
-      RGGM_CONSTANTS.CHANGE_MENU_UPDATE_INTERVAL, mod.changeMenu.ChangeMenuOnUpdate)
+      RGGM_CONSTANTS.CHANGE_MENU_UPDATE_INTERVAL, mod.gearBarChangeMenu.ChangeMenuOnUpdate)
       mod.logger.LogInfo(me.tag, "Started 'ChangeMenuTicker'")
   end
 end
@@ -58,23 +61,44 @@ function me.StopTickerChangeMenu()
 end
 
 --[[
-  Start the repeating update ticker for slotCooldowns
+  Start the repeating update ticker for gearSlotCooldowns
 ]]--
-function me.StartTickerSlotCooldown()
-  if slotCooldownTicker == nil or slotCooldownTicker._cancelled then
-    slotCooldownTicker = C_Timer.NewTicker(
-      RGGM_CONSTANTS.SLOT_COOLDOWN_UPDATE_INTERVAL, mod.uiHelper.UpdateSlotCooldown)
-      mod.logger.LogInfo(me.tag, "Started 'SlotCooldownTicker'")
+function me.StartTickerGearSlotCooldown()
+  if gearSlotCooldownTicker == nil or gearSlotCooldownTicker._cancelled then
+    gearSlotCooldownTicker = C_Timer.NewTicker(
+      RGGM_CONSTANTS.SLOT_COOLDOWN_UPDATE_INTERVAL, mod.gearBar.UpdateGearSlotCooldown)
+      mod.logger.LogInfo(me.tag, "Started 'GearSlotCooldownTicker'")
   end
 end
 
 --[[
-  Stop the repeating update ticker for slotCooldowns
+  Stop the repeating update ticker for gearSlotCooldowns
 ]]--
-function me.StopTickerSlotCooldown()
-  if slotCooldownTicker then
-    slotCooldownTicker:Cancel()
-    mod.logger.LogInfo(me.tag, "Stopped 'SlotCooldownTicker'")
+function me.StopTickerGearSlotCooldown()
+  if gearSlotCooldownTicker then
+    gearSlotCooldownTicker:Cancel()
+    mod.logger.LogInfo(me.tag, "Stopped 'GearSlotCooldownTicker'")
+  end
+end
+
+--[[
+  Start the repeating update ticker for changeMenuGearSlotCooldowns
+]]--
+function me.StartTickerChangeMenuGearSlotCooldown()
+  if changeMenuGearSlotCooldownTicker == nil or changeMenuGearSlotCooldownTicker._cancelled then
+    changeMenuGearSlotCooldownTicker = C_Timer.NewTicker(
+      RGGM_CONSTANTS.SLOT_COOLDOWN_UPDATE_INTERVAL, mod.gearBarChangeMenu.UpdateChangeMenuGearSlotCooldown)
+      mod.logger.LogInfo(me.tag, "Started 'ChangeMenuGearSlotCooldownTicker'")
+  end
+end
+
+--[[
+  Stop the repeating update ticker for changeMenuGearSlotCooldowns
+]]--
+function me.StopTickerChangeMenuGearSlotCooldown()
+  if changeMenuGearSlotCooldownTicker then
+    changeMenuGearSlotCooldownTicker:Cancel()
+    mod.logger.LogInfo(me.tag, "Stopped 'ChangeMenuGearSlotCooldownTicker'")
   end
 end
 
@@ -102,7 +126,7 @@ end
 --[[
   Start the repeating update ticker for rangeCheck
 ]]--
-function me.StartTickerRangeCheck()
+local function StartTickerRangeCheck()
   if rangeCheckTicker == nil or rangeCheckTicker._cancelled then
     rangeCheckTicker = C_Timer.NewTicker(
       RGGM_CONSTANTS.RANGE_CHECK_UPDATE_INTERVAL, mod.gearBar.UpdateSpellRange)
@@ -113,9 +137,43 @@ end
 --[[
   Stop the repeating update ticker for rangeCheck
 ]]--
-function me.StopTickerRangeCheck()
+local function StopTickerRangeCheck()
   if rangeCheckTicker then
     rangeCheckTicker:Cancel()
     mod.logger.LogInfo(me.tag, "Stopped 'StopTickerRangeCheck'")
+  end
+end
+
+--[[
+  @param {number} gearBarId
+]]--
+function me.RegisterForTickerRangeCheck(gearBarId)
+  for i = 1, #tickerRangeCheckSubscribers do
+    if tickerRangeCheckSubscribers[i] == gearBarId then
+      mod.logger.LogInfo(me.tag, "GearBar with id: " .. gearBarId .. " is already registered for range check")
+      return
+    end
+  end
+
+  table.insert(tickerRangeCheckSubscribers, gearBarId)
+
+  if #tickerRangeCheckSubscribers == 1 then
+    StartTickerRangeCheck()
+  end
+end
+
+--[[
+  @param {number} gearBarId
+]]--
+function me.UnregisterForTickerRangeCheck(gearBarId)
+  for i = 1, #tickerRangeCheckSubscribers do
+    if tickerRangeCheckSubscribers[i] == gearBarId then
+      table.remove(tickerRangeCheckSubscribers, gearBarId)
+      break
+    end
+  end
+
+  if #tickerRangeCheckSubscribers == 0 then
+    StopTickerRangeCheck()
   end
 end

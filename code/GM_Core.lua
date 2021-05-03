@@ -101,28 +101,27 @@ function me.OnEvent(event, ...)
     me.Initialize()
   elseif event == "BAG_UPDATE" then
     me.logger.LogEvent(me.tag, "BAG_UPDATE")
+
     if initializationDone then
       me.gearBar.UpdateGearBarTextures()
       -- trigger UpdateChangeMenu again to update items after an item was equiped
       if _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_FRAME]:IsVisible() then
-        me.changeMenu.UpdateChangeMenu()
+        me.gearBarChangeMenu.UpdateChangeMenu()
       end
     end
-  elseif event == "UNIT_INVENTORY_CHANGED" then
-    me.logger.LogEvent(me.tag, "UNIT_INVENTORY_CHANGED")
+  elseif event == "PLAYER_EQUIPMENT_CHANGED" then
+    me.logger.LogEvent(me.tag, "PLAYER_EQUIPMENT_CHANGED")
+
     if initializationDone then
       me.gearBar.UpdateGearBarTextures()
-      me.gearBar.UpdateGearSlotCooldown()
     end
   elseif event == "BAG_UPDATE_COOLDOWN" then
     me.logger.LogEvent(me.tag, "BAG_UPDATE_COOLDOWN")
-    if initializationDone then
-      me.gearBar.UpdateGearSlotCooldown()
-    end
   elseif event == "UPDATE_BINDINGS" then
     me.logger.LogEvent(me.tag, "UPDATE_BINDINGS")
+
     if initializationDone then
-      me.gearBar.UpdateKeyBindings()
+      me.keyBind.OnUpdateKeyBindings()
     end
   elseif event == "LOSS_OF_CONTROL_ADDED" then
     me.logger.LogEvent(me.tag, "LOSS_OF_CONTROL_ADDED")
@@ -176,21 +175,16 @@ function me.Initialize()
   me.configuration.SetupConfiguration()
   -- setup addon configuration ui
   me.addonConfiguration.SetupAddonConfiguration()
-  -- build ui for gearBar
-  local gearBarFrame = me.gearBar.BuildGearBar()
+  -- build ui for all gearBars
+  me.gearBar.BuildGearBars()
   -- build ui for changeMenu
-  me.changeMenu.BuildChangeMenu(gearBarFrame)
+  me.gearBarChangeMenu.BuildChangeMenu()
   -- start ticker intervals
-  me.ticker.StartTickerSlotCooldown()
-  -- Update initial view of cooldowns after addon initialization
-  me.gearBar.UpdateGearSlotCooldown()
-  -- start ticker range check
-  if me.configuration.IsShowKeyBindingsEnabled() then
-    me.ticker.StartTickerRangeCheck()
-  end
-  -- update initial view of gearBar after addon initialization
-  me.gearBar.UpdateGearBar()
+  me.ticker.StartTickerGearSlotCooldown()
+  me.ticker.StartTickerChangeMenuGearSlotCooldown()
 
+  -- update initial view of gearBars after addon initialization
+  me.gearBar.UpdateGearBars()
   -- initialization is done
   initializationDone = true
 
