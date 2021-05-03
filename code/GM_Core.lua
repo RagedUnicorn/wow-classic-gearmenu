@@ -109,8 +109,8 @@ function me.OnEvent(event, ...)
         me.gearBarChangeMenu.UpdateChangeMenu()
       end
     end
-  elseif event == "PLAYER_EQUIPMENT_CHANGED" then
-    me.logger.LogEvent(me.tag, "PLAYER_EQUIPMENT_CHANGED")
+  elseif event == "UNIT_INVENTORY_CHANGED" then
+    me.logger.LogEvent(me.tag, "UNIT_INVENTORY_CHANGED")
 
     if initializationDone then
       me.gearBar.UpdateGearBarTextures()
