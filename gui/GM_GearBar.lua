@@ -295,17 +295,14 @@ function me.UpdateGearBar(gearBar)
   end
 
   -- remove leftover gearSlots that are obsolete and should no longer be displayed
-  -- TODO what happens with hidden buttons that have keybinds to them?
-  -- Should probably remove the keybind before deleting
   for index, gearSlotReference in pairs(uiGearBar.gearSlotReferences) do
     if index > #gearBar.slots then
       mod.logger.LogDebug(me.tag, "GearBar(" .. gearBar.id .. ") - Index: " .. index .. " should be hidden")
       gearSlotReference:Hide() -- hide leftover slot
-      -- TODO is it good enough to just hide the slot
     end
   end
 
-  me.UpdateGearBarSize(gearBar)
+  me.UpdateGearBarSize(gearBar, uiGearBar)
 end
 
 --[[
@@ -365,14 +362,14 @@ end
   Update gearBar in cases such as a new gearSlot was added or one was removed. Should
   always be called after me.UpdateGearSlots otherwise the size calculation will be off.
 
-  @param {number} gearBar
+  @param {table} gearBar
+    Data representation of a gearBar
+  @param {table} uiGearBar
+    UI representation of a gearBar
 ]]--
-function me.UpdateGearBarSize(gearBar)
-  local gearBarUi = mod.gearBarStorage.GetGearBar(gearBar.id)
-  local slotAmount = #gearBarUi.gearSlotReferences
-
-  gearBarUi.gearBarReference:SetWidth(slotAmount * gearBar.slotSize + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN)
-  gearBarUi.gearBarReference:SetHeight(gearBar.slotSize)
+function me.UpdateGearBarSize(gearBar, uiGearBar)
+  uiGearBar.gearBarReference:SetWidth(#gearBar.slots * gearBar.slotSize + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN)
+  uiGearBar.gearBarReference:SetHeight(gearBar.slotSize)
 end
 
 --[[
