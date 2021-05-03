@@ -46,10 +46,8 @@ local changeMenuSlots = {}
   Build the initial changeMenu for bagged items
 ]]--
 function me.BuildChangeMenu()
-  local changeSlotSize = mod.configuration.GetSlotSize()
-
   changeMenuFrame = CreateFrame("Frame", RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_FRAME)
-  changeMenuFrame:SetWidth(RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT * changeSlotSize)
+  changeMenuFrame:SetWidth(RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT * RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE)
   changeMenuFrame:SetHeight(RGGM_CONSTANTS.GEAR_BAR_CHANGE_DEFAULT_HEIGHT)
   changeMenuFrame:SetBackdropColor(0, 0, 0, .5)
   changeMenuFrame:SetBackdropBorderColor(0, 0, 0, .8)
@@ -65,14 +63,14 @@ function me.BuildChangeMenu()
       -- left
       row = 0
 
-      yPos = col * changeSlotSize
-      xPos = row * changeSlotSize
+      yPos = col * RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE
+      xPos = row * RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE
     else
       -- right
       row = 1
 
-      yPos = col * changeSlotSize
-      xPos = row * changeSlotSize
+      yPos = col * RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE
+      xPos = row * RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE
       col = col + 1
     end
 
