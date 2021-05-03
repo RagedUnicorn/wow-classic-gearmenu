@@ -1,7 +1,7 @@
 --[[
   MIT License
 
-  Copyright (c) 2020 Michael Wiesendanger
+  Copyright (c) 2021 Michael Wiesendanger
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -176,23 +176,15 @@ function me.UpdateChangeMenu(gearSlotPosition, gearBarId)
     local items = mod.itemManager.GetItemsForInventoryType(gearSlotMetaData.type)
 
     for index, item in ipairs(items) do
-      if index > RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT then
+      if index > RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT_ITEMS then
         mod.logger.LogInfo(me.tag, "All changeMenuSlots are in use skipping rest of items...")
         break
       end
 
-      local changeMenuSlot = changeMenuSlots[index]
-      mod.uiHelper.UpdateSlotTextureAttributes(changeMenuSlot)
-
-      -- update metadata for slot
-      changeMenuSlot.slotId = gearSlotMetaData.slotId
-      changeMenuSlot.itemId = item.id
-      changeMenuSlot.equipSlot = item.equipSlot
-
-      changeMenuSlot:SetNormalTexture(item.icon)
-      changeMenuSlot:Show()
+      me.UpdateChangeSlot(index, gearSlotMetaData, item)
     end
 
+    me.UpdateEmptyChangeSlot(items, gearSlotMetaData)
     me.UpdateChangeMenuSize(items)
     me.UpdateChangeMenuPosition(
       mod.gearBarStorage.GetGearBar(gearBarId).gearSlotReferences[gearSlotPosition]
@@ -223,6 +215,56 @@ function me.UpdateChangeMenu(gearSlotPosition, gearBarId)
 end
 
 --[[
+  Visually update a changeslot
+
+  @param {number} index
+  @param {table} gearSlotMetaData
+  @param {table} item
+]]--
+function me.UpdateChangeSlot(index, gearSlotMetaData, item)
+  local changeMenuSlot = changeMenuSlots[index]
+  mod.uiHelper.UpdateSlotTextureAttributes(changeMenuSlot)
+
+  -- update metadata for slot
+  changeMenuSlot.slotId = gearSlotMetaData.slotId
+  changeMenuSlot.itemId = item.id
+  changeMenuSlot.equipSlot = item.equipSlot
+
+  changeMenuSlot:SetNormalTexture(item.icon)
+  changeMenuSlot:Show()
+end
+
+--[[
+  Visually update an empty changeslot
+
+  @param {table} gearSlotMetaData
+  @param {table} items
+]]--
+function me.UpdateEmptyChangeSlot(items, gearSlotMetaData)
+  if not mod.configuration.IsUnequipSlotEnabled() then return end
+
+  local itemCount = table.getn(items)
+  local emptyChangeMenuSlot
+
+  if itemCount >= RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT_ITEMS then
+    emptyChangeMenuSlot = changeMenuSlots[itemCount]
+  else
+    emptyChangeMenuSlot = changeMenuSlots[itemCount + 1]
+  end
+
+  mod.uiHelper.UpdateSlotTextureAttributes(emptyChangeMenuSlot)
+
+  emptyChangeMenuSlot.slotId = gearSlotMetaData.slotId
+  emptyChangeMenuSlot.itemId = nil
+  emptyChangeMenuSlot.equipSlot = nil
+
+  emptyChangeMenuSlot:SetNormalTexture(gearSlotMetaData.textureId)
+  emptyChangeMenuSlot:Show()
+end
+
+
+
+--[[
   Reset all changeMenuSlots into their initial state
 ]]--
 function me.ResetChangeMenu()
@@ -248,7 +290,15 @@ function me.UpdateChangeMenuSize(items)
   if table.getn(items) > RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT then
     rows = RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT / RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT
   else
-    rows = table.getn(items) / RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT
+    local totalItems
+
+    if mod.configuration.IsUnequipSlotEnabled() then
+      totalItems = table.getn(items) + 1
+    else
+      totalItems = table.getn(items)
+    end
+
+    rows = totalItems / RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT
   end
 
   -- special case for if only one row needs to be displayed
@@ -358,7 +408,7 @@ end
 ]]--
 function me.SetupEvents(changeSlot)
   -- register button to receive leftclick
-  changeSlot:RegisterForClicks("LeftButtonUp")
+  changeSlot:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 
   changeSlot:SetScript("OnEnter", function(self)
     me.ChangeSlotOnEnter(self)
@@ -402,10 +452,25 @@ end
   @param {string} button
 ]]--
 function me.ChangeSlotOnClick(self, button)
-  if button == "LeftButton" then
-    mod.itemManager.EquipItemById(self.itemId, self.slotId)
-    me.CloseChangeMenu()
+  --[[
+    If right button was used to equip we need to check whether the slot is a match for combined equipping
+  ]]--
+  if button == "RightButton" then
+    if mod.gearManager.IsEnabledCombinedEquipSlot(self.equipSlot) then
+      self.slotId = mod.gearManager.GetMatchedCombinedEquipSlot(self.equipSlot, self.slotId)
+    end
   end
+
+  --[[
+    Check for empty slot
+  ]]--
+  if self.itemId == nil and self.equipSlot == nil and self.slotId ~= nil then
+    mod.itemManager.UnequipItemToBag(self)
+  else
+    mod.itemManager.EquipItemById(self.itemId, self.slotId, self.equipSlot)
+  end
+
+  me.CloseChangeMenu()
 end
 
 --[[

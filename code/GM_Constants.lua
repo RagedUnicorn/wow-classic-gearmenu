@@ -1,7 +1,7 @@
 --[[
   MIT License
 
-  Copyright (c) 2020 Michael Wiesendanger
+  Copyright (c) 2021 Michael Wiesendanger
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -49,7 +49,7 @@ RGGM_CONSTANTS = {
     epic = 4,
     legendary = 5
   },
-  INVSLOT_NONE = 0,
+  INVSLOT_NONE = 99,
   --[[
     Highlight Frame Status colors
   ]]--
@@ -77,6 +77,7 @@ RGGM_CONSTANTS = {
   ELEMENT_GEAR_BAR_SLOT = "$parentSlot_",
   ELEMENT_GEAR_BAR_COMBAT_QUEUE_SLOT = "$parent_CombatQueueSlot",
   GEAR_BAR_COMBAT_QUEUE_SLOT_SIZE_MODIFIER = .55,
+  GEAR_BAR_WIDTH_MARGIN = 10,
   GEAR_BAR_SLOT_BORDER_MODIFIER = 0.075,
   GEAR_BAR_WIDTH_MARGIN = 10,
   GEAR_BAR_DEFAULT_SLOT_SIZE = 40,
@@ -95,7 +96,14 @@ RGGM_CONSTANTS = {
   GEAR_BAR_CHANGE_COOLDOWN_TEXT_MODIFIER = 0.375,
   GEAR_BAR_CHANGE_KEYBIND_TEXT_MODIFIER = .27,
   ELEMENT_GEAR_BAR_CHANGE_COOLDOWN_FRAME = "$parent_Cooldown",
-  GEAR_BAR_CHANGE_SLOT_AMOUNT = 20,
+  --[[
+    Amount of created slots. Rule: GEAR_BAR_CHANGE_SLOT_AMOUNT_ITEMS + 1 = GEAR_BAR_CHANGE_SLOT_AMOUNT
+  ]]--
+  GEAR_BAR_CHANGE_SLOT_AMOUNT = 41,
+  --[[
+    Maximum amount of supported items
+  ]]--
+  GEAR_BAR_CHANGE_SLOT_AMOUNT_ITEMS = 40,
   --[[
     About
   ]]--
@@ -118,7 +126,8 @@ RGGM_CONSTANTS = {
   ELEMENT_GENERAL_OPT_ENABLE_TOOLTIPS = "GM_OptEnableTooltips",
   ELEMENT_GENERAL_OPT_ENABLE_SIMPLE_TOOLTIPS = "GM_OptEnableSimpleTooltips",
   ELEMENT_GENERAL_OPT_ENABLE_DRAG_AND_DROP = "GM_OptEnableDragAndDrop",
-  ELEMENT_GENERAL_OPT_ENABLE_FASTPRESS = "GM_OptEnableFastpress",
+  ELEMENT_GENERAL_OPT_ENABLE_FASTPRESS = "GM_OptEnableFastPress",
+  ELEMENT_GENERAL_OPT_ENABLE_UNEQUIP_SLOT = "GM_OptEnableUnequipSlot",
   ELEMENT_GENERAL_OPT_FILTER_ITEM_QUALITY = "GM_OptFilterItemQuality",
   ELEMENT_GENERAL_LABEL_FILTER_ITEM_QUALITY = "GM_LabelFilterItemQuality",
   ELEMENT_GENERAL_SIZE_SLIDER = "GM_SizeSlider",

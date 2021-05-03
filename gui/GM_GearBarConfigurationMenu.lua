@@ -392,7 +392,6 @@ function me.GearBarListOnUpdate(scrollFrame)
 
     if rowPosition <= #gearBars then
       local row = rows[index]
-      mod.logger.LogWarn(me.tag, "ROwname: " .. gearBars[rowPosition].displayName)
       row.gearBarName:SetText(gearBars[rowPosition].displayName)
       row.removeGearBarButton.id = gearBars[rowPosition].id
       row:Show()

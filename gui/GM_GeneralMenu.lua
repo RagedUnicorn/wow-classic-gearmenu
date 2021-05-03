@@ -1,7 +1,7 @@
 --[[
   MIT License
 
-  Copyright (c) 2020 Michael Wiesendanger
+  Copyright (c) 2021 Michael Wiesendanger
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,7 @@
 
 -- luacheck: globals CreateFrame UIDropDownMenu_Initialize UIDropDownMenu_AddButton UIDropDownMenu_GetSelectedID
 -- luacheck: globals UIDropDownMenu_SetSelectedValue STANDARD_TEXT_FONT
+-- luacheck: globals StaticPopup_Show StaticPopupDialogs ReloadUI StaticPopup_Show
 
 local mod = rggm
 local me = {}
@@ -38,7 +39,8 @@ local options = {
   {"EnableTooltips", rggm.L["enable_tooltips"], rggm.L["enable_tooltips_tooltip"]},
   {"EnableSimpleTooltips", rggm.L["enable_simple_tooltips"], rggm.L["enable_simple_tooltips_tooltip"]},
   {"EnableDragAndDrop", rggm.L["enable_drag_and_drop"], rggm.L["enable_drag_and_drop_tooltip"]},
-  {"EnableFastpress", rggm.L["enable_fastpress"], rggm.L["enable_fastpress_tooltip"]}
+  {"EnableFastPress", rggm.L["enable_fast_press"], rggm.L["enable_fast_press_tooltip"]},
+  {"EnableUnequipSlot", rggm.L["enable_unequip_slot"], rggm.L["enable_unequip_slot_tooltip"]}
 }
 
 -- track whether the menu was already built
@@ -93,6 +95,18 @@ function me.BuildUi(frame)
     -170,
     me.EnableFastPressOnShow,
     me.EnableFastPressOnClick
+  )
+
+  --[[
+    From here on move options to "second row"
+  ]]--
+  me.BuildCheckButtonOption(
+    frame,
+    RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_UNEQUIP_SLOT,
+    280,
+    -80,
+    me.EnableUnequipSlotOnShow,
+    me.EnableUnequipSlotOnClick
   )
 
   me.CreateItemQualityLabel(frame)
@@ -300,7 +314,7 @@ end
   @param {table} self
 ]]--
 function me.EnableFastPressOnShow(self)
-  if mod.configuration.IsFastpressEnabled() then
+  if mod.configuration.IsFastPressEnabled() then
     self:SetChecked(true)
   else
     self:SetChecked(false)
@@ -316,9 +330,61 @@ function me.EnableFastPressOnClick(self)
   local enabled = self:GetChecked()
 
   if enabled then
-    mod.configuration.EnableFastpress()
+    mod.configuration.EnableFastPress()
   else
-    mod.configuration.DisableFastpress()
+    mod.configuration.DisableFastPress()
+  end
+end
+
+--[[
+  OnShow callback for checkbuttons - enable unequipSlot
+
+  @param {table} self
+]]--
+function me.EnableUnequipSlotOnShow(self)
+  if mod.configuration.IsUnequipSlotEnabled() then
+    self:SetChecked(true)
+  else
+    self:SetChecked(false)
+  end
+end
+
+StaticPopupDialogs["RGGM_ASK_BEFORE_RELOAD"] = {
+  text = rggm.L["confirm_dialog_question"],
+  button1 = "Yes",
+  button2 = "No",
+  OnAccept = function(_, checkBoxReference)
+    local enabled = checkBoxReference:GetChecked()
+
+    if enabled then
+      mod.configuration.DisableUnequipSlot()
+      checkBoxReference:SetChecked(false)
+    else
+      mod.configuration.EnableUnequipSlot()
+      checkBoxReference:SetChecked(true)
+    end
+    ReloadUI()
+  end,
+  whileDead = true,
+  hideOnEscape = true
+}
+
+--[[
+  OnClick callback for checkbuttons - enable unequipSlot
+
+  @param {table} self
+]]--
+function me.EnableUnequipSlotOnClick(self)
+  -- force checkbox to keep checked state until the user decided in the dialog what to do
+  if mod.configuration.IsUnequipSlotEnabled() then
+    self:SetChecked(true)
+  else
+    self:SetChecked(false)
+  end
+
+  local dialog = StaticPopup_Show("RGGM_ASK_BEFORE_RELOAD")
+  if dialog then
+    dialog.data = self -- add reference to clicked checkbox button
   end
 end
 

@@ -1,7 +1,7 @@
 --[[
   MIT License
 
-  Copyright (c) 2020 Michael Wiesendanger
+  Copyright (c) 2021 Michael Wiesendanger
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -33,6 +33,18 @@ me.tag = "Core"
 local initializationDone = false
 
 --[[
+  Hook GetLocale to return a fixed value. This is used for testing only.
+]]--
+
+--[[
+local _G = getfenv(0)
+
+function _G.GetLocale()
+  return "[language code]"
+end
+]]--
+
+--[[
   Addon load
 
   @param {table} self
@@ -51,8 +63,8 @@ function me.RegisterEvents(self)
   self:RegisterEvent("PLAYER_LOGIN")
   -- Fires when a bags inventory changes
   self:RegisterEvent("BAG_UPDATE")
-  -- Fires when the players gear changes
-  self:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
+  -- Fires when the player equips or unequips an item
+  self:RegisterEvent("UNIT_INVENTORY_CHANGED")
   -- Fires when the player leaves combat status
   self:RegisterEvent("PLAYER_REGEN_ENABLED")
   -- Fires when the player enters combat status

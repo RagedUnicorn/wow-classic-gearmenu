@@ -1,7 +1,7 @@
 --[[
   MIT License
 
-  Copyright (c) 2020 Michael Wiesendanger
+  Copyright (c) 2021 Michael Wiesendanger
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -26,7 +26,7 @@
 -- luacheck: globals CreateFrame UIParent GetInventoryItemID GetItemCooldown
 -- luacheck: globals GetInventoryItemLink GetItemInfo GetContainerItemInfo C_Timer MouseIsOver
 -- luacheck: globals CursorCanGoInSlot EquipCursorItem ClearCursor IsInventoryItemLocked PickupInventoryItem
--- luacheck: globals InCombatLockdown STANDARD_TEXT_FONT IsItemInRange
+-- luacheck: globals InCombatLockdown STANDARD_TEXT_FONT IsItemInRange GetCursorInfo
 
 --[[
   The gearBar (GM_Gearbar) module is responsible for building and showing gearBars to the user.
@@ -444,10 +444,10 @@ end
   @param {table} slotMetaData
 ]]--
 function me.UpdateTexture(gearSlot, slotMetaData)
-  local itemLink = GetInventoryItemLink(RGGM_CONSTANTS.UNIT_ID_PLAYER, slotMetaData.slotId)
+  local itemId = GetInventoryItemID(RGGM_CONSTANTS.UNIT_ID_PLAYER, slotMetaData.slotId)
 
-  if itemLink then
-    local _, _, _, _, _, _, _, _, _, itemIcon = GetItemInfo(itemLink)
+  if itemId then
+    local _, _, _, _, _, _, _, _, _, itemIcon = GetItemInfo(itemId)
     -- If an actual item was found in the inventoryslot said icon is used
     gearSlot:SetNormalTexture(itemIcon or slotMetaData.textureId)
   else
@@ -607,7 +607,7 @@ function me.SetupEvents(gearSlot)
   --[[
     Note: SecureActionButtons ignore right clicks by default - reenable right clicks
   ]]--
-  if mod.configuration.IsFastpressEnabled() then
+  if mod.configuration.IsFastPressEnabled() then
     gearSlot:RegisterForClicks("LeftButtonDown", "RightButtonDown")
   else
     gearSlot:RegisterForClicks("LeftButtonUp", "RightButtonUp")
@@ -699,7 +699,14 @@ function me.GearSlotOnReceiveDrag(self)
   if gearSlotMetaData == nil then return end
 
   if CursorCanGoInSlot(gearSlotMetaData.slotId) then
-    EquipCursorItem(gearSlotMetaData.slotId)
+    if InCombatLockdown() or mod.common.IsPlayerCasting() then
+      local _, itemId = GetCursorInfo()
+
+      mod.combatQueue.AddToQueue(itemId, gearSlotMetaData.slotId)
+      ClearCursor()
+    else
+      EquipCursorItem(gearSlotMetaData.slotId)
+    end
   else
     mod.logger.LogInfo(me.tag, "Invalid item for slotId - " .. gearSlotMetaData.slotId)
     ClearCursor() -- clear cursor from item

@@ -11,7 +11,7 @@ GearMenus goal is to help the player switching between items on certain slots. O
 **Supported slots:**
 
 * Head/Helmet slot
-* NeckSlot
+* Neck slot
 * Shoulder slot
 * Chest/Robe slot
 * Waist/Belt slot
@@ -27,6 +27,7 @@ GearMenus goal is to help the player switching between items on certain slots. O
 * Main-hand slot
 * Secondary-hand/Off-hand slot
 * Ranged slot
+* Ammo slot
 
 ## Features of GearMenu
 
@@ -82,44 +83,41 @@ GearMenu allows to drag and drop items onto slots, remove from slots and slots c
 
 ![](https://raw.githubusercontent.com/RagedUnicorn/wow-classic-gearmenu/master/docs/gm_drag_and_drop_unequip.gif)
 
+### Combined Equipping
+
+Slots such as trinket and ring slots have combined equipping enabled. This means that in addition to a left click on the item the player wishes to equip they also support right click. Slots that do not support combined quipping (which most don't) will normally equip any item whether it was left- or right-clicked. If the slot has combined equipping enabled a right click will instead put the chosen item into the opposite slot.
+
+![](https://raw.githubusercontent.com/RagedUnicorn/wow-classic-gearmenu/master/docs/gm_combined_equip.gif)
+
+### Unequip Items
+
+Enable an empty slot in the changeMenu that allows for quicker and easier unequipping of items.
+
+![](https://raw.githubusercontent.com/RagedUnicorn/wow-classic-gearmenu/master/docs/gm_unequip.gif)
+
 ### Macro Support
 
 If you prefer having certain items in your actionslots GearMenu can still be of use. By using the macro-bridge you get all the advantages of the combatQueue in a normal macro.
 
 #### Add Item to CombatQueue
-```
-/run GM_AddToCombatQueue(itemId, slotId)
 
-# Example - Equip Hand of Justice into the lower trinket slot
-/run GM_AddToCombatQueue(11815, 14)
-```
+`/run GM_AddToCombatQueue(itemId, slotId)`
 
 **Note:** It is not recommended to use this for weapons because addons cannot switch weapons during combat (GearMenu will put the item into the combatQueue). With a normal weaponswitch macro however this is still possible.
 
 #### Clear Slot From CombatQueue
-```
-/run GM_RemoveFromCombatQueue(slotId)
 
-# Example - Clear headSlot queue
-/run GM_AddToCombatQueue(1)
-```
+`/run GM_RemoveFromCombatQueue(slotId)`
 
 ##### Finding itemId
 
-Finding the id of a certain item is easiest with websites such as [wowhead](https://classic.wowhead.com/).
-
-```
-# Example:
-https://classic.wowhead.com/item=11815/hand-of-justice
-```
-
-The number after item is the itemId we search for.
+Finding the id of a certain item is easiest with websites such as [wowhead](https://classic.wowhead.com/ "").
 
 ##### Finding slotId
 
 For finding the correct slotId refer to the image below. Only InventorySlotIds are valid targets for GearMenu
 
-![](/docs/gm_interface_slots.png)
+![](https://raw.githubusercontent.com/RagedUnicorn/wow-classic-gearmenu/master/docs/gm_interface_slots.png)
 
 ## Configurability
 

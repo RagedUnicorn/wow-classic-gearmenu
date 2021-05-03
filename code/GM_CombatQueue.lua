@@ -1,7 +1,7 @@
 --[[
   MIT License
 
-  Copyright (c) 2020 Michael Wiesendanger
+  Copyright (c) 2021 Michael Wiesendanger
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -97,7 +97,7 @@ function me.ProcessQueue()
   end
 
   -- cannot change gear while player is in combat or is casting
-  if InCombatLockdown() or mod.common.IsPlayerCasting() then return end
+  if InCombatLockdown() or mod.common.IsPlayerCasting() or mod.common.IsPlayerReallyDead() then return end
 
   -- update queue for all slotpositions
   for _, gearSlot in pairs(mod.gearManager.GetGearSlots()) do

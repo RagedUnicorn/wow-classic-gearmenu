@@ -36,8 +36,11 @@ if (GetLocale() == "deDE") then
   rggm.L["enable_simple_tooltips_tooltip"] = "Zeige nur den Titel des markierten Items anstatt die ganze Kurzinfo"
   rggm.L["enable_drag_and_drop"] = "Aktiviere Drag and Drop"
   rggm.L["enable_drag_and_drop_tooltip"] = "Aktiviere Drag and Drop für Items"
-  rggm.L["enable_fastpress"] = "Aktiviere Schnellklick"
-  rggm.L["enable_fastpress_tooltip"] = "Aktiviert Aktionen beim drücken eines Knopfs anstatt beim loslassen des Knopfs"
+  rggm.L["enable_fast_press"] = "Aktiviere Schnellklick"
+  rggm.L["enable_fast_press_tooltip"] = "Aktiviert Aktionen beim drücken eines Knopfs anstatt beim loslassen des Knopfs"
+  rggm.L["enable_unequip_slot"] = "Aktiviere Ausrüstung ausziehen Slot"
+  rggm.L["enable_unequip_slot_tooltip"] = "Aktiviert einen leeren Slot im ChangeMenu."
+    .. " Dies erlaubt es einfacher items auszuziehen"
   rggm.L["filter_item_quality"] = "Filtere Gegenstandsqualität:"
   rggm.L["item_quality_poor"] = "Arm (Grau)"
   rggm.L["item_quality_common"] = "Gewöhnlich (Weiss)"
@@ -48,6 +51,7 @@ if (GetLocale() == "deDE") then
   rggm.L["size_slider_title"] = "Ausrüstungsslot Grösse"
   rggm.L["size_slider_tooltip"] = "Verändere die Grösse der Ausrüstungsslots. Andere Elemente passen sich ebbenfalls "
     .. "an die Grösse des Ausrüstungsslots an"
+  rggm.L["confirm_dialog_question"] = "Diese Aktion lädt dein UI neu. Willst du fortfahren?"
 
   -- gearslots
   rggm.L["gearslot_category_name"] = "Ausrüstungsslots"
@@ -114,6 +118,7 @@ if (GetLocale() == "deDE") then
   rggm.L["slot_name_main_hand"] = "Waffenhand"
   rggm.L["slot_name_off_hand"] = "Schildhand"
   rggm.L["slot_name_ranged"] = "Distanz"
+  rggm.L["slot_name_ammo"] = "Munition"
 
   -- macro bridge user errors
   rggm.L["unable_to_find_equipslot"] = "Konnte keinen passenden slot für itemdId %s finden"

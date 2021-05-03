@@ -4,9 +4,9 @@
 
 > GearMenu aims to help the player switching between items in and out of combat. When the player is in combat a combatqueue will take care of switching the item as soon as possible. It also allows you to define switching rules and keybinding slots.
 
-![](/docs/wow_badge.png)
-[![](/docs/twitch_badge.png)](https://www.curseforge.com/wow/addons/gearmenu)
-![](/docs/license_mit.png)
+![](/docs/wow_badge.svg)
+![](/docs/license_mit.svg)
+[![](/docs/curseforge.svg)](https://curseforge.overwolf.com/?addonId=345496&fileId=3287372)
 
 ## Installation
 
@@ -37,14 +37,15 @@ GearMenus goal is to help the player switching between items on certain slots. O
 | FeetSlot          | Feet/Boots slot              |
 | WristSlot         | Wrist/Bracers slot           |
 | HandsSlot         | Hands slot                   |
-| Finger0Slot       | First/Upper ring slot        |
-| Finger1Slot       | Second/Upper ring slot       |
-| Trinket0Slot      | First/Upper trinket slot     |
-| Trinket1Slot      | Second/Lower trinket slot    |
+| Finger0Slot       | First/Upper Ring slot        |
+| Finger1Slot       | Second/Upper Ring slot       |
+| Trinket0Slot      | First/Upper Trinket slot     |
+| Trinket1Slot      | Second/Lower Trinket slot    |
 | BackSlot          | Back/Cloak slot              |
 | MainhandSlot      | Main-hand slot               |
 | SecondaryHandSlot | Secondary-hand/Off-hand slot |
 | RangedSlot        | Ranged slot                  |
+| AmmoSlot          | Ammo slot                    |
 
 ## Features of GearMenu
 
@@ -101,6 +102,18 @@ GearMenu allows to drag and drop items onto slots, remove from slots and slots c
 #### Unequip item by drag and drop
 
 ![](/docs/gm_drag_and_drop_unequip.gif)
+
+### Combined Equipping
+
+Slots such as trinket and ring slots have combined equipping enabled. This means that in addition to a left click on the item the player wishes to equip they also support right click. Slots that do not support combined quipping (which most don't) will normally equip any item whether it was left- or right-clicked. If the slot has combined equipping enabled a right click will instead put the chosen item into the opposite slot.
+
+![](/docs/gm_combined_equip.gif)
+
+### Unequip Items
+
+Enable an empty slot in the changeMenu that allows for quicker and easier unequipping of items.
+
+![](/docs/gm_unequip.gif)
 
 ### Macro Support
 
@@ -159,7 +172,7 @@ To show the configuration screen use `/rggm opt` while ingame and `/rggm info` f
 
 ![](/docs/gm_options_lock_window.gif)
 
-### Fastpress Support
+### FastPress Support
 
 Enable whether an item in a Gearslot should be used when the player pressed down(keydown) or only after the key was released(keyup).
 
@@ -243,7 +256,7 @@ mvn package -Dgenerate.sources.overwrite=true -P release
 
 **Note:** This packaging and switching resources can also be done one after another.
 
-**Note:** The packaging is not fit to be used for twitch because twitch expects a specific packaging
+**Note:** The packaging is not fit to be used for curseforge because curseforge expects a specific packaging
 
 ```
 # switch environment to release
@@ -265,22 +278,22 @@ mvn package -P deploy-github
 
 For this to work an oauth token for GitHub is required and has to be configured in your `.m2` settings file.
 
-### Deploy Twitch Release
+### Deploy CurseForge Release
 
-**Note:** Its best to create the release for GitHub first and only afterwards the twitch release. That way the tag was already created.
+**Note:** Its best to create the release for GitHub first and only afterwards the curseforge release. That way the tag was already created.
 
 ```
 # switch environment to release
 mvn generate-resources -Dgenerate.sources.overwrite=true -P release
 # deploy release
-mvn package -P deploy-twitch
+mvn package -P deploy-curseforge
 ```
 
 ## License
 
 MIT License
 
-Copyright (c) 2020 Michael Wiesendanger
+Copyright (c) 2021 Michael Wiesendanger
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

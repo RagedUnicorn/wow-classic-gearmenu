@@ -1,7 +1,7 @@
 --[[
   MIT License
 
-  Copyright (c) 2020 Michael Wiesendanger
+  Copyright (c) 2021 Michael Wiesendanger
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -27,6 +27,8 @@
 -- luacheck: globals UnitAffectingCombat CursorHasItem SpellIsTargeting GetContainerItemInfo
 -- luacheck: globals IsInventoryItemLocked PickupContainerItem PickupInventoryItem GetContainerItemLink
 -- luacheck: globals GetInventoryItemLink GetInventoryItemID GetItemSpell
+-- luacheck: globals PickupInventoryItem GetContainerNumSlots GetContainerItemID
+-- luacheck: globals PutItemInBackpack PutItemInBag ClearCursor
 
 --[[
   Itemmanager manages all items. All itemslots muss register to work properly
@@ -39,11 +41,9 @@ me.tag = "ItemManager"
 
 --[[
   Retrieve all items from inventory bags matching any type of
-    INVTYPE_AMMO
     INVTYPE_HEAD
     INVTYPE_NECK
     INVTYPE_SHOULDER
-    INVTYPE_BODY
     INVTYPE_CHEST
     INVTYPE_ROBE
     INVTYPE_WAIST
@@ -59,6 +59,12 @@ me.tag = "ItemManager"
     INVTYPE_2HWEAPON
     INVTYPE_WEAPONMAINHAND
     INVTYPE_WEAPONOFFHAND
+    INVTYPE_HOLDABLE
+    INVTYPE_RANGED
+    INVTYPE_THROWN
+    INVTYPE_RANGEDRIGHT
+    INVTYPE_RELIC
+    INVTYPE_AMMO
 
   @param {table} inventoryType
 
@@ -184,12 +190,56 @@ function me.SwitchItems(itemId, slotId)
 
         -- make sure to clear combatQueue
         mod.combatQueue.RemoveFromQueue(slotId)
+
+        return -- abort
       end
-    else
-      mod.logger.LogDebug(me.tag, "Was unable to switch because the item to switch to could not be found")
+    end
+
+    --[[
+      Special case for when an item can't be found in the bag. This can happen when the
+      user drag and drops an item that he has equiped onto another slot. This essentialy
+      needs to cause a switch of those items. This is only possible for INVTYPE_TRINKET and
+      INVTYPE_FINGER
+    ]]--
+    local foundSlotId = me.FindEquipedItem(itemId)
+
+    if foundSlotId then
+      -- the found slot with the queue slot
+      PickupInventoryItem(foundSlotId)
+      PickupInventoryItem(slotId)
+
       mod.combatQueue.RemoveFromQueue(slotId)
+
+      return -- abort
+    end
+
+    mod.logger.LogDebug(me.tag, "Was unable to switch because the item to switch to could not be found")
+    mod.combatQueue.RemoveFromQueue(slotId)
+  end
+end
+
+--[[
+  Search for an item in all inventoryslots
+
+  @param {number} itemId
+
+  @return {number | nil}
+    number - the slotId where the item was found
+    nil - if the item could not be found
+]]--
+function me.FindEquipedItem(itemId)
+  local gearSlots = mod.gearManager.GetGearSlots()
+
+  for i = 1, table.getn(gearSlots) do
+    local equipedItemId = GetInventoryItemID(RGGM_CONSTANTS.UNIT_ID_PLAYER, gearSlots[i].slotId)
+
+    if equipedItemId == itemId then
+      -- return the slot where the item was found
+      return gearSlots[i].slotId -- found in the following slot
     end
   end
+
+  return nil
 end
 
 --[[
@@ -332,4 +382,29 @@ function me.AddItemsMatchingInventoryType(inventoryType, itemId, mustHaveOnUse)
   end
 
   return item
+end
+
+--[[
+  Unequips the item from the referenced slot. Tries to unequip into the backpack first
+  and then through all bags in order. If no space can be found the action is aborted
+
+  @param {table} slot
+]]--
+function me.UnequipItemToBag(slot)
+  PickupInventoryItem(slot.slotId)
+
+  for i = 0, 4 do
+    for j = 1, GetContainerNumSlots(i) do
+      local itemId = GetContainerItemID(i, j)
+      if itemId == nil then
+        if i == 0 then
+          PutItemInBackpack()
+        else
+          PutItemInBag(mod.gearManager.GetMappedBag(i))
+          break
+        end
+      end
+    end
+  end
+  ClearCursor()
 end

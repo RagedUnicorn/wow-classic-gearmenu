@@ -1,7 +1,7 @@
 --[[
   MIT License
 
-  Copyright (c) 2020 Michael Wiesendanger
+  Copyright (c) 2021 Michael Wiesendanger
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -159,7 +159,9 @@ end
 ]]--
 function me.ExecuteQuickChangeRule(quickChangeRule, slotIds)
   for _, slotMetadata in ipairs(slotIds) do
-    if slotMetadata.itemId == quickChangeRule.changeFromItemId then
+    -- Only perform quickchange if item ID's match and item is not currently equipped.
+    -- Solving situations such as users using two of the same trinket or weapon will need a more complicated approach.
+    if slotMetadata.itemId == quickChangeRule.changeFromItemId and not IsEquippedItem(quickChangeRule.changeToItemId) then
       C_Timer.After(quickChangeRule.delay or 0, function()
         mod.itemManager.EquipItemById(
           quickChangeRule.changeToItemId, slotMetadata.slotId

@@ -1,7 +1,7 @@
 --[[
   MIT License
 
-  Copyright (c) 2020 Michael Wiesendanger
+  Copyright (c) 2021 Michael Wiesendanger
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals UnitIsDeadOrGhost UnitBuff CastingInfo ChannelInfo
+-- luacheck: globals UnitIsDeadOrGhost UnitBuff CastingInfo ChannelInfo UnitIsFeignDeath
 
 local mod = rggm
 local me = {}
@@ -34,18 +34,15 @@ me.tag = "Common"
 --[[
   Check if a player is really dead and did not use feignDeath
 
-  @return {1 or nil}
-    1   - dead or ghost
-    nil - alive
+  @return {boolean}
+    true if the player is dead
+    false if the player is not dead
 ]]--
 function me.IsPlayerReallyDead()
-  local FEIGN_DEATH = "Interface\\Icons\\Ability_Rogue_FeignDeath"
   local dead = UnitIsDeadOrGhost(RGGM_CONSTANTS.UNIT_ID_PLAYER)
 
-  for i = 1, 24 do
-    if UnitBuff(RGGM_CONSTANTS.UNIT_ID_PLAYER, i) == FEIGN_DEATH then
-      dead = nil
-    end
+  if UnitIsFeignDeath(RGGM_CONSTANTS.UNIT_ID_PLAYER) then
+    dead = false
   end
 
   return dead
