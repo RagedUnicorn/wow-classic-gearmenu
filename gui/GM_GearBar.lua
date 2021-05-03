@@ -633,6 +633,23 @@ function me.SetupEvents(gearSlot)
 end
 
 --[[
+  Update clickhandler to match fastpress configuration. Only register to events that are needed
+]]--
+function me.UpdateClickHandler()
+  local uiGearBars = mod.gearBarStorage.GetGearBars()
+
+  for _, uiGearBar in pairs(uiGearBars) do
+    for _, gearSlot in pairs(uiGearBar.gearSlotReferences) do
+      if mod.configuration.IsFastPressEnabled() then
+        gearSlot:RegisterForClicks("LeftButtonDown", "RightButtonDown")
+      else
+        gearSlot:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+      end
+    end
+  end
+end
+
+--[[
   Callback for a gearBarSlot OnClick
 
   @param {table} self
