@@ -111,8 +111,9 @@ function me.OnEvent(event, ...)
     end
   elseif event == "UNIT_INVENTORY_CHANGED" then
     me.logger.LogEvent(me.tag, "UNIT_INVENTORY_CHANGED")
+    local unit = ...
 
-    if initializationDone then
+    if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER and initializationDone then
       me.gearBar.UpdateGearBarTextures()
     end
   elseif event == "BAG_UPDATE_COOLDOWN" then
