@@ -297,9 +297,9 @@ end
   @param {number} gearBarId
     An id of a gearBar
 
-  @return {boolean}
-    true - if the operation was successful
-    false - if the operation was not successful
+  @return {table | nil}
+    true - if the operation was successful TODO
+    false - if the operation was not successful TODO
 ]]--
 function me.AddGearSlot(gearBarId)
   local gearSlot = {
@@ -311,7 +311,7 @@ function me.AddGearSlot(gearBarId)
       -- {number}
     ["slotId"] = nil,
       --[[
-        {number} on of
+        {number} one of
           INVSLOT_HEAD
           INVSLOT_NECK
           INVSLOT_SHOULDER
@@ -345,12 +345,12 @@ function me.AddGearSlot(gearBarId)
 
   if gearBar ~= nil then
     table.insert(gearBar.slots, gearSlot)
-    return true
+    return gearSlot
   end
 
   mod.logger.LogError(me.tag, "Was unable to find GearBar with id: " .. gearBarId)
 
-  return false
+  return nil
 end
 
 --[[

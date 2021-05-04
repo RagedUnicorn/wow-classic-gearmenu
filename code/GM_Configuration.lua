@@ -36,18 +36,6 @@ me.tag = "Configuration"
 GearMenuConfiguration = {
   ["addonVersion"] = nil,
   --[[
-    Whether the gearBar is locked from moving or not
-  ]]--
-  ["lockGearBar"] = false,
-  --[[
-    Whether to show keybindings on the itemslots
-  ]]--
-  ["showKeyBindings"] = true,
-  --[[
-    Whether to show cooldowns on the itemslots
-  ]]--
-  ["showCooldowns"] = true,
-  --[[
     Whether to enable tooltips
   ]]--
   ["enableTooltips"] = true,
@@ -81,32 +69,6 @@ GearMenuConfiguration = {
     5 Legendary (orange)
   ]]--
   ["filterItemQuality"] = 2,
-  --[[
-    Base size for a slot such as the changeMenu and gearBar
-  ]]--
-  ["slotSize"] = RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE,
-  --[[
-    Initial default slot mapping
-  ]]--
-  ["slots"] = {
-    [1] = INVSLOT_HEAD,
-    [2] = RGGM_CONSTANTS.INVSLOT_NONE,
-    [3] = RGGM_CONSTANTS.INVSLOT_NONE,
-    [4] = INVSLOT_CHEST,
-    [5] = INVSLOT_WAIST,
-    [6] = RGGM_CONSTANTS.INVSLOT_NONE,
-    [7] = INVSLOT_FEET,
-    [8] = RGGM_CONSTANTS.INVSLOT_NONE,
-    [9] = RGGM_CONSTANTS.INVSLOT_NONE,
-    [10] = RGGM_CONSTANTS.INVSLOT_NONE,
-    [11] = RGGM_CONSTANTS.INVSLOT_NONE,
-    [12] = INVSLOT_TRINKET1,
-    [13] = INVSLOT_TRINKET2,
-    [14] = RGGM_CONSTANTS.INVSLOT_NONE,
-    [15] = INVSLOT_MAINHAND,
-    [16] = INVSLOT_OFFHAND,
-    [17] = RGGM_CONSTANTS.INVSLOT_NONE
-  },
   --[[
     Stores all relevant metadata for the users gearBars. It does only store data that should be persisted. This
     does not include references to ui elements
@@ -148,21 +110,6 @@ GearMenuConfiguration = {
   Set default values if property is nil. This might happen after an addon upgrade
 ]]--
 function me.SetupConfiguration()
-  if GearMenuConfiguration.lockGearBar == nil then
-    mod.logger.LogInfo(me.tag, "lockGearBar has unexpected nil value")
-    GearMenuConfiguration.lockGearBar = true
-  end
-
-  if GearMenuConfiguration.showKeyBindings == nil then
-    mod.logger.LogInfo(me.tag, "showKeyBindings has unexpected nil value")
-    GearMenuConfiguration.showKeyBindings = true
-  end
-
-  if GearMenuConfiguration.showCooldowns == nil then
-    mod.logger.LogInfo(me.tag, "showCooldowns has unexpected nil value")
-    GearMenuConfiguration.showCooldowns = false
-  end
-
   if GearMenuConfiguration.enableTooltips == nil then
     mod.logger.LogInfo(me.tag, "enableTooltips has unexpected nil value")
     GearMenuConfiguration.enableTooltips = true
@@ -193,35 +140,6 @@ function me.SetupConfiguration()
     GearMenuConfiguration.filterItemQuality = 0
   end
 
-  if GearMenuConfiguration.slotSize == nil then
-    mod.logger.LogInfo(me.tag, "slotSize has unexpected nil value")
-    GearMenuConfiguration.slotSize = RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE
-  end
-
-  if GearMenuConfiguration.slots == nil then
-    mod.logger.LogInfo(me.tag, "slots has unexpected nil value")
-
-    GearMenuConfiguration.slots = {
-      [1] = INVSLOT_HEAD,
-      [2] = RGGM_CONSTANTS.INVSLOT_NONE,
-      [3] = RGGM_CONSTANTS.INVSLOT_NONE,
-      [4] = INVSLOT_CHEST,
-      [5] = INVSLOT_WAIST,
-      [6] = RGGM_CONSTANTS.INVSLOT_NONE,
-      [7] = INVSLOT_FEET,
-      [8] = RGGM_CONSTANTS.INVSLOT_NONE,
-      [9] = RGGM_CONSTANTS.INVSLOT_NONE,
-      [10] = RGGM_CONSTANTS.INVSLOT_NONE,
-      [11] = RGGM_CONSTANTS.INVSLOT_NONE,
-      [12] = INVSLOT_TRINKET1,
-      [13] = INVSLOT_TRINKET2,
-      [14] = RGGM_CONSTANTS.INVSLOT_NONE,
-      [15] = INVSLOT_MAINHAND,
-      [16] = INVSLOT_OFFHAND,
-      [17] = RGGM_CONSTANTS.INVSLOT_NONE
-    }
-  end
-
   if GearMenuConfiguration.gearBars == nil then
     mod.logger.LogInfo(me.tag, "gearBars has unexpected nil value")
     GearMenuConfiguration.gearBars = {}
@@ -230,11 +148,6 @@ function me.SetupConfiguration()
   if GearMenuConfiguration.quickChangeRules == nil then
     mod.logger.LogInfo(me.tag, "quickChangeRules has unexpected nil value")
     GearMenuConfiguration.quickChangeRules = {}
-  end
-
-  if GearMenuConfiguration.frames == nil then
-    mod.logger.LogInfo(me.tag, "frames has unexpected nil value")
-    GearMenuConfiguration.frames = {}
   end
 
   --[[
@@ -266,6 +179,7 @@ end
 function me.MigrationPath()
   me.UpgradeToV1_3_0()
   me.UpgradeToV1_4_0()
+  me.UpgradeToV2_0_0()
 end
 
 --[[
@@ -323,6 +237,58 @@ function me.UpgradeToV1_4_0()
   GearMenuConfiguration.enableFastpress = nil
 
   mod.logger.LogDebug(me.tag, "Finished upgrade path from " .. GearMenuConfiguration.addonVersion .. " to v1.4.0")
+end
+
+--[[
+  Should be run by versions: All < v2.0.0
+  Description: Complete overhault of how gearBars are created
+]]--
+function me.UpgradeToV2_0_0()
+  local versions = {"v1.6.0", "v1.5.0", "v1.4.0", "v1.3.0", "v1.2.0", "v1.1.0", "v1.0.1", "v1.0.0"}
+  local shouldRunUpgradePath = false
+
+  for _, version in pairs(versions) do
+    if GearMenuConfiguration.addonVersion == version then
+      shouldRunUpgradePath = true
+      break
+    end
+  end
+
+  if not shouldRunUpgradePath then return end
+
+  mod.logger.LogDebug(me.tag, "Running upgrade path from " .. GearMenuConfiguration.addonVersion .. " to v2.0.0")
+
+  local gearBar = mod.gearBarManager.AddGearBar("Main")
+
+  gearBar.isLocked = GearMenuConfiguration.lockGearBar
+  gearBar.showKeyBindings = GearMenuConfiguration.showKeyBindings
+  gearBar.showCooldowns = GearMenuConfiguration.showCooldowns
+  gearBar.slotSize = GearMenuConfiguration.slotSize
+  gearBar.position = {}
+  gearBar.position.relativePoint = GearMenuConfiguration.frames.GM_GearBar.relativePoint
+  gearBar.position.point = GearMenuConfiguration.frames.GM_GearBar.point
+  gearBar.position.posX = GearMenuConfiguration.frames.GM_GearBar.posX
+  gearBar.position.posY = GearMenuConfiguration.frames.GM_GearBar.posY
+  gearBar.slots = nil -- reset slots
+  gearBar.slots = {}
+
+  for i = 1, #GearMenuConfiguration.slots do
+    if GearMenuConfiguration.slots[i] ~= RGGM_CONSTANTS.INVSLOT_NONE then
+      local gearSlot = mod.gearManager.GetGearSlotForSlotId(GearMenuConfiguration.slots[i])
+
+      table.insert(gearBar.slots, gearSlot)
+    end
+  end
+
+  -- no longer used properties (moved to specific gearBar)
+  GearMenuConfiguration.lockGearBar = nil
+  GearMenuConfiguration.showKeyBindings = nil
+  GearMenuConfiguration.showCooldowns = nil
+  GearMenuConfiguration.slotSize = nil
+  GearMenuConfiguration.frames = nil
+  GearMenuConfiguration.slots = nil
+
+  mod.logger.LogDebug(me.tag, "Finished upgrade path from " .. GearMenuConfiguration.addonVersion .. " to v2.0.0")
 end
 
 --[[
@@ -461,62 +427,6 @@ end
 ]]--
 function me.GetFilterItemQuality()
   return GearMenuConfiguration.filterItemQuality
-end
-
---[[
-  Update the gearbar slotSize
-
-  @param {number} slotSize
-]]--
-function me.SetSlotSize(slotSize)
-  GearMenuConfiguration.slotSize = slotSize
-end
-
---[[
-  Get the configured gearbar slotsize
-
-  @return {number}
-]]--
-function me.GetSlotSize()
-  return GearMenuConfiguration.slotSize
-end
-
---[[
-  Returns the slotId for a certain slot position
-
-  @param {number} position
-
-  @return {number}
-]]--
-function me.GetSlotForPosition(position)
-  return GearMenuConfiguration.slots[position]
-end
-
---[[
-  @param {number} slotId
-
-  @return {number | nil}
-    number - If the position for the slotId could be found
-    nil    - If the position for the slotId could not be found
-]]--
-function me.GetSlotForSlotId(slotId)
-  for i = 1, table.getn(GearMenuConfiguration.slots) do
-    if GearMenuConfiguration.slots[i] == slotId then
-      return i
-    end
-  end
-
-  return nil
-end
-
---[[
-  Sets a slotId for a slot position
-
-  @param {number} position
-  @param {number} slotId
-]]--
-function me.SetSlotForPosition(position, slotId)
-  GearMenuConfiguration.slots[position] = slotId
 end
 
 --[[

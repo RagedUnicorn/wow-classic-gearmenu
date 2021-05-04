@@ -83,14 +83,7 @@ function me.BuildGearBar(gearBar)
   gearBarFrame:SetHeight(RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE)
   -- load gearBars position
   gearBarFrame:ClearAllPoints() -- very important to clear all points first
-  gearBarFrame:SetPoint(
-    gearBar.position.point,
-    gearBar.position.relativeTo,
-    gearBar.position.relativePoint,
-    gearBar.position.posX,
-    gearBar.position.posY
-  )
-
+  gearBarFrame:SetPoint("CENTER", 0, 0)
   gearBarFrame:SetMovable(true)
   -- prevent dragging the frame outside the actual 3d-window
   gearBarFrame:SetClampedToScreen(true)
@@ -263,6 +256,14 @@ function me.UpdateGearBar(gearBar)
   end
 
   local uiGearBar = mod.gearBarStorage.GetGearBar(gearBar.id)
+  uiGearBar.gearBarReference:ClearAllPoints()
+  uiGearBar.gearBarReference:SetPoint(
+    gearBar.position.point,
+    nil,
+    gearBar.position.relativePoint,
+    gearBar.position.posX,
+    gearBar.position.posY
+  )
 
   if gearBar.isLocked then
     uiGearBar.gearBarReference:SetBackdrop(nil)
