@@ -424,3 +424,19 @@ function me.OnUpdateKeyBindings()
     end
   end
 end
+
+--[[
+  Convert actual keybinding text to a shorter one to be displayed on top of action buttons
+
+  @param {string} keyBindingText
+
+  return {string}
+]]--
+function me.ConvertKeyBindingText(keyBindingText)
+  local convertedKeyBindingText = string.gsub(string.lower(keyBindingText), "ctrl", "c")
+
+  convertedKeyBindingText = string.gsub(convertedKeyBindingText, "shift", "s")
+  convertedKeyBindingText = string.gsub(convertedKeyBindingText, "alt", "a")
+
+  return convertedKeyBindingText
+end

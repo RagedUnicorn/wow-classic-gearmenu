@@ -314,6 +314,8 @@ end
   @param {string} keyBindingText
 ]]--
 function me.UpdateKeyBindingState(gearBar, keybindingFontString, keyBindingText)
+  if keyBindingText == nil then return end
+
   if mod.gearBarManager.IsShowKeyBindingsEnabled(gearBar.id) then
     mod.ticker.RegisterForTickerRangeCheck(gearBar.id)
 
@@ -322,7 +324,7 @@ function me.UpdateKeyBindingState(gearBar, keybindingFontString, keyBindingText)
       mod.configuration.GetSlotSize() * RGGM_CONSTANTS.GEAR_BAR_CHANGE_KEYBIND_TEXT_MODIFIER,
       "THICKOUTLINE"
     )
-    keybindingFontString:SetText(keyBindingText)
+    keybindingFontString:SetText(mod.keyBind.ConvertKeyBindingText(keyBindingText))
     keybindingFontString:Show()
   else
     mod.ticker.UnregisterForTickerRangeCheck(gearBar.id)
