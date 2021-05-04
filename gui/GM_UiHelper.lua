@@ -36,12 +36,16 @@ me.tag = "UiHelper"
   Slot prepare texture
 
   @param {table} slot
+  @param {number} slotSize
+    Optional slotSize
 ]]--
-function me.UpdateSlotTextureAttributes(slot)
+function me.UpdateSlotTextureAttributes(slot, slotSize)
   if slot:GetNormalTexture() == nil then
     -- set a dummy texture - otherwise GetNormalTexture will return nil
     slot:SetNormalTexture("//dummy")
   end
+
+  local actualSlotSize = slotSize or RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE
 
   local texture = slot:GetNormalTexture()
   texture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
@@ -49,15 +53,15 @@ function me.UpdateSlotTextureAttributes(slot)
     "TOPLEFT",
     slot,
     "TOPLEFT",
-    mod.configuration.GetSlotSize() * RGGM_CONSTANTS.GEAR_BAR_SLOT_BORDER_MODIFIER,
-    mod.configuration.GetSlotSize() * RGGM_CONSTANTS.GEAR_BAR_SLOT_BORDER_MODIFIER * -1
+    actualSlotSize * RGGM_CONSTANTS.GEAR_BAR_SLOT_BORDER_MODIFIER,
+    actualSlotSize * RGGM_CONSTANTS.GEAR_BAR_SLOT_BORDER_MODIFIER * -1
   )
   texture:SetPoint(
     "BOTTOMRIGHT",
     slot,
     "BOTTOMRIGHT",
-    mod.configuration.GetSlotSize() * RGGM_CONSTANTS.GEAR_BAR_SLOT_BORDER_MODIFIER * -1,
-    mod.configuration.GetSlotSize() * RGGM_CONSTANTS.GEAR_BAR_SLOT_BORDER_MODIFIER
+    actualSlotSize * RGGM_CONSTANTS.GEAR_BAR_SLOT_BORDER_MODIFIER * -1,
+    actualSlotSize * RGGM_CONSTANTS.GEAR_BAR_SLOT_BORDER_MODIFIER
   )
 end
 
@@ -75,14 +79,14 @@ function me.CreateCooldownOverlay(slot, frameName, slotSize)
     slot,
     "CooldownFrameTemplate"
   )
-  cooldownOverlay:SetSize(slotSize, slotSize)
-  cooldownOverlay:SetAllPoints()
+
+  cooldownOverlay:SetAllPoints(cooldownOverlay:GetParent())
   cooldownOverlay:Hide()
   -- set fontsize based on slotsize
   cooldownOverlay:GetRegions()
     :SetFont(
       STANDARD_TEXT_FONT,
-      mod.configuration.GetSlotSize() * RGGM_CONSTANTS.GEAR_BAR_CHANGE_COOLDOWN_TEXT_MODIFIER
+      slotSize * RGGM_CONSTANTS.GEAR_BAR_CHANGE_COOLDOWN_TEXT_MODIFIER
     )
 
   slot.cooldownOverlay = cooldownOverlay

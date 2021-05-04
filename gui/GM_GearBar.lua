@@ -196,7 +196,7 @@ end
 ]]--
 function me.CreateCombatQueueSlot(gearSlot)
   local combatQueueSlot = CreateFrame("Frame", RGGM_CONSTANTS.ELEMENT_GEAR_BAR_COMBAT_QUEUE_SLOT, gearSlot)
-  local combatQeueuSlotSize = mod.configuration.GetSlotSize()
+  local combatQeueuSlotSize = RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE
     * RGGM_CONSTANTS.GEAR_BAR_COMBAT_QUEUE_SLOT_SIZE_MODIFIER
 
   combatQueueSlot:SetSize(
@@ -287,7 +287,7 @@ function me.UpdateGearBar(gearBar)
     uiGearSlot:SetAttribute("item", gearSlotMetaData.slotId)
 
     me.UpdateTexture(uiGearSlot, gearSlotMetaData)
-    mod.uiHelper.UpdateSlotTextureAttributes(uiGearSlot)
+    mod.uiHelper.UpdateSlotTextureAttributes(uiGearSlot, gearBar.slotSize)
     me.UpdateGearSlotSize(gearBar, uiGearBar, uiGearSlot, index)
     me.UpdateKeyBindingState(gearBar, uiGearSlot.keyBindingText, gearSlotMetaData.keyBinding)
 
@@ -321,7 +321,7 @@ function me.UpdateKeyBindingState(gearBar, keybindingFontString, keyBindingText)
 
     keybindingFontString:SetFont(
       STANDARD_TEXT_FONT,
-      mod.configuration.GetSlotSize() * RGGM_CONSTANTS.GEAR_BAR_CHANGE_KEYBIND_TEXT_MODIFIER,
+      gearBar.slotSize * RGGM_CONSTANTS.GEAR_BAR_CHANGE_KEYBIND_TEXT_MODIFIER,
       "THICKOUTLINE"
     )
     keybindingFontString:SetText(mod.keyBind.ConvertKeyBindingText(keyBindingText))
@@ -344,19 +344,39 @@ end
 function me.UpdateGearSlotSize(gearBar, uiGearBar, uiGearSlot, position)
   -- update slotsize to match configuration
   uiGearSlot:SetSize(gearBar.slotSize, gearBar.slotSize)
-  uiGearSlot.cooldownOverlay:SetSize(gearBar.slotSize, gearBar.slotSize)
-  uiGearSlot.cooldownOverlay:GetRegions()
-    :SetFont(
-      STANDARD_TEXT_FONT,
-      gearBar.slotSize * RGGM_CONSTANTS.GEAR_BAR_CHANGE_COOLDOWN_TEXT_MODIFIER
-    )
-
   uiGearSlot:SetPoint(
     "LEFT",
     uiGearBar.gearBarReference,
     "LEFT",
     RGGM_CONSTANTS.GEAR_BAR_SLOT_X + (position - 1) * gearBar.slotSize,
     RGGM_CONSTANTS.GEAR_BAR_SLOT_Y
+  )
+
+  me.UpdateCooldownOverlaySize(uiGearSlot, gearBar.slotSize)
+  me.UpdateCombatQueueSlotSize(uiGearSlot, gearBar.slotSize)
+end
+
+--[[
+  @param {table} uiGearBar
+  @param {number} slotSize
+]]--
+function me.UpdateCooldownOverlaySize(uiGearSlot, slotSize)
+  uiGearSlot.cooldownOverlay:SetSize(slotSize, slotSize)
+  uiGearSlot.cooldownOverlay:GetRegions()
+    :SetFont(
+      STANDARD_TEXT_FONT,
+      slotSize * RGGM_CONSTANTS.GEAR_BAR_CHANGE_COOLDOWN_TEXT_MODIFIER
+    )
+end
+
+--[[
+  @param {table} uiGearBar
+  @param {number} slotSize
+]]--
+function me.UpdateCombatQueueSlotSize(uiGearSlot, slotSize)
+  uiGearSlot.combatQueueSlot:SetSize(
+    slotSize * RGGM_CONSTANTS.GEAR_BAR_COMBAT_QUEUE_SLOT_SIZE_MODIFIER,
+    slotSize * RGGM_CONSTANTS.GEAR_BAR_COMBAT_QUEUE_SLOT_SIZE_MODIFIER
   )
 end
 
