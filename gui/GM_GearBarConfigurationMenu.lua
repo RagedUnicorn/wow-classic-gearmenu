@@ -180,7 +180,7 @@ end
   @param {string} name
 ]]--
 function me.CreateNewGearBar(name)
-  local gearBar = mod.gearBarManager.AddGearBar(name)
+  local gearBar = mod.gearBarManager.AddGearBar(name, true)
   -- build visual gearBar representation
   mod.gearBar.BuildGearBar(gearBar)
 

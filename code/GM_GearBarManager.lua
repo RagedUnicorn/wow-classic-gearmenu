@@ -40,11 +40,14 @@ me.tag = "GearBarManager"
 
   @param {string} gearBarName
     The gearBarName that should be used for display
+  @param {boolean} addDefaultSlot
+    true - if a default slot should be added
+    false - if a default slot should not be added
 
   @return {table}
     The created gearBar
 ]]--
-function me.AddGearBar(gearBarName)
+function me.AddGearBar(gearBarName, addDefaultSlot)
   local gearBar = {
     ["id"] = 100000 + math.floor(math.random() * 100000),
     ["displayName"] = gearBarName,
@@ -63,7 +66,9 @@ function me.AddGearBar(gearBarName)
   table.insert(GearMenuConfiguration.gearBars, gearBar)
   mod.logger.LogInfo(me.tag, "Created new GearBar with id: " .. gearBar.id)
 
-  me.AddGearSlot(gearBar.id)
+  if addDefaultSlot then
+    me.AddGearSlot(gearBar.id)
+  end
 
   return gearBar
 end

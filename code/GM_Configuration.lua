@@ -36,6 +36,10 @@ me.tag = "Configuration"
 GearMenuConfiguration = {
   ["addonVersion"] = nil,
   --[[
+    Whether the first time initialization was already done
+  ]]--
+  ["firstTimeInitializationDone"] = false,
+  --[[
     Whether to enable tooltips
   ]]--
   ["enableTooltips"] = true,
@@ -170,6 +174,10 @@ function me.SetAddonVersion()
   me.MigrationPath()
   -- migration done update addon version to current
   GearMenuConfiguration.addonVersion = GetAddOnMetadata(RGGM_CONSTANTS.ADDON_NAME, "Version")
+
+  if #GearMenuConfiguration.gearBars == 0 and not GearMenuConfiguration.firstTimeInitializationDone then
+    me.FirstTimeInitialization()
+  end
 end
 
 --[[
@@ -180,6 +188,25 @@ function me.MigrationPath()
   me.UpgradeToV1_3_0()
   me.UpgradeToV1_4_0()
   me.UpgradeToV2_0_0()
+end
+
+--[[
+  First time initialization. Create a basic default gearBar
+]]--
+function me.FirstTimeInitialization()
+  mod.logger.LogInfo(me.tag, "First initialization detected. Creating default gearBar")
+
+  local gearBar = mod.gearBarManager.AddGearBar(RGGM_CONSTANTS.GEAR_BAR_DEFAULT_NAME, false)
+  mod.gearBarManager.AddGearSlot(gearBar.id)
+  mod.gearBarManager.UpdateGearSlot(gearBar.id, 1, mod.gearManager.GetGearSlotForSlotId(INVSLOT_TRINKET1))
+
+  mod.gearBarManager.AddGearSlot(gearBar.id)
+  mod.gearBarManager.UpdateGearSlot(gearBar.id, 2, mod.gearManager.GetGearSlotForSlotId(INVSLOT_TRINKET2))
+
+  mod.gearBarManager.AddGearSlot(gearBar.id)
+  mod.gearBarManager.UpdateGearSlot(gearBar.id, 3, mod.gearManager.GetGearSlotForSlotId(INVSLOT_HEAD))
+
+  GearMenuConfiguration.firstTimeInitializationDone = true
 end
 
 --[[
@@ -258,7 +285,7 @@ function me.UpgradeToV2_0_0()
 
   mod.logger.LogDebug(me.tag, "Running upgrade path from " .. GearMenuConfiguration.addonVersion .. " to v2.0.0")
 
-  local gearBar = mod.gearBarManager.AddGearBar("Main")
+  local gearBar = mod.gearBarManager.AddGearBar(RGGM_CONSTANTS.GEAR_BAR_DEFAULT_NAME, false)
 
   gearBar.isLocked = GearMenuConfiguration.lockGearBar
   gearBar.showKeyBindings = GearMenuConfiguration.showKeyBindings

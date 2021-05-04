@@ -252,6 +252,7 @@ RGGM_CONSTANTS = {
   --[[
     GearBar configuration menu
   ]]--
+  GEAR_BAR_DEFAULT_NAME = "Default_GearBar",
   ELEMENT_GEAR_BAR_CONFIGURATION_MENU = "GM_GearBarConfigurationMenu",
   ELEMENT_GEAR_BAR_CONFIGURATION_ADD_GEAR_BAR = "GM_GearBarConfigurationAddGearBarButton",
   ELEMENT_GEAR_BAR_LIST = "GM_GearBarList",
