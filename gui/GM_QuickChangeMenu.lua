@@ -643,7 +643,8 @@ end
   @param {table} scrollFrame
 ]]--
 function me.ToFauxScrollFrameOnUpdate(scrollFrame)
-  local selectedSlotId = UIDropDownMenu_GetSelectedValue(_G[RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MENU_INVENTORY_TYPE_DROPDOWN])
+  local selectedSlotId = UIDropDownMenu_GetSelectedValue(
+    _G[RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MENU_INVENTORY_TYPE_DROPDOWN])
   local gearSlot = mod.gearManager.GetGearSlotForSlotId(selectedSlotId)
   local items = mod.itemManager.FindQuickChangeItems(gearSlot.type, false)
   local maxValue = table.getn(items) or 0
