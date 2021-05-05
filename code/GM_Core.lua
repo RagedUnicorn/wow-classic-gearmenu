@@ -141,8 +141,6 @@ function me.OnEvent(event, ...)
     if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER and not channelledSpell then
       me.quickChange.OnUnitSpellCastSucceeded(...)
       me.combatQueue.ProcessQueue()
-    else
-      me.logger.LogDebug(me.tag, "Player is channeling - " .. channelledSpell .. " - ignoring spell cast success event")
     end
   elseif event == "UNIT_SPELLCAST_INTERRUPTED" then
     me.logger.LogEvent(me.tag, "UNIT_SPELLCAST_INTERRUPTED")
