@@ -214,7 +214,8 @@ end
   @param {table} self
 ]]--
 function me.AddRuleOnClick(self)
-  local delay = self:GetParent():GetValue()
+  local delaySlider = self:GetParent()
+  local delay = delaySlider:GetValue()
 
   if delay == nil then
     -- internal user
@@ -236,6 +237,7 @@ function me.AddRuleOnClick(self)
 
   mod.quickChange.AddQuickChangeRule(selectedRule.from, selectedRule.to, delay)
   me.ResetSelectedItems()
+  me.ResetDelaySlider(delaySlider)
   -- update items in 'from', 'to' and the rules list
   me.FromFauxScrollFrameOnUpdate(fromScrollFrame)
   me.ToFauxScrollFrameOnUpdate(toScrollFrame)
@@ -295,6 +297,15 @@ end
 function me.ResetSelectedRule()
   quickchangeRule.from = nil
   quickchangeRule.to = nil
+end
+
+--[[
+Reset the delay slider to its initial value
+
+@param {table} slider
+]]--
+function me.ResetDelaySlider(slider)
+  slider:SetValue(RGGM_CONSTANTS.QUICK_CHANGE_DELAY_SLIDER_MIN)
 end
 
 --[[
