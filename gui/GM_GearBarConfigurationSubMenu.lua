@@ -87,6 +87,7 @@ function me.GearBarConfigurationCategoryContainerOnCallback(self)
     gearBarConfigurationContentFrame:SetParent(self)
     -- trigger visual update
     me.GearBarConfigurationSlotsListOnUpdate(gearBarConfigurationSlotsList)
+    me.UpdateConfigurationMenuTitle(gearBarConfigurationContentFrame)
   else
     -- menu was not yet created
     me.BuildGearBarConfigurationSubMenu(self)
@@ -106,18 +107,7 @@ function me.BuildGearBarConfigurationSubMenu(parentFrame)
   gearBarConfigurationContentFrame:SetHeight(RGGM_CONSTANTS.INTERFACE_PANEL_CONTENT_FRAME_HEIGHT)
   gearBarConfigurationContentFrame:SetPoint("TOPLEFT", parentFrame, 5, -7)
 
-  local titleFontString = gearBarConfigurationContentFrame:CreateFontString(
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SUB_MENU_TITLE, "OVERLAY")
-  titleFontString:SetFont(STANDARD_TEXT_FONT, 20)
-  titleFontString:SetPoint("TOP", 0, -20)
-  titleFontString:SetSize(parentFrame:GetWidth(), 20)
-
-  if RGGM_ENVIRONMENT.DEBUG then
-    titleFontString:SetText(gearBarConfiguration.displayName .. "_" .. gearBarConfiguration.id)
-  else
-    titleFontString:SetText(gearBarConfiguration.displayName)
-  end
-
+  gearBarConfigurationContentFrame.subMenuTitle = me.CreateConfigurationMenuTitle(gearBarConfigurationContentFrame)
   me.CreateAddGearSlotButton(gearBarConfigurationContentFrame)
 
   me.BuildCheckButtonOption(
@@ -148,6 +138,28 @@ function me.BuildGearBarConfigurationSubMenu(parentFrame)
 
   gearBarConfigurationSlotsList = me.CreateGearBarConfigurationSlotsList(gearBarConfigurationContentFrame)
   me.GearBarConfigurationSlotsListOnUpdate(gearBarConfigurationSlotsList)
+end
+
+--[[
+  @param {table} contentFrame
+
+  @return {table}
+    The created fontString
+]]--
+function me.CreateConfigurationMenuTitle(contentFrame)
+  local titleFontString = gearBarConfigurationContentFrame:CreateFontString(
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SUB_MENU_TITLE, "OVERLAY")
+  titleFontString:SetFont(STANDARD_TEXT_FONT, 20)
+  titleFontString:SetPoint("TOP", 0, -20)
+  titleFontString:SetSize(contentFrame:GetWidth(), 20)
+
+  if RGGM_ENVIRONMENT.DEBUG then
+    titleFontString:SetText(gearBarConfiguration.displayName .. "_" .. gearBarConfiguration.id)
+  else
+    titleFontString:SetText(gearBarConfiguration.displayName)
+  end
+
+  return titleFontString
 end
 
 --[[
@@ -793,6 +805,17 @@ function me.GearBarConfigurationSlotsListOnUpdate(scrollFrame)
     else
       rows[index]:Hide()
     end
+  end
+end
+
+--[[
+  @param {table} contentFrame
+]]--
+function me.UpdateConfigurationMenuTitle(contentFrame)
+  if RGGM_ENVIRONMENT.DEBUG then
+    contentFrame.subMenuTitle:SetText(gearBarConfiguration.displayName .. "_" .. gearBarConfiguration.id)
+  else
+    contentFrame.subMenuTitle:SetText(gearBarConfiguration.displayName)
   end
 end
 
