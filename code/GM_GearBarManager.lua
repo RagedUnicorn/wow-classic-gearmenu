@@ -303,8 +303,6 @@ end
     An id of a gearBar
 
   @return {table | nil}
-    true - if the operation was successful TODO
-    false - if the operation was not successful TODO
 ]]--
 function me.AddGearSlot(gearBarId)
   local gearSlot = {
@@ -388,7 +386,7 @@ end
   @param {number} gearBarId
   @param {number} position
 
-  @retunr {table | nil}
+  @return {table | nil}
     table - the gearSlot that was found
     nil - if no gearSlot was found
 ]]--

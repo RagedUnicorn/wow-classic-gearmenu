@@ -89,7 +89,7 @@ function me.GearBarConfigurationCategoryContainerOnCallback(self)
     me.GearBarConfigurationSlotsListOnUpdate(gearBarConfigurationSlotsList)
   else
     -- menu was not yet created
-    me.BuildGearBarConfigurationMenu(self)
+    me.BuildGearBarConfigurationSubMenu(self)
   end
 end
 
@@ -99,15 +99,15 @@ end
   @param {table} parentFrame
     The menu entry in the interface options
 ]]
-function me.BuildGearBarConfigurationMenu(parentFrame)
+function me.BuildGearBarConfigurationSubMenu(parentFrame)
   gearBarConfigurationContentFrame = CreateFrame(
     "Frame", RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SUB_MENU, parentFrame)
-  gearBarConfigurationContentFrame:SetWidth(RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SUB_MENU_CONTENT_FRAME_WIDTH)
-  gearBarConfigurationContentFrame:SetHeight(RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SUB_MENU_CONTENT_FRAME_HEIGHT)
+  gearBarConfigurationContentFrame:SetWidth(RGGM_CONSTANTS.INTERFACE_PANEL_CONTENT_FRAME_WIDTH)
+  gearBarConfigurationContentFrame:SetHeight(RGGM_CONSTANTS.INTERFACE_PANEL_CONTENT_FRAME_HEIGHT)
   gearBarConfigurationContentFrame:SetPoint("TOPLEFT", parentFrame, 5, -7)
 
-  local titleFontString =
-    gearBarConfigurationContentFrame:CreateFontString(RGGM_CONSTANTS.ELEMENT_GENERAL_TITLE, "OVERLAY")
+  local titleFontString = gearBarConfigurationContentFrame:CreateFontString(
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SUB_MENU_TITLE, "OVERLAY")
   titleFontString:SetFont(STANDARD_TEXT_FONT, 20)
   titleFontString:SetPoint("TOP", 0, -20)
   titleFontString:SetSize(parentFrame:GetWidth(), 20)
@@ -119,7 +119,6 @@ function me.BuildGearBarConfigurationMenu(parentFrame)
   end
 
   me.CreateAddGearSlotButton(gearBarConfigurationContentFrame)
-  -- me.CreateLockGearBarCheckButton(gearBarConfigurationContentFrame)
 
   me.BuildCheckButtonOption(
     gearBarConfigurationContentFrame,
@@ -488,7 +487,7 @@ end
 ]]--
 function me.GearBarConfigurationSlotsListOnVerticalScroll(self, offset)
   self.ScrollBar:SetValue(offset)
-  self.offset = math.floor(offset / RGGM_CONSTANTS.SLOT_CONFIGURATION_LIST_ROW_HEIGHT + 0.5)
+  self.offset = math.floor(offset / RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_ROW_HEIGHT + 0.5)
   me.GearBarConfigurationSlotsListOnUpdate(self)
 end
 
@@ -605,13 +604,9 @@ function me.InitializeDropdownMenu(self)
     UIDropDownMenu_AddButton(button)
   end
 
-  -- create an option to disable the slot completely
-  local emptyButton = mod.uiHelper.CreateDropdownButton("None", RGGM_CONSTANTS.INVSLOT_NONE, me.DropDownMenuCallback)
-  UIDropDownMenu_AddButton(emptyButton)
-
   UIDropDownMenu_SetSelectedValue(
     _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SLOTS_GEAR_SLOT_DROPDOWN .. self.position],
-    RGGM_CONSTANTS.INVSLOT_NONE
+    RGGM_CONSTANTS.GEAR_BAR_GEAR_SLOT_DEFAULT_VALUE
   )
 end
 

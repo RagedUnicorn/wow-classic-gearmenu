@@ -71,26 +71,45 @@ local quickchangeRule = {
 -- track whether the menu was already built
 local builtMenu = false
 
-function me.BuildUi(frame)
+-- reference to rules scrollFrame
+local rulesScrollFrame
+-- reference to from scrollFrame
+local fromScrollFrame
+-- reference to to scrollFrame
+local toScrollFrame
+
+--[[
+  Build the ui for the quickchange menu
+
+  @param {table} parentFrame
+    The addon configuration frame to attach to
+]]--
+function me.BuildUi(parentFrame)
   if builtMenu then return end
+
+  local quickChangeContentFrame = CreateFrame(
+    "Frame", RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MENU, parentFrame)
+  quickChangeContentFrame:SetWidth(RGGM_CONSTANTS.INTERFACE_PANEL_CONTENT_FRAME_WIDTH)
+  quickChangeContentFrame:SetHeight(RGGM_CONSTANTS.INTERFACE_PANEL_CONTENT_FRAME_HEIGHT)
+  quickChangeContentFrame:SetPoint("TOPLEFT", parentFrame, 5, -7)
 
   --[[
     Create input elements
   ]]--
-  me.CreateDelaySlider(frame)
-  me.CreateAddRuleButton()
-  me.CreateRemoveRuleButton(frame)
-  me.CreateInventoryTypeDropdown(frame)
+  local delaySlider = me.CreateDelaySlider(quickChangeContentFrame)
+  me.CreateAddRuleButton(delaySlider)
+  me.CreateRemoveRuleButton(quickChangeContentFrame)
+  me.CreateInventoryTypeDropdown(quickChangeContentFrame)
   --[[
     Create item lists
   ]]--
-  local rulesScrollFrame = me.CreateRulesList(frame)
+  rulesScrollFrame = me.CreateRulesList(quickChangeContentFrame)
   -- initial load of rule list
   me.RulesScrollFrameOnUpdate(rulesScrollFrame)
-  local fromScrollFrame = me.CreateFromItemList(frame)
+  fromScrollFrame = me.CreateFromItemList(quickChangeContentFrame)
   -- initial load of from list
   me.FromFauxScrollFrameOnUpdate(fromScrollFrame)
-  local toScrollFrame = me.CreateToItemList(frame)
+  toScrollFrame = me.CreateToItemList(quickChangeContentFrame)
   -- initial load of to list
   me.ToFauxScrollFrameOnUpdate(toScrollFrame)
 
@@ -101,6 +120,9 @@ end
   Create a slider for choosing a delay for a quickchange rule
 
   @param {table} frame
+
+  @return {table}
+    The created delay slider
 ]]--
 function me.CreateDelaySlider(frame)
   local delaySlider = CreateFrame(
@@ -134,6 +156,8 @@ function me.CreateDelaySlider(frame)
 
   delaySlider.valueFontString = valueFontString
   delaySlider:SetScript("OnValueChanged", me.DelaySliderOnValueChange)
+
+  return delaySlider
 end
 
 --[[
@@ -148,12 +172,14 @@ end
 
 --[[
   Create a button for add new quickchange rules
+
+  @param {table} parentFrame
 ]]--
-function me.CreateAddRuleButton()
+function me.CreateAddRuleButton(parentFrame)
   local addRuleButton = CreateFrame(
     "Button",
     RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_ADD_RULE_BUTTON,
-    _G[RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_DELAY_SLIDER],
+    parentFrame,
     "UIPanelButtonTemplate"
   )
   addRuleButton:SetPoint("RIGHT", 120, 0)
@@ -171,9 +197,11 @@ end
 
 --[[
   OnClick callback for add rule button
+
+  @param {table} self
 ]]--
-function me.AddRuleOnClick()
-  local delay = _G[RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_DELAY_SLIDER]:GetValue()
+function me.AddRuleOnClick(self)
+  local delay = self:GetParent():GetValue()
 
   if delay == nil then
     -- internal user
@@ -196,9 +224,9 @@ function me.AddRuleOnClick()
   mod.quickChange.AddQuickChangeRule(selectedRule.from, selectedRule.to, delay)
   me.ResetSelectedItems()
   -- update items in 'from', 'to' and the rules list
-  me.FromFauxScrollFrameOnUpdate(_G[RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_FROM_SCROLL_FRAME])
-  me.ToFauxScrollFrameOnUpdate(_G[RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_FROM_SCROLL_FRAME])
-  me.RulesScrollFrameOnUpdate(_G[RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_RULES_SCROLL_FRAME])
+  me.FromFauxScrollFrameOnUpdate(fromScrollFrame)
+  me.ToFauxScrollFrameOnUpdate(toScrollFrame)
+  me.RulesScrollFrameOnUpdate(rulesScrollFrame)
 end
 
 --[[
@@ -237,7 +265,7 @@ function me.RemoveRuleOnClick()
 
   mod.quickChange.RemoveQuickChangeRule(quickchangeRule.from, quickchangeRule.to)
   me.ResetSelectedRule()
-  me.RulesScrollFrameOnUpdate(_G[RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_RULES_SCROLL_FRAME])
+  me.RulesScrollFrameOnUpdate(rulesScrollFrame)
 end
 
 --[[
@@ -264,7 +292,7 @@ end
 function me.CreateInventoryTypeDropdown(frame)
   local chooseCategoryDropdownMenu = CreateFrame(
     "Button",
-    RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_CHOOSE_INVENTORY_TYPE,
+    RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MENU_INVENTORY_TYPE_DROPDOWN,
     frame,
     "UIDropDownMenuTemplate"
   )
@@ -309,9 +337,9 @@ function me.InitializeInventoryTypeDropdownMenu()
     end
   end
 
-  if (UIDropDownMenu_GetSelectedValue(_G[RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_CHOOSE_INVENTORY_TYPE]) == nil) then
+  if (UIDropDownMenu_GetSelectedValue(_G[RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MENU_INVENTORY_TYPE_DROPDOWN]) == nil) then
     UIDropDownMenu_SetSelectedValue(
-      _G[RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_CHOOSE_INVENTORY_TYPE],
+      _G[RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MENU_INVENTORY_TYPE_DROPDOWN],
       RGGM_CONSTANTS.CATEGORY_DROPDOWN_DEFAULT_VALUE
     )
   end
@@ -323,13 +351,13 @@ end
   @param {table} self
 ]]
 function me.InventoryTypeDropDownMenuCallback(self)
-  UIDropDownMenu_SetSelectedValue(_G[RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_CHOOSE_INVENTORY_TYPE], self.value)
+  UIDropDownMenu_SetSelectedValue(_G[RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MENU_INVENTORY_TYPE_DROPDOWN], self.value)
 
   me.ResetSelectedItems()
 
   -- update items in both 'from' and 'to' list
-  me.FromFauxScrollFrameOnUpdate(_G[RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_FROM_SCROLL_FRAME])
-  me.ToFauxScrollFrameOnUpdate(_G[RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_FROM_SCROLL_FRAME])
+  me.FromFauxScrollFrameOnUpdate(fromScrollFrame)
+  me.ToFauxScrollFrameOnUpdate(toScrollFrame)
 end
 
 --[[
@@ -341,29 +369,29 @@ end
     The created rulesScrollFrame
 ]]--
 function me.CreateRulesList(frame)
-  local rulesScrollFrame = CreateFrame(
+  local scrollFrame = CreateFrame(
     "ScrollFrame",
     RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_RULES_SCROLL_FRAME,
     frame,
     "FauxScrollFrameTemplate"
   )
-  rulesScrollFrame:SetWidth(RGGM_CONSTANTS.QUICK_CHANGE_RULES_CONTENT_FRAME_WIDTH)
-  rulesScrollFrame:SetHeight(
+  scrollFrame:SetWidth(RGGM_CONSTANTS.QUICK_CHANGE_RULES_CONTENT_FRAME_WIDTH)
+  scrollFrame:SetHeight(
     RGGM_CONSTANTS.QUICK_CHANGE_ROW_HEIGHT * RGGM_CONSTANTS.QUICK_CHANGE_MAX_ROWS
   )
-  rulesScrollFrame:SetPoint("TOPLEFT", 10, -50)
-  rulesScrollFrame:EnableMouseWheel(true)
-  rulesScrollFrame:SetBackdrop({
+  scrollFrame:SetPoint("TOPLEFT", 10, -50)
+  scrollFrame:EnableMouseWheel(true)
+  scrollFrame:SetBackdrop({
     bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background"
   })
 
-  rulesScrollFrame:SetScript("OnVerticalScroll", me.RuleListOnVerticalScroll)
+  scrollFrame:SetScript("OnVerticalScroll", me.RuleListOnVerticalScroll)
 
   for i = 1, RGGM_CONSTANTS.QUICK_CHANGE_MAX_ROWS do
-    table.insert(rulesRows, me.CreateRuleRowFrame(rulesScrollFrame, i))
+    table.insert(rulesRows, me.CreateRuleRowFrame(scrollFrame, i))
   end
 
-  return rulesScrollFrame
+  return scrollFrame
 end
 
 --[[
@@ -498,7 +526,7 @@ end
     The created fromScrollFrame
 ]]--
 function me.CreateFromItemList(frame)
-  local fromScrollFrame = me.CreateFauxScrollFrame(
+  local scrollFrame = me.CreateFauxScrollFrame(
     RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_FROM_SCROLL_FRAME,
     frame,
     RGGM_CONSTANTS.QUICK_CHANGE_FROM_CONTENT_FRAME_WIDTH,
@@ -506,10 +534,10 @@ function me.CreateFromItemList(frame)
     fromRows
   )
 
-  fromScrollFrame:ClearAllPoints()
-  fromScrollFrame:SetPoint("TOPLEFT", frame, 5, -300)
+  scrollFrame:ClearAllPoints()
+  scrollFrame:SetPoint("TOPLEFT", frame, 5, -300)
 
-  return fromScrollFrame
+  return scrollFrame
 end
 
 --[[
@@ -520,7 +548,8 @@ end
   @param {table} scrollFrame
 ]]--
 function me.FromFauxScrollFrameOnUpdate(scrollFrame)
-  local selectedSlotId = UIDropDownMenu_GetSelectedValue(_G[RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_CHOOSE_INVENTORY_TYPE])
+  local selectedSlotId = UIDropDownMenu_GetSelectedValue(
+    _G[RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MENU_INVENTORY_TYPE_DROPDOWN])
   local gearSlot = mod.gearManager.GetGearSlotForSlotId(selectedSlotId)
   local items = mod.itemManager.FindQuickChangeItems(gearSlot.type, true)
   local maxValue = table.getn(items) or 0
@@ -569,7 +598,7 @@ end
     The created toScrollFrame
 ]]--
 function me.CreateToItemList(frame)
-  local toScrollFrame = me.CreateFauxScrollFrame(
+  local scrollFrame = me.CreateFauxScrollFrame(
     RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_TO_SCROLL_FRAME,
     frame,
     RGGM_CONSTANTS.QUICK_CHANGE_TO_CONTENT_FRAME_WIDTH,
@@ -577,10 +606,10 @@ function me.CreateToItemList(frame)
     toRows
   )
 
-  toScrollFrame:ClearAllPoints()
-  toScrollFrame:SetPoint("TOPLEFT", frame, 315, -300)
+  scrollFrame:ClearAllPoints()
+  scrollFrame:SetPoint("TOPLEFT", frame, 315, -300)
 
-  return toScrollFrame
+  return scrollFrame
 end
 
 --[[
@@ -590,7 +619,7 @@ end
   @param {table} scrollFrame
 ]]--
 function me.ToFauxScrollFrameOnUpdate(scrollFrame)
-  local selectedSlotId = UIDropDownMenu_GetSelectedValue(_G[RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_CHOOSE_INVENTORY_TYPE])
+  local selectedSlotId = UIDropDownMenu_GetSelectedValue(_G[RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MENU_INVENTORY_TYPE_DROPDOWN])
   local gearSlot = mod.gearManager.GetGearSlotForSlotId(selectedSlotId)
   local items = mod.itemManager.FindQuickChangeItems(gearSlot.type, false)
   local maxValue = table.getn(items) or 0
@@ -732,14 +761,14 @@ function me.SetupRowEvents(row)
   row:SetScript("OnClick", function(self)
     if self.side == RGGM_CONSTANTS.QUICK_CHANGE_SIDE_FROM then
       selectedRule.from = self.itemId
-      me.FromFauxScrollFrameOnUpdate(_G[RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_FROM_SCROLL_FRAME])
+      me.FromFauxScrollFrameOnUpdate(fromScrollFrame)
     elseif self.side == RGGM_CONSTANTS.QUICK_CHANGE_SIDE_TO then
       selectedRule.to = self.itemId
-      me.ToFauxScrollFrameOnUpdate(_G[RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_TO_SCROLL_FRAME])
+      me.ToFauxScrollFrameOnUpdate(toScrollFrame)
     else
       quickchangeRule.from = self.fromItemId
       quickchangeRule.to = self.toItemId
-      me.RulesScrollFrameOnUpdate(_G[RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_RULES_SCROLL_FRAME])
+      me.RulesScrollFrameOnUpdate(rulesScrollFrame)
     end
   end)
 end

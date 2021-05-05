@@ -49,20 +49,22 @@ local builtMenu = false
 --[[
   Build the ui for the general menu
 
-  @param {table} frame
+  @param {table} parentFrame
     The addon configuration frame to attach to
 ]]--
-function me.BuildUi(frame)
+function me.BuildUi(parentFrame)
   if builtMenu then return end
 
-  local titleFontString = frame:CreateFontString(RGGM_CONSTANTS.ELEMENT_GENERAL_TITLE, "OVERLAY")
-  titleFontString:SetFont(STANDARD_TEXT_FONT, 20)
-  titleFontString:SetPoint("TOP", 0, -20)
-  titleFontString:SetSize(frame:GetWidth(), 20)
-  titleFontString:SetText(rggm.L["general_title"])
+  local generalMenuContentFrame = CreateFrame(
+    "Frame", RGGM_CONSTANTS.ELEMENT_GENERAL_MENU, parentFrame)
+  generalMenuContentFrame:SetWidth(RGGM_CONSTANTS.INTERFACE_PANEL_CONTENT_FRAME_WIDTH)
+  generalMenuContentFrame:SetHeight(RGGM_CONSTANTS.INTERFACE_PANEL_CONTENT_FRAME_HEIGHT)
+  generalMenuContentFrame:SetPoint("TOPLEFT", parentFrame, 5, -7)
+
+  me.CreateGeneralMenuTitle(generalMenuContentFrame)
 
   me.BuildCheckButtonOption(
-    frame,
+    generalMenuContentFrame,
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_TOOLTIPS,
     20,
     -80,
@@ -71,7 +73,7 @@ function me.BuildUi(frame)
   )
 
   me.BuildCheckButtonOption(
-    frame,
+    generalMenuContentFrame,
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_SIMPLE_TOOLTIPS,
     20,
     -110,
@@ -80,7 +82,7 @@ function me.BuildUi(frame)
   )
 
   me.BuildCheckButtonOption(
-    frame,
+    generalMenuContentFrame,
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_DRAG_AND_DROP,
     20,
     -140,
@@ -89,7 +91,7 @@ function me.BuildUi(frame)
   )
 
   me.BuildCheckButtonOption(
-    frame,
+    generalMenuContentFrame,
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_FASTPRESS,
     20,
     -170,
@@ -101,7 +103,7 @@ function me.BuildUi(frame)
     From here on move options to "second row"
   ]]--
   me.BuildCheckButtonOption(
-    frame,
+    generalMenuContentFrame,
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_UNEQUIP_SLOT,
     280,
     -80,
@@ -109,10 +111,21 @@ function me.BuildUi(frame)
     me.EnableUnequipSlotOnClick
   )
 
-  me.CreateItemQualityLabel(frame)
-  me.CreateItemQualityDropdown(frame)
+  me.CreateItemQualityLabel(generalMenuContentFrame)
+  me.CreateItemQualityDropdown(generalMenuContentFrame)
 
   builtMenu = true
+end
+
+--[[
+  @param {table} contentFrame
+]]--
+function me.CreateGeneralMenuTitle(contentFrame)
+  local titleFontString = contentFrame:CreateFontString(RGGM_CONSTANTS.ELEMENT_GENERAL_MENU_TITLE, "OVERLAY")
+  titleFontString:SetFont(STANDARD_TEXT_FONT, 20)
+  titleFontString:SetPoint("TOP", 0, -20)
+  titleFontString:SetSize(contentFrame:GetWidth(), 20)
+  titleFontString:SetText(rggm.L["general_title"])
 end
 
 --[[

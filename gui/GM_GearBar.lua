@@ -76,10 +76,7 @@ function me.BuildGearBar(gearBar)
     UIParent
   )
   gearBarFrame.id = gearBar.id
-  gearBarFrame:SetWidth(
-    RGGM_CONSTANTS.GEAR_BAR_SLOT_AMOUNT * RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE
-      + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN
-  )
+  gearBarFrame:SetWidth(RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN)
   gearBarFrame:SetHeight(RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE)
   -- load gearBars position
   gearBarFrame:ClearAllPoints() -- very important to clear all points first
@@ -530,8 +527,8 @@ function me.UpdateGearSlotCooldown()
             if mod.gearBarManager.IsShowCooldownsEnabled(gearBarId) then
               local startTime, duration = GetItemCooldown(itemId)
 
-              gearSlot.cooldownOverlay:SetCooldown(startTime, duration)
               gearSlot.cooldownOverlay:GetRegions():SetText("") -- Trigger textupdate
+              gearSlot.cooldownOverlay:SetCooldown(startTime, duration)
             else
               gearSlot.cooldownOverlay:Hide()
             end

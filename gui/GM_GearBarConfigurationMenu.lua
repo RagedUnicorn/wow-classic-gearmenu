@@ -122,23 +122,36 @@ StaticPopupDialogs["RGGM_GEAR_BAR_CONFIRM_DELETE"] = {
 --[[
   Build the ui for the general menu. The place where new gearBars are created.
 
-  @param {table} frame
+  @param {table} parentFrame
     The addon configuration frame to attach to
 ]]--
-function me.BuildUi(frame)
+function me.BuildUi(parentFrame)
   if builtMenu then return end
 
-  local titleFontString = frame:CreateFontString(RGGM_CONSTANTS.ELEMENT_GENERAL_TITLE, "OVERLAY")
-  titleFontString:SetFont(STANDARD_TEXT_FONT, 20)
-  titleFontString:SetPoint("TOP", 0, -20)
-  titleFontString:SetSize(frame:GetWidth(), 20)
-  titleFontString:SetText(rggm.L["gear_bar_configuration_category_name"])
+  local gearBarConfigurationContentFrame = CreateFrame(
+    "Frame", RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_MENU, parentFrame)
+  gearBarConfigurationContentFrame:SetWidth(RGGM_CONSTANTS.INTERFACE_PANEL_CONTENT_FRAME_WIDTH)
+  gearBarConfigurationContentFrame:SetHeight(RGGM_CONSTANTS.INTERFACE_PANEL_CONTENT_FRAME_HEIGHT)
+  gearBarConfigurationContentFrame:SetPoint("TOPLEFT", parentFrame, 5, -7)
 
-  me.CreateNewGearBarButton(frame)
-  gearBarList = me.CreateGearBarList(frame)
+  me.CreateConfigurationMenuTitle(gearBarConfigurationContentFrame)
+  me.CreateNewGearBarButton(gearBarConfigurationContentFrame)
+  gearBarList = me.CreateGearBarList(gearBarConfigurationContentFrame)
   me.GearBarListOnUpdate(gearBarList)
 
   builtMenu = true
+end
+
+--[[
+  @param {table} contentFrame
+]]--
+function me.CreateConfigurationMenuTitle(contentFrame)
+  local titleFontString = contentFrame:CreateFontString(
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_MENU_TITLE, "OVERLAY")
+  titleFontString:SetFont(STANDARD_TEXT_FONT, 20)
+  titleFontString:SetPoint("TOP", 0, -20)
+  titleFontString:SetSize(contentFrame:GetWidth(), 20)
+  titleFontString:SetText(rggm.L["gear_bar_configuration_category_name"])
 end
 
 --[[
@@ -152,7 +165,7 @@ end
 function me.CreateNewGearBarButton(gearBarFrame)
   local button = CreateFrame(
     "Button",
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_ADD_GEAR_BAR,
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_CREATE_BUTTON,
     gearBarFrame,
     "UIPanelButtonTemplate"
   )
@@ -232,12 +245,6 @@ function me.CreateGearBarList(parentFrame)
     "FauxScrollFrameTemplate"
   )
 
-  --[[
-    Store reference of the scroll container for all slot configurations
-    on gearBar configuration container
-  ]]--
-  parentFrame.scrollFrame = scrollFrame
-
   scrollFrame:SetWidth(RGGM_CONSTANTS.GEAR_BAR_LIST_WIDTH)
   scrollFrame:SetHeight(
     RGGM_CONSTANTS.GEAR_BAR_LIST_ROW_HEIGHT
@@ -310,10 +317,9 @@ end
     The created fontstring
 ]]--
 function me.CreateGearBarNameText(row)
-  local gearBarNameFontString = row:CreateFontString(
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_NAME_TEXT, "OVERLAY")
+  local gearBarNameFontString = row:CreateFontString(RGGM_CONSTANTS.ELEMENT_GEAR_BAR_NAME_TEXT, "OVERLAY")
   gearBarNameFontString:SetFont(STANDARD_TEXT_FONT, 15)
-  gearBarNameFontString:SetWidth(RGGM_CONSTANTS.GEAR_BAR_NAME_TEXT_WIDTH)
+  gearBarNameFontString:SetWidth(RGGM_CONSTANTS.GEAR_BAR_LIST_NAME_TEXT_WIDTH)
   gearBarNameFontString:SetPoint(
     "TOPLEFT",
     row,
