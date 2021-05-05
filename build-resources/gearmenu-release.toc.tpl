@@ -22,7 +22,6 @@ code/GM_Logger.lua
 code/GM_Cmd.lua
 code/GM_Filter.lua
 code/GM_Ticker.lua
-code/GM_Constants.lua
 code/GM_Common.lua
 code/GM_Tooltip.lua
 code/GM_Target.lua
