@@ -24,12 +24,6 @@ if (GetLocale() == "deDE") then
   -- general
   rggm.L["general_category_name"] = "Allgemein"
   rggm.L["general_title"] = "Allgemeine Konfiguration"
-  rggm.L["window_lock_gear_bar"] = "Sperre Ausrüstungsbalken"
-  rggm.L["window_lock_gear_bar_tooltip"] = "Verhindert das bewegen des Ausrüstungsbalken"
-  rggm.L["show_keybindings"] = "Zeige Tastaturkürzel an"
-  rggm.L["show_keybindings_tooltip"] = "Zeige Tastaturkürzel auf den ausgerüsteten Items an"
-  rggm.L["show_cooldowns"] = "Zeige Abklingzeiten an"
-  rggm.L["show_cooldowns_tooltip"] = "Zeige Abklingzeiten für alle Slots an"
   rggm.L["enable_tooltips"] = "Aktiviere KurzInfo"
   rggm.L["enable_tooltips_tooltip"] = "Aktiviere Kurzinfo für markierte Items"
   rggm.L["enable_simple_tooltips"] = "Zeige simple Kurzinfo"
@@ -48,33 +42,10 @@ if (GetLocale() == "deDE") then
   rggm.L["item_quality_rare"] = "Selten (Blau)"
   rggm.L["item_quality_epic"] = "Episch (Violet)"
   rggm.L["item_quality_legendary"] = "Legendär (Orange)"
-  rggm.L["size_slider_title"] = "Ausrüstungsslot Grösse"
-  rggm.L["size_slider_tooltip"] = "Verändere die Grösse der Ausrüstungsslots. Andere Elemente passen sich ebbenfalls "
-    .. "an die Grösse des Ausrüstungsslots an"
-  rggm.L["confirm_dialog_question"] = "Diese Aktion lädt dein UI neu. Willst du fortfahren?"
-
-  -- gearslots
-  rggm.L["gearslot_category_name"] = "Ausrüstungsslots"
-  rggm.L["titleslot_1"] = "Slot 1:"
-  rggm.L["titleslot_2"] = "Slot 2:"
-  rggm.L["titleslot_3"] = "Slot 3:"
-  rggm.L["titleslot_4"] = "Slot 4:"
-  rggm.L["titleslot_5"] = "Slot 5:"
-  rggm.L["titleslot_6"] = "Slot 6:"
-  rggm.L["titleslot_7"] = "Slot 7:"
-  rggm.L["titleslot_8"] = "Slot 8:"
-  rggm.L["titleslot_9"] = "Slot 9:"
-  rggm.L["titleslot_10"] = "Slot 10:"
-  rggm.L["titleslot_11"] = "Slot 11:"
-  rggm.L["titleslot_12"] = "Slot 12:"
-  rggm.L["titleslot_13"] = "Slot 13:"
-  rggm.L["titleslot_14"] = "Slot 14:"
-  rggm.L["titleslot_15"] = "Slot 15:"
-  rggm.L["titleslot_16"] = "Slot 16:"
-  rggm.L["titleslot_17"] = "Slot 17:"
 
   -- quickchange
   rggm.L["quick_change_category_name"] = "Schnellwechsel"
+  rggm.L["quick_change_title"] = "Schnellwechsel"
   rggm.L["quick_change_slider_title"] = "Verzögerung in Sekunde"
   rggm.L["quick_change_slider_tooltip"] = "Setzt eine Verzögerung wann eine Quickchange Regel "
     .. "angewendet werden sollte. Für Gegenstände welche einen Stärkungszauber auslösen sollte "
@@ -91,12 +62,6 @@ if (GetLocale() == "deDE") then
   rggm.L["quick_change_unable_to_add_rule_to"] = "Konnte neue Regel nicht hinzufügen - Kein 'Zu' Gegenstand ausgewählt"
   rggm.L["quick_change_unable_to_add_rule_duplicate"] = "Konnte neue Regel nicht hinzufügen "
     .. "- Eine Regel für diesen Gegenstand existiert bereits"
-
-  -- gearbar
-  rggm.L["gear_bar_configuration_category_name"] = "GearBar"
-  rggm.L["gear_bar_configuration_add_gearbar"] = "Erstelle neue GearBar"
-  rggm.L["gear_bar_configuration_add_gearslot"] = "+"
-  rggm.L["gear_bar_configuration_remove_gearslot"] = "-"
 
   -- slot translations
   rggm.L["slot_name_head"] = "Kopf"
@@ -119,6 +84,46 @@ if (GetLocale() == "deDE") then
   rggm.L["slot_name_off_hand"] = "Schildhand"
   rggm.L["slot_name_ranged"] = "Distanz"
   rggm.L["slot_name_ammo"] = "Munition"
+
+  -- gearbar
+  rggm.L["gear_bar_configuration_category_name"] = "GearBar"
+  rggm.L["gear_bar_configuration_panel_text"] = "GearBar Konfiguration"
+  rggm.L["gear_bar_configuration_add_gearbar"] = "Erstelle neue GearBar"
+  rggm.L["gear_bar_choose_name"] = "Wähle einen Namen für die neue GearBar"
+  rggm.L["gear_bar_choose_name_accept_button"] = "Akzeptieren"
+  rggm.L["gear_bar_choose_name_cancel_button"] = "Abbrechen"
+  rggm.L["gear_bar_remove_button"] = "Entferne GearBar"
+  rggm.L["gear_bar_confirm_delete"] = "Willst du diese GearBar wirklich löschen?"
+  rggm.L["gear_bar_confirm_delete_yes_button"] = "Ja"
+  rggm.L["gear_bar_confirm_delete_no_button"] = "Nein"
+
+  -- gearbar options
+  rggm.L["window_lock_gear_bar"] = "Sperre Ausrüstungsbalken"
+  rggm.L["window_lock_gear_bar_tooltip"] = "Verhindert das bewegen des Ausrüstungsbalken"
+  rggm.L["show_keybindings"] = "Zeige Tastaturkürzel an"
+  rggm.L["show_keybindings_tooltip"] = "Zeige Tastaturkürzel auf den ausgerüsteten Items an"
+  rggm.L["show_cooldowns"] = "Zeige Abklingzeiten an"
+  rggm.L["show_cooldowns_tooltip"] = "Zeige Abklingzeiten für alle Slots an"
+  rggm.L["size_slider_title"] = "Ausrüstungsslot Grösse"
+  rggm.L["size_slider_tooltip"] = "Verändere die Grösse der Ausrüstungsslots. Andere Elemente passen sich ebbenfalls "
+    .. "an die Grösse des Ausrüstungsslots an"
+  -- add/remove slots
+  rggm.L["gear_bar_configuration_add_gearslot"] = "Erstelle Gearslot"
+  rggm.L["gear_bar_configuration_remove_gearslot"] = "-"
+  rggm.L["gear_bar_configuration_delete_gearbar"] = "Lösche GearBar"
+  -- gearbar scrollmenu
+  rggm.L["gear_bar_configuration_key_binding_button"] = "Erstelle/Entferne Kürzel"
+  rggm.L["gear_bar_configuration_key_binding_not_set"] = "Kein Kürzel gesetzt"
+  rggm.L["gear_bar_configuration_key_binding_dialog"] = "Setze Tastenkürzel zu: "
+  rggm.L["gear_bar_configuration_key_binding_dialog_initial"] = "(drücke das Tastenkürzel das du verwenden willst "
+    .. "oder lasse es leer um das Tastenkürzel zurückzusetzen)"
+  rggm.L["gear_bar_configuration_key_binding_dialog_accept"] = "Akzeptieren"
+  rggm.L["gear_bar_configuration_key_binding_dialog_cancel"] = "Abbrechen"
+  rggm.L["gear_bar_configuration_key_binding_override_dialog"] = "Tastenkürzel wird bereits benutzt. "
+    .. "Willst du es überschreiben?"
+  rggm.L["gear_bar_configuration_key_binding_dialog_override_yes"] = "Ja"
+  rggm.L["gear_bar_configuration_key_binding_dialog_override_no"] = "Nein"
+  rggm.L["gear_bar_configuration_key_binding_user_error"] = "Setzen des neuen Tastenkürzels ist fehlgeschlagen"
 
   -- macro bridge user errors
   rggm.L["unable_to_find_equipslot"] = "Konnte keinen passenden slot für itemdId %s finden"

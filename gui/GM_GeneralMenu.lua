@@ -23,7 +23,7 @@
 ]]--
 
 -- luacheck: globals CreateFrame UIDropDownMenu_Initialize UIDropDownMenu_AddButton UIDropDownMenu_GetSelectedID
--- luacheck: globals UIDropDownMenu_SetSelectedValue STANDARD_TEXT_FONT
+-- luacheck: globals UIDropDownMenu_SetSelectedValue STANDARD_TEXT_FONT UIDropDownMenu_SetWidth
 -- luacheck: globals StaticPopup_Show StaticPopupDialogs ReloadUI StaticPopup_Show
 
 local mod = rggm
@@ -232,8 +232,9 @@ function me.CreateItemQualityDropdown(frame)
     frame,
     "UIDropDownMenuTemplate"
   )
-  itemQualityDropdownMenu:SetPoint("TOPLEFT", 20, -240)
+  itemQualityDropdownMenu:SetPoint("TOPLEFT", 0, -240)
 
+  UIDropDownMenu_SetWidth(itemQualityDropdownMenu, 150)
   UIDropDownMenu_Initialize(itemQualityDropdownMenu, me.InitializeDropdownMenu)
 end
 

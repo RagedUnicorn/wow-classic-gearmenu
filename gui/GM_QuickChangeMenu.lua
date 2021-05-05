@@ -24,7 +24,7 @@
 
 -- luacheck: globals CreateFrame STANDARD_TEXT_FONT UIDropDownMenu_Initialize UIDropDownMenu_AddButton
 -- luacheck: globals UIDropDownMenu_GetSelectedID UIDropDownMenu_SetSelectedValue FauxScrollFrame_Update
--- luacheck: globals FauxScrollFrame_GetOffset UIDropDownMenu_GetSelectedValue
+-- luacheck: globals FauxScrollFrame_GetOffset UIDropDownMenu_GetSelectedValue UIDropDownMenu_SetWidth
 
 local mod = rggm
 local me = {}
@@ -147,7 +147,7 @@ function me.CreateDelaySlider(frame)
   delaySlider:SetWidth(RGGM_CONSTANTS.QUICK_CHANGE_DELAY_SLIDER_WIDTH)
   delaySlider:SetHeight(RGGM_CONSTANTS.QUICK_CHANGE_DELAY_SLIDER_HEIGHT)
   delaySlider:SetOrientation('HORIZONTAL')
-  delaySlider:SetPoint("TOPLEFT", 10, -440)
+  delaySlider:SetPoint("TOPLEFT", 15, -450)
   delaySlider:SetMinMaxValues(
     RGGM_CONSTANTS.QUICK_CHANGE_DELAY_SLIDER_MIN,
     RGGM_CONSTANTS.QUICK_CHANGE_DELAY_SLIDER_MAX
@@ -320,8 +320,9 @@ function me.CreateInventoryTypeDropdown(frame)
     frame,
     "UIDropDownMenuTemplate"
   )
-  chooseCategoryDropdownMenu:SetPoint("TOPLEFT", 5, -250)
+  chooseCategoryDropdownMenu:SetPoint("TOPLEFT", 0, -250)
 
+  UIDropDownMenu_SetWidth(chooseCategoryDropdownMenu, 100)
   UIDropDownMenu_Initialize(chooseCategoryDropdownMenu, me.InitializeInventoryTypeDropdownMenu)
 end
 
@@ -631,7 +632,7 @@ function me.CreateToItemList(frame)
   )
 
   scrollFrame:ClearAllPoints()
-  scrollFrame:SetPoint("TOPLEFT", frame, 315, -300)
+  scrollFrame:SetPoint("TOPLEFT", frame, 310, -300)
 
   return scrollFrame
 end
