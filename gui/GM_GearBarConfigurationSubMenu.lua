@@ -134,7 +134,31 @@ function me.BuildGearBarConfigurationSubMenu(parentFrame)
     me.ShowCooldownsOnClick
   )
 
-  me.CreateSizeSlider(gearBarConfigurationContentFrame)
+  me.CreateSizeSlider(
+    gearBarConfigurationContentFrame,
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_GEAR_SLOT_SIZE_SLIDER,
+    {"TOPLEFT", 20, -150},
+    RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_MIN,
+    RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_MAX,
+    RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE,
+    rggm.L["gear_slot_size_slider_title"],
+    rggm.L["gear_slot_size_slider_tooltip"],
+    me.GearSlotSizeSliderOnShow,
+    me.GearSlotSizeSliderOnValueChanged
+  )
+
+  me.CreateSizeSlider(
+    gearBarConfigurationContentFrame,
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_CHANGE_SLOT_SIZE_SLIDER,
+    {"TOPLEFT", 20, -200},
+    RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_MIN,
+    RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_MAX,
+    RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE,
+    rggm.L["change_slot_size_slider_title"],
+    rggm.L["change_slot_size_slider_tooltip"],
+    me.ChangeSlotSizeSliderOnShow,
+    me.ChangeSlotSizeSliderOnValueChanged
+  )
 
   gearBarConfigurationSlotsList = me.CreateGearBarConfigurationSlotsList(gearBarConfigurationContentFrame)
   me.GearBarConfigurationSlotsListOnUpdate(gearBarConfigurationSlotsList)
@@ -181,7 +205,7 @@ function me.CreateAddGearSlotButton(parentFrame)
 
   button:SetHeight(RGGM_CONSTANTS.BUTTON_DEFAULT_HEIGHT)
   button:SetText(rggm.L["gear_bar_configuration_add_gearslot"])
-  button:SetPoint("TOPLEFT", 20, -210)
+  button:SetPoint("TOPLEFT", 20, -260)
   button:SetScript('OnClick', me.AddGearSlot)
   -- Attach gearBarId to the button
   button.gearBarId = parentFrame.gearBarId
@@ -384,53 +408,65 @@ end
 --[[
   Create a slider for changing the size of the gearSlots
 
-  @param {table} frame
+  @param {table} parentFrame
+  @param {string} sliderName
+  @param {table} position
+    An object that can be unpacked into SetPoint
+  @param {number} sliderMinValue
+  @param {number} sliderMaxValue
+  @param {number} defaultValue
+  @param {string} sliderTitle
+  @param {string} sliderTooltip
+  @param {function} onShowCallback
+  @param {function} OnValueChangedCallback
 ]]--
-function me.CreateSizeSlider(frame)
-  local sizeSlider = CreateFrame(
+function me.CreateSizeSlider(parentFrame, sliderName, position, sliderMinValue, sliderMaxValue, defaultValue,
+    sliderTitle, sliderTooltip, onShowCallback, OnValueChangedCallback)
+
+  local sliderFrame = CreateFrame(
     "Slider",
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SIZE_SLIDER,
-    frame,
+    sliderName,
+    parentFrame,
     "OptionsSliderTemplate"
   )
-  sizeSlider:SetWidth(RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_WIDTH)
-  sizeSlider:SetHeight(RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_HEIGHT)
-  sizeSlider:SetOrientation('HORIZONTAL')
-  sizeSlider:SetPoint("TOPLEFT", 20, -150)
-  sizeSlider:SetMinMaxValues(
-    RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_MIN,
-    RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_MAX
+  sliderFrame:SetWidth(RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_WIDTH)
+  sliderFrame:SetHeight(RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_HEIGHT)
+  sliderFrame:SetOrientation('HORIZONTAL')
+  sliderFrame:SetPoint(unpack(position))
+  sliderFrame:SetMinMaxValues(
+    sliderMinValue,
+    sliderMaxValue
   )
-  sizeSlider:SetValueStep(RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_STEP)
-  sizeSlider:SetObeyStepOnDrag(true)
-  sizeSlider:SetValue(RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE)
+  sliderFrame:SetValueStep(RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_STEP)
+  sliderFrame:SetObeyStepOnDrag(true)
+  sliderFrame:SetValue(defaultValue)
 
   -- Update slider texts
-  _G[sizeSlider:GetName() .. "Low"]:SetText(RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_MIN)
-  _G[sizeSlider:GetName() .. "High"]:SetText(RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_MAX)
-  _G[sizeSlider:GetName() .. "Text"]:SetText(rggm.L["size_slider_title"])
-  sizeSlider.tooltipText = rggm.L["size_slider_tooltip"]
+  _G[sliderFrame:GetName() .. "Low"]:SetText(sliderMinValue)
+  _G[sliderFrame:GetName() .. "High"]:SetText(sliderMaxValue)
+  _G[sliderFrame:GetName() .. "Text"]:SetText(sliderTitle)
+  sliderFrame.tooltipText = sliderTooltip
 
-  local valueFontString = sizeSlider:CreateFontString(nil, "OVERLAY")
+  local valueFontString = sliderFrame:CreateFontString(nil, "OVERLAY")
   valueFontString:SetFont(STANDARD_TEXT_FONT, 12)
   valueFontString:SetPoint("BOTTOM", 0, -15)
-  valueFontString:SetText(sizeSlider:GetValue())
+  valueFontString:SetText(sliderFrame:GetValue())
 
-  sizeSlider.valueFontString = valueFontString
-  sizeSlider:SetScript("OnValueChanged", me.GearSlotSizeSliderOnValueChange)
-  sizeSlider:SetScript("OnShow", me.GearSlotSizeSliderOnShow)
+  sliderFrame.valueFontString = valueFontString
+  sliderFrame:SetScript("OnValueChanged", OnValueChangedCallback)
+  sliderFrame:SetScript("OnShow", onShowCallback)
 
   -- load initial state
-  me.GearSlotSizeSliderOnShow(sizeSlider)
+  onShowCallback(sliderFrame)
 end
 
 --[[
-  OnValueChanged callback for size slider
+  OnValueChanged callback for the gearSlot size slider
 
   @param {table} self
   @param {number} value
 ]]--
-function me.GearSlotSizeSliderOnValueChange(self, value)
+function me.GearSlotSizeSliderOnValueChanged(self, value)
   local gearBarId = self:GetParent():GetParent().gearBarId
 
   mod.gearBarManager.SetGearSlotSize(gearBarId, value)
@@ -446,6 +482,30 @@ function me.GearSlotSizeSliderOnShow(self)
   local gearBarId = self:GetParent():GetParent().gearBarId
 
   self:SetValue(mod.gearBarManager.GetGearSlotSize(gearBarId))
+end
+
+--[[
+  OnValueChanged callback for the changeSlot size slider
+
+  @param {table} self
+  @param {number} value
+]]--
+function me.ChangeSlotSizeSliderOnValueChanged(self, value)
+  local gearBarId = self:GetParent():GetParent().gearBarId
+
+  mod.gearBarManager.SetChangeSlotSize(gearBarId, value)
+  self.valueFontString:SetText(value)
+end
+
+--[[
+  Invoked when the changeSlot size slider is shown. Updates the configured value
+
+  @param {table} self
+]]--
+function me.ChangeSlotSizeSliderOnShow(self)
+  local gearBarId = self:GetParent():GetParent().gearBarId
+
+  self:SetValue(mod.gearBarManager.GetChangeSlotSize(gearBarId))
 end
 
 --[[
@@ -473,7 +533,7 @@ function me.CreateGearBarConfigurationSlotsList(parentFrame)
     RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_ROW_HEIGHT
     * RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_MAX_ROWS
   )
-  scrollFrame:SetPoint("TOPLEFT", 20, -240)
+  scrollFrame:SetPoint("TOPLEFT", 20, -290)
   scrollFrame:EnableMouseWheel(true)
   scrollFrame:SetBackdrop({
     bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",

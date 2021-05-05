@@ -55,7 +55,8 @@ function me.AddGearBar(gearBarName, addDefaultSlot)
     ["showKeyBindings"] = true,
     ["showCooldowns"] = true,
     ["slots"] = {},
-    ["slotSize"] = RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE,
+    ["gearSlotSize"] = RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE,
+    ["changeSlotSize"] = RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE,
     ["position"] = { -- default position
       ["point"] = RGGM_CONSTANTS.GEAR_BAR_DEFAULT_POSITION[1],
       ["posX"] = RGGM_CONSTANTS.GEAR_BAR_DEFAULT_POSITION[2],
@@ -426,17 +427,17 @@ function me.UpdateGearSlot(gearBarId, position, updatedGearSlot)
 end
 
 --[[
-  Update the gearbar slotSize in the gearBars configuration and invoke an ui
+  Update the gearbar gearSlotSize in the gearBars configuration and invoke an ui
   update of the specific gearBar
 
   @param {number} gearBarId
     An id of a gearBar
-  @param {number} slotSize
+  @param {number} gearSlotSize
 ]]--
-function me.SetGearSlotSize(gearBarId, slotSize)
+function me.SetGearSlotSize(gearBarId, gearSlotSize)
   local gearBar = me.GetGearBar(gearBarId)
   if gearBar then
-    gearBar.slotSize = slotSize
+    gearBar.gearSlotSize = gearSlotSize
     mod.gearBar.UpdateGearBar(gearBar)
   else
     mod.logger.LogError(me.tag, "Failed to update the gearSlotSize of the gearBar with id: " .. gearBarId)
@@ -455,9 +456,48 @@ function me.GetGearSlotSize(gearBarId)
   local gearBar = me.GetGearBar(gearBarId)
 
   if gearBar then
-    return gearBar.slotSize
+    return gearBar.gearSlotSize
   else
     mod.logger.LogError(me.tag, "Failed to retrieve gearSlotSize. Using default size")
+
+    return RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE
+  end
+end
+
+--[[
+  Update the gearbar changeSlotSize in the gearBars configuration and invoke an ui
+  update of the specific gearBar
+
+  @param {number} gearBarId
+    An id of a gearBar
+  @param {number} changeSlotSize
+]]--
+function me.SetChangeSlotSize(gearBarId, changeSlotSize)
+  local gearBar = me.GetGearBar(gearBarId)
+  if gearBar then
+    gearBar.changeSlotSize = changeSlotSize
+    -- no ui update necessary, update will be triggered next time the changeMenu is shown
+  else
+    mod.logger.LogError(me.tag, "Failed to update the changeSlotSize of the gearBar with id: " .. gearBarId)
+  end
+end
+
+--[[
+  Get the configured gearbar slotsize
+
+  @param {number} gearBarId
+    An id of a gearBar
+
+  @return {number}
+]]--
+function me.GetChangeSlotSize(gearBarId)
+  local gearBar = me.GetGearBar(gearBarId)
+
+  if gearBar then
+    return gearBar.changeSlotSize
+  else
+    mod.logger.LogError(me.tag, "Failed to retrieve changeSlotSize. Using default size")
+
     return RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE
   end
 end

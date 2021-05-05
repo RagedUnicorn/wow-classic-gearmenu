@@ -104,9 +104,10 @@ if (GetLocale() == "deDE") then
   rggm.L["show_keybindings_tooltip"] = "Zeige Tastaturkürzel auf den ausgerüsteten Items an"
   rggm.L["show_cooldowns"] = "Zeige Abklingzeiten an"
   rggm.L["show_cooldowns_tooltip"] = "Zeige Abklingzeiten für alle Slots an"
-  rggm.L["size_slider_title"] = "Ausrüstungsslot Grösse"
-  rggm.L["size_slider_tooltip"] = "Verändere die Grösse der Ausrüstungsslots. Andere Elemente passen sich ebbenfalls "
-    .. "an die Grösse des Ausrüstungsslots an"
+  rggm.L["gear_slot_size_slider_title"] = "Ausrüstungsslot Grösse"
+  rggm.L["gear_slot_size_slider_tooltip"] = "Verändere die Grösse der Ausrüstungsslots"
+  rggm.L["change_slot_size_slider_title"] = "Wechselslots Grösse"
+  rggm.L["change_slot_size_slider_tooltip"] = "Verändere die Grösse der Wechselslots"
   -- add/remove slots
   rggm.L["gear_bar_configuration_add_gearslot"] = "Erstelle Gearslot"
   rggm.L["gear_bar_configuration_remove_gearslot"] = "-"

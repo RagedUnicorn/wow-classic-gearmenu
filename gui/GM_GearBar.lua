@@ -285,7 +285,7 @@ function me.UpdateGearBar(gearBar)
     uiGearSlot:SetAttribute("item", gearSlotMetaData.slotId)
 
     me.UpdateTexture(uiGearSlot, gearSlotMetaData)
-    mod.uiHelper.UpdateSlotTextureAttributes(uiGearSlot, gearBar.slotSize)
+    mod.uiHelper.UpdateSlotTextureAttributes(uiGearSlot, gearBar.gearSlotSize)
     me.UpdateGearSlotSize(gearBar, uiGearBar, uiGearSlot, index)
     me.UpdateKeyBindingState(gearBar, uiGearSlot.keyBindingText, gearSlotMetaData.keyBinding)
 
@@ -319,7 +319,7 @@ function me.UpdateKeyBindingState(gearBar, keybindingFontString, keyBindingText)
 
     keybindingFontString:SetFont(
       STANDARD_TEXT_FONT,
-      gearBar.slotSize * RGGM_CONSTANTS.GEAR_BAR_CHANGE_KEYBIND_TEXT_MODIFIER,
+      gearBar.gearSlotSize * RGGM_CONSTANTS.GEAR_BAR_CHANGE_KEYBIND_TEXT_MODIFIER,
       "THICKOUTLINE"
     )
     keybindingFontString:SetText(mod.keyBind.ConvertKeyBindingText(keyBindingText))
@@ -341,17 +341,17 @@ end
 ]]--
 function me.UpdateGearSlotSize(gearBar, uiGearBar, uiGearSlot, position)
   -- update slotsize to match configuration
-  uiGearSlot:SetSize(gearBar.slotSize, gearBar.slotSize)
+  uiGearSlot:SetSize(gearBar.gearSlotSize, gearBar.gearSlotSize)
   uiGearSlot:SetPoint(
     "LEFT",
     uiGearBar.gearBarReference,
     "LEFT",
-    RGGM_CONSTANTS.GEAR_BAR_SLOT_X + (position - 1) * gearBar.slotSize,
+    RGGM_CONSTANTS.GEAR_BAR_SLOT_X + (position - 1) * gearBar.gearSlotSize,
     RGGM_CONSTANTS.GEAR_BAR_SLOT_Y
   )
 
-  me.UpdateCooldownOverlaySize(uiGearSlot, gearBar.slotSize)
-  me.UpdateCombatQueueSlotSize(uiGearSlot, gearBar.slotSize)
+  me.UpdateCooldownOverlaySize(uiGearSlot, gearBar.gearSlotSize)
+  me.UpdateCombatQueueSlotSize(uiGearSlot, gearBar.gearSlotSize)
 end
 
 --[[
@@ -388,8 +388,8 @@ end
     UI representation of a gearBar
 ]]--
 function me.UpdateGearBarSize(gearBar, uiGearBar)
-  uiGearBar.gearBarReference:SetWidth(#gearBar.slots * gearBar.slotSize + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN)
-  uiGearBar.gearBarReference:SetHeight(gearBar.slotSize)
+  uiGearBar.gearBarReference:SetWidth(#gearBar.slots * gearBar.gearSlotSize + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN)
+  uiGearBar.gearBarReference:SetHeight(gearBar.gearSlotSize)
 end
 
 --[[

@@ -52,35 +52,29 @@ function me.BuildChangeMenu()
   changeMenuFrame:SetBackdropColor(0, 0, 0, .5)
   changeMenuFrame:SetBackdropBorderColor(0, 0, 0, .8)
 
-  local row
-  local col = 0
-
-  for position = 1, RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT do
-    local xPos
-    local yPos
-
-    if math.fmod(position, 2) ~= 0 then
-      -- left
-      row = 0
-
-      yPos = col * RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE
-      xPos = row * RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE
-    else
-      -- right
-      row = 1
-
-      yPos = col * RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE
-      xPos = row * RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE
-      col = col + 1
-    end
-
-    local changeSlot = me.CreateChangeSlot(changeMenuFrame, position, xPos, yPos)
-
-    me.SetupEvents(changeSlot)
-    changeSlot:Hide()
-  end
+  me.CreateChangeSlots()
 
   changeMenuFrame:Hide() -- hide menu initially
+end
+
+--[[
+  Create all changeslots initial representation
+]]--
+function me.CreateChangeSlots()
+  for index = 1, RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT, RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT do
+    local row = math.floor(index/RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT)
+
+    for column = 1, RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT do
+      if index + column - 1 > RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT then break end
+
+      local yPos = row * RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE
+      local xPos = (column - 1) * RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE
+
+      local changeSlot = me.CreateChangeSlot(changeMenuFrame, index + column - 1, xPos, yPos)
+      me.SetupEvents(changeSlot)
+      changeSlot:Hide()
+    end
+  end
 end
 
 --[[
@@ -152,104 +146,151 @@ end
 ]]--
 function me.UpdateChangeMenu(gearSlotPosition, gearBarId)
   me.ResetChangeMenu()
+  me.UpdateChangeMenuProperties(gearBarId, gearSlotPosition)
 
-  if gearSlotPosition == nil or gearBarId == nil then
-    if changeMenuFrame.gearBarId ~= nil then
-      gearBarId = changeMenuFrame.gearBarId
-    else
-      return
-    end
-
-    if changeMenuFrame.gearSlotPosition ~= nil then
-      gearSlotPosition = changeMenuFrame.gearSlotPosition
-    else
-      return
-    end
-  end
-
-  local gearBar = mod.gearBarManager.GetGearBar(gearBarId)
-  local gearSlotMetaData = gearBar.slots[gearSlotPosition]
+  local gearBar = mod.gearBarManager.GetGearBar(changeMenuFrame.gearBarId)
+  local gearSlotMetaData = gearBar.slots[changeMenuFrame.gearSlotPosition]
+  local uiGearBar = mod.gearBarStorage.GetGearBar(changeMenuFrame.gearBarId)
 
   if gearSlotMetaData ~= nil then
     local items = mod.itemManager.GetItemsForInventoryType(gearSlotMetaData.type)
 
-    for index, item in ipairs(items) do
-      if index > RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT_ITEMS then
-        mod.logger.LogInfo(me.tag, "All changeMenuSlots are in use skipping rest of items...")
-        break
-      end
-
-      me.UpdateChangeSlot(index, gearSlotMetaData, item)
-    end
-
-    me.UpdateEmptyChangeSlot(items, gearSlotMetaData)
-    me.UpdateChangeMenuSize(items)
+    me.UpdateChangeSlots(gearBar.changeSlotSize, gearSlotMetaData, items)
+    me.UpdateChangeMenuSize(gearBar.changeSlotSize, #items)
     me.UpdateChangeMenuPosition(
-      mod.gearBarStorage.GetGearBar(gearBarId).gearSlotReferences[gearSlotPosition]
+      uiGearBar.gearSlotReferences[changeMenuFrame.gearSlotPosition]
     )
-
-    me.UpdateChangeMenuGearSlotCooldown()
 
     mod.ticker.StartTickerChangeMenu()
 
-    -- update changeMenuFrame's Id to the currently hovered gearBarId
-    changeMenuFrame.gearBarId = gearBarId
-    -- update changeMenuFrame's gearSlot position to the currently hovered gearSlot
-    changeMenuFrame.gearSlotPosition = gearSlotPosition
-
-    -- cache whether cooldowns should be shown in the changemenu or not
-    if mod.gearBarManager.IsShowCooldownsEnabled(gearBarId) then
-      changeMenuFrame.showCooldowns = true
-    else
-      changeMenuFrame.showCooldowns = false
-    end
-
-    local gearBarUi = mod.gearBarStorage.GetGearBar(gearBarId)
-
-    if gearBarUi and MouseIsOver(gearBarUi.gearBarReference) or MouseIsOver(changeMenuFrame) then
+    if uiGearBar and MouseIsOver(uiGearBar.gearBarReference) or MouseIsOver(changeMenuFrame) then
       changeMenuFrame:Show()
     end
   end
 end
 
 --[[
-  Visually update a changeslot
-
-  @param {number} index
+  @param {number} changeSlotSize
   @param {table} gearSlotMetaData
   @param {table} item
 ]]--
-function me.UpdateChangeSlot(index, gearSlotMetaData, item)
-  local changeMenuSlot = changeMenuSlots[index]
-  mod.uiHelper.UpdateSlotTextureAttributes(changeMenuSlot)
+function me.UpdateChangeSlots(changeSlotSize, gearSlotMetaData, items)
+  for index = 1, #items, RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT do
+    if index > RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT_ITEMS then
+      mod.logger.LogInfo(me.tag, "All changeMenuSlots are in use skipping rest of items...")
+      break
+    end
 
+    local row = math.floor(index/RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT)
+
+    for column = 1, RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT do
+      local actualIndex = index + column - 1
+      local yPos = row * changeSlotSize
+      local xPos = (column - 1) * changeSlotSize
+
+      if actualIndex > #items or actualIndex > RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT_ITEMS then
+        break
+      end
+
+      me.UpdateChangeSlot(changeMenuSlots[actualIndex], gearSlotMetaData, items[actualIndex])
+      me.UpdateChangeSlotSize(changeSlotSize, changeMenuFrame, changeMenuSlots[actualIndex], xPos, yPos)
+
+      mod.logger.LogDebug(me.tag, "Updating ChangeSlot Row{" .. row .. "} xPos{" .. xPos .. "} yPos{" .. yPos .. "}")
+    end
+  end
+
+  me.UpdateEmptyChangeSlot(changeSlotSize, changeMenuFrame, #items, gearSlotMetaData)
+  me.UpdateChangeMenuGearSlotCooldown()
+end
+
+--[[
+  Visually update a changeslot
+
+  @param {table} uiGearSlot
+  @param {table} gearSlotMetaData
+  @param {table} item
+]]--
+function me.UpdateChangeSlot(uiGearSlot, gearSlotMetaData, item)
+  mod.uiHelper.UpdateSlotTextureAttributes(uiGearSlot)
   -- update metadata for slot
-  changeMenuSlot.slotId = gearSlotMetaData.slotId
-  changeMenuSlot.itemId = item.id
-  changeMenuSlot.equipSlot = item.equipSlot
+  uiGearSlot.slotId = gearSlotMetaData.slotId
+  uiGearSlot.itemId = item.id
+  uiGearSlot.equipSlot = item.equipSlot
 
-  changeMenuSlot:SetNormalTexture(item.icon)
-  changeMenuSlot:Show()
+  uiGearSlot:SetNormalTexture(item.icon)
+  uiGearSlot:Show()
+end
+
+--[[
+  Update the changeSlotSize to the configured one
+
+  @param {number} changeSlotSize
+  @param {table} uiGearBar
+  @param {table} uiGearSlot
+  @param {number} xPos
+  @param {number} yPos
+]]--
+function me.UpdateChangeSlotSize(changeSlotSize, changeMenu, uiGearSlot, xPos, yPos)
+  -- update slotsize to match configuration
+  uiGearSlot:SetSize(changeSlotSize, changeSlotSize)
+  uiGearSlot:ClearAllPoints()
+  uiGearSlot:SetPoint(
+    "BOTTOMLEFT",
+    changeMenu,
+    "BOTTOMLEFT",
+    xPos,
+    yPos
+  )
+
+  me.UpdateCooldownOverlaySize(uiGearSlot, changeSlotSize)
+end
+
+--[[
+  @param {table} uiGearBar
+  @param {number} slotSize
+]]--
+function me.UpdateCooldownOverlaySize(uiGearSlot, slotSize)
+  uiGearSlot.cooldownOverlay:SetSize(slotSize, slotSize)
+  uiGearSlot.cooldownOverlay:GetRegions()
+    :SetFont(
+      STANDARD_TEXT_FONT,
+      slotSize * RGGM_CONSTANTS.GEAR_BAR_CHANGE_COOLDOWN_TEXT_MODIFIER
+    )
 end
 
 --[[
   Visually update an empty changeslot
 
+  @param {number} changeSlotSize
+  @param {table} changeMenu
+  @param {number} itemCount
   @param {table} gearSlotMetaData
-  @param {table} items
 ]]--
-function me.UpdateEmptyChangeSlot(items, gearSlotMetaData)
+function me.UpdateEmptyChangeSlot(changeSlotSize, changeMenu, itemCount, gearSlotMetaData)
   if not mod.configuration.IsUnequipSlotEnabled() then return end
 
-  local itemCount = table.getn(items)
   local emptyChangeMenuSlot
 
-  if itemCount >= RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT_ITEMS then
-    emptyChangeMenuSlot = changeMenuSlots[itemCount]
+  if itemCount > RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT_ITEMS then
+    emptyChangeMenuSlot = changeMenuSlots[#changeMenuSlots]
+    itemCount = #changeMenuSlots
   else
     emptyChangeMenuSlot = changeMenuSlots[itemCount + 1]
   end
 
+  local row = math.floor(itemCount/RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT)
+  local yPos = row * changeSlotSize
+  local column = itemCount % RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT
+
+  if column == 0 then
+    column = 1
+  end
+
+  local xPos = (column - 1) * changeSlotSize
+
+  mod.logger.LogDebug(me.tag, "Updating EmptyChangeSlot Row{" .. row .. "} xPos{" .. xPos .. "} yPos{" .. yPos .. "}")
+
+  me.UpdateChangeSlotSize(changeSlotSize, changeMenu, emptyChangeMenuSlot, xPos, yPos)
   mod.uiHelper.UpdateSlotTextureAttributes(emptyChangeMenuSlot)
 
   emptyChangeMenuSlot.slotId = gearSlotMetaData.slotId
@@ -260,40 +301,24 @@ function me.UpdateEmptyChangeSlot(items, gearSlotMetaData)
   emptyChangeMenuSlot:Show()
 end
 
-
-
---[[
-  Reset all changeMenuSlots into their initial state
-]]--
-function me.ResetChangeMenu()
-  for i = 1, table.getn(changeMenuSlots) do
-    changeMenuSlots[i]:SetNormalTexture(nil)
-    changeMenuSlots[i].highlightFrame:Hide()
-    changeMenuSlots[i].cooldownOverlay:SetCooldown(0, 0)
-    changeMenuSlots[i].cooldownOverlay:GetRegions():SetText("") -- Trigger textupdate
-    changeMenuSlots[i]:Hide()
-  end
-
-  changeMenuFrame:Hide()
-end
-
 --[[
   Updates the changeMenuFrame size depending on how many changeslots are displayed at the time
 
-  @param {table} items
+  @param {number} changeSlotSize
+  @param {number} itemCount
 ]]--
-function me.UpdateChangeMenuSize(items)
+function me.UpdateChangeMenuSize(changeSlotSize, itemCount)
   local rows
 
-  if table.getn(items) > RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT then
+  if itemCount > RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT then
     rows = RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT / RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT
   else
     local totalItems
 
     if mod.configuration.IsUnequipSlotEnabled() then
-      totalItems = table.getn(items) + 1
+      totalItems = itemCount + 1
     else
-      totalItems = table.getn(items)
+      totalItems = itemCount
     end
 
     rows = totalItems / RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT
@@ -302,8 +327,8 @@ function me.UpdateChangeMenuSize(items)
   -- special case for if only one row needs to be displayed
   if rows < 1 then rows = 1 end
 
-  changeMenuFrame:SetHeight(math.ceil(rows) * RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE)
-  changeMenuFrame:SetWidth(RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT * RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE)
+  changeMenuFrame:SetHeight(math.ceil(rows) * changeSlotSize)
+  changeMenuFrame:SetWidth(RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT * changeSlotSize)
 end
 
 --[[
@@ -333,6 +358,57 @@ function me.UpdateChangeMenuGearSlotCooldown()
         changeMenuSlot.cooldownOverlay:Hide()
       end
     end
+  end
+end
+
+--[[
+  Reset all changeMenuSlots into their initial state
+]]--
+function me.ResetChangeMenu()
+  for i = 1, table.getn(changeMenuSlots) do
+    changeMenuSlots[i]:SetNormalTexture(nil)
+    changeMenuSlots[i].highlightFrame:Hide()
+    changeMenuSlots[i].cooldownOverlay:SetCooldown(0, 0)
+    changeMenuSlots[i].cooldownOverlay:GetRegions():SetText("") -- Trigger textupdate
+    changeMenuSlots[i]:Hide()
+  end
+
+  changeMenuFrame:Hide()
+end
+
+--[[
+  Update the properties of the changeMenu
+
+  @param {number} gearBarId
+    The id of the hovered gearBar
+  @param {table} gearSlotPosition
+    The gearSlot position that was hovered
+]]--
+function me.UpdateChangeMenuProperties(gearBarId, gearSlotPosition)
+  if gearSlotPosition == nil or gearBarId == nil then
+    if changeMenuFrame.gearBarId ~= nil then
+      gearBarId = changeMenuFrame.gearBarId
+    else
+      return
+    end
+
+    if changeMenuFrame.gearSlotPosition ~= nil then
+      gearSlotPosition = changeMenuFrame.gearSlotPosition
+    else
+      return
+    end
+  end
+
+  -- update changeMenuFrame's Id to the currently hovered gearBarId
+  changeMenuFrame.gearBarId = gearBarId
+  -- update changeMenuFrame's gearSlot position to the currently hovered gearSlot
+  changeMenuFrame.gearSlotPosition = gearSlotPosition
+
+  -- cache whether cooldowns should be shown in the changemenu or not
+  if mod.gearBarManager.IsShowCooldownsEnabled(gearBarId) then
+    changeMenuFrame.showCooldowns = true
+  else
+    changeMenuFrame.showCooldowns = false
   end
 end
 

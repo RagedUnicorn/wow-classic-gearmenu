@@ -290,7 +290,8 @@ function me.UpgradeToV2_0_0()
   gearBar.isLocked = GearMenuConfiguration.lockGearBar
   gearBar.showKeyBindings = GearMenuConfiguration.showKeyBindings
   gearBar.showCooldowns = GearMenuConfiguration.showCooldowns
-  gearBar.slotSize = GearMenuConfiguration.slotSize
+  gearBar.gearSlotSize = GearMenuConfiguration.slotSize
+  gearBar.changeSlotSize = GearMenuConfiguration.slotSize -- use gearSlot size as changeSlot size
   gearBar.position = {}
   gearBar.position.relativePoint = GearMenuConfiguration.frames.GM_GearBar.relativePoint
   gearBar.position.point = GearMenuConfiguration.frames.GM_GearBar.point

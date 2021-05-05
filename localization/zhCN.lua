@@ -96,10 +96,11 @@ if (GetLocale() == "zhCN") then
   rggm.L["show_keybindings_tooltip"] = "显示装备物品上的按键绑定"
   rggm.L["show_cooldowns"] = "显示冷却计时"
   rggm.L["show_cooldowns_tooltip"] = "所有装备槽上显示冷却计时"
-  rggm.L["size_slider_title"] = "Gearslot size"
-  rggm.L["size_slider_title"] = "齿轮槽大小"
-  rggm.L["size_slider_tooltip"] = "修改齿轮槽的大小.不同的元素也会适应"
-    .. "齿轮槽的大小"
+  rggm.L["gear_slot_size_slider_title"] = "Gearslot size"
+  rggm.L["gear_slot_size_slider_tooltip"] = "Modify the size of the Gearslots"
+  rggm.L["change_slot_size_slider_title"] = "Changeslot size"
+  rggm.L["change_slot_size_slider_tooltip"] = "Modify the size of the Changeslots"
+
   -- add/remove slots
   rggm.L["gear_bar_configuration_add_gearslot"] = "Add Gearslot"
   rggm.L["gear_bar_configuration_remove_gearslot"] = "-"
