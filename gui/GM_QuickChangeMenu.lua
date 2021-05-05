@@ -93,6 +93,7 @@ function me.BuildUi(parentFrame)
   quickChangeContentFrame:SetHeight(RGGM_CONSTANTS.INTERFACE_PANEL_CONTENT_FRAME_HEIGHT)
   quickChangeContentFrame:SetPoint("TOPLEFT", parentFrame, 5, -7)
 
+  me.CreateQuickChangeMenuTitle(quickChangeContentFrame)
   --[[
     Create input elements
   ]]--
@@ -114,6 +115,18 @@ function me.BuildUi(parentFrame)
   me.ToFauxScrollFrameOnUpdate(toScrollFrame)
 
   builtMenu = true
+end
+
+--[[
+  @param {table} contentFrame
+]]--
+function me.CreateQuickChangeMenuTitle(contentFrame)
+  local titleFontString = contentFrame:CreateFontString(
+    RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MENU_TITLE, "OVERLAY")
+  titleFontString:SetFont(STANDARD_TEXT_FONT, 20)
+  titleFontString:SetPoint("TOP", 0, -20)
+  titleFontString:SetSize(contentFrame:GetWidth(), 20)
+  titleFontString:SetText(rggm.L["quick_change_title"])
 end
 
 --[[

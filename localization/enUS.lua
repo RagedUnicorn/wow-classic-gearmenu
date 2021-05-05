@@ -63,7 +63,8 @@ rggm.L["titleslot_16"] = "Slot 16:"
 rggm.L["titleslot_17"] = "Slot 17:"
 
 -- quickchange
-rggm.L["quick_change_category_name"] = "Quickchange"
+rggm.L["quick_change_category_name"] = "QuickChange"
+rggm.L["quick_change_title"] = "QuickChange"
 rggm.L["quick_change_slider_title"] = "Delay in seconds"
 rggm.L["quick_change_slider_tooltip"] = "Set a delay for when the Quickchange rule should actually take place. "
   .. "For items that give a buff the delay should usually be set to the duration of the buff"
