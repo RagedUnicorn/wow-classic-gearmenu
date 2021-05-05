@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals GetAddOnMetadata
+-- luacheck: globals GetAddOnMetadata ChannelInfo
 
 rggm = rggm or {}
 local me = rggm
@@ -87,6 +87,8 @@ function me.RegisterEvents(self)
   self:RegisterEvent("LOSS_OF_CONTROL_UPDATE")
   -- Register to the event that fires when the players target changes
   self:RegisterEvent("PLAYER_TARGET_CHANGED")
+  -- Fired when a unit stops channeling
+  self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
 end
 
 --[[
@@ -134,12 +136,23 @@ function me.OnEvent(event, ...)
     me.logger.LogEvent(me.tag, "UNIT_SPELLCAST_SUCCEEDED")
     local unit = ...
 
-    if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER then
+    local channelledSpell = ChannelInfo(RGGM_CONSTANTS.UNIT_ID_PLAYER)
+
+    if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER and not channelledSpell then
       me.quickChange.OnUnitSpellCastSucceeded(...)
       me.combatQueue.ProcessQueue()
+    else
+      me.logger.LogDebug(me.tag, "Player is channeling - " .. channelledSpell .. " - ignoring spell cast success event")
     end
   elseif event == "UNIT_SPELLCAST_INTERRUPTED" then
     me.logger.LogEvent(me.tag, "UNIT_SPELLCAST_INTERRUPTED")
+    local unit = ...
+
+    if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER then
+      me.combatQueue.ProcessQueue()
+    end
+  elseif event == "UNIT_SPELLCAST_CHANNEL_STOP" then
+    me.logger.LogEvent(me.tag, "UNIT_SPELLCAST_CHANNEL_STOP")
     local unit = ...
 
     if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER then
