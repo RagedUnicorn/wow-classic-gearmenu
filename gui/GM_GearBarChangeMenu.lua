@@ -175,6 +175,8 @@ end
   @param {table} item
 ]]--
 function me.UpdateChangeSlots(changeSlotSize, gearSlotMetaData, items)
+  local emptySlotPosition = {row = 0, xPos = 0, yPos = 0}
+
   for index = 1, #items, RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT do
     if index > RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT_ITEMS then
       mod.logger.LogInfo(me.tag, "All changeMenuSlots are in use skipping rest of items...")
@@ -182,6 +184,7 @@ function me.UpdateChangeSlots(changeSlotSize, gearSlotMetaData, items)
     end
 
     local row = math.floor(index/RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT)
+    local lastColumn
 
     for column = 1, RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT do
       local actualIndex = index + column - 1
@@ -196,10 +199,23 @@ function me.UpdateChangeSlots(changeSlotSize, gearSlotMetaData, items)
       me.UpdateChangeSlotSize(changeSlotSize, changeMenuFrame, changeMenuSlots[actualIndex], xPos, yPos)
 
       mod.logger.LogDebug(me.tag, "Updating ChangeSlot Row{" .. row .. "} xPos{" .. xPos .. "} yPos{" .. yPos .. "}")
+      lastColumn = column
+    end
+
+    if lastColumn == RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT then
+      -- last spot on column was used put empty slot on new row
+      emptySlotPosition.row = row + 1
+      emptySlotPosition.xPos = 0
+      emptySlotPosition.yPos = (row + 1) * changeSlotSize
+    else
+      -- place on same row as last one
+      emptySlotPosition.row = row
+      emptySlotPosition.xPos = lastColumn * changeSlotSize
+      emptySlotPosition.yPos = row * changeSlotSize
     end
   end
 
-  me.UpdateEmptyChangeSlot(changeSlotSize, changeMenuFrame, #items, gearSlotMetaData)
+  me.UpdateEmptyChangeSlot(changeSlotSize, changeMenuFrame, #items, gearSlotMetaData, emptySlotPosition)
   me.UpdateChangeMenuGearSlotCooldown()
 end
 
@@ -265,32 +281,29 @@ end
   @param {table} changeMenu
   @param {number} itemCount
   @param {table} gearSlotMetaData
+  @param {table} emptySlotPosition
 ]]--
-function me.UpdateEmptyChangeSlot(changeSlotSize, changeMenu, itemCount, gearSlotMetaData)
+function me.UpdateEmptyChangeSlot(changeSlotSize, changeMenu, itemCount, gearSlotMetaData, emptySlotPosition)
   if not mod.configuration.IsUnequipSlotEnabled() then return end
 
   local emptyChangeMenuSlot
 
   if itemCount > RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT_ITEMS then
-    emptyChangeMenuSlot = changeMenuSlots[#changeMenuSlots]
-    itemCount = #changeMenuSlots
+    itemCount = #changeMenuSlots -- last slot is reserved for the empty slot
   else
-    emptyChangeMenuSlot = changeMenuSlots[itemCount + 1]
+    itemCount = itemCount + 1 -- +1 for the empty "item"
   end
 
-  local row = math.floor(itemCount/RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT)
-  local yPos = row * changeSlotSize
-  local column = itemCount % RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT
+  emptyChangeMenuSlot = changeMenuSlots[itemCount]
 
-  if column == 0 then
-    column = 1
-  end
+  mod.logger.LogDebug(me.tag,
+    "Updating EmptyChangeSlot Row{" .. emptySlotPosition.row ..
+      "} xPos{" .. emptySlotPosition.xPos ..
+      "} yPos{" .. emptySlotPosition.yPos .. "}"
+  )
 
-  local xPos = (column - 1) * changeSlotSize
-
-  mod.logger.LogDebug(me.tag, "Updating EmptyChangeSlot Row{" .. row .. "} xPos{" .. xPos .. "} yPos{" .. yPos .. "}")
-
-  me.UpdateChangeSlotSize(changeSlotSize, changeMenu, emptyChangeMenuSlot, xPos, yPos)
+  me.UpdateChangeSlotSize(
+    changeSlotSize, changeMenu, emptyChangeMenuSlot, emptySlotPosition.xPos, emptySlotPosition.yPos)
   mod.uiHelper.UpdateSlotTextureAttributes(emptyChangeMenuSlot)
 
   emptyChangeMenuSlot.slotId = gearSlotMetaData.slotId
