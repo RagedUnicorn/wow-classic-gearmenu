@@ -284,7 +284,8 @@ end
   @param {table} emptySlotPosition
 ]]--
 function me.UpdateEmptyChangeSlot(changeSlotSize, changeMenu, itemCount, gearSlotMetaData, emptySlotPosition)
-  if not mod.configuration.IsUnequipSlotEnabled() then return end
+  if not mod.configuration.IsUnequipSlotEnabled()
+    or not mod.itemManager.HasItemEquipedInSlot(gearSlotMetaData.slotId) then return end
 
   local emptyChangeMenuSlot
 

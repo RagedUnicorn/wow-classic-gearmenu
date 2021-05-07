@@ -408,3 +408,20 @@ function me.UnequipItemToBag(slot)
   end
   ClearCursor()
 end
+
+--[[
+  @param {number} slotId
+
+  @param {boolean}
+    true - if an item is equiped in the specific slot
+    false - if no item is equiped in the specific slot
+]]--
+function me.HasItemEquipedInSlot(slotId)
+  local equipedItemId = GetInventoryItemID(RGGM_CONSTANTS.UNIT_ID_PLAYER, slotId)
+
+  if equipedItemId then
+    return true
+  end
+
+  return false
+end
