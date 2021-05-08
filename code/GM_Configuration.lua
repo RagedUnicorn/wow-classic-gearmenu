@@ -313,7 +313,7 @@ function me.UpgradeToV2_0_0()
         SetBinding(key)
         SetBindingClick(
           key,
-          RGGM_CONSTANTS.ELEMENT_GEAR_BAR_BASE_FRAME_NAME .. gearBar.id .. "Slot_" .. i .. ":LeftButton"
+          RGGM_CONSTANTS.ELEMENT_GEAR_BAR_BASE_FRAME_NAME .. gearBar.id .. "Slot_" .. i
         )
 
         gearSlot.keyBinding = key
