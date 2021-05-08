@@ -362,9 +362,41 @@ function me.SetKeyBindingToGearSlot(gearBarId, keyBinding, gearSlotPosition)
     me.UpdateGearBarConfigurationSubMenu()
     -- save keyBindings to wow-cache
     me.AttemptToSaveBindings()
+    me.CleanupKeyBindingOnSlots(gearBarId, gearSlotPosition, keyBinding)
   else
     mod.logger.LogWarn(me.tag, "Failed to update keybinding: " .. keyBinding .. " to " .. uiGearSlot:GetName())
     mod.logger.PrintUserError(rggm.L["gear_bar_configuration_key_binding_user_error"])
+  end
+end
+
+--[[
+  Search through all gearBars for leftover keyBinding text. After a new button receives a
+  keyBinding we check other slots (and other gearBars) for the same keyBinding. At this point
+  the keyBinding is already overwritten but visually it will still be displayed if not cleaned up
+
+  @param {number} newGearBarId
+    The gearBarId where the gearSlot belongs to with the new keyBinding
+  @param {number} newGearSlotPosition
+    The gearSlot position of the slot that received the new keyBinding
+  @param {string} keyBinding
+    The keyBinding that was set
+]]--
+function me.CleanupKeyBindingOnSlots(newGearBarId, newGearSlotPosition, keyBinding)
+  for _, gearBar in pairs(mod.gearBarManager.GetGearBars()) do
+    for index, gearSlot in pairs(gearBar.slots) do
+      if gearBar.id ~= newGearBarId and index ~= newGearSlotPosition then
+        if gearSlot.keyBinding then
+          mod.logger.LogError(me.tag, "Actual keyBinding: " .. gearSlot.keyBinding)
+        end
+
+        if gearSlot.keyBinding == keyBinding then
+          mod.logger.LogInfo(
+            me.tag, "Leftover keyBinding found - resetting {" .. gearBar.id .. "} slotPos {" .. index .. "}")
+          gearSlot.keyBinding = nil
+          mod.gearBarManager.UpdateGearSlot(gearBar.id, index, gearSlot)
+        end
+      end
+    end
   end
 end
 
