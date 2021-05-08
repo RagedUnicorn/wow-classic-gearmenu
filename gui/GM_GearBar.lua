@@ -247,7 +247,6 @@ end
 ]]--
 function me.UpdateGearBar(gearBar)
   if InCombatLockdown() then
-    -- temporary fix for in combat configuration of slots TODO
     mod.logger.LogError(me.tag, "Unable to update slots in combat. Please /reload after your are out of combat")
     return
   end
