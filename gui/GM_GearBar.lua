@@ -641,11 +641,11 @@ function me.SetupEvents(gearSlot)
   gearSlot:SetScript("OnLeave", me.GearSlotOnLeave)
 
   gearSlot:SetScript("OnReceiveDrag", function(self)
-    me.GearSlotOnReceiveDrag(self) -- TODO
+    me.GearSlotOnReceiveDrag(self)
   end)
 
   gearSlot:SetScript("OnDragStart", function(self)
-    me.GearSlotOnDragStart(self) -- TODO
+    me.GearSlotOnDragStart(self)
   end)
 end
 
