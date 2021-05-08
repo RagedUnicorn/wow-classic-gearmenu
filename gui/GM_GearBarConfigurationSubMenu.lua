@@ -34,8 +34,7 @@
 ]]--
 
 --[[
-  Module for responsible to create a configuration menu for a single gearBar that is reused by all other
-  gearBars
+  Module responsible to create a configuration menu for a single gearBar that is reused by all other gearBars
 ]]--
 
 local mod = rggm
