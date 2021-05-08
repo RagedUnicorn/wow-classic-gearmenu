@@ -24,7 +24,7 @@
 ]]--
 
 -- luacheck: globals CreateFrame UIParent InterfaceOptions_AddCategory InterfaceOptionsFrame_OpenToCategory
--- luacheck: globals InterfaceAddOnsList_Update()
+-- luacheck: globals InterfaceAddOnsList_Update INTERFACEOPTIONS_ADDONCATEGORIES
 
 local mod = rggm
 local me = {}
@@ -120,6 +120,25 @@ function me.OpenAddonPanel()
   -- Because of a blizzard bug this usually has to be called twice to actually work
   InterfaceOptionsFrame_OpenToCategory(_G[RGGM_CONSTANTS.ELEMENT_ADDON_PANEL])
   InterfaceOptionsFrame_OpenToCategory(_G[RGGM_CONSTANTS.ELEMENT_ADDON_PANEL])
+end
+
+--[[
+  Loops through the interface categories and searches for a matching gearBar. If one
+  can be found it is getting deleted
+
+  @param {number} gearBarId
+]]--
+function me.InterfaceOptionsRemoveCategory(gearBarId)
+  for i = 1, #INTERFACEOPTIONS_ADDONCATEGORIES do
+    local interfaceCategory = INTERFACEOPTIONS_ADDONCATEGORIES[i]
+
+    if interfaceCategory.gearBarId == gearBarId then
+      INTERFACEOPTIONS_ADDONCATEGORIES[i] = nil -- delete category
+      return
+    end
+  end
+
+  me.UpdateAddonPanel()
 end
 
 --[[

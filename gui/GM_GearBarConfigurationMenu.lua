@@ -110,6 +110,7 @@ StaticPopupDialogs["RGGM_GEAR_BAR_CONFIRM_DELETE"] = {
       mod.gearBarManager.RemoveGearBar(deleteGearBarId)
       mod.gearBarStorage.RemoveGearBar(deleteGearBarId)
       me.GearBarListOnUpdate(gearBarList)
+      mod.addonConfiguration.InterfaceOptionsRemoveCategory(deleteGearBarId)
 
       deleteGearBarId = nil
     end
