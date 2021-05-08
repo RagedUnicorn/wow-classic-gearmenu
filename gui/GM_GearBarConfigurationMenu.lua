@@ -200,7 +200,7 @@ function me.CreateNewGearBar(name)
   local builtCategory = mod.addonConfiguration.BuildCategory(
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_GEAR_BAR_SUB_CONFIG_FRAME .. gearBar.id,
     _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_GEAR_BAR_CONFIG_FRAME],
-    gearBar.displayName .. gearBar.id, -- TODO id only development
+    gearBar.displayName,
     mod.gearBarConfigurationSubMenu.GearBarConfigurationCategoryContainerOnCallback
   )
 
@@ -223,7 +223,7 @@ function me.LoadConfiguredGearBars()
     local builtCategory = mod.addonConfiguration.BuildCategory(
       RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_GEAR_BAR_SUB_CONFIG_FRAME .. gearBars[i].id,
       _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_GEAR_BAR_CONFIG_FRAME],
-      gearBars[i].displayName .. gearBars[i].id, -- TODO id only development
+      gearBars[i].displayName,
       mod.gearBarConfigurationSubMenu.GearBarConfigurationCategoryContainerOnCallback
     )
 
