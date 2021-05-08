@@ -24,7 +24,7 @@
 ]]--
 
 -- luacheck: globals STANDARD_TEXT_FONT CreateFrame FauxScrollFrame_Update FauxScrollFrame_GetOffset
--- luacheck: globals UIDropDownMenu_Initialize UIDropDownMenu_AddButton UIDropDownMenu_SetSelectedValue
+-- luacheck: globals UIDropDownMenu_Initialize UIDropDownMenu_AddButton UIDropDownMenu_SetSelectedValue CloseMenus
 
 --[[
   The gearBarMenu (GM_GearBarConfigurationMenu) module has some similarities to the gearBar (GM_GearBar) module.
@@ -552,6 +552,7 @@ end
   @param {number} offset
 ]]--
 function me.GearBarConfigurationSlotsListOnVerticalScroll(self, offset)
+  CloseMenus()
   self.ScrollBar:SetValue(offset)
   self.offset = math.floor(offset / RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_ROW_HEIGHT + 0.5)
   me.GearBarConfigurationSlotsListOnUpdate(self)
