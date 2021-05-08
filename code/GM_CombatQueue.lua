@@ -83,7 +83,7 @@ function me.RemoveFromQueue(slotId)
   combatQueueStore[slotId] = nil
   mod.logger.LogDebug(me.tag, "Removed item with id " .. itemId .. " in slotId "
     .. slotId .. " from combatQueueStore")
-  mod.gearBar.UpdateCombatQueue(slotId, itemId)
+  mod.gearBar.UpdateCombatQueue(slotId)
 end
 
 --[[
