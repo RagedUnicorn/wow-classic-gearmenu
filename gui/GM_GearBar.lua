@@ -105,7 +105,7 @@ function me.BuildGearBar(gearBar)
 end
 
 --[[
-  TODO this function cannot be called while in combatlockdown
+  This function cannot be called while in combatlockdown
   Create a single gearSlot. Note that a gearSlot inherits from the SecureActionButtonTemplate to enable the usage
   of clicking items.
 
