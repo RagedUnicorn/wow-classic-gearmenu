@@ -406,7 +406,7 @@ end
 ]]--
 function me.AttemptToSaveBindings()
   mod.logger.LogInfo(me.tag, "Attempting to save bindings in - " .. GetCurrentBindingSet())
-  AttemptToSaveBindings(RGGM_CONSTANTS.GEAR_BAR_STORE_CHARACTER_BINDINGS)
+  AttemptToSaveBindings(GetCurrentBindingSet())
 end
 
 --[[

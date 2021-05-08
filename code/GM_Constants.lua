@@ -228,12 +228,5 @@ RGGM_CONSTANTS = {
   GEAR_BAR_CONFIGURATION_SLOTS_LIST_MAX_ROWS = 5,
   GEAR_BAR_DEFAULT_POSITION = {"CENTER", 0, 0},
   GEAR_BAR_CONFIGURATION_GEAR_SLOT_ICON_SIZE = 32,
-  GEAR_BAR_GEAR_SLOT_DEFAULT_VALUE = INVSLOT_HEAD,
-  --[[
-    Integer - Can be the values 1 or 2. This value indicates whether the currently active key bindings
-    set is account or character specific. One of following constants should be used when examining the return value:
-      ACCOUNT_BINDINGS (1)
-      CHARACTER_BINDINGS (2)
-  ]]--
-  GEAR_BAR_STORE_CHARACTER_BINDINGS  = 2,
+  GEAR_BAR_GEAR_SLOT_DEFAULT_VALUE = INVSLOT_HEAD
 }
