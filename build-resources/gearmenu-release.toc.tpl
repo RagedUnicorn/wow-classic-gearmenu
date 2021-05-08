@@ -34,6 +34,10 @@ code/GM_Configuration.lua
 code/GM_Macro.lua
 
 # gui
+# custom blizzard dropdown impl
+gui/UIDropDownMenu.lua
+gui/UIDropDownMenuTemplates.xml
+
 gui/GM_Frame.xml
 gui/GM_UiHelper.lua
 gui/GM_GearBar.lua

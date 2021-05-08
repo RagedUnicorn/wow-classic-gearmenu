@@ -23,8 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals STANDARD_TEXT_FONT CreateFrame FauxScrollFrame_Update FauxScrollFrame_GetOffset
--- luacheck: globals UIDropDownMenu_Initialize UIDropDownMenu_AddButton UIDropDownMenu_SetSelectedValue CloseMenus
+-- luacheck: globals STANDARD_TEXT_FONT CreateFrame FauxScrollFrame_Update FauxScrollFrame_GetOffset CloseMenus
 
 --[[
   The gearBarMenu (GM_GearBarConfigurationMenu) module has some similarities to the gearBar (GM_GearBar) module.
@@ -640,16 +639,15 @@ end
     The created dropdown menu
 ]]--
 function me.CreateGearBarConfigurationSlotDropdown(row, position)
-  local gearSlotDropdownMenu = CreateFrame(
-    "Button",
+  local gearSlotDropdownMenu = mod.uiDropdownMenu.CreateDropdown(
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SLOTS_GEAR_SLOT_DROPDOWN .. position,
-    row,
-    "UIDropDownMenuTemplate"
+    row
   )
+
   gearSlotDropdownMenu.position = position
   gearSlotDropdownMenu:SetPoint("TOPLEFT", 30, -10)
 
-  UIDropDownMenu_Initialize(gearSlotDropdownMenu, me.InitializeDropdownMenu)
+  mod.uiDropdownMenu.uiDropdownMenu_Initialize(gearSlotDropdownMenu, me.InitializeDropdownMenu)
 
   return gearSlotDropdownMenu
 end
@@ -668,13 +666,12 @@ function me.InitializeDropdownMenu(self)
       gearSlot.slotId,
       me.DropDownMenuCallback
     )
-    UIDropDownMenu_AddButton(button)
+    mod.uiDropdownMenu.uiDropdownMenu_AddButton(button)
   end
 
-  UIDropDownMenu_SetSelectedValue(
-    _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SLOTS_GEAR_SLOT_DROPDOWN .. self.position],
-    RGGM_CONSTANTS.GEAR_BAR_GEAR_SLOT_DEFAULT_VALUE
-  )
+  if mod.uiDropdownMenu.uiDropdownMenu_GetSelectedValue(self) == nil then
+    mod.uiDropdownMenu.uiDropdownMenu_SetSelectedValue(self, RGGM_CONSTANTS.GEAR_BAR_GEAR_SLOT_DEFAULT_VALUE)
+  end
 end
 
 --[[
@@ -692,9 +689,7 @@ function me.DropDownMenuCallback(self)
   -- include offset to position to get the actual position
   mod.gearBarManager.UpdateGearSlot(gearBarConfiguration.id, position + offset, gearSlotMetaData)
   me.GearBarOnUpdate()
-  UIDropDownMenu_SetSelectedValue(
-    _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SLOTS_GEAR_SLOT_DROPDOWN .. position], self.value
-  )
+  mod.uiDropdownMenu.uiDropdownMenu_SetSelectedValue(self:GetParent().dropdown, self.value)
 end
 
 --[[
@@ -846,9 +841,7 @@ function me.GearBarConfigurationSlotsListOnUpdate(scrollFrame)
       row.position = gearSlotPosition -- add actual gearSlot position
       row.slotIcon:SetTexture(slot.textureId)
       -- update preselected dropdown value for the slot
-      UIDropDownMenu_SetSelectedValue(
-        row.gearSlot, slot.slotId
-      )
+      mod.uiDropdownMenu.uiDropdownMenu_SetSelectedValue(row.gearSlot, slot.slotId)
       -- update keybinding text
       if slot.keyBinding ~= nil then
         row.keyBindText:SetText(slot.keyBinding)

@@ -163,7 +163,7 @@ end
   @return {table} button
 ]]--
 function me.CreateDropdownButton(text, value, callback)
-  local button = UIDropDownMenu_CreateInfo()
+  local button = mod.uiDropdownMenu.uiDropdownMenu_CreateInfo()
 
   button.text = text
   button.value = value
