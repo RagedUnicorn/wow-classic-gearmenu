@@ -385,10 +385,6 @@ function me.CleanupKeyBindingOnSlots(newGearBarId, newGearSlotPosition, keyBindi
   for _, gearBar in pairs(mod.gearBarManager.GetGearBars()) do
     for index, gearSlot in pairs(gearBar.slots) do
       if gearBar.id ~= newGearBarId and index ~= newGearSlotPosition then
-        if gearSlot.keyBinding then
-          mod.logger.LogError(me.tag, "Actual keyBinding: " .. gearSlot.keyBinding)
-        end
-
         if gearSlot.keyBinding == keyBinding then
           mod.logger.LogInfo(
             me.tag, "Leftover keyBinding found - resetting {" .. gearBar.id .. "} slotPos {" .. index .. "}")

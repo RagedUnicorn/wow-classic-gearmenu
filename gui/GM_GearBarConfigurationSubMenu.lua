@@ -685,11 +685,21 @@ function me.DropDownMenuCallback(self)
   -- get position in visible slots (GEAR_BAR_CONFIGURATION_SLOTS_LIST_MAX_ROWS)
   local position = self:GetParent().dropdown.position
   local gearSlotMetaData = mod.gearManager.GetGearSlotForSlotId(self.value)
+  local currentMetaData = mod.gearBarManager.GetGearSlot(gearBarConfiguration.id, position + offset)
+
+  --[[
+    Preserve keyBinding text if one is present. Note: this is only the text that is displayed. The keyBind itself
+    is automatically preserver because the gearSlot frame is not changing. It does not matter to the keyBind
+    what slotId the gearSlot has. It will simply "click" the gearSlot
+  ]]--
+  if currentMetaData ~= nil and currentMetaData.keyBinding ~= nil and currentMetaData ~= "" then
+    gearSlotMetaData.keyBinding = currentMetaData.keyBinding
+  end
 
   -- include offset to position to get the actual position
   mod.gearBarManager.UpdateGearSlot(gearBarConfiguration.id, position + offset, gearSlotMetaData)
-  me.GearBarOnUpdate()
   mod.uiDropdownMenu.uiDropdownMenu_SetSelectedValue(self:GetParent().dropdown, self.value)
+  me.GearBarOnUpdate()
 end
 
 --[[
