@@ -535,11 +535,6 @@ function me.CreateGearBarConfigurationSlotsList(parentFrame)
   )
   scrollFrame:SetPoint("TOPLEFT", 20, -290)
   scrollFrame:EnableMouseWheel(true)
-  scrollFrame:SetBackdrop({
-    bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
-    insets = {left = 0, right = 0, top = 0, bottom = 0},
-  })
-
   scrollFrame:SetScript("OnVerticalScroll", me.GearBarConfigurationSlotsListOnVerticalScroll)
 
   parentFrame.rows = {}
@@ -580,9 +575,9 @@ function me.CreateGearBarConfigurationSlotsListRowFrame(frame, position)
   })
 
   if math.fmod(position, 2) == 0 then
-    row:SetBackdropColor(0.37, 0.37, 0.37, .4)
+    row:SetBackdropColor(0.37, 0.37, 0.37, .3)
   else
-    row:SetBackdropColor(.25, .25, .25, .8)
+    row:SetBackdropColor(.25, .25, .25, .9)
   end
 
   row.slotIcon = me.CreateGearBarConfigurationSlotIcon(row)
