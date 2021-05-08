@@ -26,6 +26,7 @@
 -- luacheck: globals INVSLOT_HEAD INVSLOT_NECK INVSLOT_SHOULDER INVSLOT_CHEST INVSLOT_WAIST INVSLOT_LEGS INVSLOT_FEET
 -- luacheck: globals INVSLOT_WRIST INVSLOT_HAND INVSLOT_FINGER1 INVSLOT_FINGER2 INVSLOT_TRINKET1 INVSLOT_TRINKET2
 -- luacheck: globals INVSLOT_BACK INVSLOT_MAINHAND INVSLOT_OFFHAND INVSLOT_RANGED INVSLOT_AMMO GetAddOnMetadata ReloadUI
+-- luacheck: globals GetBindingKey SetBinding SetBindingClick GetCurrentBindingSet AttemptToSaveBindings
 
 local mod = rggm
 local me = {}
@@ -303,10 +304,35 @@ function me.UpgradeToV2_0_0()
   for i = 1, #GearMenuConfiguration.slots do
     if GearMenuConfiguration.slots[i] ~= RGGM_CONSTANTS.INVSLOT_NONE then
       local gearSlot = mod.gearManager.GetGearSlotForSlotId(GearMenuConfiguration.slots[i])
+      -- check if a keybinding was set for that slot
+      local key = GetBindingKey("CLICK GM_GearBarSlot_" .. i .. ":LeftButton")
+
+      if key ~= nil then
+        mod.logger.LogInfo(me.tag, "Slot with id{" .. i .. "} has keyBinding{" .. key .. "} set - attempting migration")
+
+        SetBinding(key)
+        SetBindingClick(
+          key,
+          RGGM_CONSTANTS.ELEMENT_GEAR_BAR_BASE_FRAME_NAME .. gearBar.id .. "Slot_" .. i .. ":LeftButton"
+        )
+
+        gearSlot.keyBinding = key
+      end
 
       table.insert(gearBar.slots, gearSlot)
     end
   end
+
+  -- unbind rest of possible keybind corpses
+  for i = 1, 17 do -- there where a max amount of 17 slots possible
+    local key = GetBindingKey("CLICK GM_GearBarSlot_" .. i .. ":LeftButton")
+
+    if key ~= nil then
+      SetBinding(key)
+    end
+  end
+
+  AttemptToSaveBindings(GetCurrentBindingSet()) -- save bindings
 
   -- no longer used properties (moved to specific gearBar)
   GearMenuConfiguration.lockGearBar = nil
