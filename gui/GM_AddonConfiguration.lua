@@ -79,10 +79,6 @@ function me.SetupAddonConfiguration()
   mod.aboutContent.BuildAboutContent(panel.main)
 
   me.UpdateAddonPanel()
-
-  me.OpenAddonPanel() -- TODO DEBUG REMOVE
-  -- TODO this can sometimes create a strange bug where other addons only update after running InterfaceAddOnsList_Update()
-  -- again. Retest this once this debug functionality is removed
 end
 
 --[[
