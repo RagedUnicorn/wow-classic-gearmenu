@@ -852,6 +852,7 @@ function me.GearBarConfigurationSlotsListOnUpdate(scrollFrame)
       row.slotIcon:SetTexture(slot.textureId)
       -- update preselected dropdown value for the slot
       mod.uiDropdownMenu.uiDropdownMenu_SetSelectedValue(row.gearSlot, slot.slotId)
+      mod.uiDropdownMenu.uiDropdownMenu_SetText(row.gearSlot, rggm.L[slot.name])
       -- update keybinding text
       if slot.keyBinding ~= nil then
         row.keyBindText:SetText(slot.keyBinding)
