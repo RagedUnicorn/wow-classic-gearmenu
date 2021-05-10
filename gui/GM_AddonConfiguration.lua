@@ -129,13 +129,28 @@ end
   @param {number} gearBarId
 ]]--
 function me.InterfaceOptionsRemoveCategory(gearBarId)
-  for i = 1, #INTERFACEOPTIONS_ADDONCATEGORIES do
+  local entryAmount = #INTERFACEOPTIONS_ADDONCATEGORIES
+
+  for i = 1, entryAmount do
     local interfaceCategory = INTERFACEOPTIONS_ADDONCATEGORIES[i]
 
     if interfaceCategory.gearBarId == gearBarId then
       INTERFACEOPTIONS_ADDONCATEGORIES[i] = nil -- delete category
-      return
+      break
     end
+  end
+
+  local currentIndex = 0
+
+  for i = 1, entryAmount do
+    if INTERFACEOPTIONS_ADDONCATEGORIES[i] ~= nil then
+      currentIndex = currentIndex + 1
+      INTERFACEOPTIONS_ADDONCATEGORIES[currentIndex] = INTERFACEOPTIONS_ADDONCATEGORIES[i]
+    end
+  end
+
+  for i = currentIndex + 1, entryAmount do
+    INTERFACEOPTIONS_ADDONCATEGORIES[i] = nil
   end
 
   me.UpdateAddonPanel()
