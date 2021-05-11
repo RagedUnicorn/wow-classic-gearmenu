@@ -118,8 +118,8 @@ function me.CreateChangeSlot(frame, position, xPos, yPos)
   changeSlot:SetBackdropColor(0.15, 0.15, 0.15, 1)
   changeSlot:SetBackdropBorderColor(0, 0, 0, 1)
 
-  mod.uiHelper.CreateHighlightFrame(changeSlot)
-  mod.uiHelper.CreateCooldownOverlay(
+  changeSlot.highlightFrame = mod.uiHelper.CreateHighlightFrame(changeSlot)
+  changeSlot.cooldownOverlay = mod.uiHelper.CreateCooldownOverlay(
     changeSlot,
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_COOLDOWN_FRAME,
     RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE

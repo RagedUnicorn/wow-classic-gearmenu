@@ -46,7 +46,6 @@ function me.UpdateSlotTextureAttributes(slot, slotSize)
   end
 
   local actualSlotSize = slotSize or RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE
-
   local texture = slot:GetNormalTexture()
   texture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
   texture:SetPoint(
@@ -71,6 +70,9 @@ end
   @param {table} slot
   @param {string} frameName
   @param {number} slotSize
+
+  @param {table}
+    The created cooldownOverlay
 ]]--
 function me.CreateCooldownOverlay(slot, frameName, slotSize)
   local cooldownOverlay = CreateFrame(
@@ -89,13 +91,16 @@ function me.CreateCooldownOverlay(slot, frameName, slotSize)
       slotSize * RGGM_CONSTANTS.GEAR_BAR_CHANGE_COOLDOWN_TEXT_MODIFIER
     )
 
-  slot.cooldownOverlay = cooldownOverlay
+  return cooldownOverlay
 end
 
 --[[
   Create a highlight frame and attach it to the passed slot
 
   @param {table} slot
+
+  @return {table}
+    The created highlightFrame
 ]]--
 function me.CreateHighlightFrame(slot)
   local highlightFrame = CreateFrame("FRAME", nil, slot)
@@ -121,7 +126,7 @@ function me.CreateHighlightFrame(slot)
   highlightFrame:SetBackdropColor(1, 1, 1, 0)
   highlightFrame:Hide()
 
-  slot.highlightFrame = highlightFrame
+  return highlightFrame
 end
 
 --[[

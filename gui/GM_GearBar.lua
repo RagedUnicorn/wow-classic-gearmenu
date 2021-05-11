@@ -164,10 +164,8 @@ function me.BuildGearSlot(gearBarFrame, gearBar, position)
   gearSlot.combatQueueSlot = me.CreateCombatQueueSlot(gearSlot)
   gearSlot.keyBindingText = me.CreateKeyBindingText(gearSlot)
   gearSlot.position = position
-
-  mod.uiHelper.CreateHighlightFrame(gearSlot)
-  mod.uiHelper.UpdateSlotTextureAttributes(gearSlot)
-  mod.uiHelper.CreateCooldownOverlay(
+  gearSlot.highlightFrame = mod.uiHelper.CreateHighlightFrame(gearSlot)
+  gearSlot.cooldownOverlay = mod.uiHelper.CreateCooldownOverlay(
     gearSlot,
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT_COOLDOWN_FRAME,
     RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE
