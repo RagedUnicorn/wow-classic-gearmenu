@@ -36,10 +36,10 @@ code/GM_Debug.lua
 
 # gui
 # custom blizzard dropdown impl
-libs/LibUiDropDownMenu/LibUIDropDownMenu.lua
-libs/LibUiDropDownMenu/LibUIDropDownMenu.xml
-libs/LibUiDropDownMenu/LibUIDropDownMenuTemplates.lua
-libs/LibUiDropDownMenu/LibUIDropDownMenuTemplates.xml
+libs/LibUiDropDownMenu/LibUiDropDownMenu.lua
+libs/LibUiDropDownMenu/LibUiDropDownMenu.xml
+libs/LibUiDropDownMenu/LibUiDropDownMenuTemplates.lua
+libs/LibUiDropDownMenu/LibUiDropDownMenuTemplates.xml
 
 gui/GM_Frame.xml
 gui/GM_UiHelper.lua

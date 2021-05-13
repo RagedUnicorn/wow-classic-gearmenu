@@ -23,9 +23,6 @@
 ]]--
 
 -- luacheck: globals CreateFrame STANDARD_TEXT_FONT FauxScrollFrame_Update FauxScrollFrame_GetOffset
--- luacheck: globals RGGM_UIDropDownMenu_Initialize RGGM_Create_UIDropDownMenu RGGM_UIDropDownMenu_AddButton
--- luacheck: globals RGGM_UIDropDownMenu_SetWidth RGGM_UIDropDownMenu_GetSelectedValue
--- luacheck: globals RGGM_UIDropDownMenu_SetSelectedValue
 
 local mod = rggm
 local me = {}
@@ -324,15 +321,15 @@ end
   @param {table} frame
 ]]--
 function me.CreateInventoryTypeDropdown(frame)
-  local chooseCategoryDropdownMenu = RGGM_Create_UIDropDownMenu(
+  local chooseCategoryDropdownMenu = mod.libUiDropDownMenu.CreateUiDropDownMenu(
     RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MENU_INVENTORY_TYPE_DROPDOWN,
     frame
   )
 
   chooseCategoryDropdownMenu:SetPoint("TOPLEFT", 0, -250)
 
-  RGGM_UIDropDownMenu_SetWidth(chooseCategoryDropdownMenu, 100)
-  RGGM_UIDropDownMenu_Initialize(chooseCategoryDropdownMenu, me.InitializeInventoryTypeDropdownMenu)
+  mod.libUiDropDownMenu.UiDropDownMenu_SetWidth(chooseCategoryDropdownMenu, 100)
+  mod.libUiDropDownMenu.UiDropDownMenu_Initialize(chooseCategoryDropdownMenu, me.InitializeInventoryTypeDropdownMenu)
 end
 
 --[[
@@ -366,13 +363,13 @@ function me.InitializeInventoryTypeDropdownMenu(self)
         )
       end
 
-      RGGM_UIDropDownMenu_AddButton(button)
+      mod.libUiDropDownMenu.UiDropDownMenu_AddButton(button)
       registeredInventoryTypes[gearSlot.inventoryTypeId] = true
     end
   end
 
-  if RGGM_UIDropDownMenu_GetSelectedValue(self) == nil then
-    RGGM_UIDropDownMenu_SetSelectedValue(self, RGGM_CONSTANTS.CATEGORY_DROPDOWN_DEFAULT_VALUE)
+  if mod.libUiDropDownMenu.UiDropDownMenu_GetSelectedValue(self) == nil then
+    mod.libUiDropDownMenu.UiDropDownMenu_SetSelectedValue(self, RGGM_CONSTANTS.CATEGORY_DROPDOWN_DEFAULT_VALUE)
   end
 end
 
@@ -382,7 +379,7 @@ end
   @param {table} self
 ]]
 function me.InventoryTypeDropDownMenuCallback(self)
-  RGGM_UIDropDownMenu_SetSelectedValue(self:GetParent().dropdown, self.value)
+  mod.libUiDropDownMenu.UiDropDownMenu_SetSelectedValue(self:GetParent().dropdown, self.value)
 
   me.ResetSelectedItems()
 

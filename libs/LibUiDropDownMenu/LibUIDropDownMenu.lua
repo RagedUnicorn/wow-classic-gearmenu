@@ -2,96 +2,73 @@
 -- luacheck: globals GameTooltip_AddInstructionLine GameTooltip_AddColoredLine RED_FONT_COLOR GameFontDisableSmallLeft
 -- luacheck: globals GameFontHighlightSmallLeft GameFontNormalSmallLeft VIDEO_QUALITY_LABEL6 UIParent GRAY_FONT_COLOR
 -- luacheck: globals NORMAL_FONT_COLOR HIGHLIGHT_FONT_COLOR TOOLTIP_DEFAULT_COLOR TOOLTIP_DEFAULT_BACKGROUND_COLOR
--- luacheck: globals RGGM_UIDROPDOWNMENU_MAXBUTTONS RGGM_UIDROPDOWNMENU_MAXLEVELS RGGM_UIDROPDOWNMENU_BUTTON_HEIGHT
--- luacheck: globals RGGM_UIDROPDOWNMENU_BORDER_HEIGHT RGGM_UIDROPDOWNMENU_OPEN_MENU RGGM_UIDROPDOWNMENU_INIT_MENU
--- luacheck: globals RGGM_UIDROPDOWNMENU_MENU_LEVEL RGGM_UIDROPDOWNMENU_MENU_VALUE RGGM_UIDROPDOWNMENU_SHOW_TIME
--- luacheck: globals RGGM_UIDROPDOWNMENU_DEFAULT_TEXT_HEIGHT RGGM_OPEN_DROPDOWNMENUS ShowUIPanel
--- luacheck: globals RGGM_UIDropDownMenuDelegate_OnAttributeChanged RGGM_UIDropDownMenu_CreateFrames
--- luacheck: globals RGGM_UIDropDownMenu_InitializeHelper RGGM_UIDropDownMenuButton_OpenColorPicker
--- luacheck: globals RGGM_CloseDropDownMenus RGGM_ToggleDropDownMenu RGGM_UIDropDownMenuButtonInvisibleButton_OnEnter
--- luacheck: globals RGGM_UIDropDownMenuButtonInvisibleButton_OnLeave RGGM_UIDropDownMenuButton_OnClick
--- luacheck: globals RGGM_UIDropDownMenuButton_OnEnter RGGM_UIDropDownMenuButton_OnLeave
--- luacheck: globals RGGM_UIDropDownMenu_OnUpdate RGGM_UIDropDownMenu_OnShow RGGM_UIDropDownMenu_OnHide
--- luacheck: globals RGGM_Create_UIDropDownMenu RGGM_UIDropDownMenu_Initialize RGGM_UIDropDownMenu_SetInitializeFunction
--- luacheck: globals RGGM_UIDropDownMenu_SetDisplayMode RGGM_UIDropDownMenu_RefreshDropDownSize
--- luacheck: globals RGGM_UIDropDownMenu_GetMaxButtonWidth RGGM_UIDropDownMenu_CreateInfo RGGM_UIDropDownMenu_AddButton
--- luacheck: globals RGGM_UIDropDownMenu_AddSeparator RGGM_UIDropDownMenu_AddSpace RGGM_UIDropDownMenu_SetIconImage
--- luacheck: globals RGGM_UIDropDownMenu_GetSelectedName RGGM_UIDropDownMenu_GetSelectedID
--- luacheck: globals RGGM_UIDropDownMenu_GetSelectedValue RGGM_UIDropDownMenu_CheckAddCustomFrame
--- luacheck: globals RGGM_UIDropDownMenu_GetButtonWidth RGGM_UIDropDownMenu_RegisterCustomFrame
--- luacheck: globals RGGM_UIDropDownMenu_Refresh RGGM_UIDropDownMenu_SetText RGGM_UIDropDownMenu_RefreshAll
--- luacheck: globals RGGM_UIDropDownMenu_SetSelectedName RGGM_UIDropDownMenu_SetSelectedValue RGGM_HideDropDownMenu
--- luacheck: globals RGGM_UIDropDownMenu_SetSelectedID RGGM_UIDropDownMenu_HandleGlobalMouseEvent GetCursorPosition
--- luacheck: globals RGGM_UIDropDownMenu_SetWidth RGGM_UIDropDownMenu_SetButtonWidth RGGM_UIDropDownMenu_GetText
--- luacheck: globals RGGM_UIDropDownMenu_ClearAll RGGM_UIDropDownMenu_JustifyText RGGM_UIDropDownMenu_SetAnchor
--- luacheck: globals RGGM_UIDropDownMenu_GetCurrentDropDown RGGM_UIDropDownMenuButton_GetChecked GetScreenWidth
--- luacheck: globals RGGM_UIDropDownMenuButton_GetName RGGM_OpenColorPicker RGGM_UIDropDownMenu_DisableButton
--- luacheck: globals RGGM_UIDropDownMenu_EnableButton RGGM_UIDropDownMenu_SetButtonText GetScreenHeight
--- luacheck: globals RGGM_UIDropDownMenu_SetButtonNotClickable RGGM_UIDropDownMenu_SetButtonClickable GetCVar
--- luacheck: globals RGGM_UIDropDownMenu_DisableDropDown RGGM_UIDropDownMenu_EnableDropDown PlaySound CreateFrame
--- luacheck: globals RGGM_UIDropDownMenu_IsEnabled RGGM_UIDropDownMenu_GetValue RGGM_ColorPicker_GetPreviousValues
+-- luacheck: globals PlaySound CreateFrame GetCVar GetScreenHeight GetScreenWidth GetCursorPosition ShowUIPanel
+-- luacheck: globals securecall
 
-local _G = getfenv(0)
-local tonumber, type, table = _G.tonumber, _G.type, _G.table
-local strsub, strlen, strmatch, gsub, max = _G.strsub, _G.strlen, _G.strmatch, _G.gsub, _G.max
-local securecall = _G.securecall
+local mod = rggm
+local me = {}
+mod.libUiDropDownMenu = me
+
+me.tag = "LibUIDropDownMenu"
 
 --[[
   Globals
 ]]--
-RGGM_UIDROPDOWNMENU_MAXBUTTONS = 1
-RGGM_UIDROPDOWNMENU_MAXLEVELS = 2
-RGGM_UIDROPDOWNMENU_BUTTON_HEIGHT = 16
-RGGM_UIDROPDOWNMENU_BORDER_HEIGHT = 15
+local uiDropDownMenuMaxButtons = 1
+local uiDropDownMenuMaxLevels = 2
+local uiDropDownMenuButtonHeight = 16
+local uiDropDownMenuBorderHeight = 15
 -- The current open menu
-RGGM_UIDROPDOWNMENU_OPEN_MENU = nil
+
+local uiDropDownMenuOpenMenu = nil
 -- The current menu being initialized
-RGGM_UIDROPDOWNMENU_INIT_MENU = nil
+local uiDropDownMenuInitMenu = nil
 -- Current level shown of the open menu
-RGGM_UIDROPDOWNMENU_MENU_LEVEL = 1
+local uiDropDownMenuMenuLevel = 1
 -- Current value of the open menu
-RGGM_UIDROPDOWNMENU_MENU_VALUE = nil
--- Time to wait to hide the menu
-RGGM_UIDROPDOWNMENU_SHOW_TIME = 2
+-- luacheck: ignore 231
+local uiDropDownMenuMenuValue = nil
 -- Default dropdown text height
-RGGM_UIDROPDOWNMENU_DEFAULT_TEXT_HEIGHT = nil
+-- luacheck: ignore 231
+local uiDropDownMenuDefaultTextHeight = nil
 -- List of open menus
-RGGM_OPEN_DROPDOWNMENUS = {}
+-- luacheck: ignore 241
+local openDropDownMenus = {}
 
-local RGGM_UIDropDownMenuDelegate = CreateFrame("FRAME")
+local uIDropDownMenuDelegate = CreateFrame("FRAME")
 
-function RGGM_UIDropDownMenuDelegate_OnAttributeChanged(self, attribute, value)
+function me.UiDropDownMenuDelegate_OnAttributeChanged(self, attribute, value)
   if attribute == "createframes" and value == true then
-    RGGM_UIDropDownMenu_CreateFrames(self:GetAttribute("createframes-level"), self:GetAttribute("createframes-index"))
+    me.UiDropDownMenu_CreateFrames(self:GetAttribute("createframes-level"), self:GetAttribute("createframes-index"))
   elseif attribute == "initmenu" then
-    RGGM_UIDROPDOWNMENU_INIT_MENU = value
+    uiDropDownMenuInitMenu = value
   elseif attribute == "openmenu" then
-    RGGM_UIDROPDOWNMENU_OPEN_MENU = value
+    uiDropDownMenuOpenMenu = value
   end
 end
 
-RGGM_UIDropDownMenuDelegate:SetScript("OnAttributeChanged", RGGM_UIDropDownMenuDelegate_OnAttributeChanged)
+uIDropDownMenuDelegate:SetScript("OnAttributeChanged", me.UiDropDownMenuDelegate_OnAttributeChanged)
 
-function RGGM_UIDropDownMenu_InitializeHelper(frame)
+function me.UiDropDownMenu_InitializeHelper(frame)
   -- This deals with the potentially tainted stuff!
-  if frame ~= RGGM_UIDROPDOWNMENU_OPEN_MENU then
-    RGGM_UIDROPDOWNMENU_MENU_LEVEL = 1
+  if frame ~= uiDropDownMenuOpenMenu then
+    uiDropDownMenuMenuLevel = 1
   end
 
   -- Set the frame that's being intialized
-  RGGM_UIDropDownMenuDelegate:SetAttribute("initmenu", frame)
+  uIDropDownMenuDelegate:SetAttribute("initmenu", frame)
 
   -- Hide all the buttons
   local button, dropDownList
 
-  for i = 1, RGGM_UIDROPDOWNMENU_MAXLEVELS, 1 do
+  for i = 1, uiDropDownMenuMaxLevels, 1 do
     dropDownList = _G["RGGM_DropDownList" .. i]
 
-    if i >= RGGM_UIDROPDOWNMENU_MENU_LEVEL or frame ~= RGGM_UIDROPDOWNMENU_OPEN_MENU then
+    if i >= uiDropDownMenuMenuLevel or frame ~= uiDropDownMenuOpenMenu then
       dropDownList.numButtons = 0
       dropDownList.maxWidth = 0
 
-      for j = 1 , RGGM_UIDROPDOWNMENU_MAXBUTTONS, 1 do
+      for j = 1 , uiDropDownMenuMaxButtons, 1 do
         button = _G["RGGM_DropDownList" .. i .. "Button" .. j]
         button:Hide()
       end
@@ -100,7 +77,7 @@ function RGGM_UIDropDownMenu_InitializeHelper(frame)
     end
   end
 
-  frame:SetHeight(RGGM_UIDROPDOWNMENU_BUTTON_HEIGHT * 2)
+  frame:SetHeight(uiDropDownMenuButtonHeight * 2)
 end
 
 -- //////////////////////////////////////////////////////////////
@@ -152,11 +129,11 @@ local function create_UIDropDownMenuButton(name, parent)
 
   fcw:SetScript("OnClick", function(self)
     CloseMenus()
-    RGGM_UIDropDownMenuButton_OpenColorPicker(self:GetParent())
+    me.CreateUiDropDownMenuButton_OpenColorPicker(self:GetParent())
   end)
 
   fcw:SetScript("OnEnter", function(self)
-    RGGM_CloseDropDownMenus(self:GetParent():GetParent():GetID() + 1)
+    me.CloseDropDownMenus(self:GetParent():GetParent():GetID() + 1)
     _G[self:GetName() .. "SwatchBg"]:SetVertexColor(NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b)
   end)
 
@@ -180,7 +157,7 @@ local function create_UIDropDownMenuButton(name, parent)
 
   fea:SetScript("OnMouseDown", function(self)
     if self:IsEnabled() then
-      RGGM_ToggleDropDownMenu(
+      me.ToggleDropDownMenu(
         self:GetParent():GetParent():GetID() + 1,
         self:GetParent().value,
         nil,
@@ -195,11 +172,11 @@ local function create_UIDropDownMenuButton(name, parent)
 
   fea:SetScript("OnEnter", function(self)
     local level =  self:GetParent():GetParent():GetID() + 1
-    RGGM_CloseDropDownMenus(level)
+    me.CloseDropDownMenus(level)
     if self:IsEnabled() then
       local listFrame = _G["RGGM_DropDownList" .. level]
       if ( not listFrame or not listFrame:IsShown() or select(2, listFrame:GetPoint()) ~= self ) then
-        RGGM_ToggleDropDownMenu(level, self:GetParent().value, nil, nil, nil, nil, self:GetParent().menuList, self)
+        me.ToggleDropDownMenu(level, self:GetParent().value, nil, nil, nil, nil, self:GetParent().menuList, self)
       end
     end
   end)
@@ -216,26 +193,26 @@ local function create_UIDropDownMenuButton(name, parent)
   fib:SetPoint("RIGHT", fcw, "LEFT", 0, 0)
 
   fib:SetScript("OnEnter", function(self)
-    RGGM_UIDropDownMenuButtonInvisibleButton_OnEnter(self)
+    me.UiDropDownMenuButtonInvisibleButton_OnEnter(self)
   end)
 
   fib:SetScript("OnLeave", function(self)
-    RGGM_UIDropDownMenuButtonInvisibleButton_OnLeave(self)
+    me.UiDropDownMenuButtonInvisibleButton_OnLeave(self)
   end)
 
   f.invisibleButton = fib
 
   -- UIDropDownMenuButton Scripts
   f:SetScript("OnClick", function(self, button, down)
-    RGGM_UIDropDownMenuButton_OnClick(self, button, down)
+    me.UiDropDownMenuButton_OnClick(self, button, down)
   end)
 
   f:SetScript("OnEnter", function(self)
-    RGGM_UIDropDownMenuButton_OnEnter(self)
+    me.UiDropDownMenuButton_OnEnter(self)
   end)
 
   f:SetScript("OnLeave", function(self)
-    RGGM_UIDropDownMenuButton_OnLeave(self)
+    me.UiDropDownMenuButton_OnLeave(self)
   end)
 
   f:SetScript("OnEnable", function(self)
@@ -300,13 +277,13 @@ local function creatre_UIDropDownList(name, parent)
     self:Hide()
   end)
   f:SetScript("OnUpdate", function(self, elapsed)
-    RGGM_UIDropDownMenu_OnUpdate(self, elapsed)
+    me.UiDropDownMenu_OnUpdate(self, elapsed)
   end)
   f:SetScript("OnShow", function(self)
-    RGGM_UIDropDownMenu_OnShow(self)
+    me.UiDropDownMenu_OnShow(self)
   end)
   f:SetScript("OnHide", function(self)
-    RGGM_UIDropDownMenu_OnHide(self)
+    me.UiDropDownMenu_OnHide(self)
   end)
 
   return f
@@ -388,27 +365,29 @@ local function create_UIDropDownMenu(name, parent)
   -- Button Script
   f.Button:SetScript("OnEnter", function(self)
     local myscript = self:GetParent():GetScript("OnEnter")
-    if(myscript ~= nil) then
+
+    if myscript ~= nil then
       myscript(self:GetParent())
     end
   end)
 
   f.Button:SetScript("OnLeave", function(self)
     local myscript = self:GetParent():GetScript("OnLeave")
-    if(myscript ~= nil) then
+
+    if myscript ~= nil then
       myscript(self:GetParent())
     end
   end)
 
   f.Button:SetScript("OnMouseDown", function(self)
     if self:IsEnabled() then
-      RGGM_ToggleDropDownMenu(nil, nil, self:GetParent())
+      me.ToggleDropDownMenu(nil, nil, self:GetParent())
       PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
     end
   end)
 
   f:SetScript("OnHide", function()
-    RGGM_CloseDropDownMenus()
+    me.CloseDropDownMenus()
   end)
 
   return f
@@ -428,7 +407,7 @@ do
   RGGM_DropDownList1:SetSize(180, 10)
 
   local _, fontHeight = _G["RGGM_DropDownList1Button1NormalText"]:GetFont()
-  RGGM_UIDROPDOWNMENU_DEFAULT_TEXT_HEIGHT = fontHeight
+  uiDropDownMenuDefaultTextHeight = fontHeight
 
   RGGM_DropDownList2 = creatre_UIDropDownList("RGGM_DropDownList2")
   RGGM_DropDownList2:SetToplevel(true)
@@ -440,7 +419,7 @@ end
 
 -- //////////////////////////////////////////////////////////////
 -- Global function to replace L_UIDropDownMenuTemplate
-function RGGM_Create_UIDropDownMenu(name, parent)
+function me.CreateUiDropDownMenu(name, parent)
     return create_UIDropDownMenu(name, parent)
 end
 
@@ -454,14 +433,14 @@ local function GetChild(frame, name, key)
   return nil
 end
 
-function RGGM_UIDropDownMenu_Initialize(frame, initFunction, displayMode, level, menuList)
+function me.UiDropDownMenu_Initialize(frame, initFunction, displayMode, level, menuList)
   frame.menuList = menuList
 
-  securecall("RGGM_UIDropDownMenu_InitializeHelper", frame)
+  securecall(me.UiDropDownMenu_InitializeHelper, frame)
 
   -- Set the initialize function and call it.  The initFunction populates the dropdown list.
   if initFunction then
-    RGGM_UIDropDownMenu_SetInitializeFunction(frame, initFunction)
+    me.UiDropDownMenu_SetInitializeFunction(frame, initFunction)
     initFunction(frame, level, frame.menuList)
   end
 
@@ -474,14 +453,14 @@ function RGGM_UIDropDownMenu_Initialize(frame, initFunction, displayMode, level,
   dropDownList.dropdown = frame
   dropDownList.shouldRefresh = true
 
-  RGGM_UIDropDownMenu_SetDisplayMode(frame, displayMode)
+  me.UiDropDownMenu_SetDisplayMode(frame, displayMode)
 end
 
-function RGGM_UIDropDownMenu_SetInitializeFunction(frame, initFunction)
+function me.UiDropDownMenu_SetInitializeFunction(frame, initFunction)
   frame.initialize = initFunction
 end
 
-function RGGM_UIDropDownMenu_SetDisplayMode(frame, displayMode)
+function me.UiDropDownMenu_SetDisplayMode(frame, displayMode)
   -- Change appearance based on the displayMode
   -- Note: this is a one time change based on previous behavior.
   if displayMode == "MENU" then
@@ -506,11 +485,11 @@ function RGGM_UIDropDownMenu_SetDisplayMode(frame, displayMode)
   end
 end
 
-function RGGM_UIDropDownMenu_RefreshDropDownSize(self)
-  self.maxWidth = RGGM_UIDropDownMenu_GetMaxButtonWidth(self)
+function me.UiDropDownMenu_RefreshDropDownSize(self)
+  self.maxWidth = me.UiDropDownMenu_GetMaxButtonWidth(self)
   self:SetWidth(self.maxWidth + 25)
 
-  for i = 1, RGGM_UIDROPDOWNMENU_MAXBUTTONS, 1 do
+  for i = 1, uiDropDownMenuMaxButtons, 1 do
     local icon = _G[self:GetName() .. "Button" .. i .. "Icon"]
 
     if icon.tFitDropDownSizeX then
@@ -520,15 +499,15 @@ function RGGM_UIDropDownMenu_RefreshDropDownSize(self)
 end
 
 -- If dropdown is visible then see if its timer has expired, if so hide the frame
-function RGGM_UIDropDownMenu_OnUpdate(self)
+function me.UiDropDownMenu_OnUpdate(self)
   if self.shouldRefresh then
-    RGGM_UIDropDownMenu_RefreshDropDownSize(self)
+    me.UiDropDownMenu_RefreshDropDownSize(self)
     self.shouldRefresh = false
   end
 end
 
-function RGGM_UIDropDownMenuButtonInvisibleButton_OnEnter(self)
-  RGGM_CloseDropDownMenus(self:GetParent():GetParent():GetID() + 1)
+function me.UiDropDownMenuButtonInvisibleButton_OnEnter(self)
+  me.CloseDropDownMenus(self:GetParent():GetParent():GetID() + 1)
 
   local parent = self:GetParent()
 
@@ -556,20 +535,20 @@ function RGGM_UIDropDownMenuButtonInvisibleButton_OnEnter(self)
   end
 end
 
-function RGGM_UIDropDownMenuButtonInvisibleButton_OnLeave()
+function me.UiDropDownMenuButtonInvisibleButton_OnLeave()
   GameTooltip:Hide()
 end
 
-function RGGM_UIDropDownMenuButton_OnEnter(self)
+function me.UiDropDownMenuButton_OnEnter(self)
   if self.hasArrow then
     local level =  self:GetParent():GetID() + 1
     local listFrame = _G["RGGM_DropDownList" .. level]
 
     if not listFrame or not listFrame:IsShown() or select(2, listFrame:GetPoint()) ~= self then
-      RGGM_ToggleDropDownMenu(self:GetParent():GetID() + 1, self.value, nil, nil, nil, nil, self.menuList, self)
+      me.ToggleDropDownMenu(self:GetParent():GetID() + 1, self.value, nil, nil, nil, nil, self.menuList, self)
     end
   else
-    RGGM_CloseDropDownMenus(self:GetParent():GetID() + 1)
+    me.CloseDropDownMenus(self:GetParent():GetID() + 1)
   end
 
   self.Highlight:Show()
@@ -594,7 +573,7 @@ function RGGM_UIDropDownMenuButton_OnEnter(self)
   end
 end
 
-function RGGM_UIDropDownMenuButton_OnLeave(self)
+function me.UiDropDownMenuButton_OnLeave(self)
   self.Highlight:Hide()
   GameTooltip:Hide()
 
@@ -607,45 +586,45 @@ function RGGM_UIDropDownMenuButton_OnLeave(self)
   end
 end
 
-function RGGM_UIDropDownMenu_CreateInfo()
+function me.UiDropDownMenu_CreateInfo()
   return {}
 end
 
-function RGGM_UIDropDownMenu_CreateFrames(level, index)
-  while level > RGGM_UIDROPDOWNMENU_MAXLEVELS do
-    RGGM_UIDROPDOWNMENU_MAXLEVELS = RGGM_UIDROPDOWNMENU_MAXLEVELS + 1
-    local newList = creatre_UIDropDownList("RGGM_DropDownList" .. RGGM_UIDROPDOWNMENU_MAXLEVELS)
+function me.UiDropDownMenu_CreateFrames(level, index)
+  while level > uiDropDownMenuMaxLevels do
+    uiDropDownMenuMaxLevels = uiDropDownMenuMaxLevels + 1
+    local newList = creatre_UIDropDownList("RGGM_DropDownList" .. uiDropDownMenuMaxLevels)
 
     newList:SetFrameStrata("FULLSCREEN_DIALOG")
     newList:SetToplevel(true)
     newList:Hide()
-    newList:SetID(RGGM_UIDROPDOWNMENU_MAXLEVELS)
+    newList:SetID(uiDropDownMenuMaxLevels)
     newList:SetWidth(180)
     newList:SetHeight(10)
 
-    for i = 1, RGGM_UIDROPDOWNMENU_MAXBUTTONS do
+    for i = 1, uiDropDownMenuMaxButtons do
       local newButton = create_UIDropDownMenuButton(
-        "RGGM_DropDownList" .. RGGM_UIDROPDOWNMENU_MAXLEVELS .. "Button" .. i,
+        "RGGM_DropDownList" .. uiDropDownMenuMaxLevels .. "Button" .. i,
         newList
       )
       newButton:SetID(i)
     end
   end
 
-  while index > RGGM_UIDROPDOWNMENU_MAXBUTTONS do
-    RGGM_UIDROPDOWNMENU_MAXBUTTONS = RGGM_UIDROPDOWNMENU_MAXBUTTONS + 1
+  while index > uiDropDownMenuMaxButtons do
+    uiDropDownMenuMaxButtons = uiDropDownMenuMaxButtons + 1
 
-    for i = 1, RGGM_UIDROPDOWNMENU_MAXLEVELS do
+    for i = 1, uiDropDownMenuMaxLevels do
       local newButton = create_UIDropDownMenuButton(
-        "RGGM_DropDownList" .. i .. "Button" .. RGGM_UIDROPDOWNMENU_MAXBUTTONS,
+        "RGGM_DropDownList" .. i .. "Button" .. uiDropDownMenuMaxButtons,
         _G["RGGM_DropDownList" .. i]
       )
-      newButton:SetID(RGGM_UIDROPDOWNMENU_MAXBUTTONS)
+      newButton:SetID(uiDropDownMenuMaxButtons)
     end
   end
 end
 
-function RGGM_UIDropDownMenu_AddSeparator(level)
+function me.UiDropDownMenu_AddSeparator(level)
   local separatorInfo = {
     hasArrow = false,
     dist = 0,
@@ -672,10 +651,10 @@ function RGGM_UIDropDownMenu_AddSeparator(level)
     },
   }
 
-  RGGM_UIDropDownMenu_AddButton(separatorInfo, level)
+  me.UiDropDownMenu_AddButton(separatorInfo, level)
 end
 
-function RGGM_UIDropDownMenu_AddSpace(level)
+function me.UiDropDownMenu_AddSpace(level)
   local spaceInfo = {
     hasArrow = false,
     dist = 0,
@@ -684,13 +663,13 @@ function RGGM_UIDropDownMenu_AddSpace(level)
     notCheckable = true,
   }
 
-  RGGM_UIDropDownMenu_AddButton(spaceInfo, level)
+  me.UiDropDownMenu_AddButton(spaceInfo, level)
 end
 
-function RGGM_UIDropDownMenu_AddButton(info, level)
+function me.UiDropDownMenu_AddButton(info, level)
   --[[
   Might to uncomment this if there are performance issues
-  if ( not RGGM_UIDROPDOWNMENU_OPEN_MENU ) then
+  if ( not uiDropDownMenuOpenMenu ) then
     return
   end
   ]]
@@ -702,9 +681,9 @@ function RGGM_UIDropDownMenu_AddButton(info, level)
   local index = listFrame and (listFrame.numButtons + 1) or 1
   local width
 
-  RGGM_UIDropDownMenuDelegate:SetAttribute("createframes-level", level)
-  RGGM_UIDropDownMenuDelegate:SetAttribute("createframes-index", index)
-  RGGM_UIDropDownMenuDelegate:SetAttribute("createframes", true)
+  uIDropDownMenuDelegate:SetAttribute("createframes-level", level)
+  uIDropDownMenuDelegate:SetAttribute("createframes-index", index)
+  uIDropDownMenuDelegate:SetAttribute("createframes", true)
 
   listFrame = listFrame or _G["RGGM_DropDownList" .. level]
   local listFrameName = listFrame:GetName()
@@ -805,7 +784,7 @@ function RGGM_UIDropDownMenu_AddButton(info, level)
     button.icon = info.icon
     button.iconInfo = info.iconInfo
 
-    RGGM_UIDropDownMenu_SetIconImage(icon, info.icon, info.iconInfo)
+    me.UiDropDownMenu_SetIconImage(icon, info.icon, info.iconInfo)
     icon:ClearAllPoints()
     icon:SetPoint("LEFT")
   end
@@ -854,7 +833,7 @@ function RGGM_UIDropDownMenu_AddButton(info, level)
 
   -- If not checkable move everything over to the left to fill in the gap where the check would be
   local xPos = 5
-  local yPos = -((button:GetID() - 1) * RGGM_UIDROPDOWNMENU_BUTTON_HEIGHT) - RGGM_UIDROPDOWNMENU_BORDER_HEIGHT
+  local yPos = -((button:GetID() - 1) * uiDropDownMenuButtonHeight) - uiDropDownMenuBorderHeight
   local displayInfo = normalText
 
   if info.iconOnly then
@@ -876,7 +855,7 @@ function RGGM_UIDropDownMenu_AddButton(info, level)
   end
 
   -- Adjust offset if displayMode is menu
-  local frame = RGGM_UIDROPDOWNMENU_OPEN_MENU
+  local frame = uiDropDownMenuOpenMenu
   if frame and frame.displayMode == "MENU" then
     if not info.notCheckable then
       xPos = xPos - 6
@@ -884,7 +863,7 @@ function RGGM_UIDropDownMenu_AddButton(info, level)
   end
 
   -- If no open frame then set the frame to the currently initialized frame
-  frame = frame or RGGM_UIDROPDOWNMENU_INIT_MENU
+  frame = frame or uiDropDownMenuInitMenu
 
   if info.leftPadding then
     xPos = xPos + info.leftPadding
@@ -893,16 +872,16 @@ function RGGM_UIDropDownMenu_AddButton(info, level)
 
   -- See if button is selected by id or name
   if frame then
-    if RGGM_UIDropDownMenu_GetSelectedName(frame) then
-      if button:GetText() == RGGM_UIDropDownMenu_GetSelectedName(frame) then
+    if me.UiDropDownMenu_GetSelectedName(frame) then
+      if button:GetText() == me.UiDropDownMenu_GetSelectedName(frame) then
         info.checked = 1
       end
-    elseif RGGM_UIDropDownMenu_GetSelectedID(frame) then
-      if button:GetID() == RGGM_UIDropDownMenu_GetSelectedID(frame) then
+    elseif me.UiDropDownMenu_GetSelectedID(frame) then
+      if button:GetID() == me.UiDropDownMenu_GetSelectedID(frame) then
         info.checked = 1
       end
-    elseif RGGM_UIDropDownMenu_GetSelectedValue(frame) then
-      if button.value == RGGM_UIDropDownMenu_GetSelectedValue(frame) then
+    elseif me.UiDropDownMenu_GetSelectedValue(frame) then
+      if button.value == me.UiDropDownMenu_GetSelectedValue(frame) then
         info.checked = 1
       end
     end
@@ -949,6 +928,7 @@ function RGGM_UIDropDownMenu_AddButton(info, level)
 
     -- Checked can be a function now
     local checked = info.checked
+
     if type(checked) == "function" then
       checked = checked(button)
     end
@@ -967,6 +947,7 @@ function RGGM_UIDropDownMenu_AddButton(info, level)
     _G[listFrameName .. "Button" .. index .. "Check"]:Hide()
     _G[listFrameName .. "Button" .. index .. "UnCheck"]:Hide()
   end
+
   button.checked = info.checked
 
   -- If has a colorswatch, show it and vertex color it
@@ -983,23 +964,23 @@ function RGGM_UIDropDownMenu_AddButton(info, level)
     colorSwatch:Hide()
   end
 
-  RGGM_UIDropDownMenu_CheckAddCustomFrame(listFrame, button, info)
+  me.UiDropDownMenu_CheckAddCustomFrame(listFrame, button, info)
 
   button:SetShown(button.customFrame == nil)
 
   button.minWidth = info.minWidth
 
-  width = max(RGGM_UIDropDownMenu_GetButtonWidth(button), info.minWidth or 0)
+  width = math.max(me.UiDropDownMenu_GetButtonWidth(button), info.minWidth or 0)
   --Set maximum button width
   if width > listFrame.maxWidth then
     listFrame.maxWidth = width
   end
 
   -- Set the height of the listframe
-  listFrame:SetHeight((index * RGGM_UIDROPDOWNMENU_BUTTON_HEIGHT) + (RGGM_UIDROPDOWNMENU_BORDER_HEIGHT * 2))
+  listFrame:SetHeight((index * uiDropDownMenuButtonHeight) + (uiDropDownMenuBorderHeight * 2))
 end
 
-function RGGM_UIDropDownMenu_CheckAddCustomFrame(self, button, info)
+function me.UiDropDownMenu_CheckAddCustomFrame(self, button, info)
   local customFrame = info.customFrame
   button.customFrame = customFrame
 
@@ -1009,21 +990,21 @@ function RGGM_UIDropDownMenu_CheckAddCustomFrame(self, button, info)
     customFrame:SetPoint("TOPLEFT", button, "TOPLEFT", 0, 0)
     customFrame:Show()
 
-    RGGM_UIDropDownMenu_RegisterCustomFrame(self, customFrame)
+    me.UiDropDownMenu_RegisterCustomFrame(self, customFrame)
   end
 end
 
-function RGGM_UIDropDownMenu_RegisterCustomFrame(self, customFrame)
+function me.UiDropDownMenu_RegisterCustomFrame(self, customFrame)
   self.customFrames = self.customFrames or {}
   table.insert(self.customFrames, customFrame)
 end
 
-function RGGM_UIDropDownMenu_GetMaxButtonWidth(self)
+function me.UiDropDownMenu_GetMaxButtonWidth(self)
   local maxWidth = 0
 
   for i = 1, self.numButtons do
     local button = _G[self:GetName() .. "Button" .. i]
-    local width = RGGM_UIDropDownMenu_GetButtonWidth(button)
+    local width = me.UiDropDownMenu_GetButtonWidth(button)
 
     if width > maxWidth then
       maxWidth = width
@@ -1032,7 +1013,7 @@ function RGGM_UIDropDownMenu_GetMaxButtonWidth(self)
   return maxWidth
 end
 
-function RGGM_UIDropDownMenu_GetButtonWidth(button)
+function me.UiDropDownMenu_GetButtonWidth(button)
   local minWidth = button.minWidth or 0
 
   if button.customFrame and button.customFrame:IsShown() then
@@ -1077,33 +1058,33 @@ function RGGM_UIDropDownMenu_GetButtonWidth(button)
   return math.max(minWidth, width)
 end
 
-function RGGM_UIDropDownMenu_Refresh(frame, useValue, dropdownLevel)
+function me.UiDropDownMenu_Refresh(frame, useValue, dropdownLevel)
   local maxWidth = 0
   local somethingChecked = nil
 
   if not dropdownLevel then
-    dropdownLevel = RGGM_UIDROPDOWNMENU_MENU_LEVEL
+    dropdownLevel = uiDropDownMenuMenuLevel
   end
 
   local listFrame = _G["RGGM_DropDownList" .. dropdownLevel]
   listFrame.numButtons = listFrame.numButtons or 0
   -- Just redraws the existing menu
-  for i = 1, RGGM_UIDROPDOWNMENU_MAXBUTTONS do
+  for i = 1, uiDropDownMenuMaxButtons do
     local button = _G["RGGM_DropDownList" .. dropdownLevel .. "Button" .. i]
     local checked = nil
 
     if i <= listFrame.numButtons then
       -- See if checked or not
-      if RGGM_UIDropDownMenu_GetSelectedName(frame) then
-        if button:GetText() == RGGM_UIDropDownMenu_GetSelectedName(frame) then
+      if me.UiDropDownMenu_GetSelectedName(frame) then
+        if button:GetText() == me.UiDropDownMenu_GetSelectedName(frame) then
           checked = 1
         end
-      elseif RGGM_UIDropDownMenu_GetSelectedID(frame) then
-        if button:GetID() == RGGM_UIDropDownMenu_GetSelectedID(frame) then
+      elseif me.UiDropDownMenu_GetSelectedID(frame) then
+        if button:GetID() == me.UiDropDownMenu_GetSelectedID(frame) then
           checked = 1
         end
-      elseif RGGM_UIDropDownMenu_GetSelectedValue(frame) then
-        if button.value == RGGM_UIDropDownMenu_GetSelectedValue(frame) then
+      elseif me.UiDropDownMenu_GetSelectedValue(frame) then
+        if button.value == me.UiDropDownMenu_GetSelectedValue(frame) then
           checked = 1
         end
       end
@@ -1124,12 +1105,12 @@ function RGGM_UIDropDownMenu_Refresh(frame, useValue, dropdownLevel)
           local icon = GetChild(frame, frame:GetName(), "Icon")
 
           if button.iconOnly and icon and button.icon then
-            RGGM_UIDropDownMenu_SetIconImage(icon, button.icon, button.iconInfo)
+            me.UiDropDownMenu_SetIconImage(icon, button.icon, button.iconInfo)
           elseif useValue then
-            RGGM_UIDropDownMenu_SetText(frame, button.value)
+            me.UiDropDownMenu_SetText(frame, button.value)
             icon:Hide()
           else
-            RGGM_UIDropDownMenu_SetText(frame, button:GetText())
+            me.UiDropDownMenu_SetText(frame, button:GetText())
             icon:Hide()
           end
         end
@@ -1145,7 +1126,7 @@ function RGGM_UIDropDownMenu_Refresh(frame, useValue, dropdownLevel)
     end
 
     if button:IsShown() then
-      local width = RGGM_UIDropDownMenu_GetButtonWidth(button)
+      local width = me.UiDropDownMenu_GetButtonWidth(button)
 
       if width > maxWidth then
         maxWidth = width
@@ -1154,34 +1135,34 @@ function RGGM_UIDropDownMenu_Refresh(frame, useValue, dropdownLevel)
   end
 
   if somethingChecked == nil then
-    RGGM_UIDropDownMenu_SetText(frame, VIDEO_QUALITY_LABEL6)
+    me.UiDropDownMenu_SetText(frame, VIDEO_QUALITY_LABEL6)
     local icon = GetChild(frame, frame:GetName(), "Icon")
     icon:Hide()
   end
 
   if not frame.noResize then
-    for i = 1, RGGM_UIDROPDOWNMENU_MAXBUTTONS do
+    for i = 1, uiDropDownMenuMaxButtons do
       local button = _G["RGGM_DropDownList" .. dropdownLevel .. "Button" .. i]
       button:SetWidth(maxWidth)
     end
 
-    RGGM_UIDropDownMenu_RefreshDropDownSize(_G["RGGM_DropDownList" .. dropdownLevel])
+    me.UiDropDownMenu_RefreshDropDownSize(_G["RGGM_DropDownList" .. dropdownLevel])
   end
 end
 
-function RGGM_UIDropDownMenu_RefreshAll(frame, useValue)
-  for dropdownLevel = RGGM_UIDROPDOWNMENU_MENU_LEVEL, 2, -1 do
+function me.UiDropDownMenu_RefreshAll(frame, useValue)
+  for dropdownLevel = uiDropDownMenuMenuLevel, 2, -1 do
     local listFrame = _G["RGGM_DropDownList" .. dropdownLevel]
 
     if listFrame:IsShown() then
-      RGGM_UIDropDownMenu_Refresh(frame, nil, dropdownLevel)
+      me.UiDropDownMenu_Refresh(frame, nil, dropdownLevel)
     end
   end
   -- useValue is the text on the dropdown, only needs to be set once
-  RGGM_UIDropDownMenu_Refresh(frame, useValue, 1)
+  me.UiDropDownMenu_Refresh(frame, useValue, 1)
 end
 
-function RGGM_UIDropDownMenu_SetIconImage(icon, texture, info)
+function me.UiDropDownMenu_SetIconImage(icon, texture, info)
   icon:SetTexture(texture)
 
   if info.tCoordLeft then
@@ -1205,48 +1186,48 @@ function RGGM_UIDropDownMenu_SetIconImage(icon, texture, info)
   icon:Show()
 end
 
-function RGGM_UIDropDownMenu_SetSelectedName(frame, name, useValue)
+function me.UiDropDownMenu_SetSelectedName(frame, name, useValue)
   frame.selectedName = name
   frame.selectedID = nil
   frame.selectedValue = nil
-  RGGM_UIDropDownMenu_Refresh(frame, useValue)
+  me.UiDropDownMenu_Refresh(frame, useValue)
 end
 
-function RGGM_UIDropDownMenu_SetSelectedValue(frame, value, useValue)
+function me.UiDropDownMenu_SetSelectedValue(frame, value, useValue)
   -- useValue will set the value as the text, not the name
   frame.selectedName = nil
   frame.selectedID = nil
   frame.selectedValue = value
-  RGGM_UIDropDownMenu_Refresh(frame, useValue)
+  me.UiDropDownMenu_Refresh(frame, useValue)
 end
 
-function RGGM_UIDropDownMenu_SetSelectedID(frame, id, useValue)
+function me.UiDropDownMenu_SetSelectedID(frame, id, useValue)
   frame.selectedID = id
   frame.selectedName = nil
   frame.selectedValue = nil
-  RGGM_UIDropDownMenu_Refresh(frame, useValue)
+  me.UiDropDownMenu_Refresh(frame, useValue)
 end
 
-function RGGM_UIDropDownMenu_GetSelectedName(frame)
+function me.UiDropDownMenu_GetSelectedName(frame)
   return frame.selectedName
 end
 
-function RGGM_UIDropDownMenu_GetSelectedID(frame)
+function me.UiDropDownMenu_GetSelectedID(frame)
   if frame.selectedID then
     return frame.selectedID
   else
     -- If no explicit selectedID then try to send the id of a selected value or name
-    local listFrame = _G["RGGM_DropDownList" .. RGGM_UIDROPDOWNMENU_MENU_LEVEL]
+    local listFrame = _G["RGGM_DropDownList" .. uiDropDownMenuMenuLevel]
 
     for i = 1, listFrame.numButtons do
-      local button = _G["RGGM_DropDownList" .. RGGM_UIDROPDOWNMENU_MENU_LEVEL .. "Button" .. i]
+      local button = _G["RGGM_DropDownList" .. uiDropDownMenuMenuLevel .. "Button" .. i]
       -- See if checked or not
-      if RGGM_UIDropDownMenu_GetSelectedName(frame) then
-        if button:GetText() == RGGM_UIDropDownMenu_GetSelectedName(frame) then
+      if me.UiDropDownMenu_GetSelectedName(frame) then
+        if button:GetText() == me.UiDropDownMenu_GetSelectedName(frame) then
           return i
         end
-      elseif RGGM_UIDropDownMenu_GetSelectedValue(frame) then
-        if button.value == RGGM_UIDropDownMenu_GetSelectedValue(frame) then
+      elseif me.UiDropDownMenu_GetSelectedValue(frame) then
+        if button.value == me.UiDropDownMenu_GetSelectedValue(frame) then
           return i
         end
       end
@@ -1254,11 +1235,11 @@ function RGGM_UIDropDownMenu_GetSelectedID(frame)
   end
 end
 
-function RGGM_UIDropDownMenu_GetSelectedValue(frame)
+function me.UiDropDownMenu_GetSelectedValue(frame)
   return frame.selectedValue
 end
 
-function RGGM_UIDropDownMenuButton_OnClick(self)
+function me.UiDropDownMenuButton_OnClick(self)
   local checked = self.checked
 
   if type (checked) == "function" then
@@ -1305,21 +1286,21 @@ function RGGM_UIDropDownMenuButton_OnClick(self)
   end
 end
 
-function RGGM_HideDropDownMenu(level)
+function me.HideUiDropDownMenu(level)
   local listFrame = _G["RGGM_DropDownList" .. level]
   listFrame:Hide()
 end
 
-function RGGM_ToggleDropDownMenu(level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button)
+function me.ToggleDropDownMenu(level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button)
   if not level then
     level = 1
   end
 
-  RGGM_UIDropDownMenuDelegate:SetAttribute("createframes-level", level)
-  RGGM_UIDropDownMenuDelegate:SetAttribute("createframes-index", 0)
-  RGGM_UIDropDownMenuDelegate:SetAttribute("createframes", true)
-  RGGM_UIDROPDOWNMENU_MENU_LEVEL = level
-  RGGM_UIDROPDOWNMENU_MENU_VALUE = value
+  uIDropDownMenuDelegate:SetAttribute("createframes-level", level)
+  uIDropDownMenuDelegate:SetAttribute("createframes-index", 0)
+  uIDropDownMenuDelegate:SetAttribute("createframes", true)
+  uiDropDownMenuMenuLevel = level
+  uiDropDownMenuMenuValue = value
 
   local listFrameName = "RGGM_DropDownList" .. level
   local listFrame = _G[listFrameName]
@@ -1332,7 +1313,7 @@ function RGGM_ToggleDropDownMenu(level, value, dropDownFrame, anchorName, xOffse
     tempFrame = dropDownFrame
   end
 
-  if listFrame:IsShown() and (RGGM_UIDROPDOWNMENU_OPEN_MENU == tempFrame) then
+  if listFrame:IsShown() and (uiDropDownMenuOpenMenu == tempFrame) then
     listFrame:Hide()
   else
     -- Set the dropdownframe scale
@@ -1360,7 +1341,7 @@ function RGGM_ToggleDropDownMenu(level, value, dropDownFrame, anchorName, xOffse
     -- Display stuff
     -- Level specific stuff
     if level == 1 then
-      RGGM_UIDropDownMenuDelegate:SetAttribute("openmenu", dropDownFrame)
+      uIDropDownMenuDelegate:SetAttribute("openmenu", dropDownFrame)
       listFrame:ClearAllPoints()
       -- If there's no specified anchorName then use left side of the dropdown menu
       if not anchorName then
@@ -1380,7 +1361,7 @@ function RGGM_ToggleDropDownMenu(level, value, dropDownFrame, anchorName, xOffse
         if dropDownFrame.relativeTo then
           relativeTo = dropDownFrame.relativeTo
         else
-          relativeTo = GetChild(RGGM_UIDROPDOWNMENU_OPEN_MENU, RGGM_UIDROPDOWNMENU_OPEN_MENU:GetName(), "Left")
+          relativeTo = GetChild(uiDropDownMenuOpenMenu, uiDropDownMenuOpenMenu:GetName(), "Left")
         end
 
         if dropDownFrame.relativePoint then
@@ -1443,13 +1424,13 @@ function RGGM_ToggleDropDownMenu(level, value, dropDownFrame, anchorName, xOffse
       listFrame:SetPoint(point, relativeTo, relativePoint, xOffset, yOffset)
     else
       if not dropDownFrame then
-        dropDownFrame = RGGM_UIDROPDOWNMENU_OPEN_MENU
+        dropDownFrame = uiDropDownMenuOpenMenu
       end
 
       listFrame:ClearAllPoints()
       -- If this is a dropdown button, not the arrow anchor it to itself
-      if strsub(button:GetParent():GetName(), 0,14) == "RGGM_DropDownList"
-        and strlen(button:GetParent():GetName()) == 15 then
+      if string.sub(button:GetParent():GetName(), 0,14) == "RGGM_DropDownList"
+        and string.len(button:GetParent():GetName()) == 15 then
         anchorFrame = button
       else
         anchorFrame = button:GetParent()
@@ -1470,7 +1451,7 @@ function RGGM_ToggleDropDownMenu(level, value, dropDownFrame, anchorName, xOffse
     end
 
     dropDownFrame.menuList = menuList
-    RGGM_UIDropDownMenu_Initialize(dropDownFrame, dropDownFrame.initialize, nil, level, menuList)
+    me.UiDropDownMenu_Initialize(dropDownFrame, dropDownFrame.initialize, nil, level, menuList)
     -- If no items in the drop down don't show it
     if listFrame.numButtons == 0 then
       return
@@ -1532,20 +1513,20 @@ function RGGM_ToggleDropDownMenu(level, value, dropDownFrame, anchorName, xOffse
       end
 
       if offscreenY and offscreenX then
-        point = gsub(point, "TOP(.*)", "BOTTOM%1")
-        point = gsub(point, "(.*)LEFT", "%1RIGHT")
-        relativePoint = gsub(relativePoint, "TOP(.*)", "BOTTOM%1")
-        relativePoint = gsub(relativePoint, "(.*)RIGHT", "%1LEFT")
+        point = string.gsub(point, "TOP(.*)", "BOTTOM%1")
+        point = string.gsub(point, "(.*)LEFT", "%1RIGHT")
+        relativePoint = string.gsub(relativePoint, "TOP(.*)", "BOTTOM%1")
+        relativePoint = string.gsub(relativePoint, "(.*)RIGHT", "%1LEFT")
         xOffset = -11
         yOffset = -14
       elseif offscreenY then
-        point = gsub(point, "TOP(.*)", "BOTTOM%1")
-        relativePoint = gsub(relativePoint, "TOP(.*)", "BOTTOM%1")
+        point = string.gsub(point, "TOP(.*)", "BOTTOM%1")
+        relativePoint = string.gsub(relativePoint, "TOP(.*)", "BOTTOM%1")
         xOffset = 0
         yOffset = -14
       elseif offscreenX then
-        point = gsub(point, "(.*)LEFT", "%1RIGHT")
-        relativePoint = gsub(relativePoint, "(.*)RIGHT", "%1LEFT")
+        point = string.gsub(point, "(.*)LEFT", "%1RIGHT")
+        relativePoint = string.gsub(relativePoint, "(.*)RIGHT", "%1LEFT")
         xOffset = -11
         yOffset = 14
       else
@@ -1554,25 +1535,25 @@ function RGGM_ToggleDropDownMenu(level, value, dropDownFrame, anchorName, xOffse
       end
 
       listFrame:ClearAllPoints()
-      listFrame.parentLevel = tonumber(strmatch(anchorFrame:GetName(), "RGGM_DropDownList(%d+)"))
+      listFrame.parentLevel = tonumber(string.match(anchorFrame:GetName(), "RGGM_DropDownList(%d+)"))
       listFrame.parentID = anchorFrame:GetID()
       listFrame:SetPoint(point, anchorFrame, relativePoint, xOffset, yOffset)
     end
   end
 end
 
-function RGGM_CloseDropDownMenus(level)
+function me.CloseDropDownMenus(level)
   if not level then
     level = 1
   end
 
-  for i = level, RGGM_UIDROPDOWNMENU_MAXLEVELS do
+  for i = level, uiDropDownMenuMaxLevels do
     _G["RGGM_DropDownList" .. i]:Hide()
   end
 end
 
-local function RGGM_UIDropDownMenu_ContainsMouse()
-  for i = 1, RGGM_UIDROPDOWNMENU_MAXLEVELS do
+local function UiDropDownMenu_ContainsMouse()
+  for i = 1, uiDropDownMenuMaxLevels do
     local dropdown = _G["RGGM_DropDownList" .. i]
 
     if dropdown:IsShown() and dropdown:IsMouseOver() then
@@ -1583,21 +1564,21 @@ local function RGGM_UIDropDownMenu_ContainsMouse()
   return false
 end
 
-function RGGM_UIDropDownMenu_HandleGlobalMouseEvent(button, event)
+function me.UiDropDownMenu_HandleGlobalMouseEvent(button, event)
   if event == "GLOBAL_MOUSE_DOWN" and (button == "LeftButton" or button == "RightButton") then
-    if not RGGM_UIDropDownMenu_ContainsMouse() then
-      RGGM_CloseDropDownMenus()
+    if not UiDropDownMenu_ContainsMouse() then
+      me.CloseDropDownMenus()
     end
   end
 end
 
-function RGGM_UIDropDownMenu_OnShow(self)
+function me.UiDropDownMenu_OnShow(self)
   if self.onShow then
     self.onShow()
     self.onShow = nil
   end
 
-  for i = 1, RGGM_UIDROPDOWNMENU_MAXBUTTONS do
+  for i = 1, uiDropDownMenuMaxButtons do
     if not self.noResize then
       _G[self:GetName() .. "Button" .. i]:SetWidth(self.maxWidth)
     end
@@ -1612,7 +1593,7 @@ function RGGM_UIDropDownMenu_OnShow(self)
   end
 end
 
-function RGGM_UIDropDownMenu_OnHide(self)
+function me.UiDropDownMenu_OnHide(self)
   local id = self:GetID()
 
   if self.onHide then
@@ -1620,11 +1601,11 @@ function RGGM_UIDropDownMenu_OnHide(self)
     self.onHide = nil
   end
 
-  RGGM_CloseDropDownMenus(id+1)
-  RGGM_OPEN_DROPDOWNMENUS[id] = nil
+  me.CloseDropDownMenus(id+1)
+  openDropDownMenus[id] = nil
 
   if id == 1 then
-    RGGM_UIDROPDOWNMENU_OPEN_MENU = nil
+    uiDropDownMenuOpenMenu = nil
   end
 
   if self.customFrames then
@@ -1636,7 +1617,7 @@ function RGGM_UIDropDownMenu_OnHide(self)
   end
 end
 
-function RGGM_UIDropDownMenu_SetWidth(frame, width, padding)
+function me.UiDropDownMenu_SetWidth(frame, width, padding)
   local frameName = frame:GetName()
 	local defaultPadding = 25
   GetChild(frame, frameName, "Middle"):SetWidth(width)
@@ -1656,7 +1637,7 @@ function RGGM_UIDropDownMenu_SetWidth(frame, width, padding)
   frame.noResize = 1
 end
 
-function RGGM_UIDropDownMenu_SetButtonWidth(frame, width)
+function me.UiDropDownMenu_SetButtonWidth(frame, width)
   local frameName = frame:GetName()
 
   if width == "TEXT" then
@@ -1667,37 +1648,37 @@ function RGGM_UIDropDownMenu_SetButtonWidth(frame, width)
   frame.noResize = 1
 end
 
-function RGGM_UIDropDownMenu_SetText(frame, text)
+function me.UiDropDownMenu_SetText(frame, text)
   local frameName = frame:GetName()
   GetChild(frame, frameName, "Text"):SetText(text)
 end
 
-function RGGM_UIDropDownMenu_GetText(frame)
+function me.UiDropDownMenu_GetText(frame)
   local frameName = frame:GetName()
   return GetChild(frame, frameName, "Text"):GetText()
 end
 
-function RGGM_UIDropDownMenu_ClearAll(frame)
+function me.UiDropDownMenu_ClearAll(frame)
   -- Previous code refreshed the menu quite often and was a performance bottleneck
   frame.selectedID = nil
   frame.selectedName = nil
   frame.selectedValue = nil
-  RGGM_UIDropDownMenu_SetText(frame, "")
+  me.UiDropDownMenu_SetText(frame, "")
 
   local button, checkImage, uncheckImage
 
-  for i = 1, RGGM_UIDROPDOWNMENU_MAXBUTTONS do
-    button = _G["RGGM_DropDownList" .. RGGM_UIDROPDOWNMENU_MENU_LEVEL .. "Button" .. i]
+  for i = 1, uiDropDownMenuMaxButtons do
+    button = _G["RGGM_DropDownList" .. uiDropDownMenuMenuLevel .. "Button" .. i]
     button:UnlockHighlight()
 
-    checkImage = _G["RGGM_DropDownList" .. RGGM_UIDROPDOWNMENU_MENU_LEVEL .. "Button" .. i .. "Check"]
+    checkImage = _G["RGGM_DropDownList" .. uiDropDownMenuMenuLevel .. "Button" .. i .. "Check"]
     checkImage:Hide()
-    uncheckImage = _G["RGGM_DropDownList" .. RGGM_UIDROPDOWNMENU_MENU_LEVEL .. "Button" .. i .. "UnCheck"]
+    uncheckImage = _G["RGGM_DropDownList" .. uiDropDownMenuMenuLevel .. "Button" .. i .. "UnCheck"]
     uncheckImage:Hide()
   end
 end
 
-function RGGM_UIDropDownMenu_JustifyText(frame, justification, customXOffset)
+function me.UiDropDownMenu_JustifyText(frame, justification, customXOffset)
   local frameName = frame:GetName()
   local text = GetChild(frame, frameName, "Text")
   text:ClearAllPoints()
@@ -1714,7 +1695,7 @@ function RGGM_UIDropDownMenu_JustifyText(frame, justification, customXOffset)
   end
 end
 
-function RGGM_UIDropDownMenu_SetAnchor(dropdown, xOffset, yOffset, point, relativeTo, relativePoint)
+function me.UiDropDownMenu_SetAnchor(dropdown, xOffset, yOffset, point, relativeTo, relativePoint)
   dropdown.xOffset = xOffset
   dropdown.yOffset = yOffset
   dropdown.point = point
@@ -1722,42 +1703,42 @@ function RGGM_UIDropDownMenu_SetAnchor(dropdown, xOffset, yOffset, point, relati
   dropdown.relativePoint = relativePoint
 end
 
-function RGGM_UIDropDownMenu_GetCurrentDropDown()
-  if RGGM_UIDROPDOWNMENU_OPEN_MENU then
-    return RGGM_UIDROPDOWNMENU_OPEN_MENU
-  elseif RGGM_UIDROPDOWNMENU_INIT_MENU then
-    return RGGM_UIDROPDOWNMENU_INIT_MENU
+function me.UiDropDownMenu_GetCurrentDropDown()
+  if uiDropDownMenuOpenMenu then
+    return uiDropDownMenuOpenMenu
+  elseif uiDropDownMenuInitMenu then
+    return uiDropDownMenuInitMenu
   end
 end
 
-function RGGM_UIDropDownMenuButton_GetChecked(self)
+function me.UiDropDownMenuButton_GetChecked(self)
   return _G[self:GetName() .. "Check"]:IsShown()
 end
 
-function RGGM_UIDropDownMenuButton_GetName(self)
+function me.UiDropDownMenuButton_GetName(self)
   return _G[self:GetName() .. "NormalText"]:GetText()
 end
 
-function RGGM_UIDropDownMenuButton_OpenColorPicker(self, button)
+function me.CreateUiDropDownMenuButton_OpenColorPicker(self, button)
   securecall("CloseMenus")
 
   if not button then
     button = self
   end
 
-  RGGM_UIDROPDOWNMENU_MENU_VALUE = button.value
-  RGGM_OpenColorPicker(button)
+  uiDropDownMenuMenuValue = button.value
+  me.OpenColorPicker(button)
 end
 
-function RGGM_UIDropDownMenu_DisableButton(level, id)
+function me.UiDropDownMenu_DisableButton(level, id)
   _G["RGGM_DropDownList" .. level .. "Button" .. id]:Disable()
 end
 
-function RGGM_UIDropDownMenu_EnableButton(level, id)
+function me.UiDropDownMenu_EnableButton(level, id)
   _G["RGGM_DropDownList" .. level .. "Button" .. id]:Enable()
 end
 
-function RGGM_UIDropDownMenu_SetButtonText(level, id, text, colorCode)
+function me.UiDropDownMenu_SetButtonText(level, id, text, colorCode)
   local button = _G["RGGM_DropDownList" .. level .. "Button" .. id]
 
   if colorCode then
@@ -1767,15 +1748,15 @@ function RGGM_UIDropDownMenu_SetButtonText(level, id, text, colorCode)
   end
 end
 
-function RGGM_UIDropDownMenu_SetButtonNotClickable(level, id)
+function me.UiDropDownMenu_SetButtonNotClickable(level, id)
   _G["RGGM_DropDownList" .. level .. "Button" .. id]:SetDisabledFontObject(GameFontHighlightSmallLeft)
 end
 
-function RGGM_UIDropDownMenu_SetButtonClickable(level, id)
+function me.UiDropDownMenu_SetButtonClickable(level, id)
   _G["RGGM_DropDownList" .. level .. "Button" .. id]:SetDisabledFontObject(GameFontDisableSmallLeft)
 end
 
-function RGGM_UIDropDownMenu_DisableDropDown(dropDown)
+function me.UiDropDownMenu_DisableDropDown(dropDown)
   local dropDownName = dropDown:GetName()
   local label = GetChild(dropDown, dropDownName, "Label")
 
@@ -1789,7 +1770,7 @@ function RGGM_UIDropDownMenu_DisableDropDown(dropDown)
   dropDown.isDisabled = 1
 end
 
-function RGGM_UIDropDownMenu_EnableDropDown(dropDown)
+function me.UiDropDownMenu_EnableDropDown(dropDown)
   local dropDownName = dropDown:GetName()
   local label = GetChild(dropDown, dropDownName, "Label")
 
@@ -1803,11 +1784,11 @@ function RGGM_UIDropDownMenu_EnableDropDown(dropDown)
   dropDown.isDisabled = nil
 end
 
-function RGGM_UIDropDownMenu_IsEnabled(dropDown)
+function me.UiDropDownMenu_IsEnabled(dropDown)
   return not dropDown.isDisabled
 end
 
-function RGGM_UIDropDownMenu_GetValue(id)
+function me.UiDropDownMenu_GetValue(id)
   local button = _G["RGGM_DropDownList1Button" .. id]
 
   if button then
@@ -1817,7 +1798,7 @@ function RGGM_UIDropDownMenu_GetValue(id)
   end
 end
 
-function RGGM_OpenColorPicker(info)
+function me.OpenColorPicker(info)
   ColorPickerFrame.func = info.swatchFunc
   ColorPickerFrame.hasOpacity = info.hasOpacity
   ColorPickerFrame.opacityFunc = info.opacityFunc
@@ -1830,6 +1811,6 @@ function RGGM_OpenColorPicker(info)
   ShowUIPanel(ColorPickerFrame)
 end
 
-function RGGM_ColorPicker_GetPreviousValues()
+function me.ColorPicker_GetPreviousValues()
   return ColorPickerFrame.previousValues.r, ColorPickerFrame.previousValues.g, ColorPickerFrame.previousValues.b
 end

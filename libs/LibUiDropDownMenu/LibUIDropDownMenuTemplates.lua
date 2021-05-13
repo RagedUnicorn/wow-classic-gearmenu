@@ -1,54 +1,67 @@
-
 -- luacheck: globals CreateFrame ExecuteFrameScript CreateFromMixins PlaySound SOUNDKIT
--- luacheck: globals RGGM_ToggleDropDownMenu RGGM_CloseDropDownMenus RGGM_Create_UIDropDownCustomMenuEntry
 
-local RGGM_DropDownMenuButtonMixin = {}
+local mod = rggm
+local me = {}
+mod.libUIDropDownMenuTemplates = me
 
-function RGGM_DropDownMenuButtonMixin:OnEnter(...)
+me.tag = "LibUIDropDownMenuTemplates"
+
+local DropDownMenuButtonMixin = {}
+
+function DropDownMenuButtonMixin:OnEnter(...)
   ExecuteFrameScript(self:GetParent(), "OnEnter", ...)
 end
 
-function RGGM_DropDownMenuButtonMixin:OnLeave(...)
+function DropDownMenuButtonMixin:OnLeave(...)
   ExecuteFrameScript(self:GetParent(), "OnLeave", ...)
 end
 
-function RGGM_DropDownMenuButtonMixin:OnMouseDown()
+function DropDownMenuButtonMixin:OnMouseDown()
   if self:IsEnabled() then
-    RGGM_ToggleDropDownMenu(nil, nil, self:GetParent())
+    mod.libUIDropDownMenu.ToggleDropDownMenu(nil, nil, self:GetParent())
     PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
   end
 end
 
-local RGGM_LargeDropDownMenuButtonMixin = CreateFromMixins(RGGM_DropDownMenuButtonMixin)
+local LargeDropDownMenuButtonMixin = CreateFromMixins(DropDownMenuButtonMixin)
 
-function RGGM_LargeDropDownMenuButtonMixin:OnMouseDown()
+function LargeDropDownMenuButtonMixin:OnMouseDown()
   if self:IsEnabled() then
     local parent = self:GetParent()
-    RGGM_ToggleDropDownMenu(nil, nil, parent, parent, -8, 8)
+    mod.libUIDropDownMenu.ToggleDropDownMenu(nil, nil, parent, parent, -8, 8)
     PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
   end
 end
 
 -- luacheck: ignore 241
-local RGGM_DropDownExpandArrowMixin = {}
+local DropDownExpandArrowMixin = {}
 
-function RGGM_DropDownExpandArrowMixin:OnEnter()
+function DropDownExpandArrowMixin:OnEnter()
   local level =  self:GetParent():GetParent():GetID() + 1
 
-  RGGM_CloseDropDownMenus(level)
+  mod.libUIDropDownMenu.CloseDropDownMenus(level)
 
   if self:IsEnabled() then
     local listFrame = _G["RGGM_DropDownList" .. level]
 
     if not listFrame or not listFrame:IsShown() or select(2, listFrame:GetPoint()) ~= self then
-      RGGM_ToggleDropDownMenu(level, self:GetParent().value, nil, nil, nil, nil, self:GetParent().menuList, self)
+      mod.libUIDropDownMenu.ToggleDropDownMenu(
+        level,
+        self:GetParent().value,
+        nil,
+        nil,
+        nil,
+        nil,
+        self:GetParent().menuList,
+        self
+      )
     end
   end
 end
 
-function RGGM_DropDownExpandArrowMixin:OnMouseDown()
+function DropDownExpandArrowMixin:OnMouseDown()
   if self:IsEnabled() then
-    RGGM_ToggleDropDownMenu(
+    mod.libUIDropDownMenu.ToggleDropDownMenu(
       self:GetParent():GetParent():GetID() + 1,
       self:GetParent().value,
       nil,
@@ -61,37 +74,36 @@ function RGGM_DropDownExpandArrowMixin:OnMouseDown()
   end
 end
 
--- luacheck: ignore 241
-local RGGM_UIDropDownCustomMenuEntryMixin = {}
+local UiDropDownCustomMenuEntryMixin = {}
 
-function RGGM_UIDropDownCustomMenuEntryMixin:GetPreferredEntryWidth()
+function UiDropDownCustomMenuEntryMixin:GetPreferredEntryWidth()
   return self:GetWidth()
 end
 
 -- luacheck: ignore 212
-function RGGM_UIDropDownCustomMenuEntryMixin:OnSetOwningButton()
+function UiDropDownCustomMenuEntryMixin:OnSetOwningButton()
   -- for derived objects to implement
 end
 
-function RGGM_UIDropDownCustomMenuEntryMixin:SetOwningButton(button)
+function UiDropDownCustomMenuEntryMixin:SetOwningButton(button)
   self:SetParent(button:GetParent())
   self.owningButton = button
   self:OnSetOwningButton()
 end
 
-function RGGM_UIDropDownCustomMenuEntryMixin:GetOwningDropdown()
+function UiDropDownCustomMenuEntryMixin:GetOwningDropdown()
   return self.owningButton:GetParent()
 end
 
-function RGGM_UIDropDownCustomMenuEntryMixin:SetContextData(contextData)
+function UiDropDownCustomMenuEntryMixin:SetContextData(contextData)
   self.contextData = contextData
 end
 
-function RGGM_UIDropDownCustomMenuEntryMixin:GetContextData()
+function UiDropDownCustomMenuEntryMixin:GetContextData()
   return self.contextData
 end
 
-function RGGM_Create_UIDropDownCustomMenuEntry(name, parent)
+function me.Create_UIDropDownCustomMenuEntry(name, parent)
   local f = _G[name] or CreateFrame("Frame", name, parent or nil)
   f:EnableMouse(true)
   f:Hide()
