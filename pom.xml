@@ -123,7 +123,7 @@
                 <configuration>
                   <game>wow</game>
                   <projectId>${addon.curseforge.projectid}</projectId>
-                  <displayName>${addon.curseforge.displayName}-${addon.tag.version}.zip</displayName>
+                  <displayName>${addon.curseforge.displayName}-${addon.tag.version}-classic.zip</displayName>
                   <changelogFile>${basedir}/build-resources/release-notes.md</changelogFile>
                   <changelogType>markdown</changelogType>
                   <gameVersions>
