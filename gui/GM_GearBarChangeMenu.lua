@@ -195,7 +195,7 @@ function me.UpdateChangeSlots(changeSlotSize, gearSlotMetaData, items)
         break
       end
 
-      me.UpdateChangeSlot(changeMenuSlots[actualIndex], gearSlotMetaData, items[actualIndex])
+      me.UpdateChangeSlot(changeMenuSlots[actualIndex], gearSlotMetaData, items[actualIndex], changeSlotSize)
       me.UpdateChangeSlotSize(changeSlotSize, changeMenuFrame, changeMenuSlots[actualIndex], xPos, yPos)
 
       mod.logger.LogDebug(me.tag, "Updating ChangeSlot Row{" .. row .. "} xPos{" .. xPos .. "} yPos{" .. yPos .. "}")
@@ -225,9 +225,10 @@ end
   @param {table} uiGearSlot
   @param {table} gearSlotMetaData
   @param {table} item
+  @param {number} changeSlotSize
 ]]--
-function me.UpdateChangeSlot(uiGearSlot, gearSlotMetaData, item)
-  mod.uiHelper.UpdateSlotTextureAttributes(uiGearSlot)
+function me.UpdateChangeSlot(uiGearSlot, gearSlotMetaData, item, changeSlotSize)
+  mod.uiHelper.UpdateSlotTextureAttributes(uiGearSlot, changeSlotSize)
   -- update metadata for slot
   uiGearSlot.slotId = gearSlotMetaData.slotId
   uiGearSlot.itemId = item.id
