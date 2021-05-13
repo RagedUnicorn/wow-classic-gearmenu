@@ -96,6 +96,8 @@ if (GetLocale() == "deDE") then
   rggm.L["gear_bar_confirm_delete"] = "Willst du diese GearBar wirklich löschen?"
   rggm.L["gear_bar_confirm_delete_yes_button"] = "Ja"
   rggm.L["gear_bar_confirm_delete_no_button"] = "Nein"
+  rggm.L["gear_bar_max_amount_of_gear_bars_reached"] =
+    "Du hast das maximum von " .. RGGM_CONSTANTS.MAX_GEAR_BARS .. " GearBars erreicht"
 
   -- gearbar options
   rggm.L["window_lock_gear_bar"] = "Sperre Ausrüstungsbalken"

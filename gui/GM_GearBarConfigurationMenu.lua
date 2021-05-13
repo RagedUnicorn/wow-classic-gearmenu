@@ -194,6 +194,11 @@ end
   @param {string} name
 ]]--
 function me.CreateNewGearBar(name)
+  if #mod.gearBarManager.GetGearBars() >= RGGM_CONSTANTS.MAX_GEAR_BARS then
+    mod.logger.PrintUserError(rggm.L["gear_bar_max_amount_of_gear_bars_reached"])
+    return
+  end
+
   local gearBar = mod.gearBarManager.AddGearBar(name, true)
   -- build visual gearBar representation
   mod.gearBar.BuildGearBar(gearBar)

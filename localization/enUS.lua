@@ -90,6 +90,8 @@ rggm.L["gear_bar_remove_button"] = "Remove GearBar"
 rggm.L["gear_bar_confirm_delete"] = "Do you really want to delete this GearBar?"
 rggm.L["gear_bar_confirm_delete_yes_button"] = "Yes"
 rggm.L["gear_bar_confirm_delete_no_button"] = "No"
+rggm.L["gear_bar_max_amount_of_gear_bars_reached"] =
+  "You reached the maximum amount of " .. RGGM_CONSTANTS.MAX_GEAR_BARS .. " GearBars"
 
 -- gearbar options
 rggm.L["window_lock_gear_bar"] = "Lock GearBar"

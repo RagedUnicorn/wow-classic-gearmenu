@@ -199,6 +199,7 @@ RGGM_CONSTANTS = {
   GEAR_BAR_LIST_NAME_TEXT_WIDTH = 300,
   GEAR_BAR_DEFAULT_NAME = "Default GearBar",
   GEAR_BAR_NAME_MAX_LENGTH = 20,
+  MAX_GEAR_BARS = 10,
   --[[
     GearBar Configuration Sub Menu
   ]]--
