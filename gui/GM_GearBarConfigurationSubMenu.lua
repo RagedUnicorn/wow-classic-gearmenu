@@ -223,6 +223,11 @@ end
 function me.AddGearSlot()
   local gearBar = mod.gearBarManager.GetGearBar(gearBarConfiguration.id)
 
+  if #gearBar.slots >= RGGM_CONSTANTS.MAX_GEAR_BAR_SLOTS then
+    mod.logger.PrintUserError(rggm.L["gear_bar_max_amount_of_gear_slots_reached"])
+    return
+  end
+
   if gearBar == nil then
     mod.logger.LogError(me.tag, "Failed to find gearBar with id: " .. gearBarConfiguration.id)
     return

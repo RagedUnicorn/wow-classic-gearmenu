@@ -110,6 +110,8 @@ if (GetLocale() == "deDE") then
   rggm.L["gear_slot_size_slider_tooltip"] = "Verändere die Grösse der Ausrüstungsslots"
   rggm.L["change_slot_size_slider_title"] = "Wechselslots Grösse"
   rggm.L["change_slot_size_slider_tooltip"] = "Verändere die Grösse der Wechselslots"
+  rggm.L["gear_bar_max_amount_of_gear_slots_reached"] =
+    "Du hast das maximum von " .. RGGM_CONSTANTS.MAX_GEAR_BAR_SLOTS .. " GearBar Slots erreicht"
   -- add/remove slots
   rggm.L["gear_bar_configuration_add_gearslot"] = "Erstelle Gearslot"
   rggm.L["gear_bar_configuration_remove_gearslot"] = "-"

@@ -104,6 +104,8 @@ rggm.L["gear_slot_size_slider_title"] = "Gearslot size"
 rggm.L["gear_slot_size_slider_tooltip"] = "Modify the size of the Gearslots"
 rggm.L["change_slot_size_slider_title"] = "Changeslot size"
 rggm.L["change_slot_size_slider_tooltip"] = "Modify the size of the Changeslots"
+rggm.L["gear_bar_max_amount_of_gear_slots_reached"] =
+  "You reached the maximum amount of " .. RGGM_CONSTANTS.MAX_GEAR_BAR_SLOTS .. " GearBar Slots"
 
 -- add/remove slots
 rggm.L["gear_bar_configuration_add_gearslot"] = "Add Gearslot"
