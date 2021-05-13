@@ -192,7 +192,6 @@ function me.CreateCombatQueueSlot(gearSlot)
     combatQeueuSlotSize
   )
   combatQueueSlot:SetPoint("TOPRIGHT", gearSlot)
-  combatQueueSlot:SetFrameLevel(combatQueueSlot:GetFrameLevel() + 1)
 
   local iconHolderTexture = combatQueueSlot:CreateTexture(
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT_ICON_TEXTURE_NAME,
