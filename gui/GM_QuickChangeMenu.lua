@@ -22,9 +22,10 @@
   SOFTWARE.
 ]]--
 
--- luacheck: globals CreateFrame STANDARD_TEXT_FONT UIDropDownMenu_Initialize UIDropDownMenu_AddButton
--- luacheck: globals UIDropDownMenu_GetSelectedID UIDropDownMenu_SetSelectedValue FauxScrollFrame_Update
--- luacheck: globals FauxScrollFrame_GetOffset UIDropDownMenu_GetSelectedValue UIDropDownMenu_SetWidth
+-- luacheck: globals CreateFrame STANDARD_TEXT_FONT FauxScrollFrame_Update FauxScrollFrame_GetOffset
+-- luacheck: globals RGGM_UIDropDownMenu_Initialize RGGM_Create_UIDropDownMenu RGGM_UIDropDownMenu_AddButton
+-- luacheck: globals RGGM_UIDropDownMenu_SetWidth RGGM_UIDropDownMenu_GetSelectedValue
+-- luacheck: globals RGGM_UIDropDownMenu_SetSelectedValue
 
 local mod = rggm
 local me = {}
@@ -39,6 +40,15 @@ local fromRows = {}
 local toRows = {}
 local rulesRows = {}
 
+--[[
+  Holds the value of the selected slotId from the dropdown
+]]--
+local currentSelectedSlotId = RGGM_CONSTANTS.CATEGORY_DROPDOWN_DEFAULT_VALUE
+--[[
+  Holds items that match the currentSelectedSlotId and caches them
+]]--
+local fromCachedQuickChangeItems = nil
+local toCachedQuickChangeItems = nil
 --[[
   Tracks the current selected 'from' and 'to' item ids
 
@@ -314,16 +324,15 @@ end
   @param {table} frame
 ]]--
 function me.CreateInventoryTypeDropdown(frame)
-  local chooseCategoryDropdownMenu = CreateFrame(
-    "Button",
+  local chooseCategoryDropdownMenu = RGGM_Create_UIDropDownMenu(
     RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MENU_INVENTORY_TYPE_DROPDOWN,
-    frame,
-    "UIDropDownMenuTemplate"
+    frame
   )
+
   chooseCategoryDropdownMenu:SetPoint("TOPLEFT", 0, -250)
 
-  UIDropDownMenu_SetWidth(chooseCategoryDropdownMenu, 100)
-  UIDropDownMenu_Initialize(chooseCategoryDropdownMenu, me.InitializeInventoryTypeDropdownMenu)
+  RGGM_UIDropDownMenu_SetWidth(chooseCategoryDropdownMenu, 100)
+  RGGM_UIDropDownMenu_Initialize(chooseCategoryDropdownMenu, me.InitializeInventoryTypeDropdownMenu)
 end
 
 --[[
@@ -331,7 +340,7 @@ end
 
   @param {table} self
 ]]--
-function me.InitializeInventoryTypeDropdownMenu()
+function me.InitializeInventoryTypeDropdownMenu(self)
   local gearSlots = mod.gearManager.GetGearSlots()
   local registeredInventoryTypes = {}
 
@@ -357,16 +366,13 @@ function me.InitializeInventoryTypeDropdownMenu()
         )
       end
 
-      UIDropDownMenu_AddButton(button)
+      RGGM_UIDropDownMenu_AddButton(button)
       registeredInventoryTypes[gearSlot.inventoryTypeId] = true
     end
   end
 
-  if (UIDropDownMenu_GetSelectedValue(_G[RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MENU_INVENTORY_TYPE_DROPDOWN]) == nil) then
-    UIDropDownMenu_SetSelectedValue(
-      _G[RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MENU_INVENTORY_TYPE_DROPDOWN],
-      RGGM_CONSTANTS.CATEGORY_DROPDOWN_DEFAULT_VALUE
-    )
+  if RGGM_UIDropDownMenu_GetSelectedValue(self) == nil then
+    RGGM_UIDropDownMenu_SetSelectedValue(self, RGGM_CONSTANTS.CATEGORY_DROPDOWN_DEFAULT_VALUE)
   end
 end
 
@@ -376,13 +382,14 @@ end
   @param {table} self
 ]]
 function me.InventoryTypeDropDownMenuCallback(self)
-  UIDropDownMenu_SetSelectedValue(_G[RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MENU_INVENTORY_TYPE_DROPDOWN], self.value)
+  RGGM_UIDropDownMenu_SetSelectedValue(self:GetParent().dropdown, self.value)
 
   me.ResetSelectedItems()
 
   -- update items in both 'from' and 'to' list
-  me.FromFauxScrollFrameOnUpdate(fromScrollFrame)
-  me.ToFauxScrollFrameOnUpdate(toScrollFrame)
+  me.FromFauxScrollFrameOnUpdate(fromScrollFrame, self.value)
+  me.ToFauxScrollFrameOnUpdate(toScrollFrame, self.value)
+  currentSelectedSlotId = self.value -- update currently selected slot after both scrollframes where updated
 end
 
 --[[
@@ -571,13 +578,28 @@ end
   have an on use effect.
 
   @param {table} scrollFrame
+  @param {number} slotId
+    Optional slotId
 ]]--
-function me.FromFauxScrollFrameOnUpdate(scrollFrame)
-  local selectedSlotId = UIDropDownMenu_GetSelectedValue(
-    _G[RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MENU_INVENTORY_TYPE_DROPDOWN])
-  local gearSlot = mod.gearManager.GetGearSlotForSlotId(selectedSlotId)
-  local items = mod.itemManager.FindQuickChangeItems(gearSlot.type, true)
-  local maxValue = table.getn(items) or 0
+function me.FromFauxScrollFrameOnUpdate(scrollFrame, slotId)
+  local selectedSlotId
+
+  if slotId ~= nil then
+    selectedSlotId = slotId
+  else
+    selectedSlotId = currentSelectedSlotId
+  end
+
+  if selectedSlotId ~= currentSelectedSlotId or fromCachedQuickChangeItems == nil then
+    local gearSlot = mod.gearManager.GetGearSlotForSlotId(selectedSlotId)
+    -- invalidate cache
+    fromCachedQuickChangeItems = nil
+    fromCachedQuickChangeItems = mod.itemManager.FindQuickChangeItems(gearSlot.type, true)
+    mod.logger.LogDebug(
+      me.tag, "Invalidated 'from' cached item list and updated items for new slotId: " .. selectedSlotId)
+  end
+
+  local maxValue = #fromCachedQuickChangeItems or 0
 
   if maxValue <= RGGM_CONSTANTS.QUICK_CHANGE_MAX_ROWS then
     maxValue = RGGM_CONSTANTS.QUICK_CHANGE_MAX_ROWS + 1
@@ -595,12 +617,12 @@ function me.FromFauxScrollFrameOnUpdate(scrollFrame)
   for i = 1, RGGM_CONSTANTS.QUICK_CHANGE_MAX_ROWS do
     local value = i + offset
 
-    if value <= table.getn(items) then
+    if value <= #fromCachedQuickChangeItems then
       local row = fromRows[i]
 
-      row.icon:SetTexture(items[value].texture)
-      row.name:SetText(items[value].name)
-      row.itemId = items[value].id
+      row.icon:SetTexture(fromCachedQuickChangeItems[value].texture)
+      row.name:SetText(fromCachedQuickChangeItems[value].name)
+      row.itemId = fromCachedQuickChangeItems[value].id
       row.side = RGGM_CONSTANTS.QUICK_CHANGE_SIDE_FROM
 
       if selectedRule.from == row.itemId then
@@ -642,13 +664,28 @@ end
   the currently selected inventory type and displays them.
 
   @param {table} scrollFrame
+  @param {number} slotId
+    Optional slotId
 ]]--
-function me.ToFauxScrollFrameOnUpdate(scrollFrame)
-  local selectedSlotId = UIDropDownMenu_GetSelectedValue(
-    _G[RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MENU_INVENTORY_TYPE_DROPDOWN])
-  local gearSlot = mod.gearManager.GetGearSlotForSlotId(selectedSlotId)
-  local items = mod.itemManager.FindQuickChangeItems(gearSlot.type, false)
-  local maxValue = table.getn(items) or 0
+function me.ToFauxScrollFrameOnUpdate(scrollFrame, slotId)
+  local selectedSlotId
+
+  if slotId ~= nil then
+    selectedSlotId = slotId
+  else
+    selectedSlotId = currentSelectedSlotId
+  end
+
+  if selectedSlotId ~= currentSelectedSlotId or toCachedQuickChangeItems == nil then
+    local gearSlot = mod.gearManager.GetGearSlotForSlotId(selectedSlotId)
+    -- invalidate cache
+    toCachedQuickChangeItems = nil
+    toCachedQuickChangeItems = mod.itemManager.FindQuickChangeItems(gearSlot.type, false)
+    mod.logger.LogDebug(
+      me.tag, "Invalidated 'to' cached item list and updated items for new slotId: " .. selectedSlotId)
+  end
+
+  local maxValue = #toCachedQuickChangeItems or 0
 
   if maxValue <= RGGM_CONSTANTS.QUICK_CHANGE_MAX_ROWS then
     maxValue = RGGM_CONSTANTS.QUICK_CHANGE_MAX_ROWS + 1
@@ -666,12 +703,12 @@ function me.ToFauxScrollFrameOnUpdate(scrollFrame)
   for i = 1, RGGM_CONSTANTS.QUICK_CHANGE_MAX_ROWS do
     local value = i + offset
 
-    if value <= table.getn(items) then
+    if value <= #toCachedQuickChangeItems then
       local row = toRows[i]
 
-      row.icon:SetTexture(items[value].texture)
-      row.name:SetText(items[value].name)
-      row.itemId = items[value].id
+      row.icon:SetTexture(toCachedQuickChangeItems[value].texture)
+      row.name:SetText(toCachedQuickChangeItems[value].name)
+      row.itemId = toCachedQuickChangeItems[value].id
       row.side = RGGM_CONSTANTS.QUICK_CHANGE_SIDE_TO
 
       if selectedRule.to == row.itemId then

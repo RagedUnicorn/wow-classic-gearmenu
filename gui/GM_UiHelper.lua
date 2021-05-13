@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals CreateFrame GetTime UIDropDownMenu_CreateInfo STANDARD_TEXT_FONT
+-- luacheck: globals CreateFrame GetTime RGGM_UIDropDownMenu_CreateInfo STANDARD_TEXT_FONT
 
 local mod = rggm
 local me = {}
@@ -139,7 +139,7 @@ end
   @return {table} button
 ]]--
 function me.CreateDropdownButton(text, value, callback)
-  local button = mod.uiDropdownMenu.uiDropdownMenu_CreateInfo()
+  local button = RGGM_UIDropDownMenu_CreateInfo()
 
   button.text = text
   button.value = value
