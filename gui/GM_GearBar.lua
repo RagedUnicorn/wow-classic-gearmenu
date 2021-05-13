@@ -272,6 +272,7 @@ function me.UpdateGearBar(gearBar)
 
     if uiGearBar.gearSlotReferences[index] == nil then
       mod.logger.LogInfo(me.tag, "GearSlot does not yet exist. Creating a new one")
+
       local gearSlot = me.BuildGearSlot(uiGearBar.gearBarReference, gearBar, index)
       mod.gearBarStorage.AddGearSlot(gearBar.id, gearSlot)
     end
@@ -298,6 +299,7 @@ function me.UpdateGearBar(gearBar)
   end
 
   me.UpdateGearBarSize(gearBar, uiGearBar)
+  me.UpdateGearBarVisual()
 end
 
 --[[
@@ -434,13 +436,13 @@ function me.CleanupOrphanedGearSlots(gearBar, gearBarUi)
 end
 
 --[[
-  Update the gearBar after one of PLAYER_EQUIPMENT_CHANGED, BAG_UPDATE events
+  Update the gearBar after UNIT_INVENTORY_CHANGED event
 
-  Textures are changed separately from UpdateGearBar because it can be done at any point
-  even if in InCombatLockdown while gearSlots cannot be reconfigured or even deleted while
-  in combatlockdown
+  The gearBar can be slightly visually change while in combat. This will update the cooldowns
+  and the texture of the equiped items
+
 ]]--
-function me.UpdateGearBarTextures()
+function me.UpdateGearBarVisual()
   local gearBars = mod.gearBarManager.GetGearBars()
 
   for _, gearBar in pairs(gearBars) do
@@ -449,13 +451,16 @@ function me.UpdateGearBarTextures()
     for index, gearSlot in pairs(gearBar.slots) do
       local uiGearSlot = uiGearBar.gearSlotReferences[index]
       me.UpdateTexture(uiGearSlot, gearSlot)
+      me.UpdateGearSlotCooldown(gearBar.id, uiGearSlot, gearSlot)
     end
   end
 end
 
 --[[
   Update the button texture style and add icon for the currently worn item. If no item is worn
-  the default icon is displayed
+  the default icon is displayed. Textures are changed separately from UpdateGearBar because it can be done at any point
+  even if in InCombatLockdown while gearSlots cannot be reconfigured or even deleted while
+  in combatlockdown
 
   @param {table} gearSlot
   @param {table} slotMetaData
@@ -470,8 +475,50 @@ function me.UpdateTexture(gearSlot, slotMetaData)
   else
     -- If no item can be found in the inventoryslot use the default icon
     gearSlot:SetNormalTexture(slotMetaData.textureId)
-    gearSlot.cooldownOverlay:Hide() -- hide cooldown if there is no actual item
   end
+end
+
+--[[
+  Update the cooldown of items on gearBar after a BAG_UPDATE_COOLDOWN event or a manual
+  invoke after a configuration change (show/hide) cooldowns
+
+  @param {number} gearBarId
+  @param {table} uiGearSlot
+  @param {table} gearSlotMetaData
+]]--
+function me.UpdateGearSlotCooldown(gearBarId, uiGearSlot, gearSlotMetaData)
+  local itemId = GetInventoryItemID(RGGM_CONSTANTS.UNIT_ID_PLAYER, gearSlotMetaData.slotId)
+
+  if itemId ~= nil then
+    if mod.gearBarManager.IsShowCooldownsEnabled(gearBarId) then
+      local startTime, duration = GetItemCooldown(itemId)
+
+      if duration == 0 then
+        me.HideCooldownOverlay(uiGearSlot)
+      else
+        uiGearSlot.cooldownOverlay:SetCooldown(startTime, duration)
+        me.ShowCooldownOverlay(uiGearSlot)
+      end
+    else
+      me.HideCooldownOverlay(uiGearSlot)
+    end
+  end
+end
+
+--[[
+  @param {table} uiGearSlot
+]]--
+function me.ShowCooldownOverlay(uiGearSlot)
+  uiGearSlot.cooldownOverlay:Show() -- show cooldown frame
+  uiGearSlot.cooldownOverlay:GetRegions():Show() -- show cooldown text
+end
+
+--[[
+  @param {table} uiGearSlot
+]]--
+function me.HideCooldownOverlay(uiGearSlot)
+  uiGearSlot.cooldownOverlay:Hide() -- show cooldown frame
+  uiGearSlot.cooldownOverlay:GetRegions():Hide() -- show cooldown text
 end
 
 --[[
@@ -502,38 +549,6 @@ function me.UpdateCombatQueue(slotId, itemId)
           icon:Hide()
         end
       end
-    end
-  end
-end
-
---[[
-  Update the cooldown of items on gearBar after a BAG_UPDATE_COOLDOWN event or a manual
-  invoke after a configuration change (show/hide) cooldowns
-]]--
-function me.UpdateGearSlotCooldown()
-  local uiGearBars = mod.gearBarStorage.GetGearBars()
-
-  for _, uiGearBar in pairs(uiGearBars) do
-    local gearBarId = uiGearBar.gearBarReference.id
-
-    for _, gearSlot in pairs(uiGearBar.gearSlotReferences) do
-        local gearBar = mod.gearBarManager.GetGearBar(gearBarId)
-        local gearSlotMetaData = gearBar.slots[gearSlot.position]
-
-        if gearSlotMetaData ~= nil then
-          local itemId = GetInventoryItemID(RGGM_CONSTANTS.UNIT_ID_PLAYER, gearSlotMetaData.slotId)
-
-          if itemId ~= nil then
-            if mod.gearBarManager.IsShowCooldownsEnabled(gearBarId) then
-              local startTime, duration = GetItemCooldown(itemId)
-
-              gearSlot.cooldownOverlay:GetRegions():SetText("") -- Trigger textupdate
-              gearSlot.cooldownOverlay:SetCooldown(startTime, duration)
-            else
-              gearSlot.cooldownOverlay:Hide()
-            end
-          end
-        end
     end
   end
 end

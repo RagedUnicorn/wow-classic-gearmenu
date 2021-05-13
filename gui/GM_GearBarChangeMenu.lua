@@ -62,7 +62,7 @@ end
 ]]--
 function me.CreateChangeSlots()
   for index = 1, RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT, RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT do
-    local row = math.floor(index/RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT)
+    local row = math.floor(index / RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT)
 
     for column = 1, RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT do
       if index + column - 1 > RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT then break end
@@ -367,12 +367,34 @@ function me.UpdateChangeMenuGearSlotCooldown()
     if changeMenuSlot.itemId ~= nil then
       if changeMenuFrame.showCooldowns then
         local startTime, duration = GetItemCooldown(changeMenuSlot.itemId)
-        changeMenuSlot.cooldownOverlay:SetCooldown(startTime, duration)
+
+        if duration == 0 then
+          me.HideCooldownOverlay(changeMenuSlot)
+        else
+          changeMenuSlot.cooldownOverlay:SetCooldown(startTime, duration)
+          me.ShowCooldownOverlay(changeMenuSlot)
+        end
       else
-        changeMenuSlot.cooldownOverlay:Hide()
+        me.HideCooldownOverlay(changeMenuSlot)
       end
     end
   end
+end
+
+--[[
+  @param {table} uiGearSlot
+]]--
+function me.ShowCooldownOverlay(uiGearSlot)
+  uiGearSlot.cooldownOverlay:Show() -- show cooldown frame
+  uiGearSlot.cooldownOverlay:GetRegions():Show() -- show cooldown text
+end
+
+--[[
+  @param {table} uiGearSlot
+]]--
+function me.HideCooldownOverlay(uiGearSlot)
+  uiGearSlot.cooldownOverlay:Hide() -- show cooldown frame
+  uiGearSlot.cooldownOverlay:GetRegions():Hide() -- show cooldown text
 end
 
 --[[
@@ -382,8 +404,7 @@ function me.ResetChangeMenu()
   for i = 1, table.getn(changeMenuSlots) do
     changeMenuSlots[i]:SetNormalTexture(nil)
     changeMenuSlots[i].highlightFrame:Hide()
-    changeMenuSlots[i].cooldownOverlay:SetCooldown(0, 0)
-    changeMenuSlots[i].cooldownOverlay:GetRegions():SetText("") -- Trigger textupdate
+    me.HideCooldownOverlay(changeMenuSlots[i])
     changeMenuSlots[i]:Hide()
   end
 
@@ -423,20 +444,6 @@ function me.UpdateChangeMenuProperties(gearBarId, gearSlotPosition)
     changeMenuFrame.showCooldowns = true
   else
     changeMenuFrame.showCooldowns = false
-  end
-end
-
---[[
-  GUI callback for updating the changeMenu - invoked regularly by a timer
-
-  Close changeMenu frame after when mouse is not over either the main gearBarFrame or the
-  changeMenuFrame.
-]]--
-function me.ChangeMenuOnUpdate()
-  local gearBar = mod.gearBarStorage.GetGearBar(changeMenuFrame.gearBarId)
-
-  if not MouseIsOver(gearBar.gearBarReference) and not MouseIsOver(changeMenuFrame) then
-    me.CloseChangeMenu()
   end
 end
 
@@ -517,27 +524,23 @@ function me.ChangeSlotOnClick(self, button)
 end
 
 --[[
+  GUI callback for updating the changeMenu - invoked regularly by a timer
+
+  Close changeMenu frame after when mouse is not over either the main gearBarFrame or the
+  changeMenuFrame.
+]]--
+function me.ChangeMenuOnUpdate()
+  local gearBar = mod.gearBarStorage.GetGearBar(changeMenuFrame.gearBarId)
+
+  if not MouseIsOver(gearBar.gearBarReference) and not MouseIsOver(changeMenuFrame) then
+    me.CloseChangeMenu()
+  end
+end
+
+--[[
   Close the changeMenu
 ]]--
 function me.CloseChangeMenu()
   mod.ticker.StopTickerChangeMenu()
   changeMenuFrame:Hide()
-end
-
---[[
-  Hide cooldowns for bagged items
-]]--
-function me.HideCooldowns()
-  for _, changeMenuSlot in pairs(changeMenuSlots) do
-    changeMenuSlot.cooldownOverlay:Hide()
-  end
-end
-
---[[
-  Show cooldowns for bagged items
-]]--
-function me.ShowCooldowns()
-  for _, changeMenuSlot in pairs(changeMenuSlots) do
-    changeMenuSlot.cooldownOverlay:Show()
-  end
 end

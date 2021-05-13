@@ -130,35 +130,6 @@ function me.CreateHighlightFrame(slot)
 end
 
 --[[
-  @param {widget} frame
-  @param {number} start
-  @param {number} duration
-]]--
-function me.SetCooldown(frame, start, duration)
-  local cooldown = duration - (GetTime() - start)
-  local cooldownText
-
-  if start == 0 then
-    -- item has no cooldown
-    frame:SetText("")
-  elseif cooldown < 3 and not frame:GetText() then
-    -- do not display global cooldown
-    -- if there is already a text it is just a cooldown that entered into this state
-    return
-  else
-    if cooldown < 60 then
-      cooldownText = math.floor(cooldown + .5) .. " s"
-    elseif cooldown < 3600 then
-      cooldownText = math.ceil(cooldown / 60) .. " m"
-    else
-      cooldownText = math.ceil(cooldown / 3600) .. " h"
-    end
-
-    frame:SetText(cooldownText)
-  end
-end
-
---[[
   Create a dropwdownbutton for a dropdown menu
 
   @param {string} text

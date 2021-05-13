@@ -31,11 +31,9 @@ mod.ticker = me
 
 me.tag = "Ticker"
 
-local changeMenuTicker
-local gearSlotCooldownTicker
-local changeMenuGearSlotCooldownTicker
 local combatQueueTicker
 local rangeCheckTicker
+local changeMenuTicker
 
 local tickerRangeCheckSubscribers = {}
 
@@ -59,49 +57,6 @@ function me.StopTickerChangeMenu()
     mod.logger.LogInfo(me.tag, "Stopped 'ChangeMenuTicker'")
   end
 end
-
---[[
-  Start the repeating update ticker for gearSlotCooldowns
-]]--
-function me.StartTickerGearSlotCooldown()
-  if gearSlotCooldownTicker == nil or gearSlotCooldownTicker._cancelled then
-    gearSlotCooldownTicker = C_Timer.NewTicker(
-      RGGM_CONSTANTS.SLOT_COOLDOWN_UPDATE_INTERVAL, mod.gearBar.UpdateGearSlotCooldown)
-      mod.logger.LogInfo(me.tag, "Started 'GearSlotCooldownTicker'")
-  end
-end
-
---[[
-  Stop the repeating update ticker for gearSlotCooldowns
-]]--
-function me.StopTickerGearSlotCooldown()
-  if gearSlotCooldownTicker then
-    gearSlotCooldownTicker:Cancel()
-    mod.logger.LogInfo(me.tag, "Stopped 'GearSlotCooldownTicker'")
-  end
-end
-
---[[
-  Start the repeating update ticker for changeMenuGearSlotCooldowns
-]]--
-function me.StartTickerChangeMenuGearSlotCooldown()
-  if changeMenuGearSlotCooldownTicker == nil or changeMenuGearSlotCooldownTicker._cancelled then
-    changeMenuGearSlotCooldownTicker = C_Timer.NewTicker(
-      RGGM_CONSTANTS.SLOT_COOLDOWN_UPDATE_INTERVAL, mod.gearBarChangeMenu.UpdateChangeMenuGearSlotCooldown)
-      mod.logger.LogInfo(me.tag, "Started 'ChangeMenuGearSlotCooldownTicker'")
-  end
-end
-
---[[
-  Stop the repeating update ticker for changeMenuGearSlotCooldowns
-]]--
-function me.StopTickerChangeMenuGearSlotCooldown()
-  if changeMenuGearSlotCooldownTicker then
-    changeMenuGearSlotCooldownTicker:Cancel()
-    mod.logger.LogInfo(me.tag, "Stopped 'ChangeMenuGearSlotCooldownTicker'")
-  end
-end
-
 --[[
   Start the repeating update ticker for combatQueue
 ]]--
