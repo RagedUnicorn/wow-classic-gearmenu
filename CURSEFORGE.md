@@ -125,17 +125,55 @@ GearMenu is configurable. Don't need a certain slot? You can hide it.
 
 To show the configuration screen use `/rggm opt` while ingame and `/rggm info` for an overview of options or check the standard blizzard addon options.
 
+### Creating a GearBar
+
+With the latest release it is possible to create multiple GearBars that can act independently of eachother.
+
+![](https://raw.githubusercontent.com/RagedUnicorn/wow-classic-gearmenu/master/docs/gm_create_gearbar.gif)
+
+### Configure a GearBar
+
+Each GearBar has some configurations that can be done individually for each GearBar. This includes various sizes of the GearBar, its locked or unlocked state and what GearSlots are configured for the GearBar.
+
+![](https://raw.githubusercontent.com/RagedUnicorn/wow-classic-gearmenu/master/docs/gm_configure_gearslots.gif)
+
+### Individual GearBar Configuration
+
 ### Hide/Show Cooldowns
+
+Whether cooldowns should be shown or hidden can be configured individually for each GearBar.
 
 ![](https://raw.githubusercontent.com/RagedUnicorn/wow-classic-gearmenu/master/docs/gm_options_cooldowns.gif)
 
 ### Hide/Show Keybindings
 
+Whether keybindings should be shown or hidden can be configured individually for each GearBar.
+
 ![](https://raw.githubusercontent.com/RagedUnicorn/wow-classic-gearmenu/master/docs/gm_options_keybindings.gif)
 
 ### Lock/Unlock Window
 
+Whether a GearBar should be freely movable or be locked in place can be configured individually for each GearBar.
+
 ![](https://raw.githubusercontent.com/RagedUnicorn/wow-classic-gearmenu/master/docs/gm_options_lock_window.gif)
+
+#### GearSlot Size
+
+Every GearBar can have a different size for its GearSlots. You could for an example have a GearBar with very big trinkets and another with smaller slots for less important items.
+
+![](https://raw.githubusercontent.com/RagedUnicorn/wow-classic-gearmenu/master/docs/gm_options_gearslot_size.gif)
+
+#### ChangeMenu Size
+
+The size of the ChangeMenu can be configured individual from the GearSlot size.
+
+![](https://raw.githubusercontent.com/RagedUnicorn/wow-classic-gearmenu/master/docs/gm_options_changemenu_size.gif)
+
+### General Configuration
+
+#### FastPress Support
+
+Enable whether an item in a Gearslot should be used when the player pressed down(keydown) or only after the key was released(keyup).
 
 ### Filter Items by Quality
 
