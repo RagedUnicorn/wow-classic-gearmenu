@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals CreateFrame GetTime STANDARD_TEXT_FONT
+-- luacheck: globals CreateFrame GetTime STANDARD_TEXT_FONT COOLDOWN_TYPE_NORMAL
 
 local mod = rggm
 local me = {}
@@ -82,14 +82,15 @@ function me.CreateCooldownOverlay(slot, frameName, slotSize)
     "CooldownFrameTemplate"
   )
 
-  cooldownOverlay:SetAllPoints(cooldownOverlay:GetParent())
-  cooldownOverlay:Hide()
+  cooldownOverlay:SetAllPoints(slot)
   -- set fontsize based on slotsize
   cooldownOverlay:GetRegions()
     :SetFont(
       STANDARD_TEXT_FONT,
       slotSize * RGGM_CONSTANTS.GEAR_BAR_CHANGE_COOLDOWN_TEXT_MODIFIER
     )
+  cooldownOverlay:SetHideCountdownNumbers(false)
+  cooldownOverlay.currentCooldownType = COOLDOWN_TYPE_NORMAL
 
   return cooldownOverlay
 end

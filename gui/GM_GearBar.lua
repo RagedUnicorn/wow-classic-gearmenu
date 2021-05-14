@@ -23,10 +23,10 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals CreateFrame UIParent GetInventoryItemID GetItemCooldown
+-- luacheck: globals CreateFrame UIParent GetInventoryItemID GetItemCooldown CooldownFrame_Set
 -- luacheck: globals GetInventoryItemLink GetItemInfo GetContainerItemInfo C_Timer MouseIsOver
 -- luacheck: globals CursorCanGoInSlot EquipCursorItem ClearCursor IsInventoryItemLocked PickupInventoryItem
--- luacheck: globals InCombatLockdown STANDARD_TEXT_FONT IsItemInRange GetCursorInfo
+-- luacheck: globals InCombatLockdown STANDARD_TEXT_FONT IsItemInRange GetCursorInfo CooldownFrame_Clear
 
 --[[
   The gearBar (GM_Gearbar) module is responsible for building and showing gearBars to the user.
@@ -492,33 +492,15 @@ function me.UpdateGearSlotCooldown(gearBarId, uiGearSlot, gearSlotMetaData)
   if itemId ~= nil then
     if mod.gearBarManager.IsShowCooldownsEnabled(gearBarId) then
       local startTime, duration = GetItemCooldown(itemId)
+      CooldownFrame_Set(uiGearSlot.cooldownOverlay, startTime, duration, true)
 
-      if duration == 0 then
-        me.HideCooldownOverlay(uiGearSlot)
-      else
-        uiGearSlot.cooldownOverlay:SetCooldown(startTime, duration)
-        me.ShowCooldownOverlay(uiGearSlot)
-      end
+      return
     else
-      me.HideCooldownOverlay(uiGearSlot)
+      CooldownFrame_Clear(uiGearSlot.cooldownOverlay)
     end
+  else
+    CooldownFrame_Clear(uiGearSlot.cooldownOverlay)
   end
-end
-
---[[
-  @param {table} uiGearSlot
-]]--
-function me.ShowCooldownOverlay(uiGearSlot)
-  uiGearSlot.cooldownOverlay:Show() -- show cooldown frame
-  uiGearSlot.cooldownOverlay:GetRegions():Show() -- show cooldown text
-end
-
---[[
-  @param {table} uiGearSlot
-]]--
-function me.HideCooldownOverlay(uiGearSlot)
-  uiGearSlot.cooldownOverlay:Hide() -- show cooldown frame
-  uiGearSlot.cooldownOverlay:GetRegions():Hide() -- show cooldown text
 end
 
 --[[

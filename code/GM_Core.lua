@@ -59,8 +59,8 @@ end
   @param {table} self
 ]]--
 function me.RegisterEvents(self)
-  -- Register to player login event also fires on /reload
-  self:RegisterEvent("PLAYER_LOGIN")
+  -- Fired when the player logs in, /reloads the UI, or zones between map instances
+  self:RegisterEvent("PLAYER_ENTERING_WORLD")
   -- Fires when a bags inventory changes
   self:RegisterEvent("BAG_UPDATE")
   -- Fires when the player equips or unequips an item
@@ -98,9 +98,14 @@ end
   @param {table} vararg
 ]]--
 function me.OnEvent(event, ...)
-  if event == "PLAYER_LOGIN" then
-    me.logger.LogEvent(me.tag, "PLAYER_LOGIN")
-    me.Initialize()
+  if event == "PLAYER_ENTERING_WORLD" then
+    me.logger.LogEvent(me.tag, "PLAYER_ENTERING_WORLD")
+
+    local isInitialLogin, isReloadingUi = ...
+
+    if isInitialLogin or isReloadingUi then
+      me.Initialize()
+    end
   elseif event == "BAG_UPDATE" then
     me.logger.LogEvent(me.tag, "BAG_UPDATE")
 
@@ -131,32 +136,42 @@ function me.OnEvent(event, ...)
     end
   elseif event == "LOSS_OF_CONTROL_ADDED" then
     me.logger.LogEvent(me.tag, "LOSS_OF_CONTROL_ADDED")
-    me.combatQueue.UpdateEquipChangeBlockStatus()
+
+    if initializationDone then
+      me.combatQueue.UpdateEquipChangeBlockStatus()
+    end
   elseif event == "LOSS_OF_CONTROL_UPDATE" then
     me.logger.LogEvent(me.tag, "LOSS_OF_CONTROL_UPDATE")
-    me.combatQueue.UpdateEquipChangeBlockStatus()
+
+    if initializationDone then
+      me.combatQueue.UpdateEquipChangeBlockStatus()
+    end
   elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
     me.logger.LogEvent(me.tag, "UNIT_SPELLCAST_SUCCEEDED")
     local unit = ...
 
-    local channelledSpell = ChannelInfo(RGGM_CONSTANTS.UNIT_ID_PLAYER)
+    if initializationDone then
+      local channelledSpell = ChannelInfo(RGGM_CONSTANTS.UNIT_ID_PLAYER)
 
-    if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER and not channelledSpell then
-      me.quickChange.OnUnitSpellCastSucceeded(...)
-      me.combatQueue.ProcessQueue()
+      if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER and not channelledSpell then
+        me.quickChange.OnUnitSpellCastSucceeded(...)
+        me.combatQueue.ProcessQueue()
+      end
     end
   elseif event == "UNIT_SPELLCAST_INTERRUPTED" then
     me.logger.LogEvent(me.tag, "UNIT_SPELLCAST_INTERRUPTED")
+
     local unit = ...
 
-    if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER then
+    if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER and initializationDone then
       me.combatQueue.ProcessQueue()
     end
   elseif event == "UNIT_SPELLCAST_CHANNEL_STOP" then
     me.logger.LogEvent(me.tag, "UNIT_SPELLCAST_CHANNEL_STOP")
+
     local unit = ...
 
-    if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER then
+    if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER and initializationDone then
       me.combatQueue.ProcessQueue()
     end
   elseif (event == "PLAYER_REGEN_ENABLED" or event == "PLAYER_UNGHOST" or event == "PLAYER_ALIVE")
@@ -168,14 +183,23 @@ function me.OnEvent(event, ...)
       elseif event == "PLAYER_ALIVE" then
         me.logger.LogEvent(me.tag, "PLAYER_ALIVE")
       end
-      -- player is alive again or left combat - work through all combat queues
-      me.ticker.StartTickerCombatQueue()
+
+      if initializationDone then
+        -- player is alive again or left combat - work through all combat queues
+        me.ticker.StartTickerCombatQueue()
+      end
   elseif event == "PLAYER_REGEN_DISABLED" then
     me.logger.LogEvent(me.tag, "PLAYER_REGEN_DISABLED")
-    me.ticker.StopTickerCombatQueue()
+
+    if initializationDone then
+      me.ticker.StopTickerCombatQueue()
+    end
   elseif event == "PLAYER_TARGET_CHANGED" then
     me.logger.LogEvent(me.tag, "PLAYER_TARGET_CHANGED")
-    me.target.UpdateCurrentTarget()
+
+    if initializationDone then
+      me.target.UpdateCurrentTarget()
+    end
   end
 end
 

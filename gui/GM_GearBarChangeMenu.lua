@@ -23,7 +23,8 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals CreateFrame MouseIsOver GetItemCooldown STANDARD_TEXT_FONT
+-- luacheck: globals CreateFrame MouseIsOver GetItemCooldown STANDARD_TEXT_FONT CooldownFrame_Clear
+-- luacheck: globals CooldownFrame_Set
 
 local mod = rggm
 local me = {}
@@ -368,34 +369,15 @@ function me.UpdateChangeMenuGearSlotCooldown()
     if changeMenuSlot.itemId ~= nil then
       if changeMenuFrame.showCooldowns then
         local startTime, duration = GetItemCooldown(changeMenuSlot.itemId)
-
-        if duration == 0 then
-          me.HideCooldownOverlay(changeMenuSlot)
-        else
-          changeMenuSlot.cooldownOverlay:SetCooldown(startTime, duration)
-          me.ShowCooldownOverlay(changeMenuSlot)
-        end
+        CooldownFrame_Set(changeMenuSlot.cooldownOverlay, startTime, duration, true)
       else
-        me.HideCooldownOverlay(changeMenuSlot)
+        CooldownFrame_Clear(changeMenuSlot.cooldownOverlay)
       end
+    else
+      CooldownFrame_Clear(changeMenuSlot.cooldownOverlay)
     end
+
   end
-end
-
---[[
-  @param {table} uiGearSlot
-]]--
-function me.ShowCooldownOverlay(uiGearSlot)
-  uiGearSlot.cooldownOverlay:Show() -- show cooldown frame
-  uiGearSlot.cooldownOverlay:GetRegions():Show() -- show cooldown text
-end
-
---[[
-  @param {table} uiGearSlot
-]]--
-function me.HideCooldownOverlay(uiGearSlot)
-  uiGearSlot.cooldownOverlay:Hide() -- show cooldown frame
-  uiGearSlot.cooldownOverlay:GetRegions():Hide() -- show cooldown text
 end
 
 --[[
@@ -405,7 +387,6 @@ function me.ResetChangeMenu()
   for i = 1, table.getn(changeMenuSlots) do
     changeMenuSlots[i]:SetNormalTexture(nil)
     changeMenuSlots[i].highlightFrame:Hide()
-    me.HideCooldownOverlay(changeMenuSlots[i])
     changeMenuSlots[i]:Hide()
   end
 
