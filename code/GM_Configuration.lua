@@ -301,6 +301,8 @@ function me.UpgradeToV2_0_0()
   gearBar.slots = nil -- reset slots
   gearBar.slots = {}
 
+  local slotPosition = 1
+
   for i = 1, #GearMenuConfiguration.slots do
     if GearMenuConfiguration.slots[i] ~= RGGM_CONSTANTS.INVSLOT_NONE then
       local gearSlot = mod.gearManager.GetGearSlotForSlotId(GearMenuConfiguration.slots[i])
@@ -313,13 +315,14 @@ function me.UpgradeToV2_0_0()
         SetBinding(key)
         SetBindingClick(
           key,
-          RGGM_CONSTANTS.ELEMENT_GEAR_BAR_BASE_FRAME_NAME .. gearBar.id .. "Slot_" .. i
+          RGGM_CONSTANTS.ELEMENT_GEAR_BAR_BASE_FRAME_NAME .. gearBar.id .. "Slot_" .. slotPosition
         )
 
         gearSlot.keyBinding = key
       end
 
       table.insert(gearBar.slots, gearSlot)
+      slotPosition = slotPosition + 1
     end
   end
 
