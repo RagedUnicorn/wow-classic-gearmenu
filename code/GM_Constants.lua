@@ -41,6 +41,8 @@ RGGM_CONSTANTS = {
     ["LSHIFT"] = "SHIFT",
     ["RSHIFT"] = "SHIFT"
   },
+  MOUSEWHEELUP = 1,
+  MOUSEWHEELDOWN = -1,
   ITEMQUALITY = {
     poor = 0,
     common = 1,

@@ -728,8 +728,8 @@ function me.CreateGearBarConfigurationSlotKeybindButton(row, position)
   button:SetHeight(RGGM_CONSTANTS.BUTTON_DEFAULT_HEIGHT)
   button:SetText(rggm.L["gear_bar_configuration_key_binding_button"])
   button:SetPoint("TOPLEFT", 200, -11)
-  button:SetScript("OnClick", function()
-    mod.keyBind.SetKeyBindingForGearSlot(gearBarConfiguration, position)
+  button:SetScript("OnClick", function(self)
+    mod.keyBind.SetKeyBindingForGearSlot(gearBarConfiguration, self:GetParent().position)
   end)
 
   button:SetWidth(

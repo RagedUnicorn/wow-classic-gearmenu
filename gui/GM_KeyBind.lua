@@ -109,14 +109,33 @@ local currentGearSlotPosition
 --[[
   Popup dialog for setting a new keybind
 ]]--
+
 StaticPopupDialogs["RGPVPW_SET_KEYBIND"] = {
   text = rggm.L["gear_bar_configuration_key_binding_dialog"]
     .. rggm.L["gear_bar_configuration_key_binding_dialog_initial"],
   button1 = rggm.L["gear_bar_configuration_key_binding_dialog_accept"],
   button2 = rggm.L["gear_bar_configuration_key_binding_dialog_cancel"],
+
   OnShow = function(self)
     me.ResetKeyBindingRecording()
-    self:SetScript("OnKeyDown", me.KeyBindingOnKeyDown)
+    -- setup scripts
+    _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SUB_MENU]:SetScript("OnKeyDown", function(_, key)
+        me.OnKeyDown(self, key)
+      end)
+
+    _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SUB_MENU]:SetScript("OnMouseDown", function(_, key)
+        me.OnKeyDown(self, key)
+      end)
+
+    _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SUB_MENU]:SetScript("OnMouseWheel", function(_, key)
+        me.OnMouseWheel(self, key)
+      end)
+  end,
+  OnHide = function()
+    -- remove script
+    _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SUB_MENU]:SetScript("OnKeyDown", nil)
+    _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SUB_MENU]:SetScript("OnMouseDown", nil)
+    _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SUB_MENU]:SetScript("OnMouseWheel", nil)
   end,
   OnAccept = function()
     local gearSlot = currentGearBarConfiguration.slots[currentGearSlotPosition]
@@ -166,9 +185,36 @@ StaticPopupDialogs["RGPVPW_SET_KEYBIND_OVERRIDE"] = {
 
   @param {table} self
   @param {string} key
-
 ]]--
-function me.KeyBindingOnKeyDown(self, key)
+function me.OnKeyDown(self, key)
+  me.KeyBindingOnKey(self, me.ConvertPressedKey(key))
+end
+
+--[[
+  Function is called after mousewheel up or down
+
+  @param {table} self
+  @param {string} direction
+    1 MOUSEWHEELUP
+    -1 MOUSEWHEELDOWN
+]]--
+function me.OnMouseWheel(self, direction)
+  if direction == RGGM_CONSTANTS.MOUSEWHEELUP then
+    me.KeyBindingOnKey(self, "MOUSEWHEELUP")
+  elseif direction == RGGM_CONSTANTS.MOUSEWHEELDOWN then
+    me.KeyBindingOnKey(self, "MOUSEWHEELDOWN")
+  else
+    mod.logger.LogError(me.tag, "Unable to determine mousewheel direction")
+  end
+end
+
+--[[
+  Function is called after each keydown and records them together to a full keyBind
+
+  @param {table} self
+  @param {string} key
+]]--
+function me.KeyBindingOnKey(self, key)
   if lockKeyBinding then
     mod.logger.LogInfo(me.tag, "KeyBinding is already locked no further changes allowed")
     return
@@ -200,7 +246,7 @@ function me.KeyBindingOnKeyDown(self, key)
 
   recordedKeyBinding = recordedKeyBinding .. key
 
-  me.LockKeyBinding(self)
+  me.LockKeyBinding()
   prohibitModifier = true
   isKeyBindingValid = true -- at least one "normal key" was added
 
@@ -208,6 +254,21 @@ function me.KeyBindingOnKeyDown(self, key)
   me.UpdateDialog(self)
 
   mod.logger.LogInfo(me.tag, "Keybinding recorded: " .. recordedKeyBinding)
+end
+
+--[[
+  @param {string} key
+
+  @return {string}
+    The converted key
+]]--
+function me.ConvertPressedKey(key)
+  -- special case middle mouse button needs to be converted
+  if key == "MiddleButton" then
+    return "BUTTON3"
+  end
+
+  return string.upper(key)
 end
 
 --[[
@@ -226,8 +287,8 @@ end
 
   @param {table} dialog
 ]]--
-function me.LockKeyBinding(dialog)
-  dialog:SetScript("OnKeyDown", nil)
+function me.LockKeyBinding()
+  _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SUB_MENU]:SetScript("OnKeyDown", nil)
   lockKeyBinding = true
 end
 
@@ -350,10 +411,9 @@ function me.SetKeyBindingToGearSlot(gearBarId, keyBinding, gearSlotPosition)
   local uiGearSlot = uiGearBar.gearSlotReferences[gearSlotPosition]
 
   mod.logger.LogInfo(me.tag, "Set new keybinding " .. keyBinding .. " to " .. uiGearSlot:GetName())
-
   SetBinding(keyBinding) -- reset binding
 
-  if SetBindingClick(keyBinding, uiGearSlot:GetName()) then
+  if SetBinding(keyBinding, "CLICK " .. uiGearSlot:GetName() .. ":LeftButton") then
     mod.logger.LogInfo(me.tag, "Successfully changed keyBind")
     gearSlot.keyBinding = keyBinding
     mod.gearBarManager.UpdateGearSlot(gearBarId, gearSlotPosition, gearSlot)
