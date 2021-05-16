@@ -225,21 +225,23 @@ function me.AddGearSlot()
 
   if #gearBar.slots >= RGGM_CONSTANTS.MAX_GEAR_BAR_SLOTS then
     mod.logger.PrintUserError(rggm.L["gear_bar_max_amount_of_gear_slots_reached"])
+
     return
   end
 
   if gearBar == nil then
     mod.logger.LogError(me.tag, "Failed to find gearBar with id: " .. gearBarConfiguration.id)
+
     return
   end
 
   if not mod.gearBarManager.AddGearSlot(gearBarConfiguration.id) then
     mod.logger.LogError(me.tag, "Failed to add new gearSlot to gearBar with id: " .. gearBarConfiguration.id)
+
     return
   end
 
-  me.UpdateGearBarConfigurationMenu()
-  mod.gearBar.UpdateGearBar(gearBarConfiguration)
+  me.GearBarConfigurationSlotsListOnUpdate(gearBarConfigurationSlotsList)
 end
 
 --[[
@@ -702,9 +704,9 @@ function me.DropDownMenuCallback(self)
   end
 
   -- include offset to position to get the actual position
-  mod.gearBarManager.UpdateGearSlot(gearBarConfiguration.id, position + offset, gearSlotMetaData)
   mod.libUiDropDownMenu.UiDropDownMenu_SetSelectedValue(self:GetParent().dropdown, self.value)
-  me.GearBarOnUpdate()
+  mod.gearBarManager.UpdateGearSlot(gearBarConfiguration.id, position + offset, gearSlotMetaData)
+  me.GearBarConfigurationSlotsListOnUpdate(gearBarConfigurationSlotsList)
 end
 
 --[[
@@ -821,7 +823,7 @@ function me.RemoveGearSlot(self)
     return
   end
 
-  me.GearBarOnUpdate()
+  me.GearBarConfigurationSlotsListOnUpdate(gearBarConfigurationSlotsList)
 end
 
 --[[
@@ -881,15 +883,6 @@ function me.UpdateConfigurationMenuTitle(contentFrame)
   else
     contentFrame.subMenuTitle:SetText(gearBarConfiguration.displayName)
   end
-end
-
---[[
-  Update all gearBars shown to the user
-  Update the gearBar configuration of the gearBar that is currently being configured
-]]--
-function me.GearBarOnUpdate()
-  me.UpdateGearBarConfigurationMenu()
-  mod.gearBar.UpdateGearBar(gearBarConfiguration)
 end
 
 --[[

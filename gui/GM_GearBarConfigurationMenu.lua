@@ -212,7 +212,7 @@ function me.CreateNewGearBar(name)
 
   builtCategory.gearBarId = gearBar.id
 
-  mod.gearBar.UpdateGearBar(gearBar) -- update visual representation of the newly created gearBar
+  mod.gearBar.UpdateGearBarVisual(gearBar) -- update visual representation of the newly created gearBar
   mod.addonConfiguration.UpdateAddonPanel()
 end
 

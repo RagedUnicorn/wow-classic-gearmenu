@@ -68,7 +68,7 @@ function me.AddGearBar(gearBarName, addDefaultSlot)
   mod.logger.LogInfo(me.tag, "Created new GearBar with id: " .. gearBar.id)
 
   if addDefaultSlot then
-    me.AddGearSlot(gearBar.id)
+    me.AddGearSlot(gearBar.id, true)
   end
 
   return gearBar
@@ -153,7 +153,7 @@ function me.UnlockGearBar(gearBarId)
   local gearBar = me.GetGearBar(gearBarId)
 
   gearBar.isLocked = false
-  mod.gearBar.UpdateGearBar(gearBar)
+  mod.gearBar.UpdateGearBarLockedState(gearBar)
 end
 
 --[[
@@ -165,7 +165,7 @@ function me.LockGearBar(gearBarId)
   local gearBar = me.GetGearBar(gearBarId)
 
   gearBar.isLocked = true
-  mod.gearBar.UpdateGearBar(gearBar)
+  mod.gearBar.UpdateGearBarLockedState(gearBar)
 end
 
 --[[
@@ -190,7 +190,7 @@ function me.EnableShowKeyBindings(gearBarId)
   local gearBar = me.GetGearBar(gearBarId)
 
   gearBar.showKeyBindings = true
-  mod.gearBar.UpdateGearBar(gearBar)
+  mod.gearBar.UpdateKeyBindingState(gearBar)
   mod.ticker.UnregisterForTickerRangeCheck(gearBarId)
 end
 
@@ -203,7 +203,7 @@ function me.DisableShowKeyBindings(gearBarId)
   local gearBar = me.GetGearBar(gearBarId)
 
   gearBar.showKeyBindings = false
-  mod.gearBar.UpdateGearBar(gearBar)
+  mod.gearBar.UpdateKeyBindingState(gearBar)
   mod.ticker.RegisterForRangeCheck(gearBarId)
 end
 
@@ -229,7 +229,7 @@ function me.EnableShowCooldowns(gearBarId)
   local gearBar = me.GetGearBar(gearBarId)
 
   gearBar.showCooldowns = true
-  mod.gearBar.UpdateGearBar(gearBar)
+  mod.gearBar.UpdateGearBarGearSlotCooldowns(gearBar)
 end
 
 --[[
@@ -241,8 +241,7 @@ function me.DisableShowCooldowns(gearBarId)
   local gearBar = me.GetGearBar(gearBarId)
 
   gearBar.showCooldowns = false
-  mod.gearBar.UpdateGearBar(gearBar)
-  GearMenuConfiguration.showCooldowns = false
+  mod.gearBar.UpdateGearBarGearSlotCooldowns(gearBar)
 end
 
 --[[
@@ -267,7 +266,7 @@ function me.EnableShowKeyBindings(gearBarId)
   local gearBar = me.GetGearBar(gearBarId)
 
   gearBar.showKeyBindings = true
-  mod.gearBar.UpdateGearBar(gearBar)
+  mod.gearBar.UpdateKeyBindingState(gearBar)
 end
 
 --[[
@@ -279,7 +278,7 @@ function me.DisableShowKeyBindings(gearBarId)
   local gearBar = me.GetGearBar(gearBarId)
 
   gearBar.showKeyBindings = false
-  mod.gearBar.UpdateGearBar(gearBar)
+  mod.gearBar.UpdateKeyBindingState(gearBar)
 end
 
 --[[
@@ -300,10 +299,13 @@ end
 
   @param {number} gearBarId
     An id of a gearBar
+  @param {boolean} init
+    true if initial state and no ui update should be triggered
+    false if not initial state and the ui update should be triggered
 
   @return {table | nil}
 ]]--
-function me.AddGearSlot(gearBarId)
+function me.AddGearSlot(gearBarId, init)
   local gearSlot = {
     ["name"] = "",
       -- {string}
@@ -347,6 +349,10 @@ function me.AddGearSlot(gearBarId)
 
   if gearBar ~= nil then
     table.insert(gearBar.slots, gearSlot)
+    if not init then
+      mod.gearBar.UpdateGearBarGearSlots(gearBar)
+    end
+
     return gearSlot
   end
 
@@ -371,6 +377,8 @@ function me.RemoveGearSlot(gearBarId, position)
 
   if gearBar ~= nil then
     table.remove(gearBar.slots, position)
+    mod.gearBar.UpdateGearBarGearSlots(gearBar)
+
     return true
   end
 
@@ -416,6 +424,7 @@ function me.UpdateGearSlot(gearBarId, position, updatedGearSlot)
 
   if gearBar ~= nil and gearBar.slots[position] ~= nil then
     gearBar.slots[position] = updatedGearSlot
+    mod.gearBar.UpdateGearBarGearSlots(gearBar)
 
     return true
   end
@@ -434,9 +443,10 @@ end
 ]]--
 function me.SetGearSlotSize(gearBarId, gearSlotSize)
   local gearBar = me.GetGearBar(gearBarId)
+
   if gearBar then
     gearBar.gearSlotSize = gearSlotSize
-    mod.gearBar.UpdateGearBar(gearBar)
+    mod.gearBar.UpdateGearSlotSizes(gearBar)
   else
     mod.logger.LogError(me.tag, "Failed to update the gearSlotSize of the gearBar with id: " .. gearBarId)
   end
@@ -448,7 +458,7 @@ end
   @param {number} gearBarId
     An id of a gearBar
 
-  @return {number}
+  @return {number | nil}
 ]]--
 function me.GetGearSlotSize(gearBarId)
   local gearBar = me.GetGearBar(gearBarId)
@@ -458,7 +468,7 @@ function me.GetGearSlotSize(gearBarId)
   else
     mod.logger.LogError(me.tag, "Failed to retrieve gearSlotSize. Using default size")
 
-    return RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE
+    return nil
   end
 end
 
@@ -472,6 +482,7 @@ end
 ]]--
 function me.SetChangeSlotSize(gearBarId, changeSlotSize)
   local gearBar = me.GetGearBar(gearBarId)
+
   if gearBar then
     gearBar.changeSlotSize = changeSlotSize
     -- no ui update necessary, update will be triggered next time the changeMenu is shown
@@ -486,7 +497,7 @@ end
   @param {number} gearBarId
     An id of a gearBar
 
-  @return {number}
+  @return {number | nil}
 ]]--
 function me.GetChangeSlotSize(gearBarId)
   local gearBar = me.GetGearBar(gearBarId)
@@ -496,6 +507,26 @@ function me.GetChangeSlotSize(gearBarId)
   else
     mod.logger.LogError(me.tag, "Failed to retrieve changeSlotSize. Using default size")
 
-    return RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE
+    return nil
   end
+end
+
+--[[
+  Set the keyBinding on a slot. keyBinding can be empty to unset/remove the keyBinding
+
+  @param {number} gearBarId
+  @param {number} position
+  @param {string} keyBinding
+]]--
+function me.SetSlotKeyBinding(gearBarId, position, keyBinding)
+  local gearBar = me.GetGearBar(gearBarId)
+
+  if gearBar ~= nil and gearBar.slots[position] ~= nil then
+    gearBar.slots[position].keyBinding = keyBinding
+    mod.gearBar.UpdateGearBars(mod.gearBar.UpdateKeyBindingState)
+  else
+    mod.logger.LogError(me.tag, "Failed to update gearBarSlot keybinding {"
+    .. position .. "} for gearBar with id: " .. gearBarId)
+  end
+
 end

@@ -87,7 +87,7 @@ function me.CreateCooldownOverlay(slot, frameName, slotSize)
   cooldownOverlay:GetRegions()
     :SetFont(
       STANDARD_TEXT_FONT,
-      slotSize * RGGM_CONSTANTS.GEAR_BAR_CHANGE_COOLDOWN_TEXT_MODIFIER
+      slotSize * RGGM_CONSTANTS.GEAR_BAR_COOLDOWN_TEXT_MODIFIER
     )
   cooldownOverlay:SetHideCountdownNumbers(false)
   cooldownOverlay.currentCooldownType = COOLDOWN_TYPE_NORMAL

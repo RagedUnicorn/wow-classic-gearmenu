@@ -370,7 +370,7 @@ function me.UnsetKeyBinding(gearBarId, gearSlotPosition)
   SetBinding(gearSlot.keyBinding)
   gearSlot.keyBinding = nil
 
-  me.UpdateGearBarConfigurationSubMenu()
+  mod.gearBarConfigurationSubMenu.UpdateGearBarConfigurationMenu()
   me.AttemptToSaveBindings()
 end
 
@@ -416,10 +416,10 @@ function me.SetKeyBindingToGearSlot(gearBarId, keyBinding, gearSlotPosition)
   if SetBinding(keyBinding, "CLICK " .. uiGearSlot:GetName() .. ":LeftButton") then
     mod.logger.LogInfo(me.tag, "Successfully changed keyBind")
     gearSlot.keyBinding = keyBinding
-    mod.gearBarManager.UpdateGearSlot(gearBarId, gearSlotPosition, gearSlot)
+    mod.gearBarManager.SetSlotKeyBinding(gearBarId, gearSlotPosition, gearSlot.keyBinding)
 
     -- update the configuration sub menu (show proper keyBinding after change)
-    me.UpdateGearBarConfigurationSubMenu()
+    mod.gearBarConfigurationSubMenu.UpdateGearBarConfigurationMenu()
     -- save keyBindings to wow-cache
     me.AttemptToSaveBindings()
     me.CleanupKeyBindingOnSlots(gearBarId, gearSlotPosition, keyBinding)
@@ -443,13 +443,13 @@ end
 ]]--
 function me.CleanupKeyBindingOnSlots(newGearBarId, newGearSlotPosition, keyBinding)
   for _, gearBar in pairs(mod.gearBarManager.GetGearBars()) do
-    for index, gearSlot in pairs(gearBar.slots) do
-      if gearBar.id ~= newGearBarId and index ~= newGearSlotPosition then
+    for position, gearSlot in pairs(gearBar.slots) do
+      if gearBar.id ~= newGearBarId and position ~= newGearSlotPosition then
         if gearSlot.keyBinding == keyBinding then
           mod.logger.LogInfo(
-            me.tag, "Leftover keyBinding found - resetting {" .. gearBar.id .. "} slotPos {" .. index .. "}")
+            me.tag, "Leftover keyBinding found - resetting {" .. gearBar.id .. "} slotPos {" .. position .. "}")
           gearSlot.keyBinding = nil
-          mod.gearBarManager.UpdateGearSlot(gearBar.id, index, gearSlot)
+          mod.gearBarManager.SetSlotKeyBinding(gearBar.id, position, gearSlot.keyBinding)
         end
       end
     end
@@ -479,13 +479,6 @@ function me.SetKeyBindingForGearSlot(gearBarConfiguration, gearSlotPosition)
 end
 
 --[[
-  After changing a keybinding update the configuration submenu
-]]--
-function me.UpdateGearBarConfigurationSubMenu()
-  mod.gearBarConfigurationSubMenu.GearBarOnUpdate()
-end
-
---[[
   Callback for UPDATE_BINDINGS event. Iterate all keyBindings in all gearBars and check if they
   are still valid. KeyBinds could have been changed outside of gearMenu. If this case is detected we remove
   the visual representation of that keyBind from gearMenu
@@ -496,17 +489,16 @@ function me.OnUpdateKeyBindings()
   local gearBars = mod.gearBarManager.GetGearBars()
   -- iterate all keybindings of all gearBars and check if they are still bound correctly
   for i = 1, #gearBars do
-    for index, gearSlot in pairs(gearBars[i].slots) do
+    for position, gearSlot in pairs(gearBars[i].slots) do
       if gearSlot.keyBinding ~= nil then
-        mod.logger.LogDebug(me.tag, "gearSlot: " .. index .. " has a keyBinding set: " .. gearSlot.keyBinding)
+        mod.logger.LogDebug(me.tag, "gearSlot: " .. position .. " has a keyBinding set: " .. gearSlot.keyBinding)
 
         local action = GetBindingAction(gearSlot.keyBinding)
 
         if action == nil or action == "" then
           mod.logger.LogInfo(me.tag, "Found a gearBar keyBinding that is not actually set. Resetting keyBind")
           gearSlot.keyBinding = nil -- reset keyBinding for gearSlot
-          mod.gearBarManager.UpdateGearSlot(gearBars[i].id, index, gearSlot)
-          mod.gearBar.UpdateGearBars() -- update visual reprensentation of all gearBars
+          mod.gearBarManager.SetSlotKeyBinding(gearBars[i].id, position, gearSlot.keyBinding)
         end
       end
     end

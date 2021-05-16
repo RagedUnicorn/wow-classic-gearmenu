@@ -125,7 +125,7 @@ function me.CreateChangeSlot(frame, position, xPos, yPos)
   changeSlot.highlightFrame = mod.uiHelper.CreateHighlightFrame(changeSlot)
   changeSlot.cooldownOverlay = mod.uiHelper.CreateCooldownOverlay(
     changeSlot,
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_COOLDOWN_FRAME,
+    RGGM_CONSTANTS.ELEMENT_SLOT_COOLDOWN_FRAME,
     RGGM_CONSTANTS.GEAR_BAR_CHANGE_DEFAULT_SLOT_SIZE
   )
 
@@ -275,7 +275,7 @@ function me.UpdateCooldownOverlaySize(changeSlot, slotSize)
   changeSlot.cooldownOverlay:GetRegions()
     :SetFont(
       STANDARD_TEXT_FONT,
-      slotSize * RGGM_CONSTANTS.GEAR_BAR_CHANGE_COOLDOWN_TEXT_MODIFIER
+      slotSize * RGGM_CONSTANTS.GEAR_BAR_COOLDOWN_TEXT_MODIFIER
     )
 end
 

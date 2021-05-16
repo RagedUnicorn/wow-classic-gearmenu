@@ -120,13 +120,13 @@ function me.OnEvent(event, ...)
     local unit = ...
 
     if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER and initializationDone then
-      me.gearBar.UpdateGearBarVisual()
+      me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarVisual)
     end
   elseif event == "BAG_UPDATE_COOLDOWN" then
     me.logger.LogEvent(me.tag, "BAG_UPDATE_COOLDOWN")
 
     if initializationDone then
-      me.gearBar.UpdateGearBarVisual()
+      me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarGearSlotCooldowns)
     end
   elseif event == "UPDATE_BINDINGS" then
     me.logger.LogEvent(me.tag, "UPDATE_BINDINGS")
@@ -219,7 +219,7 @@ function me.Initialize()
   -- build ui for changeMenu
   me.gearBarChangeMenu.BuildChangeMenu()
   -- update initial view of gearBars after addon initialization
-  me.gearBar.UpdateGearBars()
+  me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarVisual)
   -- initialization is done
   initializationDone = true
 

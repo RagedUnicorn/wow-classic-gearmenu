@@ -105,7 +105,7 @@ end
 function me.RegisterForTickerRangeCheck(gearBarId)
   for i = 1, #tickerRangeCheckSubscribers do
     if tickerRangeCheckSubscribers[i] == gearBarId then
-      mod.logger.LogInfo(me.tag, "GearBar with id: " .. gearBarId .. " is already registered for range check")
+      mod.logger.LogDebug(me.tag, "GearBar with id: " .. gearBarId .. " is already registered for range check")
       return
     end
   end
