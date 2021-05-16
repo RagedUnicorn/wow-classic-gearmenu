@@ -24,7 +24,7 @@
 ]]--
 
 -- luacheck: globals CreateFrame MouseIsOver GetItemCooldown STANDARD_TEXT_FONT CooldownFrame_Clear
--- luacheck: globals CooldownFrame_Set
+-- luacheck: globals CooldownFrame_Set UIParent
 
 local mod = rggm
 local me = {}
@@ -47,9 +47,10 @@ local changeMenuSlots = {}
   Build the initial changeMenu for bagged items
 ]]--
 function me.BuildChangeMenu()
-  changeMenuFrame = CreateFrame("Frame", RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_FRAME)
-  changeMenuFrame:SetWidth(RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT * RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE)
+  changeMenuFrame = CreateFrame("Frame", RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_FRAME, UIParent)
+  changeMenuFrame:SetWidth(RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT * RGGM_CONSTANTS.GEAR_BAR_CHANGE_DEFAULT_SLOT_SIZE)
   changeMenuFrame:SetHeight(RGGM_CONSTANTS.GEAR_BAR_CHANGE_DEFAULT_HEIGHT)
+  changeMenuFrame:SetPoint("CENTER")
   changeMenuFrame:SetBackdropColor(0, 0, 0, .5)
   changeMenuFrame:SetBackdropBorderColor(0, 0, 0, .8)
 
@@ -68,10 +69,11 @@ function me.CreateChangeSlots()
     for column = 1, RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT do
       if index + column - 1 > RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT then break end
 
-      local yPos = row * RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE
-      local xPos = (column - 1) * RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE
+      local yPos = row * RGGM_CONSTANTS.GEAR_BAR_CHANGE_DEFAULT_SLOT_SIZE
+      local xPos = (column - 1) * RGGM_CONSTANTS.GEAR_BAR_CHANGE_DEFAULT_SLOT_SIZE
 
       local changeSlot = me.CreateChangeSlot(changeMenuFrame, index + column - 1, xPos, yPos)
+
       me.SetupEvents(changeSlot)
       changeSlot:Hide()
     end
@@ -93,6 +95,7 @@ function me.CreateChangeSlot(frame, position, xPos, yPos)
   local changeSlot = CreateFrame("Button", RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_SLOT .. position, frame)
   changeSlot:SetFrameLevel(frame:GetFrameLevel() + 1)
   changeSlot:SetSize(RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE, RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE)
+  changeSlot:ClearAllPoints()
   changeSlot:SetPoint(
     "BOTTOMLEFT",
     frame,
@@ -123,7 +126,7 @@ function me.CreateChangeSlot(frame, position, xPos, yPos)
   changeSlot.cooldownOverlay = mod.uiHelper.CreateCooldownOverlay(
     changeSlot,
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_COOLDOWN_FRAME,
-    RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE
+    RGGM_CONSTANTS.GEAR_BAR_CHANGE_DEFAULT_SLOT_SIZE
   )
 
   table.insert(changeMenuSlots, changeSlot) -- store changeSlot
@@ -223,36 +226,36 @@ end
 --[[
   Visually update a changeslot
 
-  @param {table} uiGearSlot
+  @param {table} changeSlot
   @param {table} gearSlotMetaData
   @param {table} item
   @param {number} changeSlotSize
 ]]--
-function me.UpdateChangeSlot(uiGearSlot, gearSlotMetaData, item, changeSlotSize)
-  mod.uiHelper.UpdateSlotTextureAttributes(uiGearSlot, changeSlotSize)
+function me.UpdateChangeSlot(changeSlot, gearSlotMetaData, item, changeSlotSize)
+  mod.uiHelper.UpdateSlotTextureAttributes(changeSlot, changeSlotSize)
   -- update metadata for slot
-  uiGearSlot.slotId = gearSlotMetaData.slotId
-  uiGearSlot.itemId = item.id
-  uiGearSlot.equipSlot = item.equipSlot
+  changeSlot.slotId = gearSlotMetaData.slotId
+  changeSlot.itemId = item.id
+  changeSlot.equipSlot = item.equipSlot
 
-  uiGearSlot:SetNormalTexture(item.icon)
-  uiGearSlot:Show()
+  changeSlot:SetNormalTexture(item.icon)
+  changeSlot:Show()
 end
 
 --[[
   Update the changeSlotSize to the configured one
 
   @param {number} changeSlotSize
-  @param {table} uiGearBar
-  @param {table} uiGearSlot
+  @param {table} changeMenu
+  @param {table} changeSlot
   @param {number} xPos
   @param {number} yPos
 ]]--
-function me.UpdateChangeSlotSize(changeSlotSize, changeMenu, uiGearSlot, xPos, yPos)
+function me.UpdateChangeSlotSize(changeSlotSize, changeMenu, changeSlot, xPos, yPos)
   -- update slotsize to match configuration
-  uiGearSlot:SetSize(changeSlotSize, changeSlotSize)
-  uiGearSlot:ClearAllPoints()
-  uiGearSlot:SetPoint(
+  changeSlot:SetSize(changeSlotSize, changeSlotSize)
+  changeSlot:ClearAllPoints()
+  changeSlot:SetPoint(
     "BOTTOMLEFT",
     changeMenu,
     "BOTTOMLEFT",
@@ -260,16 +263,16 @@ function me.UpdateChangeSlotSize(changeSlotSize, changeMenu, uiGearSlot, xPos, y
     yPos
   )
 
-  me.UpdateCooldownOverlaySize(uiGearSlot, changeSlotSize)
+  me.UpdateCooldownOverlaySize(changeSlot, changeSlotSize)
 end
 
 --[[
-  @param {table} uiGearBar
+  @param {table} changeSlot
   @param {number} slotSize
 ]]--
-function me.UpdateCooldownOverlaySize(uiGearSlot, slotSize)
-  uiGearSlot.cooldownOverlay:SetSize(slotSize, slotSize)
-  uiGearSlot.cooldownOverlay:GetRegions()
+function me.UpdateCooldownOverlaySize(changeSlot, slotSize)
+  changeSlot.cooldownOverlay:SetSize(slotSize, slotSize)
+  changeSlot.cooldownOverlay:GetRegions()
     :SetFont(
       STANDARD_TEXT_FONT,
       slotSize * RGGM_CONSTANTS.GEAR_BAR_CHANGE_COOLDOWN_TEXT_MODIFIER
@@ -376,7 +379,6 @@ function me.UpdateChangeMenuGearSlotCooldown()
     else
       CooldownFrame_Clear(changeMenuSlot.cooldownOverlay)
     end
-
   end
 end
 
