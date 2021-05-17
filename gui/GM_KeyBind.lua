@@ -98,9 +98,9 @@ local lockKeyBinding = false
 ]]--
 local lastRecordedKey = ""
 --[[
-  The gearBar configuration of the gearBar that is being configured
+  The gearBarId of the gearBar that is being configured
 ]]--
-local currentGearBarConfiguration
+local currentGearBarId
 --[[
   The gearSlot position that invoked the setting of a keyBinding
 ]]--
@@ -138,14 +138,15 @@ StaticPopupDialogs["RGPVPW_SET_KEYBIND"] = {
     _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SUB_MENU]:SetScript("OnMouseWheel", nil)
   end,
   OnAccept = function()
-    local gearSlot = currentGearBarConfiguration.slots[currentGearSlotPosition]
+    local gearBar = mod.gearBarManager.GetGearBar(currentGearBarId)
+    local gearSlot = gearBar.slots[currentGearSlotPosition]
 
     if gearSlot ~= nil then
-      me.SetKeyBinding(currentGearBarConfiguration.id, currentGearSlotPosition, recordedKeyBinding)
+      me.SetKeyBinding(gearBar.id, currentGearSlotPosition, recordedKeyBinding)
     else
       mod.logger.LogError(
         me.tag,
-        "Failed to update keyBinding for gearBar with id: " .. currentGearBarConfiguration.id
+        "Failed to update keyBinding for gearBar with id: " .. gearBar.id
         .. " at position: " .. currentGearSlotPosition
       )
     end
@@ -169,7 +170,7 @@ StaticPopupDialogs["RGPVPW_SET_KEYBIND_OVERRIDE"] = {
     StaticPopup_Hide("RGPVPW_SET_KEYBIND")
   end,
   OnAccept = function()
-    me.SetKeyBindingToGearSlot(currentGearBarConfiguration.id, recordedKeyBinding, currentGearSlotPosition)
+    me.SetKeyBindingToGearSlot(currentGearBarId, recordedKeyBinding, currentGearSlotPosition)
     StaticPopup_Hide("RGPVPW_SET_KEYBIND")
   end,
   OnCancel = function()
@@ -368,8 +369,7 @@ function me.UnsetKeyBinding(gearBarId, gearSlotPosition)
 
   mod.logger.LogDebug(me.tag, "Current keybinding before resetting: " .. gearSlot.keyBinding)
   SetBinding(gearSlot.keyBinding)
-  gearSlot.keyBinding = nil
-
+  mod.gearBarManager.SetSlotKeyBinding(gearBarId, gearSlotPosition, nil)
   mod.gearBarConfigurationSubMenu.UpdateGearBarConfigurationMenu()
   me.AttemptToSaveBindings()
 end
@@ -406,7 +406,6 @@ end
   @param {number} gearSlotPosition
 ]]--
 function me.SetKeyBindingToGearSlot(gearBarId, keyBinding, gearSlotPosition)
-  local gearSlot = mod.gearBarManager.GetGearSlot(gearBarId, gearSlotPosition)
   local uiGearBar = mod.gearBarStorage.GetGearBar(gearBarId)
   local uiGearSlot = uiGearBar.gearSlotReferences[gearSlotPosition]
 
@@ -415,8 +414,7 @@ function me.SetKeyBindingToGearSlot(gearBarId, keyBinding, gearSlotPosition)
 
   if SetBinding(keyBinding, "CLICK " .. uiGearSlot:GetName() .. ":LeftButton") then
     mod.logger.LogInfo(me.tag, "Successfully changed keyBind")
-    gearSlot.keyBinding = keyBinding
-    mod.gearBarManager.SetSlotKeyBinding(gearBarId, gearSlotPosition, gearSlot.keyBinding)
+    mod.gearBarManager.SetSlotKeyBinding(gearBarId, gearSlotPosition, keyBinding)
 
     -- update the configuration sub menu (show proper keyBinding after change)
     mod.gearBarConfigurationSubMenu.UpdateGearBarConfigurationMenu()
@@ -444,12 +442,49 @@ end
 function me.CleanupKeyBindingOnSlots(newGearBarId, newGearSlotPosition, keyBinding)
   for _, gearBar in pairs(mod.gearBarManager.GetGearBars()) do
     for position, gearSlot in pairs(gearBar.slots) do
-      if gearBar.id ~= newGearBarId and position ~= newGearSlotPosition then
+      if gearBar.id ~= newGearBarId or position ~= newGearSlotPosition then
         if gearSlot.keyBinding == keyBinding then
           mod.logger.LogInfo(
             me.tag, "Leftover keyBinding found - resetting {" .. gearBar.id .. "} slotPos {" .. position .. "}")
-          gearSlot.keyBinding = nil
-          mod.gearBarManager.SetSlotKeyBinding(gearBar.id, position, gearSlot.keyBinding)
+          mod.gearBarManager.SetSlotKeyBinding(gearBar.id, position, nil)
+        end
+      end
+    end
+  end
+end
+
+--[[
+  After deleting a gearSlot from the configuration it can happen that a slot moves to another position to avoid
+  any gaps. This however means that keyBindings might point to the wrong slot. To prevent that we check if the action
+  for the shortcut matches the expectation and if not we fix it by silently updating the keybind to the proper slot
+
+  @param {number} gearBarId
+]]--
+function me.CheckKeyBindingSlots(gearBarId)
+  local gearBar = mod.gearBarManager.GetGearBar(gearBarId)
+
+  for position, gearSlot in pairs(gearBar.slots) do
+    if gearSlot.keyBinding ~= "" and gearSlot.keyBinding ~= nil then
+      mod.logger.LogDebug(me.tag, "Checking slot{" .. position .. "} with keyBinding " .. gearSlot.keyBinding)
+
+      local action = GetBindingAction(gearSlot.keyBinding)
+
+      if action ~= "" and action ~= nil then
+        local _, _, _, slotPosition = string.find(action, "GM_GearBarFrame_(%d+)Slot_(%d)")
+
+        if tonumber(slotPosition) ~= position then
+          mod.logger.LogDebug(me.tag, "Expected action to have position: " .. position .. " but was : " .. slotPosition)
+
+          local uiGearBar = mod.gearBarStorage.GetGearBar(gearBarId)
+          local uiGearSlot = uiGearBar.gearSlotReferences[position]
+
+          if SetBinding(gearSlot.keyBinding, "CLICK " .. uiGearSlot:GetName() .. ":LeftButton") then
+            mod.logger.LogDebug(me.tag, "Fixed keyBinding action")
+            -- update the configuration sub menu (show proper keyBinding after change)
+            mod.gearBarConfigurationSubMenu.UpdateGearBarConfigurationMenu()
+            -- save keyBindings to wow-cache
+            me.AttemptToSaveBindings()
+          end
         end
       end
     end
@@ -469,11 +504,11 @@ end
   Show Keybinding dialog to record and save keyBinding to the passed gearSlot
   UI Interface entrypoint
 
-  @param {table} gearBarConfiguration
+  @param {table} gearBarId
   @param {number} gearSlotPosition
 ]]--
-function me.SetKeyBindingForGearSlot(gearBarConfiguration, gearSlotPosition)
-  currentGearBarConfiguration = gearBarConfiguration
+function me.SetKeyBindingForGearSlot(gearBarId, gearSlotPosition)
+  currentGearBarId = gearBarId
   currentGearSlotPosition = gearSlotPosition
   StaticPopup_Show("RGPVPW_SET_KEYBIND")
 end
@@ -497,8 +532,7 @@ function me.OnUpdateKeyBindings()
 
         if action == nil or action == "" then
           mod.logger.LogInfo(me.tag, "Found a gearBar keyBinding that is not actually set. Resetting keyBind")
-          gearSlot.keyBinding = nil -- reset keyBinding for gearSlot
-          mod.gearBarManager.SetSlotKeyBinding(gearBars[i].id, position, gearSlot.keyBinding)
+          mod.gearBarManager.SetSlotKeyBinding(gearBars[i].id, position, nil)
         end
       end
     end

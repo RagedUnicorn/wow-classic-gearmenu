@@ -122,7 +122,7 @@ end
     Return a clone of all gearBars
 ]]--
 function me.GetGearBars()
-  return mod.common.Clone(GearMenuConfiguration.gearBars)
+  return GearMenuConfiguration.gearBars
 end
 
 --[[
@@ -378,6 +378,8 @@ function me.RemoveGearSlot(gearBarId, position)
   if gearBar ~= nil then
     table.remove(gearBar.slots, position)
     mod.gearBar.UpdateGearBarGearSlots(gearBar)
+    mod.keyBind.CheckKeyBindingSlots(gearBarId)
+    mod.gearBar.UpdateKeyBindingState(gearBar)
 
     return true
   end

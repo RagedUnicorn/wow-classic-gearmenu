@@ -613,6 +613,7 @@ function me.UpdateGearBarGearSlots(gearBar)
   -- update visual elements of the gearBar
   me.UpdateGearBarGearSlotTextures(gearBar)
   me.UpdateGearBarGearSlotCooldowns(gearBar)
+  me.UpdateKeyBindingState(gearBar)
   me.UpdateGearBarSize(gearBar)
   me.CleanupOrphanedGearSlots(gearBar)
 end
@@ -647,6 +648,9 @@ end
   Search for orphan gearSlots that should be removed. Note it is not possible to delete
   a frame. It can only be hidden but will of course not be recreated once the user reloads the ui
 
+  Note: It is very important to not lose a reference to a slot because just recreating the same slot
+  with the same name won't work with keybinds. In that case a reload is required to recreate the ui
+
   @param {table} gearBar
     The configuration of a gearBar
   @param {table} gearBarUi
@@ -657,9 +661,8 @@ function me.CleanupOrphanedGearSlots(gearBar)
 
   for i = 1, #uiGearBar.gearSlotReferences do
     if gearBar.slots[i] == nil then
-      -- means the element is no longer known and should be "removed"
+      -- simply hide gearSlots that are not in use
       uiGearBar.gearSlotReferences[i]:Hide()
-      uiGearBar.gearSlotReferences[i] = nil
     end
   end
 end

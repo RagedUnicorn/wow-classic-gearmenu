@@ -220,6 +220,10 @@ function me.Initialize()
   me.gearBarChangeMenu.BuildChangeMenu()
   -- update initial view of gearBars after addon initialization
   me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarVisual)
+  --[[
+    Manual call for UPDATE_BINDINGS because we can only update the keyBindings after the ui is present
+  ]]--
+  me.keyBind.OnUpdateKeyBindings()
   -- initialization is done
   initializationDone = true
 

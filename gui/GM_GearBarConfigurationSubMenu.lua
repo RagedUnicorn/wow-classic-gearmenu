@@ -696,7 +696,7 @@ function me.DropDownMenuCallback(self)
 
   --[[
     Preserve keyBinding text if one is present. Note: this is only the text that is displayed. The keyBind itself
-    is automatically preserver because the gearSlot frame is not changing. It does not matter to the keyBind
+    is automatically preserved because the gearSlot frame is not changing. It does not matter to the keyBind
     what slotId the gearSlot has. It will simply "click" the gearSlot
   ]]--
   if currentMetaData ~= nil and currentMetaData.keyBinding ~= nil and currentMetaData ~= "" then
@@ -731,7 +731,7 @@ function me.CreateGearBarConfigurationSlotKeybindButton(row, position)
   button:SetText(rggm.L["gear_bar_configuration_key_binding_button"])
   button:SetPoint("TOPLEFT", 200, -11)
   button:SetScript("OnClick", function(self)
-    mod.keyBind.SetKeyBindingForGearSlot(gearBarConfiguration, self:GetParent().position)
+    mod.keyBind.SetKeyBindingForGearSlot(gearBarConfiguration.id, self:GetParent().position)
   end)
 
   button:SetWidth(
