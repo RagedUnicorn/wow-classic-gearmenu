@@ -1,8 +1,6 @@
-# Improvements
-
-* Rebuilt how gearBars are created and updated to be more efficient. Instead of updating everything for every event only update the absolute necessary parts based on the received event
-
 # Fixes
 
-* #81 Unable to bind mouse buttons to slots after the 2.0 update bug
-* #80 Changeslot size is slightly bigger than Gearslot size when set to the same size
+* Fix initial setup of GearMenu for firstTime users (no configuration present)
+* Fix multiple issue with setting keyBinds
+  * Keybinds are now correctly fixed if a slot is deleted and another sloth moves into its place
+  * Do not lose reference to orphaned GearSlots they cannot be recreated but rather have to be reused
