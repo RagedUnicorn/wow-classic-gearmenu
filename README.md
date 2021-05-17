@@ -8,6 +8,12 @@
 ![](/docs/license_mit.svg)
 [![](/docs/curseforge.svg)](https://curseforge.overwolf.com/?addonId=345496&fileId=3312725)
 
+**WoW Burning Crusade Classic Support**
+
+> This Addon supports WoW Burning Crusade Classic see - [bcc-GearMenu](https://github.com/RagedUnicorn/wow-bcc-gearmenu/)
+
+<a href="https://github.com/RagedUnicorn/wow-bcc-gearmenu/"><img src="/docs/the_burning_crusade_logo.png" width="40%"></img></a>
+
 ## Installation
 
 WoW-Addons are installed directly into your WoW directory:
