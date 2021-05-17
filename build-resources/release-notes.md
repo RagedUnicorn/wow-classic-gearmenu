@@ -1,17 +1,8 @@
-# Release 2.0.0
+# Improvements
 
-This release brings a big change to GearMenu and allows to have multiple independent GearBars.
+* Rebuilt how gearBars are created and updated to be more efficient. Instead of updating everything for every event only update the absolute necessary parts based on the received event
 
-![](https://raw.githubusercontent.com/RagedUnicorn/wow-classic-gearmenu/master/docs/release_2_0_0.jpg)
+# Fixes
 
-## Fixes
-
-* Improve how GearMenu handles cooldowns on ChangeMenu and GearMenuSlots
-
-**Note:** A lot of the configuration has changed and is moved to each individual GearBar. This also includes the setting of Keybindings.
-
-## Migration
-
-After the update to 2.0.0 GearMenu will attempt to migrate your current configuration to a new dynamic GearBar. This includes all GearSlots and their respective Keybinding.
-
-**Note:** If for some reason the migration failed make sure to go to `Interface Options` -> `Addons` -> `GearMenu` -> `GearBarConfiguration` and fix or remake a new GearBar
+* #81 Unable to bind mouse buttons to slots after the 2.0 update bug
+* #80 Changeslot size is slightly bigger than Gearslot size when set to the same size
