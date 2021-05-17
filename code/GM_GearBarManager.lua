@@ -414,17 +414,22 @@ end
   @param {number} position
   @param {table} updatedGearSlot
     A gearSlot table that will overwrite the configured values for the slot
+    @param {boolean} init
+      true - do not do any ui updates
+      false - normal process update ui
 
   @return {boolean}
     true - if the operation was successful
     false - if the operation was not successful
 ]]--
-function me.UpdateGearSlot(gearBarId, position, updatedGearSlot)
+function me.UpdateGearSlot(gearBarId, position, updatedGearSlot, init)
   local gearBar = me.GetGearBar(gearBarId)
 
   if gearBar ~= nil and gearBar.slots[position] ~= nil then
     gearBar.slots[position] = updatedGearSlot
-    mod.gearBar.UpdateGearBarGearSlots(gearBar)
+    if not init then
+      mod.gearBar.UpdateGearBarGearSlots(gearBar)
+    end
 
     return true
   end

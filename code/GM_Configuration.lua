@@ -198,14 +198,14 @@ function me.FirstTimeInitialization()
   mod.logger.LogInfo(me.tag, "First initialization detected. Creating default gearBar")
 
   local gearBar = mod.gearBarManager.AddGearBar(RGGM_CONSTANTS.GEAR_BAR_DEFAULT_NAME, false)
-  mod.gearBarManager.AddGearSlot(gearBar.id)
-  mod.gearBarManager.UpdateGearSlot(gearBar.id, 1, mod.gearManager.GetGearSlotForSlotId(INVSLOT_TRINKET1))
+  mod.gearBarManager.AddGearSlot(gearBar.id, true)
+  mod.gearBarManager.UpdateGearSlot(gearBar.id, 1, mod.gearManager.GetGearSlotForSlotId(INVSLOT_TRINKET1), true)
 
-  mod.gearBarManager.AddGearSlot(gearBar.id)
-  mod.gearBarManager.UpdateGearSlot(gearBar.id, 2, mod.gearManager.GetGearSlotForSlotId(INVSLOT_TRINKET2))
+  mod.gearBarManager.AddGearSlot(gearBar.id, true)
+  mod.gearBarManager.UpdateGearSlot(gearBar.id, 2, mod.gearManager.GetGearSlotForSlotId(INVSLOT_TRINKET2), true)
 
-  mod.gearBarManager.AddGearSlot(gearBar.id)
-  mod.gearBarManager.UpdateGearSlot(gearBar.id, 3, mod.gearManager.GetGearSlotForSlotId(INVSLOT_HEAD))
+  mod.gearBarManager.AddGearSlot(gearBar.id, true)
+  mod.gearBarManager.UpdateGearSlot(gearBar.id, 3, mod.gearManager.GetGearSlotForSlotId(INVSLOT_HEAD), true)
 
   GearMenuConfiguration.firstTimeInitializationDone = true
 end
