@@ -1,6 +1,7 @@
 # Fixes
 
-* Fix initial setup of GearMenu for firstTime users (no configuration present)
-* Fix multiple issue with setting keyBinds
-  * Keybinds are now correctly fixed if a slot is deleted and another sloth moves into its place
-  * Do not lose reference to orphaned GearSlots they cannot be recreated but rather have to be reused
+* #82 Increase bordersize to more closely match initial value
+
+# Updates
+
+* Update zhCN translation (thanks to @T3rdW) - see https://github.com/RagedUnicorn/wow-bcc-gearmenu/pull/1
