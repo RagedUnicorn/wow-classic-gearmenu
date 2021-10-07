@@ -104,7 +104,7 @@ end
     The created highlightFrame
 ]]--
 function me.CreateHighlightFrame(slot)
-  local highlightFrame = CreateFrame("FRAME", nil, slot)
+  local highlightFrame = CreateFrame("FRAME", nil, slot, "BackdropTemplate")
   highlightFrame:SetFrameLevel(slot:GetFrameLevel() + 1)
   highlightFrame:SetPoint("TOPLEFT", slot, "TOPLEFT")
   highlightFrame:SetPoint("BOTTOMRIGHT", slot, "BOTTOMRIGHT")

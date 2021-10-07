@@ -290,7 +290,7 @@ end
     The created row
 ]]--
 function me.CreateGearBarListRowFrame(frame, position)
-  local row = CreateFrame("Button",  RGGM_CONSTANTS.ELEMENT_GEAR_BAR_ROW_FRAME .. position, frame)
+  local row = CreateFrame("Button",  RGGM_CONSTANTS.ELEMENT_GEAR_BAR_ROW_FRAME .. position, frame, "BackdropTemplate")
   row:SetSize(frame:GetWidth(), RGGM_CONSTANTS.GEAR_BAR_LIST_ROW_HEIGHT)
   row:SetPoint("TOPLEFT", frame, 0, (position -1) * RGGM_CONSTANTS.GEAR_BAR_LIST_ROW_HEIGHT * -1)
   row:SetBackdrop({

@@ -402,7 +402,7 @@ function me.CreateRulesList(frame)
     "ScrollFrame",
     RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_RULES_SCROLL_FRAME,
     frame,
-    "FauxScrollFrameTemplate"
+    "FauxScrollFrameTemplate, BackdropTemplate"
   )
   scrollFrame:SetWidth(RGGM_CONSTANTS.QUICK_CHANGE_RULES_CONTENT_FRAME_WIDTH)
   scrollFrame:SetHeight(
@@ -734,7 +734,7 @@ end
     The created scrollFrame
 ]]--
 function me.CreateFauxScrollFrame(scrollFrameName, frame, width, callback, storage)
-  local scrollFrame = CreateFrame("ScrollFrame", scrollFrameName, frame, "FauxScrollFrameTemplate")
+  local scrollFrame = CreateFrame("ScrollFrame", scrollFrameName, frame, "FauxScrollFrameTemplate, BackdropTemplate")
   scrollFrame:SetWidth(width)
   scrollFrame:SetHeight(RGGM_CONSTANTS.QUICK_CHANGE_ROW_HEIGHT * RGGM_CONSTANTS.QUICK_CHANGE_MAX_ROWS)
   scrollFrame:EnableMouseWheel(true)

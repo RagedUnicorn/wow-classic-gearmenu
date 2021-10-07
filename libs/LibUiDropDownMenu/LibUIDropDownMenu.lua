@@ -242,7 +242,7 @@ local function creatre_UIDropDownList(name, parent)
   f:SetFrameStrata("DIALOG")
   f:EnableMouse(true)
 
-  f.Border = _G[name .. "Border"] or CreateFrame("Frame", name .. "Border", f, nil)
+  f.Border = _G[name .. "Border"] or CreateFrame("Frame", name .. "Border", f, "BackdropTemplate")
   f.Border:SetAllPoints()
   f.Border:SetBackdrop({
     bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background-Dark",
@@ -253,7 +253,7 @@ local function creatre_UIDropDownList(name, parent)
     insets = { left = 11, right = 12, top = 12, bottom = 9, },
   })
 
-  f.MenuBackdrop= _G[name .. "MenuBackdrop"] or CreateFrame("Frame", name .. "MenuBackdrop", f, nil)
+  f.MenuBackdrop= _G[name .. "MenuBackdrop"] or CreateFrame("Frame", name .. "MenuBackdrop", f, "BackdropTemplate")
   f.MenuBackdrop:SetAllPoints()
   f.MenuBackdrop:SetBackdrop({
     bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",

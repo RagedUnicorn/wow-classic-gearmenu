@@ -73,7 +73,8 @@ function me.BuildGearBar(gearBar)
   local gearBarFrame = CreateFrame(
     "Frame",
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_BASE_FRAME_NAME .. gearBar.id,
-    UIParent
+    UIParent,
+    "BackdropTemplate"
   )
   gearBarFrame:SetWidth(RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN)
   gearBarFrame:SetHeight(RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE)
@@ -135,7 +136,7 @@ function me.CreateGearSlot(gearBarFrame, gearBar, position)
     "Button",
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT .. position,
     gearBarFrame,
-    "SecureActionButtonTemplate"
+    "SecureActionButtonTemplate, BackdropTemplate"
   )
 
   gearSlot:SetFrameLevel(gearBarFrame:GetFrameLevel() + 1)

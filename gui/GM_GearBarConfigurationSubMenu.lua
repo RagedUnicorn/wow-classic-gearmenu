@@ -572,7 +572,12 @@ end
     The created row
 ]]--
 function me.CreateGearBarConfigurationSlotsListRowFrame(frame, position)
-  local row = CreateFrame("Button",  RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SLOTS_ROW_FRAME .. position, frame)
+  local row = CreateFrame(
+    "Button",
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SLOTS_ROW_FRAME .. position,
+    frame,
+    "BackdropTemplate"
+  )
   row:SetSize(frame:GetWidth(), RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_ROW_HEIGHT)
   row:SetPoint("TOPLEFT", frame, 0, (position -1) * RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_ROW_HEIGHT * -1)
   row:SetBackdrop({
@@ -602,7 +607,7 @@ end
     The created texture
 ]]--
 function me.CreateGearBarConfigurationSlotIcon(row)
-  local iconHolder = CreateFrame("Frame", nil, row)
+  local iconHolder = CreateFrame("Frame", nil, row, "BackdropTemplate")
   iconHolder:SetSize(
     RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_GEAR_SLOT_ICON_SIZE + 5,
     RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_GEAR_SLOT_ICON_SIZE + 5
