@@ -127,7 +127,7 @@
                   <changelogFile>${basedir}/build-resources/release-notes.md</changelogFile>
                   <changelogType>markdown</changelogType>
                   <gameVersions>
-                    <gameVersion>8292</gameVersion>
+                    <gameVersion>8668</gameVersion>
                   </gameVersions>
                   <releaseType>release</releaseType>
                   <file>${basedir}/target/${addon.name}.zip</file>
