@@ -165,7 +165,7 @@ function me.UpdateChangeMenu(gearSlotPosition, gearBarId)
     local items = mod.itemManager.GetItemsForInventoryType(gearSlotMetaData.type)
 
     me.UpdateChangeSlots(gearBar.changeSlotSize, gearSlotMetaData, items)
-    me.UpdateChangeMenuSize(gearBar.changeSlotSize, #items)
+    me.UpdateChangeMenuSize(gearBar.changeSlotSize, gearSlotMetaData, #items)
     me.UpdateChangeMenuPosition(
       uiGearBar.gearSlotReferences[changeMenuFrame.gearSlotPosition]
     )
@@ -329,17 +329,22 @@ end
   Updates the changeMenuFrame size depending on how many changeslots are displayed at the time
 
   @param {number} changeSlotSize
+  @param {table} gearSlotMetaData
   @param {number} itemCount
 ]]--
-function me.UpdateChangeMenuSize(changeSlotSize, itemCount)
+function me.UpdateChangeMenuSize(changeSlotSize, gearSlotMetaData, itemCount)
   local rows
+  local totalItems
 
   if itemCount > RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT then
     rows = RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT / RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT
   else
-    local totalItems
-
-    if mod.configuration.IsUnequipSlotEnabled() then
+    --[[
+      If unequipSlot is enabled we increase the itemCount by 1
+      If unequipSlot is enabled but the player is not wearing anything in that slot we do not
+      display the unequipSlot and thus it should not be counted towards the totalItems
+    ]]--
+    if mod.configuration.IsUnequipSlotEnabled() and mod.itemManager.HasItemEquipedInSlot(gearSlotMetaData.slotId) then
       totalItems = itemCount + 1
     else
       totalItems = itemCount
@@ -352,7 +357,7 @@ function me.UpdateChangeMenuSize(changeSlotSize, itemCount)
   if rows < 1 then rows = 1 end
 
   changeMenuFrame:SetHeight(math.ceil(rows) * changeSlotSize)
-  changeMenuFrame:SetWidth(RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT * changeSlotSize)
+  changeMenuFrame:SetWidth((totalItems or itemCount) * changeSlotSize)
 end
 
 --[[
