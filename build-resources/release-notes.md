@@ -1,7 +1,8 @@
 # Fixes
 
-* #82 Increase bordersize to more closely match initial value
+* Fix changeMenu size bug
+  * Fixing a bug where changeMenu size was bigger than intended
 
 # Updates
 
-* Update zhCN translation (thanks to @T3rdW) - see https://github.com/RagedUnicorn/wow-bcc-gearmenu/pull/1
+* Update Interface Version to 11400(1.14.0)
