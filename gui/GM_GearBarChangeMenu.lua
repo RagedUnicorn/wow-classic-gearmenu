@@ -48,7 +48,8 @@ local changeMenuSlots = {}
 ]]--
 function me.BuildChangeMenu()
   changeMenuFrame = CreateFrame("Frame", RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_FRAME, nil, "BackdropTemplate")
-  changeMenuFrame:SetWidth(RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT * RGGM_CONSTANTS.GEAR_BAR_CHANGE_DEFAULT_SLOT_SIZE)
+  changeMenuFrame:SetWidth(
+    RGGM_CONSTANTS.GEAR_BAR_CHANGE_COLUMN_AMOUNT * RGGM_CONSTANTS.GEAR_BAR_CHANGE_DEFAULT_SLOT_SIZE)
   changeMenuFrame:SetHeight(RGGM_CONSTANTS.GEAR_BAR_CHANGE_DEFAULT_HEIGHT)
   changeMenuFrame:SetPoint("CENTER")
   changeMenuFrame:SetBackdropColor(0, 0, 0, .5)
@@ -63,10 +64,10 @@ end
   Create all changeslots initial representation
 ]]--
 function me.CreateChangeSlots()
-  for index = 1, RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT, RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT do
-    local row = math.floor(index / RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT)
+  for index = 1, RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT, RGGM_CONSTANTS.GEAR_BAR_CHANGE_COLUMN_AMOUNT do
+    local row = math.floor(index / RGGM_CONSTANTS.GEAR_BAR_CHANGE_COLUMN_AMOUNT)
 
-    for column = 1, RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT do
+    for column = 1, RGGM_CONSTANTS.GEAR_BAR_CHANGE_COLUMN_AMOUNT do
       if index + column - 1 > RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT then break end
 
       local yPos = row * RGGM_CONSTANTS.GEAR_BAR_CHANGE_DEFAULT_SLOT_SIZE
@@ -186,16 +187,16 @@ end
 function me.UpdateChangeSlots(changeSlotSize, gearSlotMetaData, items)
   local emptySlotPosition = {row = 0, xPos = 0, yPos = 0}
 
-  for index = 1, #items, RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT do
+  for index = 1, #items, RGGM_CONSTANTS.GEAR_BAR_CHANGE_COLUMN_AMOUNT do
     if index > RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT_ITEMS then
       mod.logger.LogInfo(me.tag, "All changeMenuSlots are in use skipping rest of items...")
       break
     end
 
-    local row = math.floor(index/RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT)
+    local row = math.floor(index/RGGM_CONSTANTS.GEAR_BAR_CHANGE_COLUMN_AMOUNT)
     local lastColumn
 
-    for column = 1, RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT do
+    for column = 1, RGGM_CONSTANTS.GEAR_BAR_CHANGE_COLUMN_AMOUNT do
       local actualIndex = index + column - 1
       local yPos = row * changeSlotSize
       local xPos = (column - 1) * changeSlotSize
@@ -211,7 +212,7 @@ function me.UpdateChangeSlots(changeSlotSize, gearSlotMetaData, items)
       lastColumn = column
     end
 
-    if lastColumn == RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT then
+    if lastColumn == RGGM_CONSTANTS.GEAR_BAR_CHANGE_COLUMN_AMOUNT then
       -- last spot on column was used put empty slot on new row
       emptySlotPosition.row = row + 1
       emptySlotPosition.xPos = 0
@@ -337,7 +338,7 @@ function me.UpdateChangeMenuSize(changeSlotSize, gearSlotMetaData, itemCount)
   local totalItems
 
   if itemCount > RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT then
-    rows = RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT / RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT
+    rows = RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT / RGGM_CONSTANTS.GEAR_BAR_CHANGE_COLUMN_AMOUNT
   else
     --[[
       If unequipSlot is enabled we increase the itemCount by 1
@@ -350,7 +351,7 @@ function me.UpdateChangeMenuSize(changeSlotSize, gearSlotMetaData, itemCount)
       totalItems = itemCount
     end
 
-    rows = totalItems / RGGM_CONSTANTS.GEAR_BAR_CHANGE_ROW_AMOUNT
+    rows = totalItems / RGGM_CONSTANTS.GEAR_BAR_CHANGE_COLUMN_AMOUNT
   end
 
   -- special case for if only one row needs to be displayed
