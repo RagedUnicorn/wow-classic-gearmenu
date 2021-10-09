@@ -126,32 +126,49 @@ end
 
   Possible values for locType:
 
-  | STUN_MECHANIC    | CONFIRMED | RELEVANT   |
-  | SCHOOL_INTERRUPT | CONFIRMED | IRRELEVANT |
-  | DISARM           |           | IRRELEVANT |
-  | PACIFYSILENCE    |           | IRRELEVANT |
-  | SILENCE          | CONFIRMED | IRRELEVANT |
-  | PACIFY           |           |            |
-  | ROOT             |           | IRRELEVANT |
-  | STUN             | CONFIRMED | RELEVANT   |
-  | FEAR_MECHANIC    | CONFIRMED | RELEVANT   |
-  | CHARM            |           |            |
-  | CONFUSE          | CONFIRMED | RELEVANT   |
-  | POSSESS          | CONFIRMED | IRRELEVANT |
+  | SCHOOL_INTERRUPT | IRRELEVANT |
+  | DISARM           | IRRELEVANT |
+  | PACIFYSILENCE    | IRRELEVANT |
+  | SILENCE          | IRRELEVANT |
+  | PACIFY           | IRRELEVANT |
+  | ROOT             | IRRELEVANT |
+  | STUN_MECHANIC    | RELEVANT   |
+  | STUN             | RELEVANT   |
+  | FEAR_MECHANIC    | RELEVANT   |
+  | FEAR             | RELEVANT   |
+  | CHARM            | RELEVANT   |
+  | CONFUSE          | RELEVANT   |
+  | POSSESS          | RELEVANT   |
 ]]--
 function me.UpdateEquipChangeBlockStatus()
-  local eventIndex = C_LossOfControl.GetNumEvents()
+  local relevantLocTypes = {
+    ["SCHOOL_INTERRUPT"] = false,
+    ["DISARM"] = false,
+    ["PACIFYSILENCE"] = false,
+    ["SILENCE"] = false,
+    ["PACIFY"] = false,
+    ["ROOT"] = false,
+    ["STUN_MECHANIC"] = true,
+    ["STUN"] = true,
+    ["FEAR_MECHANIC"] = true,
+    ["FEAR"] = true,
+    ["CHARM"] = true,
+    ["CONFUSE"] = true,
+    ["POSSESS"] = true
+  }
+  local eventIndex = C_LossOfControl.GetActiveLossOfControlDataCount()
 
   while eventIndex > 0 do
-    local locType = C_LossOfControl.GetEventInfo(eventIndex)
+    local event = C_LossOfControl.GetActiveLossOfControlData(eventIndex)
 
-    mod.logger.LogDebug(me.tag, "UpdateEquipChangeBlockStatus detected locType: " .. locType)
+    mod.logger.LogDebug(me.tag, "UpdateEquipChangeBlockStatus detected locType: " .. event.locType)
 
-    if locType == "STUN_MECHANIC" or locType == "STUN" or locType == "FEAR_MECHANIC" or locType == "CONFUSE"
-        or locType == "POSSESS" then
+    if relevantLocTypes[event.locType] then
       isEquipChangeBlocked = true
+
       return
     end
+
     eventIndex = eventIndex - 1
   end
 
