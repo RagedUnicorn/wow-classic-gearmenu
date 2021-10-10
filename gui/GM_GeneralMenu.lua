@@ -33,12 +33,34 @@ me.tag = "GeneralMenu"
 --[[
   Option texts for checkbutton options
 ]]--
-local options = {
-  {"EnableTooltips", rggm.L["enable_tooltips"], rggm.L["enable_tooltips_tooltip"]},
-  {"EnableSimpleTooltips", rggm.L["enable_simple_tooltips"], rggm.L["enable_simple_tooltips_tooltip"]},
-  {"EnableDragAndDrop", rggm.L["enable_drag_and_drop"], rggm.L["enable_drag_and_drop_tooltip"]},
-  {"EnableFastPress", rggm.L["enable_fast_press"], rggm.L["enable_fast_press_tooltip"]},
-  {"EnableUnequipSlot", rggm.L["enable_unequip_slot"], rggm.L["enable_unequip_slot_tooltip"]}
+local enableTooltipsMetaData = {
+  "EnableTooltips",
+  rggm.L["enable_tooltips"],
+  rggm.L["enable_tooltips_tooltip"]
+}
+
+local enableSimpleTooltipsMetaData = {
+  "EnableSimpleTooltips",
+  rggm.L["enable_simple_tooltips"],
+  rggm.L["enable_simple_tooltips_tooltip"]
+}
+
+local enableDragAndDropMetaData = {
+  "EnableDragAndDrop",
+  rggm.L["enable_drag_and_drop"],
+  rggm.L["enable_drag_and_drop_tooltip"]
+}
+
+local enableFastPressMetaData = {
+  "EnableFastPress",
+  rggm.L["enable_fast_press"],
+  rggm.L["enable_fast_press_tooltip"]
+}
+
+local enableUnequipSlotMetaData = {
+  "EnableUnequipSlot",
+  rggm.L["enable_unequip_slot"],
+  rggm.L["enable_unequip_slot_tooltip"]
 }
 
 -- track whether the menu was already built
@@ -61,52 +83,52 @@ function me.BuildUi(parentFrame)
 
   me.CreateGeneralMenuTitle(generalMenuContentFrame)
 
-  me.BuildCheckButtonOption(
+  mod.uiHelper.BuildCheckButtonOption(
     generalMenuContentFrame,
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_TOOLTIPS,
-    20,
-    -80,
+    {"TOPLEFT", 20, -80},
     me.EnableTooltipsOnShow,
-    me.EnableTooltipsOnClick
+    me.EnableTooltipsOnClick,
+    enableTooltipsMetaData
   )
 
-  me.BuildCheckButtonOption(
+  mod.uiHelper.BuildCheckButtonOption(
     generalMenuContentFrame,
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_SIMPLE_TOOLTIPS,
-    20,
-    -110,
+    {"TOPLEFT", 20, -110},
     me.EnableSimpleTooltipsOnShow,
-    me.EnableSimpleTooltipsOnClick
+    me.EnableSimpleTooltipsOnClick,
+    enableSimpleTooltipsMetaData
   )
 
-  me.BuildCheckButtonOption(
+  mod.uiHelper.BuildCheckButtonOption(
     generalMenuContentFrame,
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_DRAG_AND_DROP,
-    20,
-    -140,
+    {"TOPLEFT", 20, -140},
     me.EnableDragAndDropOnShow,
-    me.EnableDragAndDropOnClick
+    me.EnableDragAndDropOnClick,
+    enableDragAndDropMetaData
   )
 
-  me.BuildCheckButtonOption(
+  mod.uiHelper.BuildCheckButtonOption(
     generalMenuContentFrame,
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_FASTPRESS,
-    20,
-    -170,
+    {"TOPLEFT", 20, -170},
     me.EnableFastPressOnShow,
-    me.EnableFastPressOnClick
+    me.EnableFastPressOnClick,
+    enableFastPressMetaData
   )
 
   --[[
     From here on move options to "second row"
   ]]--
-  me.BuildCheckButtonOption(
+  mod.uiHelper.BuildCheckButtonOption(
     generalMenuContentFrame,
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_UNEQUIP_SLOT,
-    280,
-    -80,
+    {"TOPLEFT", 280, -80},
     me.EnableUnequipSlotOnShow,
-    me.EnableUnequipSlotOnClick
+    me.EnableUnequipSlotOnClick,
+    enableUnequipSlotMetaData
   )
 
   me.CreateItemQualityLabel(generalMenuContentFrame)
@@ -124,86 +146,6 @@ function me.CreateGeneralMenuTitle(contentFrame)
   titleFontString:SetPoint("TOP", 0, -20)
   titleFontString:SetSize(contentFrame:GetWidth(), 20)
   titleFontString:SetText(rggm.L["general_title"])
-end
-
---[[
-  Build a checkbutton option
-
-  @param {table} parentFrame
-  @param {string} optionFrameName
-  @param {number} posX
-  @param {number} posY
-  @param {function} onShowCallback
-  @param {function} onClickCallback
-]]--
-function me.BuildCheckButtonOption(parentFrame, optionFrameName, posX, posY, onShowCallback, onClickCallback)
-  local checkButtonOptionFrame = CreateFrame("CheckButton", optionFrameName, parentFrame, "UICheckButtonTemplate")
-  checkButtonOptionFrame:SetSize(
-    RGGM_CONSTANTS.CHECK_OPTION_SIZE,
-    RGGM_CONSTANTS.CHECK_OPTION_SIZE
-  )
-  checkButtonOptionFrame:SetPoint("TOPLEFT", posX, posY)
-
-  for _, region in ipairs({checkButtonOptionFrame:GetRegions()}) do
-    if string.find(region:GetName() or "", "Text$") and region:IsObjectType("FontString") then
-      region:SetFont(STANDARD_TEXT_FONT, 15)
-      region:SetTextColor(.95, .95, .95)
-      region:SetText(me.GetLabelText(checkButtonOptionFrame))
-      break
-    end
-  end
-
-  checkButtonOptionFrame:SetScript("OnEnter", me.OptTooltipOnEnter)
-  checkButtonOptionFrame:SetScript("OnLeave", me.OptTooltipOnLeave)
-  checkButtonOptionFrame:SetScript("OnShow", onShowCallback)
-  checkButtonOptionFrame:SetScript("OnClick", onClickCallback)
-  -- load initial state
-  onShowCallback(checkButtonOptionFrame)
-end
-
---[[
-  Get the label text for the checkbutton
-
-  @param {table} frame
-
-  @return {string}
-    The text for the label
-]]--
-function me.GetLabelText(frame)
-  local name = frame:GetName()
-
-  if not name then return end
-
-  for i = 1, table.getn(options) do
-    if name == RGGM_CONSTANTS.ELEMENT_GENERAL_OPT .. options[i][1] then
-      return options[i][2]
-    end
-  end
-end
-
---[[
-  OnEnter callback for checkbuttons - show tooltip
-
-  @param {table} self
-]]--
-function me.OptTooltipOnEnter(self)
-  local name = self:GetName()
-
-  if not name then return end
-
-  for i = 1, table.getn(options) do
-    if name == RGGM_CONSTANTS.ELEMENT_GENERAL_OPT .. options[i][1] then
-      mod.tooltip.BuildTooltipForOption(options[i][2], options[i][3])
-      break
-    end
-  end
-end
-
---[[
-  OnEnter callback for checkbuttons - hide tooltip
-]]--
-function me.OptTooltipOnLeave()
-  _G[RGGM_CONSTANTS.ELEMENT_TOOLTIP]:Hide()
 end
 
 --[[
