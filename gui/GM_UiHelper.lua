@@ -37,7 +37,6 @@ me.tag = "UiHelper"
 
   @param {table} slot
   @param {number} slotSize
-    Optional slotSize
 ]]--
 function me.UpdateSlotTextureAttributes(slot, slotSize)
   if slot:GetNormalTexture() == nil then
@@ -45,22 +44,21 @@ function me.UpdateSlotTextureAttributes(slot, slotSize)
     slot:SetNormalTexture("//dummy")
   end
 
-  local actualSlotSize = slotSize or RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE
   local texture = slot:GetNormalTexture()
   texture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
   texture:SetPoint(
     "TOPLEFT",
     slot,
     "TOPLEFT",
-    actualSlotSize * RGGM_CONSTANTS.GEAR_BAR_SLOT_BORDER_MODIFIER,
-    actualSlotSize * RGGM_CONSTANTS.GEAR_BAR_SLOT_BORDER_MODIFIER * -1
+    slotSize * RGGM_CONSTANTS.GEAR_BAR_SLOT_BORDER_MODIFIER,
+    slotSize * RGGM_CONSTANTS.GEAR_BAR_SLOT_BORDER_MODIFIER * -1
   )
   texture:SetPoint(
     "BOTTOMRIGHT",
     slot,
     "BOTTOMRIGHT",
-    actualSlotSize * RGGM_CONSTANTS.GEAR_BAR_SLOT_BORDER_MODIFIER * -1,
-    actualSlotSize * RGGM_CONSTANTS.GEAR_BAR_SLOT_BORDER_MODIFIER
+    slotSize * RGGM_CONSTANTS.GEAR_BAR_SLOT_BORDER_MODIFIER * -1,
+    slotSize * RGGM_CONSTANTS.GEAR_BAR_SLOT_BORDER_MODIFIER
   )
 end
 
@@ -147,4 +145,121 @@ function me.CreateDropdownButton(text, value, callback)
   button.func = callback
 
   return button
+end
+
+--[[
+  Build a checkbutton option
+
+  @param {table} parentFrame
+  @param {string} optionFrameName
+  @param {table} position
+  @param {function} onShowCallback
+  @param {function} onClickCallback
+  @param {table} checkBoxMetadata
+    A table of {elementName, checkBoxTextLabel, tooltipText}
+]]--
+function me.BuildCheckButtonOption(
+    parentFrame, optionFrameName, position, onShowCallback, onClickCallback, checkBoxMetadata)
+
+  local checkButtonOptionFrame = CreateFrame("CheckButton", optionFrameName, parentFrame, "UICheckButtonTemplate")
+  checkButtonOptionFrame:SetSize(
+    RGGM_CONSTANTS.CHECK_OPTION_SIZE,
+    RGGM_CONSTANTS.CHECK_OPTION_SIZE
+  )
+  checkButtonOptionFrame:SetPoint(unpack(position))
+
+  for _, region in ipairs({checkButtonOptionFrame:GetRegions()}) do
+    if string.find(region:GetName() or "", "Text$") and region:IsObjectType("FontString") then
+      region:SetFont(STANDARD_TEXT_FONT, 15)
+      region:SetTextColor(.95, .95, .95)
+      region:SetText(checkBoxMetadata[2])
+      break
+    end
+  end
+
+  checkButtonOptionFrame:SetScript("OnEnter", function(self)
+    me.OptTooltipOnEnter(self, checkBoxMetadata)
+  end)
+  checkButtonOptionFrame:SetScript("OnLeave", function(self)
+    me.OptTooltipOnLeave(self)
+  end)
+  checkButtonOptionFrame:SetScript("OnShow", onShowCallback)
+  checkButtonOptionFrame:SetScript("OnClick", onClickCallback)
+  -- load initial state
+  onShowCallback(checkButtonOptionFrame)
+end
+
+--[[
+  OnEnter callback for checkbuttons - show tooltip
+
+  @param {table} self
+]]--
+function me.OptTooltipOnEnter(self, checkBoxMetadata)
+  local name = self:GetName()
+
+  if not name then return end
+
+  mod.tooltip.BuildTooltipForOption(checkBoxMetadata[2], checkBoxMetadata[3])
+end
+
+--[[
+  OnEnter callback for checkbuttons - hide tooltip
+]]--
+function me.OptTooltipOnLeave()
+  _G[RGGM_CONSTANTS.ELEMENT_TOOLTIP]:Hide()
+end
+
+--[[
+  Create a slider for changing the size of the gearSlots
+
+  @param {table} parentFrame
+  @param {string} sliderName
+  @param {table} position
+    An object that can be unpacked into SetPoint
+  @param {number} sliderMinValue
+  @param {number} sliderMaxValue
+  @param {number} defaultValue
+  @param {string} sliderTitle
+  @param {string} sliderTooltip
+  @param {function} onShowCallback
+  @param {function} OnValueChangedCallback
+]]--
+function me.CreateSizeSlider(parentFrame, sliderName, position, sliderMinValue, sliderMaxValue, defaultValue,
+    sliderTitle, sliderTooltip, onShowCallback, OnValueChangedCallback)
+
+  local sliderFrame = CreateFrame(
+    "Slider",
+    sliderName,
+    parentFrame,
+    "OptionsSliderTemplate"
+  )
+  sliderFrame:SetWidth(RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_WIDTH)
+  sliderFrame:SetHeight(RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_HEIGHT)
+  sliderFrame:SetOrientation('HORIZONTAL')
+  sliderFrame:SetPoint(unpack(position))
+  sliderFrame:SetMinMaxValues(
+    sliderMinValue,
+    sliderMaxValue
+  )
+  sliderFrame:SetValueStep(RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_STEP)
+  sliderFrame:SetObeyStepOnDrag(true)
+  sliderFrame:SetValue(defaultValue)
+
+  -- Update slider texts
+  _G[sliderFrame:GetName() .. "Low"]:SetText(sliderMinValue)
+  _G[sliderFrame:GetName() .. "High"]:SetText(sliderMaxValue)
+  _G[sliderFrame:GetName() .. "Text"]:SetText(sliderTitle)
+  sliderFrame.tooltipText = sliderTooltip
+
+  local valueFontString = sliderFrame:CreateFontString(nil, "OVERLAY")
+  valueFontString:SetFont(STANDARD_TEXT_FONT, 12)
+  valueFontString:SetPoint("BOTTOM", 0, -15)
+  valueFontString:SetText(sliderFrame:GetValue())
+
+  sliderFrame.valueFontString = valueFontString
+  sliderFrame:SetScript("OnValueChanged", OnValueChangedCallback)
+  sliderFrame:SetScript("OnShow", onShowCallback)
+
+  -- load initial state
+  onShowCallback(sliderFrame)
 end

@@ -121,12 +121,18 @@ function me.OnEvent(event, ...)
 
     if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER and initializationDone then
       me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarVisual)
+      if me.configuration.IsTrinketMenuEnabled() then
+        me.trinketMenu.UpdateTrinketMenu()
+      end
     end
   elseif event == "BAG_UPDATE_COOLDOWN" then
     me.logger.LogEvent(me.tag, "BAG_UPDATE_COOLDOWN")
 
     if initializationDone then
       me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarGearSlotCooldowns)
+      if me.configuration.IsTrinketMenuEnabled() then
+        me.trinketMenu.UpdateTrinketMenuSlotCooldowns()
+      end
     end
   elseif event == "UPDATE_BINDINGS" then
     me.logger.LogEvent(me.tag, "UPDATE_BINDINGS")
@@ -220,6 +226,14 @@ function me.Initialize()
   me.gearBarChangeMenu.BuildChangeMenu()
   -- update initial view of gearBars after addon initialization
   me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarVisual)
+
+  if me.configuration.IsTrinketMenuEnabled() then
+    -- build ui for trinketMenu
+    me.trinketMenu.BuildTrinketMenu()
+    -- update initial view of trinketMenu
+    me.trinketMenu.UpdateTrinketMenu()
+  end
+
   --[[
     Manual call for UPDATE_BINDINGS because we can only update the keyBindings after the ui is present
   ]]--

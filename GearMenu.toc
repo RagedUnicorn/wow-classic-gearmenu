@@ -45,11 +45,13 @@ gui/GM_Frame.xml
 gui/GM_UiHelper.lua
 gui/GM_GearBar.lua
 gui/GM_GearBarChangeMenu.lua
+gui/GM_TrinketMenu.lua
 gui/Gm_GearBarStorage.lua
 gui/GM_GearBarConfigurationMenu.lua
 gui/GM_GearBarConfigurationSubMenu.lua
 gui/GM_AddonConfiguration.lua
 gui/GM_AboutContent.lua
 gui/GM_GeneralMenu.lua
+gui/GM_TrinketConfigurationMenu.lua
 gui/GM_QuickChangeMenu.lua
 gui/GM_KeyBind.lua

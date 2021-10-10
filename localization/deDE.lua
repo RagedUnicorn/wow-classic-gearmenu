@@ -63,6 +63,21 @@ if (GetLocale() == "deDE") then
   rggm.L["quick_change_unable_to_add_rule_duplicate"] = "Konnte neue Regel nicht hinzufügen "
     .. "- Eine Regel für diesen Gegenstand existiert bereits"
 
+  -- trinketMenu
+  rggm.L["trinket_menu_category_name"] = "TrinketMenu"
+  rggm.L["trinket_menu_title"] = "Trinket Menu Einstellungen"
+  rggm.L["enable_trinket_menu"] = "Aktiviere TrinketMenu"
+  rggm.L["enable_trinket_menu_tooltip"] = "Aktiviere oder deaktiviere die Anzeige des TrinketMenus"
+  rggm.L["window_lock_trinket_menu"] = "Sperre TrinketMenu"
+  rggm.L["window_lock_trinket_menu_tooltip"] = "Verhindert das verschieben des TrinketMenus"
+  rggm.L["shoow_cooldowns_trinket_menu"] = "Zeige Abklingzeiten"
+  rggm.L["shoow_cooldowns_trinket_menu_tooltip"] = "Aktiviere die Anzeige der Abklingzeiten"
+  rggm.L["trinket_menu_column_amount_slider_title"] = "Spalten"
+  rggm.L["trinket_menu_column_amount_slider_tooltip"] =
+    "Anzahl Spalten die benutzt werden für die anzeige des TrinketMenus"
+  rggm.L["trinket_menu_slot_size_slider_title"] = "Schmuckstückslot Grösse"
+  rggm.L["trinket_menu_slot_size_slider_tooltip"] = "Konfiguriere die Grösse der Schmuckstückslots"
+
   -- slot translations
   rggm.L["slot_name_head"] = "Kopf"
   rggm.L["slot_name_neck"] = "Hals"

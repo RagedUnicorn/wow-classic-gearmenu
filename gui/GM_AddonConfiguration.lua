@@ -47,6 +47,12 @@ function me.SetupAddonConfiguration()
     mod.generalMenu.BuildUi
   )
   me.BuildCategory(
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_TRINKET_MENU_FRAME,
+    panel.main,
+    rggm.L["trinket_menu_category_name"],
+    mod.trinketConfigurationMenu.BuildUi
+  )
+  me.BuildCategory(
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_QUICK_CHANGE_FRAME,
     panel.main,
     rggm.L["quick_change_category_name"],

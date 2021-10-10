@@ -108,7 +108,40 @@ GearMenuConfiguration = {
       ["delay"] = {number} -- delay in seconds
     }
   ]]--
-  ["quickChangeRules"] = {}
+  ["quickChangeRules"] = {},
+  --[[
+    Framepositions for user draggable Frames
+    frames = {
+      -- should match the actual frame name
+      ["framename"] = {
+      point: "CENTER",
+        posX: 0,
+        posY: 0
+      }
+      ...
+    }
+  ]]--
+  ["frames"] = {},
+  --[[
+    Whether the trinketMenu is enabled or not
+  ]]--
+  ["enableTrinketMenu"] = true,
+  --[[
+    Whether the trinketMenuFrame is locked or not
+  ]]--
+  ["lockTrinketMenuFrame"] = false,
+  --[[
+    Whether to show item cooldowns in the trinketMenu or not
+  ]]--
+  ["trinketMenuShowCooldowns"] = true,
+  --[[
+    The amount of columns to use when displaying the trinketMenu
+  ]]--
+  ["trinketMenuColumns"] = RGGM_CONSTANTS.TRINKET_MENU_DEFAULT_COLUMN_AMOUNT,
+  --[[
+    Configurable size of the trinketMenu slots
+  ]]--
+  ["trinketMenuSlotSize"] = RGGM_CONSTANTS.TRINKET_MENU_DEFAULT_SLOT_SIZE,
 }
 
 --[[
@@ -153,6 +186,36 @@ function me.SetupConfiguration()
   if GearMenuConfiguration.quickChangeRules == nil then
     mod.logger.LogInfo(me.tag, "quickChangeRules has unexpected nil value")
     GearMenuConfiguration.quickChangeRules = {}
+  end
+
+  if GearMenuConfiguration.frames == nil then
+    mod.logger.LogInfo(me.tag, "frames has unexpected nil value")
+    GearMenuConfiguration.frames = {}
+  end
+
+  if GearMenuConfiguration.enableTrinketMenu == nil then
+    mod.logger.LogInfo(me.tag, "enableTrinketMenu has unexpected nil value")
+    GearMenuConfiguration.enableTrinketMenu = true
+  end
+
+  if GearMenuConfiguration.lockTrinketMenuFrame == nil then
+    mod.logger.LogInfo(me.tag, "lockTrinketMenuFrame has unexpected nil value")
+    GearMenuConfiguration.lockTrinketMenuFrame = false
+  end
+
+  if GearMenuConfiguration.trinketMenuShowCooldowns == nil then
+    mod.logger.LogInfo(me.tag, "trinketMenuShowCooldowns has unexpected nil value")
+    GearMenuConfiguration.trinketMenuShowCooldowns = true
+  end
+
+  if GearMenuConfiguration.trinketMenuColumns == nil then
+    mod.logger.LogInfo(me.tag, "trinketMenuColumns has unexpected nil value")
+    GearMenuConfiguration.trinketMenuColumns = RGGM_CONSTANTS.TRINKET_MENU_DEFAULT_COLUMN_AMOUNT
+  end
+
+  if GearMenuConfiguration.trinketMenuSlotSize == nil then
+    mod.logger.LogInfo(me.tag, "trinketMenuSlotSize has unexpected nil value")
+    GearMenuConfiguration.trinketMenuSlotSize = RGGM_CONSTANTS.TRINKET_MENU_DEFAULT_SLOT_SIZE
   end
 
   --[[
@@ -505,4 +568,173 @@ end
 ]]--
 function me.RemoveQuickChangeRule(position)
   table.remove(GearMenuConfiguration.quickChangeRules, position)
+end
+
+--[[
+  Enable trinketMenu
+]]--
+function me.EnableTrinketMenu()
+  GearMenuConfiguration.enableTrinketMenu = true
+  mod.trinketMenu.EnableTrinketMenu()
+end
+
+--[[
+  Disable trinketMenu
+]]--
+function me.DisableTrinketMenu()
+  GearMenuConfiguration.enableTrinketMenu = false
+  mod.trinketMenu.DisableTrinketMenu()
+end
+
+--[[
+  @return {boolean}
+    true - if trinketMenu is enabled
+    false - if trinketMenu is disabled
+]]--
+function me.IsTrinketMenuEnabled()
+  return GearMenuConfiguration.enableTrinketMenu
+end
+
+--[[
+  Lock trinket menu frame
+]]--
+function me.LockTrinketMenuFrame()
+  GearMenuConfiguration.lockTrinketMenuFrame = true
+  mod.trinketMenu.UpdateTrinketMenuLockedState()
+end
+
+--[[
+  Unlock trinket menu frame
+]]--
+function me.UnlockTrinketMenuFrame()
+  GearMenuConfiguration.lockTrinketMenuFrame = false
+  mod.trinketMenu.UpdateTrinketMenuLockedState()
+end
+
+--[[
+  @return {boolean}
+    true - if trinket menu frame is locked
+    false - trinket menu frame is unlocked
+]]--
+function me.IsTrinketMenuFrameLocked()
+  return GearMenuConfiguration.lockTrinketMenuFrame
+end
+
+--[[
+  Show cooldowns
+]]--
+function me.EnableShowCooldowns()
+  GearMenuConfiguration.trinketMenuShowCooldowns = true
+  mod.trinketMenu.UpdateTrinketMenuSlotCooldowns()
+end
+
+--[[
+  Hide cooldowns
+]]--
+function me.DisableShowCooldowns()
+  GearMenuConfiguration.trinketMenuShowCooldowns = false
+  mod.trinketMenu.UpdateTrinketMenuSlotCooldowns()
+end
+
+--[[
+  @return {boolean}
+    true - if showing of cooldowns is enabled
+    false - if showing of cooldowns is disabled
+]]--
+function me.IsShowCooldownsEnabled()
+  return GearMenuConfiguration.trinketMenuShowCooldowns
+end
+
+--[[
+  Get the amount of columns to use when displaying the trinketMenu.
+  Returns the default value if the value was never changed by the player
+
+  @return {number}
+]]--
+function me.GetTrinketMenuColumnAmount()
+  return GearMenuConfiguration.trinketMenuColumns
+end
+
+--[[
+  Set the amount of columns to use when displaying the trinketMenu
+
+  @param {number} columnAmount
+]]--
+function me.SetTrinketMenuColumnAmount(columnAmount)
+  assert(type(columnAmount) == "number",
+    string.format(
+      "bad argument #1 to `SetTrinketMenuColumnAmount` (expected number got %s)", type(columnAmount)
+    )
+  )
+
+  GearMenuConfiguration.trinketMenuColumns = columnAmount
+end
+
+--[[
+  Get the trinketMenu slot size
+  Returns the default value if the value was never changed by the player
+
+  @return {number}
+]]--
+function me.GetTrinketMenuSlotSize()
+  return GearMenuConfiguration.trinketMenuSlotSize
+end
+
+--[[
+  Set the amount of columns to use when displaying the trinketMenu
+
+  @param {number} slotSize
+]]--
+function me.SetTrinketMenuSlotSize(slotSize)
+  assert(type(slotSize) == "number",
+    string.format(
+      "bad argument #1 to `SetTrinketMenuSlotSize` (expected number got %s)", type(slotSize)
+    )
+  )
+
+  GearMenuConfiguration.trinketMenuSlotSize = slotSize
+end
+
+--[[
+  Save the position of a frame in the addon variables allowing to persist its position
+
+  @param {string} frameName
+  @param {string} point
+  @param {string} relativeTo
+  @param {string} relativePoint
+  @param {number} posX
+  @param {number} posY
+]]--
+function me.SaveUserPlacedFramePosition(frameName, point, relativeTo, relativePoint, posX, posY)
+  if GearMenuConfiguration.frames[frameName] == nil then
+    GearMenuConfiguration.frames[frameName] = {}
+  end
+
+  GearMenuConfiguration.frames[frameName].posX = posX
+  GearMenuConfiguration.frames[frameName].posY = posY
+  GearMenuConfiguration.frames[frameName].point = point
+  GearMenuConfiguration.frames[frameName].relativeTo = relativeTo
+  GearMenuConfiguration.frames[frameName].relativePoint = relativePoint
+
+  mod.logger.LogDebug(me.tag, "Saved frame position for - " .. frameName
+    .. " - new pos: posX " .. posX .. " posY " .. posY .. " point " .. point)
+end
+
+--[[
+  Get the position of a saved frame
+
+  @param {string} frameName
+
+  @return {table | nil}
+    table - the returned x and y position
+    nil - if no frame with the passed name could be found
+]]--
+function me.GetUserPlacedFramePosition(frameName)
+  local frameConfig = GearMenuConfiguration.frames[frameName]
+
+  if type(frameConfig) == "table" then
+    return frameConfig
+  end
+
+  return nil
 end

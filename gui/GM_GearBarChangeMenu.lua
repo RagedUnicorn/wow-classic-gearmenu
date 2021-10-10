@@ -316,7 +316,7 @@ function me.UpdateEmptyChangeSlot(changeSlotSize, changeMenu, itemCount, gearSlo
 
   me.UpdateChangeSlotSize(
     changeSlotSize, changeMenu, emptyChangeMenuSlot, emptySlotPosition.xPos, emptySlotPosition.yPos)
-  mod.uiHelper.UpdateSlotTextureAttributes(emptyChangeMenuSlot)
+  mod.uiHelper.UpdateSlotTextureAttributes(emptyChangeMenuSlot, changeSlotSize)
 
   emptyChangeMenuSlot.slotId = gearSlotMetaData.slotId
   emptyChangeMenuSlot.itemId = nil

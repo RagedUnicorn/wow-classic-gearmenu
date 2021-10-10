@@ -72,6 +72,7 @@ function me.TooltipUpdate(tooltipType, slotId, itemId)
 
   if tooltipType == TOOLTIP_TYPE_BAG then
     local bagNumber, bagPos = mod.itemManager.FindItemInBag(itemId)
+
     if mod.configuration.IsSimpleTooltipsEnabled() then
       if not bagNumber or not bagPos then return end
 
@@ -89,6 +90,7 @@ function me.TooltipUpdate(tooltipType, slotId, itemId)
   else
     if mod.configuration.IsSimpleTooltipsEnabled() then
       local itemLink = GetInventoryItemLink(RGGM_CONSTANTS.UNIT_ID_PLAYER, slotId)
+
       if itemLink then
         local itemName, _, itemRarity = GetItemInfo(itemLink)
         local _, _, _, hexColor = GetItemQualityColor(itemRarity)
@@ -98,6 +100,31 @@ function me.TooltipUpdate(tooltipType, slotId, itemId)
     else
       tooltip:SetInventoryItem(RGGM_CONSTANTS.UNIT_ID_PLAYER, slotId)
     end
+  end
+
+  tooltip:Show()
+end
+
+--[[
+  Update the tooltip to show the information for the passed itemId
+
+  @param {number} itemId
+]]--
+function me.UpdateTooltipById(itemId)
+  local tooltip = _G[RGGM_CONSTANTS.ELEMENT_TOOLTIP]
+  tooltip:ClearLines()
+  tooltip:SetOwner(UIParent)
+  GameTooltip_SetDefaultAnchor(tooltip, UIParent)
+
+  if mod.configuration.IsSimpleTooltipsEnabled() then
+    local itemName, _, itemRarity = GetItemInfo(itemId)
+    local _, _, _, hexColor = GetItemQualityColor(itemRarity)
+
+    tooltip:AddLine("|c" .. hexColor .. itemName .. "|h|r")
+  else
+    local _, itemLink = GetItemInfo(itemId)
+
+    tooltip:SetHyperlink(itemLink)
   end
 
   tooltip:Show()

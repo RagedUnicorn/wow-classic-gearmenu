@@ -56,6 +56,20 @@ if (GetLocale() == "zhCN") then
   rggm.L["quick_change_unable_to_add_rule_to"] = "无法添加新规则-缺少'To'项"
   rggm.L["quick_change_unable_to_add_rule_duplicate"] = "无法添加新规则-此物品的规则已存在"
 
+  -- trinketMenu
+  rggm.L["trinket_menu_category_name"] = "TrinketMenu"
+  rggm.L["trinket_menu_title"] = "Trinket Menu Configuration"
+  rggm.L["enable_trinket_menu"] = "Enable TrinketMenu"
+  rggm.L["enable_trinket_menu_tooltip"] = "Whether to enable and show TrinketMenu or not"
+  rggm.L["window_lock_trinket_menu"] = "Lock TrinketMenu"
+  rggm.L["window_lock_trinket_menu_tooltip"] = "Prevents TrinketMenu frame from being moved"
+  rggm.L["shoow_cooldowns_trinket_menu"] = "Show Cooldowns"
+  rggm.L["shoow_cooldowns_trinket_menu_tooltip"] = "Display a cooldown for all itemslots"
+  rggm.L["trinket_menu_column_amount_slider_title"] = "Columns"
+  rggm.L["trinket_menu_column_amount_slider_tooltip"] = "The amount of columns to use in the TrinketMenu"
+  rggm.L["trinket_menu_slot_size_slider_title"] = "Slot Size"
+  rggm.L["trinket_menu_slot_size_slider_tooltip"] = "The size of a slot in the TrinketMenu"
+
 -- slot translations
   rggm.L["slot_name_head"] = "头"
   rggm.L["slot_name_neck"] = "项链"
