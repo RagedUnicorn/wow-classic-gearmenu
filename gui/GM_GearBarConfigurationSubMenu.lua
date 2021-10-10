@@ -147,7 +147,7 @@ function me.BuildGearBarConfigurationSubMenu(parentFrame)
     showCooldownsMetaData
   )
 
-  me.CreateSizeSlider(
+  mod.uiHelper.CreateSizeSlider(
     gearBarConfigurationContentFrame,
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_GEAR_SLOT_SIZE_SLIDER,
     {"TOPLEFT", 20, -150},
@@ -160,7 +160,7 @@ function me.BuildGearBarConfigurationSubMenu(parentFrame)
     me.GearSlotSizeSliderOnValueChanged
   )
 
-  me.CreateSizeSlider(
+  mod.uiHelper.CreateSizeSlider(
     gearBarConfigurationContentFrame,
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_CHANGE_SLOT_SIZE_SLIDER,
     {"TOPLEFT", 20, -200},
@@ -344,61 +344,6 @@ function me.ShowCooldownsOnClick(self)
   else
     mod.gearBarManager.DisableShowCooldowns(gearBarId)
   end
-end
-
---[[
-  Create a slider for changing the size of the gearSlots
-
-  @param {table} parentFrame
-  @param {string} sliderName
-  @param {table} position
-    An object that can be unpacked into SetPoint
-  @param {number} sliderMinValue
-  @param {number} sliderMaxValue
-  @param {number} defaultValue
-  @param {string} sliderTitle
-  @param {string} sliderTooltip
-  @param {function} onShowCallback
-  @param {function} OnValueChangedCallback
-]]--
-function me.CreateSizeSlider(parentFrame, sliderName, position, sliderMinValue, sliderMaxValue, defaultValue,
-    sliderTitle, sliderTooltip, onShowCallback, OnValueChangedCallback)
-
-  local sliderFrame = CreateFrame(
-    "Slider",
-    sliderName,
-    parentFrame,
-    "OptionsSliderTemplate"
-  )
-  sliderFrame:SetWidth(RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_WIDTH)
-  sliderFrame:SetHeight(RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_HEIGHT)
-  sliderFrame:SetOrientation('HORIZONTAL')
-  sliderFrame:SetPoint(unpack(position))
-  sliderFrame:SetMinMaxValues(
-    sliderMinValue,
-    sliderMaxValue
-  )
-  sliderFrame:SetValueStep(RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_STEP)
-  sliderFrame:SetObeyStepOnDrag(true)
-  sliderFrame:SetValue(defaultValue)
-
-  -- Update slider texts
-  _G[sliderFrame:GetName() .. "Low"]:SetText(sliderMinValue)
-  _G[sliderFrame:GetName() .. "High"]:SetText(sliderMaxValue)
-  _G[sliderFrame:GetName() .. "Text"]:SetText(sliderTitle)
-  sliderFrame.tooltipText = sliderTooltip
-
-  local valueFontString = sliderFrame:CreateFontString(nil, "OVERLAY")
-  valueFontString:SetFont(STANDARD_TEXT_FONT, 12)
-  valueFontString:SetPoint("BOTTOM", 0, -15)
-  valueFontString:SetText(sliderFrame:GetValue())
-
-  sliderFrame.valueFontString = valueFontString
-  sliderFrame:SetScript("OnValueChanged", OnValueChangedCallback)
-  sliderFrame:SetScript("OnShow", onShowCallback)
-
-  -- load initial state
-  onShowCallback(sliderFrame)
 end
 
 --[[
