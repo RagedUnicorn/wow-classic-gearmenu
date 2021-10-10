@@ -90,6 +90,7 @@ if (GetLocale() == "zhCN") then
   rggm.L["slot_name_main_hand"] = "主手"
   rggm.L["slot_name_off_hand"] = "副手"
   rggm.L["slot_name_ranged"] = "远程"
+  rggm.L["slot_name_ammo"] = "弹药"
 
   -- gearbar
   rggm.L["gear_bar_configuration_category_name"] = "装备条"
