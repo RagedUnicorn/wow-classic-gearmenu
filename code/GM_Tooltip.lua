@@ -23,87 +23,13 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals GetContainerItemLink GetItemInfo GetItemQualityColor GetInventoryItemLink
--- luacheck: globals UIParent GameTooltip_SetDefaultAnchor
+-- luacheck: globals GetItemInfo GetItemQualityColor UIParent GameTooltip_SetDefaultAnchor
 
 local mod = rggm
 local me = {}
 mod.tooltip = me
 
 me.tag = "Tooltip"
-
-local TOOLTIP_TYPE_BAG = "Bag"
-local TOOLTIP_TYPE_ITEMSLOT = "ItemSlot"
-
---[[
-  Build tooltip for an item in the players bag
-
-  @param {number} slotId
-  @param {number} itemId
-]]--
-function me.BuildTooltipForBaggedItem(slotId, itemId)
-  me.TooltipUpdate(TOOLTIP_TYPE_BAG, slotId, itemId)
-end
-
---[[
-  Build tooltip for an item that is worn by the player
-
-  @param {number} slotId
-]]--
-function me.BuildTooltipForWornItem(slotId)
-  me.TooltipUpdate(TOOLTIP_TYPE_ITEMSLOT, slotId)
-end
-
---[[
-  Update the tooltip for either an item in the players bag or an item that he is currently wearing.
-
-  @param {string} tooltipType
-  @param {number} slotId
-  @param {number} itemId
-
-]]--
-function me.TooltipUpdate(tooltipType, slotId, itemId)
-  if not mod.configuration.IsTooltipsEnabled() then return end
-
-  local tooltip = _G[RGGM_CONSTANTS.ELEMENT_TOOLTIP]
-  tooltip:ClearLines()
-  tooltip:SetOwner(UIParent)
-  GameTooltip_SetDefaultAnchor(tooltip, UIParent)
-
-  if tooltipType == TOOLTIP_TYPE_BAG then
-    local bagNumber, bagPos = mod.itemManager.FindItemInBag(itemId)
-
-    if mod.configuration.IsSimpleTooltipsEnabled() then
-      if not bagNumber or not bagPos then return end
-
-      local itemLink = GetContainerItemLink(bagNumber, bagPos)
-
-      if itemLink then
-        local itemName, _, itemRarity = GetItemInfo(itemLink)
-        local _, _, _, hexColor = GetItemQualityColor(itemRarity)
-
-        tooltip:AddLine("|c" .. hexColor .. itemName .. "|h|r")
-      end
-    else
-      tooltip:SetBagItem(bagNumber, bagPos)
-    end
-  else
-    if mod.configuration.IsSimpleTooltipsEnabled() then
-      local itemLink = GetInventoryItemLink(RGGM_CONSTANTS.UNIT_ID_PLAYER, slotId)
-
-      if itemLink then
-        local itemName, _, itemRarity = GetItemInfo(itemLink)
-        local _, _, _, hexColor = GetItemQualityColor(itemRarity)
-
-        tooltip:AddLine("|c" .. hexColor .. itemName .. "|h|r")
-      end
-    else
-      tooltip:SetInventoryItem(RGGM_CONSTANTS.UNIT_ID_PLAYER, slotId)
-    end
-  end
-
-  tooltip:Show()
-end
 
 --[[
   Update the tooltip to show the information for the passed itemId
@@ -112,6 +38,7 @@ end
 ]]--
 function me.UpdateTooltipById(itemId)
   local tooltip = _G[RGGM_CONSTANTS.ELEMENT_TOOLTIP]
+
   tooltip:ClearLines()
   tooltip:SetOwner(UIParent)
   GameTooltip_SetDefaultAnchor(tooltip, UIParent)

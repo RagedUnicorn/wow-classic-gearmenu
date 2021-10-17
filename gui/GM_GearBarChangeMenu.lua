@@ -477,7 +477,7 @@ function me.ChangeSlotOnEnter(self)
   self.highlightFrame:SetBackdropBorderColor(0.27, 0.4, 1, 1)
   self.highlightFrame:Show()
 
-  mod.tooltip.BuildTooltipForBaggedItem(self.slotId, self.itemId)
+  mod.tooltip.UpdateTooltipById(self.itemId)
 end
 
 --[[

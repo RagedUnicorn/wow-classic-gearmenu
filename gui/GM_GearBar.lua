@@ -797,7 +797,9 @@ function me.GearSlotOnEnter(self)
   self.highlightFrame:Show()
 
   mod.gearBarChangeMenu.UpdateChangeMenu(self.position, self:GetParent().id)
-  mod.tooltip.BuildTooltipForWornItem(self:GetAttribute("item"))
+
+  local itemId = GetInventoryItemID(RGGM_CONSTANTS.UNIT_ID_PLAYER, self:GetAttribute("item"))
+  mod.tooltip.UpdateTooltipById(itemId)
 end
 
 --[[
