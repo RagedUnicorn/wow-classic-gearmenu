@@ -84,11 +84,21 @@ GearMenuConfiguration = {
         UI-Element once it is created
       ["displayName"] = {string},
         A user friendly display name for the user to recognize
+      ["isLocked"] = {boolean},
+        Whether the gearBar can be moved around or if it is locked
+      ["showKeyBindings"] = {boolean},
+        Whether keybindings are shown on top of the gearSlots or not
+      ["showCooldowns"] = {boolean},
+        Whether cooldowns are shown on top of the gearSlots or not
+      [slots] = {table},
+        List of configured slots for the gearBar
+      ["gearSlotSize"] = {number},
+        The configured gearSlot size
+      ["changeSlotSize"] = {number},
+        The configured changeSlot size
       ["position"] = {table},
         A position object that can be unpacked into SetPoint
         e.g. {"LEFT", 150, 0}
-      [slots] = {},
-
     }
   ]]--
   ["gearBars"] = nil,
