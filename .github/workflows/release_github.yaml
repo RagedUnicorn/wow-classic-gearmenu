@@ -20,7 +20,7 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - name: Publish Package to Github
+      - name: Publish Package to GitHub
         run: mvn package -P deploy-github-action -D github.auth-token=$TOKEN_GITHUB
         env:
           TOKEN_GITHUB: ${{ secrets.TOKEN_GITHUB }}
