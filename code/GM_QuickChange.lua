@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals GetItemInfo GetItemSpell GetInventoryItemID C_Timer
+-- luacheck: globals GetItemInfo GetItemSpell GetInventoryItemID C_Timer IsEquippedItem
 
 local mod = rggm
 local me = {}
@@ -161,7 +161,8 @@ function me.ExecuteQuickChangeRule(quickChangeRule, slotIds)
   for _, slotMetadata in ipairs(slotIds) do
     -- Only perform quickchange if item ID's match and item is not currently equipped.
     -- Solving situations such as users using two of the same trinket or weapon will need a more complicated approach.
-    if slotMetadata.itemId == quickChangeRule.changeFromItemId and not IsEquippedItem(quickChangeRule.changeToItemId) then
+    if slotMetadata.itemId == quickChangeRule.changeFromItemId
+      and not IsEquippedItem(quickChangeRule.changeToItemId) then
       C_Timer.After(quickChangeRule.delay or 0, function()
         mod.itemManager.EquipItemById(
           quickChangeRule.changeToItemId, slotMetadata.slotId

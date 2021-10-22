@@ -39,7 +39,8 @@ me.tag = "GearManager"
 
   {
     ["inventoryTypeId"] = 1,
-      {number} - A simple number identifying the type of the slot. E.g. trinket1 and trinket2 have the same id. Used by quickChange
+      {number} - A simple number identifying the type of the slot. E.g. trinket1 and trinket2 have the same id
+      Used by quickChange
     ["name"] = "",
       {string} - The name of the slot. Used for translation
     ["simplifiedName"] = "",
