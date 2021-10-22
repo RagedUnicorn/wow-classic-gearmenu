@@ -1,8 +1,4 @@
-# Fixes
-
-* Fix changeMenu size bug
-  * Fixing a bug where changeMenu size was bigger than intended
-
 # Updates
 
-* Update Interface Version to 11400(1.14.0)
+* Add TrinketMenu implementation. TrinketMenu displays all trinkets in the players inventory in a separate menu and allows switching them with left and right click
+* Simplify generating tooltips for GearBars, ChangeMenu and TrinketMenu
