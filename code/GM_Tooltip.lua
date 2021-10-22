@@ -37,6 +37,8 @@ me.tag = "Tooltip"
   @param {number} itemId
 ]]--
 function me.UpdateTooltipById(itemId)
+  if itemId == nil then return end
+
   local tooltip = _G[RGGM_CONSTANTS.ELEMENT_TOOLTIP]
 
   tooltip:ClearLines()
