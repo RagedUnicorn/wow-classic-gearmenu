@@ -180,6 +180,49 @@
         </plugins>
       </build>
     </profile>
+    <profile>
+      <id>deploy-curseforge-action</id>
+      <properties>
+        <profile.id.value>deploy</profile.id.value>
+        <package.descriptor>${basedir}/build-resources/assembly-release.xml</package.descriptor>
+        <package.filter>${basedir}/build-resources/addon-release.properties</package.filter>
+        <package.finalName>${addon.name}</package.finalName>
+        <package.appendAssemblyId>false</package.appendAssemblyId>
+        <package.includeBaseDirectory>true</package.includeBaseDirectory>
+        <generate.sources.skip>true</generate.sources.skip>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.ragedunicorn.tools.maven</groupId>
+            <artifactId>curseforge-release-maven-plugin</artifactId>
+            <version>1.0.1</version>
+            <executions>
+              <execution>
+                <id>default-cli</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>curseforge-release</goal>
+                </goals>
+                <configuration>
+                  <game>wow</game>
+                  <projectId>${addon.curseforge.projectid}</projectId>
+                  <displayName>${addon.curseforge.displayName}-${addon.tag.version}-classic.zip</displayName>
+                  <changelogFile>${basedir}/build-resources/release-notes.md</changelogFile>
+                  <changelogType>markdown</changelogType>
+                  <gameVersions>
+                    <gameVersion>8668</gameVersion>
+                  </gameVersions>
+                  <releaseType>release</releaseType>
+                  <file>${basedir}/target/${addon.name}.zip</file>
+                  <token>${curseforge.auth-token}</token>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 
   <build>
