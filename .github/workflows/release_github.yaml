@@ -1,0 +1,26 @@
+on: [workflow_dispatch]
+
+jobs:
+  github-release-job:
+    runs-on: ubuntu-latest
+    name: GitHub Release
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: Set up Java and Maven
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+          cache: 'maven'
+      - name: Cache Local Maven Repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Publish Package to Github
+        run: mvn package -P deploy-github-action -D github.auth-token=$TOKEN_GITHUB
+        env:
+          TOKEN_GITHUB: ${{ secrets.TOKEN_GITHUB }}

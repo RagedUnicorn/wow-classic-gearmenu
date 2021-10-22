@@ -97,6 +97,47 @@
       </build>
     </profile>
     <profile>
+      <id>deploy-github-action</id>
+      <properties>
+        <profile.id.value>deploy</profile.id.value>
+        <package.descriptor>${basedir}/build-resources/assembly-release.xml</package.descriptor>
+        <package.filter>${basedir}/build-resources/addon-release.properties</package.filter>
+        <package.finalName>${addon.name}</package.finalName>
+        <package.appendAssemblyId>false</package.appendAssemblyId>
+        <package.includeBaseDirectory>false</package.includeBaseDirectory>
+        <generate.sources.skip>true</generate.sources.skip>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.ragedunicorn.tools.maven</groupId>
+            <artifactId>github-release-maven-plugin</artifactId>
+            <version>1.0.3</version>
+            <executions>
+              <execution>
+                <id>default-cli</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>github-release</goal>
+                </goals>
+                <configuration>
+                  <owner>ragedunicorn</owner>
+                  <repository>wow-classic-gearmenu</repository>
+                  <authToken>${github.auth-token}</authToken>
+                  <tagName>${addon.tag.version}</tagName>
+                  <name>${addon.tag.version}</name>
+                  <releaseNotes>${basedir}/build-resources/release-notes.md</releaseNotes>
+                  <assets>
+                    <asset>${basedir}/target/${addon.name}.zip</asset>
+                  </assets>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
       <id>deploy-curseforge</id>
       <properties>
         <profile.id.value>deploy</profile.id.value>
