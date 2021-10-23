@@ -153,7 +153,7 @@
           <plugin>
             <groupId>com.ragedunicorn.tools.maven</groupId>
             <artifactId>curseforge-release-maven-plugin</artifactId>
-            <version>1.0.1</version>
+            <version>1.1.0</version>
             <executions>
               <execution>
                 <id>default-cli</id>
@@ -196,7 +196,7 @@
           <plugin>
             <groupId>com.ragedunicorn.tools.maven</groupId>
             <artifactId>curseforge-release-maven-plugin</artifactId>
-            <version>1.0.1</version>
+            <version>1.1.0</version>
             <executions>
               <execution>
                 <id>default-cli</id>
@@ -215,7 +215,7 @@
                   </gameVersions>
                   <releaseType>release</releaseType>
                   <file>${basedir}/target/${addon.name}.zip</file>
-                  <token>${curseforge.auth-token}</token>
+                  <authToken>${curseforge.auth-token}</authToken>
                 </configuration>
               </execution>
             </executions>
