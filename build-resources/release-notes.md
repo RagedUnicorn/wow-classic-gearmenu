@@ -1,5 +1,6 @@
 # Fix
 * Hotfix tooltip bug for empty slots and unequip slots
+* Fix deployment package to production
 
 # Updates
 
