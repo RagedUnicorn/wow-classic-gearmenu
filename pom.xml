@@ -256,6 +256,7 @@
               <goal>single</goal>
             </goals>
             <configuration>
+              <attach>false</attach>
               <skipAssembly>${generate.sources.skip}</skipAssembly>
               <descriptors>
                 <descriptor>${generate.sources.descriptor}</descriptor>
