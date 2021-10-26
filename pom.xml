@@ -123,6 +123,7 @@
                 <configuration>
                   <owner>ragedunicorn</owner>
                   <repository>wow-classic-gearmenu</repository>
+                  <!--suppress UnresolvedMavenProperty -->
                   <authToken>${github.auth-token}</authToken>
                   <tagName>${addon.tag.version}</tagName>
                   <name>${addon.tag.version}</name>
@@ -215,6 +216,7 @@
                   </gameVersions>
                   <releaseType>release</releaseType>
                   <file>${basedir}/target/${addon.name}.zip</file>
+                  <!--suppress UnresolvedMavenProperty -->
                   <authToken>${curseforge.auth-token}</authToken>
                 </configuration>
               </execution>

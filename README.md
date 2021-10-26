@@ -347,6 +347,10 @@ mvn generate-resources -D generate.sources.overwrite=true -P release
 mvn package -P deploy-curseforge
 ```
 
+### GitHub Action Profiles
+
+Both `deploy-github-action` and `deploy-curseforge-action` should not be deployed manually. They are solely intended for being used by GitHub actions
+
 ## License
 
 MIT License
