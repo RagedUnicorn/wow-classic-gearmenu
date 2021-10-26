@@ -159,14 +159,15 @@ function me.UpdateChangeMenu(gearSlotPosition, gearBarId)
   me.UpdateChangeMenuProperties(gearBarId, gearSlotPosition)
 
   local gearBar = mod.gearBarManager.GetGearBar(changeMenuFrame.gearBarId)
+  local gearBarChangeSlotSize = mod.gearBarManager.GetChangeSlotSize(changeMenuFrame.gearBarId)
   local gearSlotMetaData = gearBar.slots[changeMenuFrame.gearSlotPosition]
   local uiGearBar = mod.gearBarStorage.GetGearBar(changeMenuFrame.gearBarId)
 
   if gearSlotMetaData ~= nil then
     local items = mod.itemManager.GetItemsForInventoryType(gearSlotMetaData.type)
 
-    me.UpdateChangeSlots(gearBar.changeSlotSize, gearSlotMetaData, items)
-    me.UpdateChangeMenuSize(gearBar.changeSlotSize, gearSlotMetaData, #items)
+    me.UpdateChangeSlots(gearBarChangeSlotSize, gearSlotMetaData, items)
+    me.UpdateChangeMenuSize(gearBarChangeSlotSize, gearSlotMetaData, #items)
     me.UpdateChangeMenuPosition(
       uiGearBar.gearSlotReferences[changeMenuFrame.gearSlotPosition]
     )

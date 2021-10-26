@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals UnitIsDeadOrGhost UnitBuff CastingInfo ChannelInfo UnitIsFeignDeath
+-- luacheck: globals UnitIsDeadOrGhost UnitBuff CastingInfo ChannelInfo UnitIsFeignDeath UIParent
 
 local mod = rggm
 local me = {}
@@ -83,3 +83,12 @@ function me.Clone(obj)
 
   return res
 end
+
+--[[
+  @return {number}
+    Returns the uiScale of the UIParent frame 0..1
+]]--
+function me.GetUiScale()
+  return UIParent:GetScale()
+end
+
