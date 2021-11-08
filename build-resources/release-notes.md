@@ -1,4 +1,3 @@
-# Fix
-* Fixed a bug where the gearMenu frame would have a wrong size after changing the slotsize
-* Fix #7 uiscale for changemenu
+# Updates
 
+* Update Interface Version to 11401(1.14.1) - Ready for Classic Season of Mastery
