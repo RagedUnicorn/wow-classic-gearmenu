@@ -1,3 +1,4 @@
+name: "Release CurseForge"
 on: [workflow_dispatch]
 
 jobs:

@@ -1,3 +1,4 @@
+name: "Lint Project"
 on: [push]
 
 jobs:
