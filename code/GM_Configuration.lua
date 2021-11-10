@@ -408,7 +408,7 @@ function me.UpgradeToV2_0_0()
     end
   end
 
-  AttemptToSaveBindings(GetCurrentBindingSet()) -- save bindings
+  SaveBindings(GetCurrentBindingSet()) -- save bindings
 
   -- no longer used properties (moved to specific gearBar)
   GearMenuConfiguration.lockGearBar = nil
