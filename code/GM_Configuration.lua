@@ -26,7 +26,7 @@
 -- luacheck: globals INVSLOT_HEAD INVSLOT_NECK INVSLOT_SHOULDER INVSLOT_CHEST INVSLOT_WAIST INVSLOT_LEGS INVSLOT_FEET
 -- luacheck: globals INVSLOT_WRIST INVSLOT_HAND INVSLOT_FINGER1 INVSLOT_FINGER2 INVSLOT_TRINKET1 INVSLOT_TRINKET2
 -- luacheck: globals INVSLOT_BACK INVSLOT_MAINHAND INVSLOT_OFFHAND INVSLOT_RANGED INVSLOT_AMMO GetAddOnMetadata ReloadUI
--- luacheck: globals GetBindingKey SetBinding SetBindingClick GetCurrentBindingSet AttemptToSaveBindings
+-- luacheck: globals GetBindingKey SetBinding SetBindingClick GetCurrentBindingSet SaveBindings
 
 local mod = rggm
 local me = {}
