@@ -202,11 +202,11 @@ end
 ]]--
 function me.CreateCombatQueueSlot(gearSlot, gearSlotSize)
   local combatQueueSlot = CreateFrame("Frame", RGGM_CONSTANTS.ELEMENT_GEAR_BAR_COMBAT_QUEUE_SLOT, gearSlot)
-  local combatQeueuSlotSize = gearSlotSize * RGGM_CONSTANTS.GEAR_BAR_COMBAT_QUEUE_SLOT_SIZE_MODIFIER
+  local combatQueueSlotSize = gearSlotSize * RGGM_CONSTANTS.GEAR_BAR_COMBAT_QUEUE_SLOT_SIZE_MODIFIER
 
   combatQueueSlot:SetSize(
-    combatQeueuSlotSize,
-    combatQeueuSlotSize
+    combatQueueSlotSize,
+    combatQueueSlotSize
   )
   combatQueueSlot:SetPoint("TOPRIGHT", gearSlot)
 
