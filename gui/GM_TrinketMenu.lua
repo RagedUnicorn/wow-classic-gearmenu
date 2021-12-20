@@ -124,7 +124,7 @@ function me.CreateTrinketSlot(position)
   trinketMenuSlot:SetBackdropBorderColor(0, 0, 0, 1)
 
   trinketMenuSlot.highlightFrame = mod.uiHelper.CreateHighlightFrame(trinketMenuSlot)
-  trinketMenuSlot.cooldownOverlay = mod.uiHelper.CreateCooldownOverlay(
+  trinketMenuSlot.cooldownOverlay = mod.cooldown.CreateCooldownOverlay(
     trinketMenuSlot,
     RGGM_CONSTANTS.ELEMENT_SLOT_COOLDOWN_FRAME,
     mod.configuration.GetTrinketMenuSlotSize()
@@ -200,7 +200,7 @@ function me.UpdateTrinketMenuSlotSize()
 
       local trinketMenuSlot = trinketMenuSlots[index + column -1]
 
-      mod.uiHelper.UpdateSlotTextureAttributes(trinketMenuSlot, trinketMenuSlotSize)
+      mod.uiHelper.UpdateSlotTextureAttributes(trinketMenuSlot, trinketMenuSlotSize) -- TODO
       trinketMenuSlot:SetSize(
         trinketMenuSlotSize,
         trinketMenuSlotSize
@@ -250,7 +250,7 @@ end
   @param {number} trinketMenuSlotSize
 ]]--
 function me.UpdateTrinketMenuSlot(trinketMenuSlot, item, trinketMenuSlotSize)
-  mod.uiHelper.UpdateSlotTextureAttributes(trinketMenuSlot, trinketMenuSlotSize)
+  mod.uiHelper.UpdateSlotTextureAttributes(trinketMenuSlot, trinketMenuSlotSize) -- TODO
 
   trinketMenuSlot.itemId = item.id
   trinketMenuSlot.equipSlot = item.equipSlot

@@ -41,6 +41,11 @@ RGGM_CONSTANTS = {
     ["LSHIFT"] = "SHIFT",
     ["RSHIFT"] = "SHIFT"
   },
+  --[[
+    UI-Styles
+  ]]--
+  UI_THEME_CLASSIC = 1,
+  UI_THEME_CUSTOM = 2,
   MOUSEWHEELUP = 1,
   MOUSEWHEELDOWN = -1,
   ITEMQUALITY = {

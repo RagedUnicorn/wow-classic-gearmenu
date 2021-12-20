@@ -129,7 +129,7 @@ function me.CreateChangeSlot(frame, position, xPos, yPos)
   changeSlot:SetBackdropBorderColor(0, 0, 0, 1)
 
   changeSlot.highlightFrame = mod.uiHelper.CreateHighlightFrame(changeSlot)
-  changeSlot.cooldownOverlay = mod.uiHelper.CreateCooldownOverlay(
+  changeSlot.cooldownOverlay = mod.cooldown.CreateCooldownOverlay(
     changeSlot,
     RGGM_CONSTANTS.ELEMENT_SLOT_COOLDOWN_FRAME,
     RGGM_CONSTANTS.GEAR_BAR_CHANGE_DEFAULT_SLOT_SIZE
@@ -239,7 +239,7 @@ end
   @param {number} changeSlotSize
 ]]--
 function me.UpdateChangeSlot(changeSlot, gearSlotMetaData, item, changeSlotSize)
-  mod.uiHelper.UpdateSlotTextureAttributes(changeSlot, changeSlotSize)
+  mod.uiHelper.UpdateSlotTextureAttributes(changeSlot, changeSlotSize) -- TODO
   -- update metadata for slot
   changeSlot.slotId = gearSlotMetaData.slotId
   changeSlot.itemId = item.id
@@ -317,7 +317,7 @@ function me.UpdateEmptyChangeSlot(changeSlotSize, changeMenu, itemCount, gearSlo
 
   me.UpdateChangeSlotSize(
     changeSlotSize, changeMenu, emptyChangeMenuSlot, emptySlotPosition.xPos, emptySlotPosition.yPos)
-  mod.uiHelper.UpdateSlotTextureAttributes(emptyChangeMenuSlot, changeSlotSize)
+  mod.uiHelper.UpdateSlotTextureAttributes(emptyChangeMenuSlot, changeSlotSize) -- TODO
 
   emptyChangeMenuSlot.slotId = gearSlotMetaData.slotId
   emptyChangeMenuSlot.itemId = nil

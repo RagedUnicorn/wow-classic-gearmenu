@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals CreateFrame GetTime STANDARD_TEXT_FONT COOLDOWN_TYPE_NORMAL
+-- luacheck: globals CreateFrame STANDARD_TEXT_FONT
 
 local mod = rggm
 local me = {}
@@ -39,6 +39,7 @@ me.tag = "UiHelper"
   @param {number} slotSize
 ]]--
 function me.UpdateSlotTextureAttributes(slot, slotSize)
+  -- TODO should be replaced
   if slot:GetNormalTexture() == nil then
     -- set a dummy texture - otherwise GetNormalTexture will return nil
     slot:SetNormalTexture("//dummy")
@@ -63,38 +64,7 @@ function me.UpdateSlotTextureAttributes(slot, slotSize)
 end
 
 --[[
-  Create a cooldown overlay and attach it to the passed slot
-
-  @param {table} slot
-  @param {string} frameName
-  @param {number} slotSize
-
-  @param {table}
-    The created cooldownOverlay
-]]--
-function me.CreateCooldownOverlay(slot, frameName, slotSize)
-  local cooldownOverlay = CreateFrame(
-    "Cooldown",
-    frameName,
-    slot,
-    "CooldownFrameTemplate"
-  )
-
-  cooldownOverlay:SetAllPoints(slot)
-  -- set fontsize based on slotsize
-  cooldownOverlay:GetRegions()
-    :SetFont(
-      STANDARD_TEXT_FONT,
-      slotSize * RGGM_CONSTANTS.GEAR_BAR_COOLDOWN_TEXT_MODIFIER
-    )
-  cooldownOverlay:SetHideCountdownNumbers(false)
-  cooldownOverlay.currentCooldownType = COOLDOWN_TYPE_NORMAL
-
-  return cooldownOverlay
-end
-
---[[
-  Create a highlight frame and attach it to the passed slot
+  Create a highlight frame and attach it to the passed slot TODO replaced by Theme modules
 
   @param {table} slot
 
@@ -103,7 +73,7 @@ end
 ]]--
 function me.CreateHighlightFrame(slot)
   local highlightFrame = CreateFrame("FRAME", nil, slot, "BackdropTemplate")
-  highlightFrame:SetFrameLevel(slot:GetFrameLevel() + 1)
+  highlightFrame:SetFrameLevel(slot:GetFrameLevel() + 1) -- TODO remove
   highlightFrame:SetPoint("TOPLEFT", slot, "TOPLEFT")
   highlightFrame:SetPoint("BOTTOMRIGHT", slot, "BOTTOMRIGHT")
 
@@ -129,7 +99,7 @@ function me.CreateHighlightFrame(slot)
 end
 
 --[[
-  Create a dropwdownbutton for a dropdown menu
+  Create a dropdown button for a dropdown menu
 
   @param {string} text
   @param {string} value

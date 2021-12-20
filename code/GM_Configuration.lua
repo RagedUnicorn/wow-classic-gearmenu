@@ -152,6 +152,10 @@ GearMenuConfiguration = {
     Configurable size of the trinketMenu slots
   ]]--
   ["trinketMenuSlotSize"] = RGGM_CONSTANTS.TRINKET_MENU_DEFAULT_SLOT_SIZE,
+  --[[
+    Whether to use custom or classic style for gearMenu ui elements (gearBar, changeMenu and trinketMenu)
+  ]]--
+  ["uiTheme"] = RGGM_CONSTANTS.UI_THEME_CUSTOM
 }
 
 --[[
@@ -226,6 +230,11 @@ function me.SetupConfiguration()
   if GearMenuConfiguration.trinketMenuSlotSize == nil then
     mod.logger.LogInfo(me.tag, "trinketMenuSlotSize has unexpected nil value")
     GearMenuConfiguration.trinketMenuSlotSize = RGGM_CONSTANTS.TRINKET_MENU_DEFAULT_SLOT_SIZE
+  end
+
+  if GearMenuConfiguration.uiTheme == nil then
+    mod.logger.LogInfo(me.tag, "uiTheme has unexpected nil value")
+    GearMenuConfiguration.uiTheme = RGGM_CONSTANTS.UI_THEME_CUSTOM
   end
 
   --[[
@@ -703,6 +712,25 @@ function me.SetTrinketMenuSlotSize(slotSize)
   )
 
   GearMenuConfiguration.trinketMenuSlotSize = slotSize
+end
+
+--[[
+  Retrieve the configured uiTheme
+
+  @return {number}
+]]--
+function me.GetUiTheme()
+  return GearMenuConfiguration.uiTheme
+end
+
+--[[
+  Set the configured uiTheme
+
+  @param {number} uiTheme
+]]--
+function me.SetUiTheme(uiTheme)
+  GearMenuConfiguration.uiTheme = uiTheme
+  mod.themeCoordinator.UpdateTheme()
 end
 
 --[[

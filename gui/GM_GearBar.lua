@@ -23,10 +23,9 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals CreateFrame UIParent GetInventoryItemID GetItemCooldown CooldownFrame_Set
--- luacheck: globals GetInventoryItemLink GetItemInfo GetContainerItemInfo C_Timer MouseIsOver
+-- luacheck: globals CreateFrame UIParent GetInventoryItemID GetCursorInfo STANDARD_TEXT_FONT
+-- luacheck: globals GetInventoryItemLink GetItemInfo GetContainerItemInfo IsItemInRange InCombatLockdown
 -- luacheck: globals CursorCanGoInSlot EquipCursorItem ClearCursor IsInventoryItemLocked PickupInventoryItem
--- luacheck: globals InCombatLockdown STANDARD_TEXT_FONT IsItemInRange GetCursorInfo CooldownFrame_Clear
 
 --[[
   The gearBar (GM_Gearbar) module is responsible for building and showing gearBars to the user.
@@ -132,65 +131,7 @@ function me.CreateGearSlot(gearBarFrame, gearBar, position)
     return
   end
 
-  local gearSlot = CreateFrame(
-    "Button",
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT .. position,
-    gearBarFrame,
-    "SecureActionButtonTemplate, BackdropTemplate"
-  )
-
-  gearSlot:SetFrameLevel(gearBarFrame:GetFrameLevel() + 1)
-  gearSlot:SetSize(gearBar.gearSlotSize, gearBar.gearSlotSize)
-  gearSlot:SetPoint(
-    "LEFT",
-    gearBarFrame,
-    "LEFT",
-    RGGM_CONSTANTS.GEAR_BAR_SLOT_X + (position - 1) * gearBar.gearSlotSize,
-    RGGM_CONSTANTS.GEAR_BAR_SLOT_Y
-  )
-
-  local backdrop = {
-    bgFile = "Interface\\AddOns\\GearMenu\\assets\\ui_slot_background",
-    edgeFile = "Interface\\AddOns\\GearMenu\\assets\\ui_slot_background",
-    tile = false,
-    tileSize = 32,
-    edgeSize = 20,
-    insets = {
-      left = 12,
-      right = 12,
-      top = 12,
-      bottom = 12
-    }
-  }
-
-  local gearSlotMetaData = gearBar.slots[position]
-
-  if gearSlotMetaData ~= nil then
-    gearSlot:SetAttribute("type1", "item")
-    gearSlot:SetAttribute("item", gearSlotMetaData.slotId)
-  end
-
-  gearSlot:SetBackdrop(backdrop)
-  gearSlot:SetBackdropColor(0.15, 0.15, 0.15, 1)
-  gearSlot:SetBackdropBorderColor(0, 0, 0, 1)
-
-  gearSlot.combatQueueSlot = me.CreateCombatQueueSlot(gearSlot, gearBar.gearSlotSize)
-  gearSlot.keyBindingText = me.CreateKeyBindingText(gearSlot, gearBar.gearSlotSize)
-  gearSlot.position = position
-  gearSlot.highlightFrame = mod.uiHelper.CreateHighlightFrame(gearSlot)
-  gearSlot.cooldownOverlay = mod.uiHelper.CreateCooldownOverlay(
-    gearSlot,
-    RGGM_CONSTANTS.ELEMENT_SLOT_COOLDOWN_FRAME,
-    gearBar.gearSlotSize
-  )
-
-  me.UpdateGearSlotTexture(gearSlot, gearSlotMetaData)
-  me.UpdateGearSlotCooldown(gearBar, gearSlot, gearSlotMetaData)
-  mod.uiHelper.UpdateSlotTextureAttributes(gearSlot, gearBar.gearSlotSize)
-
-  me.SetupEvents(gearSlot)
-
-  return gearSlot
+  return mod.themeCoordinator.CreateGearSlot(gearBarFrame, gearBar, position)
 end
 
 --[[
@@ -412,32 +353,7 @@ function me.UpdateGearBarGearSlotCooldowns(gearBar)
   for index, gearSlotMetaData in pairs(gearBar.slots) do
     local uiGearSlot = uiGearBar.gearSlotReferences[index]
 
-    me.UpdateGearSlotCooldown(gearBar, uiGearSlot, gearSlotMetaData)
-  end
-end
-
---[[
-
-  Update the cooldown of a single gearSlot
-
-  @param {table} gearBar
-  @param {table} uiGearSlot
-  @param {table} gearSlotMetaData
-]]--
-function me.UpdateGearSlotCooldown(gearBar, uiGearSlot, gearSlotMetaData)
-  local itemId = GetInventoryItemID(RGGM_CONSTANTS.UNIT_ID_PLAYER, gearSlotMetaData.slotId)
-
-  if itemId ~= nil then
-    if mod.gearBarManager.IsShowCooldownsEnabled(gearBar.id) then
-      local startTime, duration = GetItemCooldown(itemId)
-      CooldownFrame_Set(uiGearSlot.cooldownOverlay, startTime, duration, true)
-
-      return
-    else
-      CooldownFrame_Clear(uiGearSlot.cooldownOverlay)
-    end
-  else
-    CooldownFrame_Clear(uiGearSlot.cooldownOverlay)
+    mod.cooldown.UpdateGearSlotCooldown(gearBar, uiGearSlot, gearSlotMetaData)
   end
 end
 
@@ -494,10 +410,10 @@ function me.UpdateGearSlotTexture(gearSlot, gearSlotMetaData)
   if itemId then
     local itemIcon = select(10, GetItemInfo(itemId))
     -- If an actual item was found in the inventoryslot said icon is used
-    gearSlot:SetNormalTexture(itemIcon or gearSlotMetaData.textureId)
+    gearSlot.itemTexture:SetTexture(itemIcon or gearSlotMetaData.textureId)
   else
     -- If no item can be found in the inventoryslot use the default icon
-    gearSlot:SetNormalTexture(gearSlotMetaData.textureId)
+    gearSlot.itemTexture:SetTexture(gearSlotMetaData.textureId)
   end
 end
 
@@ -512,7 +428,7 @@ function me.UpdateGearBarGearSlotTexturesAttributes(gearBar)
   for index, _ in pairs(gearBar.slots) do
     local uiGearSlot = uiGearBar.gearSlotReferences[index]
 
-    mod.uiHelper.UpdateSlotTextureAttributes(uiGearSlot, gearBar.gearSlotSize)
+    mod.themeCoordinator.UpdateSlotTextureAttributes(uiGearSlot, gearBar.gearSlotSize)
   end
 end
 
@@ -533,10 +449,10 @@ function me.UpdateGearSlotSizes(gearBar)
     local uiGearSlot = uiGearBar.gearSlotReferences[position]
 
     me.UpdateGearSlotSize(uiGearBar, uiGearSlot, gearBar.gearSlotSize, position)
-    me.UpdateGearSlotCooldownOverlaySize(uiGearSlot, gearBar.gearSlotSize)
+    mod.cooldown.UpdateGearSlotCooldownOverlaySize(uiGearSlot, gearBar.gearSlotSize)
     me.UpdateGearSlotCombatQueueSize(uiGearSlot, gearBar.gearSlotSize)
     me.UpdateGearSlotKeyBindingTextSize(uiGearSlot, gearBar.gearSlotSize)
-    mod.uiHelper.UpdateSlotTextureAttributes(uiGearSlot, gearBar.gearSlotSize)
+    mod.themeCoordinator.UpdateSlotTextureAttributes(uiGearSlot, gearBar.gearSlotSize)
   end
 end
 
@@ -555,19 +471,6 @@ function me.UpdateGearSlotSize(uiGearBar, uiGearSlot, gearSlotSize, position)
     RGGM_CONSTANTS.GEAR_BAR_SLOT_X + (position - 1) * gearSlotSize,
     RGGM_CONSTANTS.GEAR_BAR_SLOT_Y
   )
-end
-
---[[
-  @param {table} uiGearSlot
-  @param {number} slotSize
-]]--
-function me.UpdateGearSlotCooldownOverlaySize(uiGearSlot, slotSize)
-  uiGearSlot.cooldownOverlay:SetSize(slotSize, slotSize)
-  uiGearSlot.cooldownOverlay:GetRegions()
-    :SetFont(
-      STANDARD_TEXT_FONT,
-      slotSize * RGGM_CONSTANTS.GEAR_BAR_COOLDOWN_TEXT_MODIFIER
-    )
 end
 
 --[[
@@ -641,7 +544,7 @@ function me.CreateNewGearSlot(gearBar, uiGearBar, position)
   -- create new gearSlot
   mod.logger.LogInfo(me.tag, "GearSlot does not yet exist. Creating a new one")
 
-  local gearSlot = me.CreateGearSlot(uiGearBar.gearBarReference, gearBar, position)
+  local gearSlot = me.CreateGearSlot2(uiGearBar.gearBarReference, gearBar, position)
   mod.gearBarStorage.AddGearSlot(gearBar.id, gearSlot)
 end
 
@@ -767,39 +670,26 @@ end
   @param {string} button
 ]]--
 function me.GearSlotOnClick(self, button)
-  self.highlightFrame:Show()
-
-  if button == "LeftButton" then
-    self.highlightFrame:SetBackdropBorderColor(unpack(RGGM_CONSTANTS.HIGHLIGHT.highlight))
-  elseif button == "RightButton" then
-    self.highlightFrame:SetBackdropBorderColor(unpack(RGGM_CONSTANTS.HIGHLIGHT.remove))
+  if button == "RightButton" then
     mod.combatQueue.RemoveFromQueue(self:GetAttribute("item"))
   else
     return -- ignore other buttons
   end
 
-  C_Timer.After(.5, function()
-    if MouseIsOver(self:GetParent()) then
-      self.highlightFrame:SetBackdropBorderColor(unpack(RGGM_CONSTANTS.HIGHLIGHT.hover))
-    else
-      self.highlightFrame:Hide()
-    end
-  end)
+  mod.themeCoordinator.GearSlotOnClick(self, button)
 end
 
 --[[
-  Callback for a changeSlot OnEnter
+  Callback for a gearSlot OnEnter
 
   @param {table} self
 ]]--
 function me.GearSlotOnEnter(self)
-  self.highlightFrame:SetBackdropBorderColor(unpack(RGGM_CONSTANTS.HIGHLIGHT.hover))
-  self.highlightFrame:Show()
-
   mod.gearBarChangeMenu.UpdateChangeMenu(self.position, self:GetParent().id)
 
   local itemId = GetInventoryItemID(RGGM_CONSTANTS.UNIT_ID_PLAYER, self:GetAttribute("item"))
   mod.tooltip.UpdateTooltipById(itemId)
+  mod.themeCoordinator.GearSlotOnEnter(self)
 end
 
 --[[
@@ -808,8 +698,8 @@ end
   @param {table} self
 ]]--
 function me.GearSlotOnLeave(self)
-  self.highlightFrame:Hide()
   mod.tooltip.TooltipClear()
+  mod.themeCoordinator.GearSlotOnLeave(self)
 end
 
 --[[

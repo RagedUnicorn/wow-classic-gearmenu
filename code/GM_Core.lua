@@ -220,12 +220,14 @@ function me.Initialize()
   me.configuration.SetupConfiguration()
   -- setup addon configuration ui
   me.addonConfiguration.SetupAddonConfiguration()
+  -- sync up theme (needs to be happening before accessing ui elements)
+  me.themeCoordinator.UpdateTheme()
   -- build ui for all gearBars
   me.gearBar.BuildGearBars()
   -- build ui for changeMenu
   me.gearBarChangeMenu.BuildChangeMenu()
   -- update initial view of gearBars after addon initialization
-  me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarVisual)
+  --me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarVisual) -- TODO
 
   if me.configuration.IsTrinketMenuEnabled() then
     -- build ui for trinketMenu
