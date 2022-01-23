@@ -41,6 +41,12 @@ rggm.L["item_quality_uncommon"] = "Uncommon (Green)"
 rggm.L["item_quality_rare"] = "Rare (Blue)"
 rggm.L["item_quality_epic"] = "Epic (Purple)"
 rggm.L["item_quality_legendary"] = "Legendary (Orange)"
+rggm.L["choose_theme"] = "Choose Theme:"
+rggm.L["theme_classic"] = "Classic"
+rggm.L["theme_custom"] = "Custom"
+rggm.L["theme_change_confirmation"] = "This will reload your Interface. Do you want to proceed?"
+rggm.L["theme_change_confirmation_yes"] = "Yes"
+rggm.L["theme_change_confirmation_no"] = "No"
 
 -- trinketMenu
 rggm.L["trinket_menu_category_name"] = "TrinketMenu"

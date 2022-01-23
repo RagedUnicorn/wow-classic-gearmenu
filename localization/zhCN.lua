@@ -7,20 +7,20 @@ if (GetLocale() == "zhCN") then
 
   rggm.L["addon_name"] = "GearMenu"
 
--- console
+  -- console
   rggm.L["help"] = "|cFFFFC300(%s)|r: 输入 |cFFFFC300/rggm|r 或 |cFFFFC300/gearmenu|r 打开选项列表"
   rggm.L["opt"] = "|cFFFFC300opt|r - 显示设置菜单"
   rggm.L["reload"] = "|cFFFFC300reload|r - 重置UI"
   rggm.L["info_title"] = "|cFF00FFB0GearMenu:|r"
   rggm.L["invalid_argument"] = "参数无效"
 
--- about
+  -- about
   rggm.L["author"] = "Author: Michael Wiesendanger"
   rggm.L["email"] = "E-Mail: michael.wiesendanger@gmail.com"
   rggm.L["version"] = "Version: " .. GetAddOnMetadata(RGGM_CONSTANTS.ADDON_NAME, "Version")
   rggm.L["issues"] = "Issues: https://github.com/RagedUnicorn/wow-classic-gearmenu/issues"
 
--- general
+  -- general
   rggm.L["general_category_name"] = "一般"
   rggm.L["general_title"] = "一般配置"
   rggm.L["enable_tooltips"] = "鼠标提示"
@@ -40,8 +40,14 @@ if (GetLocale() == "zhCN") then
   rggm.L["item_quality_rare"] = "蓝色"
   rggm.L["item_quality_epic"] = "紫色"
   rggm.L["item_quality_legendary"] = "橙色"
+  rggm.L["choose_theme"] = "Choose Theme:"
+  rggm.L["theme_classic"] = "Classic"
+  rggm.L["theme_custom"] = "Custom"
+  rggm.L["theme_change_confirmation"] = "This will reload your Interface. Do you want to proceed?"
+  rggm.L["theme_change_confirmation_yes"] = "Yes"
+  rggm.L["theme_change_confirmation_no"] = "No"
 
--- quickchange
+  -- quickchange
   rggm.L["quick_change_category_name"] = "快速更换"
   rggm.L["quick_change_title"] = "快速更换"
   rggm.L["quick_change_slider_title"] = "延迟(秒)"
@@ -70,7 +76,7 @@ if (GetLocale() == "zhCN") then
   rggm.L["trinket_menu_slot_size_slider_title"] = "Slot Size"
   rggm.L["trinket_menu_slot_size_slider_tooltip"] = "The size of a slot in the TrinketMenu"
 
--- slot translations
+  -- slot translations
   rggm.L["slot_name_head"] = "头"
   rggm.L["slot_name_neck"] = "项链"
   rggm.L["slot_name_shoulders"] = "肩膀"

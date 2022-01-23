@@ -42,6 +42,12 @@ if (GetLocale() == "deDE") then
   rggm.L["item_quality_rare"] = "Selten (Blau)"
   rggm.L["item_quality_epic"] = "Episch (Violet)"
   rggm.L["item_quality_legendary"] = "Legendär (Orange)"
+  rggm.L["choose_theme"] = "Wähle Theme:"
+  rggm.L["theme_classic"] = "Klassisch"
+  rggm.L["theme_custom"] = "Angepasst"
+  rggm.L["theme_change_confirmation"] = "Dies wird dein Interface neu laden. Willst du fortfahren?"
+  rggm.L["theme_change_confirmation_yes"] = "Ja"
+  rggm.L["theme_change_confirmation_no"] = "Nein"
 
   -- quickchange
   rggm.L["quick_change_category_name"] = "Schnellwechsel"

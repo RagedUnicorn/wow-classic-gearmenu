@@ -22,7 +22,7 @@
   SOFTWARE.
 ]]--
 
--- luacheck: globals CreateFrame STANDARD_TEXT_FONT
+-- luacheck: globals CreateFrame STANDARD_TEXT_FONT ReloadUI StaticPopupDialogs StaticPopup_Show
 
 local mod = rggm
 local me = {}
@@ -65,6 +65,24 @@ local enableUnequipSlotMetaData = {
 
 -- track whether the menu was already built
 local builtMenu = false
+
+--[[
+  Popup dialog for reloading interface
+]]--
+
+StaticPopupDialogs["RGGM_RELOAD_INTERFACE"] = {
+  text = rggm.L["theme_change_confirmation"],
+  button1 = rggm.L["theme_change_confirmation_yes"],
+  button2 = rggm.L["theme_change_confirmation_no"],
+  OnAccept = function(_, data, data2)
+    mod.configuration.SetUiTheme(tonumber(data))
+    mod.libUiDropDownMenu.UiDropDownMenu_SetSelectedValue(data2, data)
+    ReloadUI()
+  end,
+  timeout = 0,
+  whileDead = true,
+  preferredIndex = 3
+}
 
 --[[
   Build the ui for the general menu
@@ -132,7 +150,9 @@ function me.BuildUi(parentFrame)
   )
 
   me.CreateItemQualityLabel(generalMenuContentFrame)
-  me.CreateItemQualityDropDown(generalMenuContentFrame)
+  me.CreateItemQualityDropdown(generalMenuContentFrame)
+  me.CreateThemeLabel(generalMenuContentFrame)
+  me.CreateChooseThemeDropdown(generalMenuContentFrame)
 
   builtMenu = true
 end
@@ -165,15 +185,130 @@ end
 --[[
   @param {table} frame
 ]]--
-function me.CreateItemQualityDropDown(frame)
-  local itemQualityDropDownMenu = mod.libUiDropDownMenu.CreateUiDropDownMenu(
+function me.CreateItemQualityDropdown(frame)
+  local itemQualityDropdownMenu = mod.libUiDropDownMenu.CreateUiDropDownMenu(
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_FILTER_ITEM_QUALITY,
     frame
   )
-  itemQualityDropDownMenu:SetPoint("TOPLEFT", 0, -240)
+  itemQualityDropdownMenu:SetPoint("TOPLEFT", 0, -240)
 
-  mod.libUiDropDownMenu.UiDropDownMenu_SetWidth(itemQualityDropDownMenu, 150)
-  mod.libUiDropDownMenu.UiDropDownMenu_Initialize(itemQualityDropDownMenu, me.InitializeDropDownMenu)
+  mod.libUiDropDownMenu.UiDropDownMenu_SetWidth(itemQualityDropdownMenu, 150)
+  mod.libUiDropDownMenu.UiDropDownMenu_Initialize(itemQualityDropdownMenu, me.InitializeItemQualityDropdownMenu)
+end
+
+--[[
+  Initialize dropdown menu for item quality filter
+
+  @param {table} self
+]]--
+function me.InitializeItemQualityDropdownMenu(self)
+  local button
+  local itemQualityFilter = mod.configuration.GetFilterItemQuality()
+
+  button = mod.uiHelper.CreateDropdownButton(rggm.L["item_quality_poor"],
+    RGGM_CONSTANTS.ITEMQUALITY.poor, me.ItemQualityDropdownMenuCallback)
+  mod.libUiDropDownMenu.UiDropDownMenu_AddButton(button)
+
+  button = mod.uiHelper.CreateDropdownButton(rggm.L["item_quality_common"],
+    RGGM_CONSTANTS.ITEMQUALITY.common, me.ItemQualityDropdownMenuCallback)
+  mod.libUiDropDownMenu.UiDropDownMenu_AddButton(button)
+
+  button = mod.uiHelper.CreateDropdownButton(rggm.L["item_quality_uncommon"],
+    RGGM_CONSTANTS.ITEMQUALITY.uncommon, me.ItemQualityDropdownMenuCallback)
+  mod.libUiDropDownMenu.UiDropDownMenu_AddButton(button)
+
+  button = mod.uiHelper.CreateDropdownButton(rggm.L["item_quality_rare"],
+    RGGM_CONSTANTS.ITEMQUALITY.rare, me.ItemQualityDropdownMenuCallback)
+  mod.libUiDropDownMenu.UiDropDownMenu_AddButton(button)
+
+  button = mod.uiHelper.CreateDropdownButton(rggm.L["item_quality_epic"],
+    RGGM_CONSTANTS.ITEMQUALITY.epic, me.ItemQualityDropdownMenuCallback)
+  mod.libUiDropDownMenu.UiDropDownMenu_AddButton(button)
+
+  button = mod.uiHelper.CreateDropdownButton(rggm.L["item_quality_legendary"],
+    RGGM_CONSTANTS.ITEMQUALITY.legendary, me.ItemQualityDropdownMenuCallback)
+  mod.libUiDropDownMenu.UiDropDownMenu_AddButton(button)
+
+  if mod.libUiDropDownMenu.UiDropDownMenu_GetSelectedValue(self) == nil then
+    mod.libUiDropDownMenu.UiDropDownMenu_SetSelectedValue(self, itemQualityFilter)
+  end
+end
+
+--[[
+  Callback for item quality dropdown
+
+  @param {table} self
+]]
+function me.ItemQualityDropdownMenuCallback(self)
+  -- update addon setting
+  mod.configuration.SetFilterItemQuality(tonumber(self.value))
+  mod.libUiDropDownMenu.UiDropDownMenu_SetSelectedValue(self:GetParent().dropdown, self.value)
+end
+
+--[[
+  @param {table} frame
+]]--
+function me.CreateThemeLabel(frame)
+  local chooseThemeLabel = frame:CreateFontString(
+    RGGM_CONSTANTS.ELEMENT_GENERAL_LABEL_CHOOSE_THEME,
+    "OVERLAY"
+  )
+  chooseThemeLabel:SetPoint("TOPLEFT", 250, -220)
+  chooseThemeLabel:SetFont(STANDARD_TEXT_FONT, 12)
+  chooseThemeLabel:SetTextColor(1, 1, 1)
+  chooseThemeLabel:SetText(rggm.L["choose_theme"])
+end
+
+--[[
+  @param {table} frame
+]]--
+function me.CreateChooseThemeDropdown(frame)
+  local chooseThemeDropdownMenu = mod.libUiDropDownMenu.CreateUiDropDownMenu(
+    RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_CHOOSE_THEME,
+    frame
+  )
+  chooseThemeDropdownMenu:SetPoint("TOPLEFT", 230, -240)
+
+  mod.libUiDropDownMenu.UiDropDownMenu_SetWidth(chooseThemeDropdownMenu, 150)
+  mod.libUiDropDownMenu.UiDropDownMenu_Initialize(chooseThemeDropdownMenu, me.InitializeChooseThemeDropdownMenu)
+end
+
+--[[
+  Initialize dropdown menu for choose theme
+
+  @param {table} self
+]]--
+function me.InitializeChooseThemeDropdownMenu(self)
+  local button
+  local configuredTheme = mod.configuration.GetUiTheme()
+
+  button = mod.uiHelper.CreateDropdownButton(rggm.L["theme_custom"],
+    RGGM_CONSTANTS.UI_THEME_CUSTOM, me.ChooseThemeDropdownMenuCallback)
+  mod.libUiDropDownMenu.UiDropDownMenu_AddButton(button)
+
+  button = mod.uiHelper.CreateDropdownButton(rggm.L["theme_classic"],
+    RGGM_CONSTANTS.UI_THEME_CLASSIC, me.ChooseThemeDropdownMenuCallback)
+  mod.libUiDropDownMenu.UiDropDownMenu_AddButton(button)
+
+  if mod.libUiDropDownMenu.UiDropDownMenu_GetSelectedValue(self) == nil then
+    mod.libUiDropDownMenu.UiDropDownMenu_SetSelectedValue(self, configuredTheme)
+  end
+end
+
+--[[
+  Callback for choose theme dropdown
+
+  @param {table} self
+]]
+function me.ChooseThemeDropdownMenuCallback(self)
+  if self.value == mod.configuration.GetUiTheme() then return end
+
+  -- force reload ui
+  local dialog = StaticPopup_Show("RGGM_RELOAD_INTERFACE")
+  if dialog then
+    dialog.data = self.value
+    dialog.data2 = self:GetParent().dropdown
+  end
 end
 
 --[[
@@ -314,54 +449,4 @@ function me.EnableUnequipSlotOnClick(self)
   else
     mod.configuration.DisableUnequipSlot()
   end
-end
-
---[[
-  Initialize dropdownmenus for item quality filter
-
-  @param {table} self
-]]--
-function me.InitializeDropDownMenu(self)
-  local button, itemQualityFilter
-
-  itemQualityFilter = mod.configuration.GetFilterItemQuality()
-
-  button = mod.uiHelper.CreateDropdownButton(rggm.L["item_quality_poor"],
-    RGGM_CONSTANTS.ITEMQUALITY.poor, me.DropDownMenuCallback)
-  mod.libUiDropDownMenu.UiDropDownMenu_AddButton(button)
-
-  button = mod.uiHelper.CreateDropdownButton(rggm.L["item_quality_common"],
-    RGGM_CONSTANTS.ITEMQUALITY.common, me.DropDownMenuCallback)
-  mod.libUiDropDownMenu.UiDropDownMenu_AddButton(button)
-
-  button = mod.uiHelper.CreateDropdownButton(rggm.L["item_quality_uncommon"],
-    RGGM_CONSTANTS.ITEMQUALITY.uncommon, me.DropDownMenuCallback)
-  mod.libUiDropDownMenu.UiDropDownMenu_AddButton(button)
-
-  button = mod.uiHelper.CreateDropdownButton(rggm.L["item_quality_rare"],
-    RGGM_CONSTANTS.ITEMQUALITY.rare, me.DropDownMenuCallback)
-  mod.libUiDropDownMenu.UiDropDownMenu_AddButton(button)
-
-  button = mod.uiHelper.CreateDropdownButton(rggm.L["item_quality_epic"],
-    RGGM_CONSTANTS.ITEMQUALITY.epic, me.DropDownMenuCallback)
-  mod.libUiDropDownMenu.UiDropDownMenu_AddButton(button)
-
-  button = mod.uiHelper.CreateDropdownButton(rggm.L["item_quality_legendary"],
-    RGGM_CONSTANTS.ITEMQUALITY.legendary, me.DropDownMenuCallback)
-  mod.libUiDropDownMenu.UiDropDownMenu_AddButton(button)
-
-  if mod.libUiDropDownMenu.UiDropDownMenu_GetSelectedValue(self) == nil then
-    mod.libUiDropDownMenu.UiDropDownMenu_SetSelectedValue(self, itemQualityFilter)
-  end
-end
-
---[[
-  Callback for optionsmenu dropdowns
-
-  @param {table} self
-]]
-function me.DropDownMenuCallback(self)
-  -- update addon setting
-  mod.configuration.SetFilterItemQuality(tonumber(self.value))
-  mod.libUiDropDownMenu.UiDropDownMenu_SetSelectedValue(self:GetParent().dropdown, self.value)
 end
