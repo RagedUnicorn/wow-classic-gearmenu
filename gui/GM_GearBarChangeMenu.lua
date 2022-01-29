@@ -65,79 +65,14 @@ end
 ]]--
 function me.CreateChangeSlots()
   for index = 1, RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT, RGGM_CONSTANTS.GEAR_BAR_CHANGE_COLUMN_AMOUNT do
-    local row = math.floor(index / RGGM_CONSTANTS.GEAR_BAR_CHANGE_COLUMN_AMOUNT)
-
     for column = 1, RGGM_CONSTANTS.GEAR_BAR_CHANGE_COLUMN_AMOUNT do
       if index + column - 1 > RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT then break end
 
-      local yPos = row * RGGM_CONSTANTS.GEAR_BAR_CHANGE_DEFAULT_SLOT_SIZE
-      local xPos = (column - 1) * RGGM_CONSTANTS.GEAR_BAR_CHANGE_DEFAULT_SLOT_SIZE
-
-      local changeSlot = me.CreateChangeSlot(changeMenuFrame, index + column - 1, xPos, yPos)
-
-      me.SetupEvents(changeSlot)
+      local changeSlot = mod.themeCoordinator.CreateChangeSlot(changeMenuFrame, index + column - 1)
+      table.insert(changeMenuSlots, changeSlot) -- store changeSlot
       changeSlot:Hide()
     end
   end
-end
-
---[[
-  Create a single changeSlot
-
-  @param {table} frame
-  @param {number} position
-  @param {number} xPos
-  @param {number} yPos
-
-  @return {table}
-    The created changeSlot
-]]--
-function me.CreateChangeSlot(frame, position, xPos, yPos)
-  local changeSlot = CreateFrame(
-    "Button",
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_SLOT .. position,
-    frame,
-    "BackdropTemplate"
-  )
-  changeSlot:SetFrameLevel(frame:GetFrameLevel() + 1)
-  changeSlot:SetSize(RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE, RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE)
-  changeSlot:ClearAllPoints()
-  changeSlot:SetPoint(
-    "BOTTOMLEFT",
-    frame,
-    "BOTTOMLEFT",
-    xPos,
-    yPos
-  )
-
-  local backdrop = {
-    bgFile = "Interface\\AddOns\\GearMenu\\assets\\ui_slot_background",
-    edgeFile = "Interface\\AddOns\\GearMenu\\assets\\ui_slot_background",
-    tile = false,
-    tileSize = 32,
-    edgeSize = 20,
-    insets = {
-      left = 12,
-      right = 12,
-      top = 12,
-      bottom = 12
-    }
-  }
-
-  changeSlot:SetBackdrop(backdrop)
-  changeSlot:SetBackdropColor(0.15, 0.15, 0.15, 1)
-  changeSlot:SetBackdropBorderColor(0, 0, 0, 1)
-
-  changeSlot.highlightFrame = mod.uiHelper.CreateHighlightFrame(changeSlot)
-  changeSlot.cooldownOverlay = mod.cooldown.CreateCooldownOverlay(
-    changeSlot,
-    RGGM_CONSTANTS.ELEMENT_SLOT_COOLDOWN_FRAME,
-    RGGM_CONSTANTS.GEAR_BAR_CHANGE_DEFAULT_SLOT_SIZE
-  )
-
-  table.insert(changeMenuSlots, changeSlot) -- store changeSlot
-
-  return changeSlot
 end
 
 --[[
@@ -239,13 +174,13 @@ end
   @param {number} changeSlotSize
 ]]--
 function me.UpdateChangeSlot(changeSlot, gearSlotMetaData, item, changeSlotSize)
-  mod.uiHelper.UpdateSlotTextureAttributes(changeSlot, changeSlotSize) -- TODO
+  mod.themeCoordinator.UpdateSlotTextureAttributes(changeSlot, changeSlotSize)
+
   -- update metadata for slot
   changeSlot.slotId = gearSlotMetaData.slotId
   changeSlot.itemId = item.id
   changeSlot.equipSlot = item.equipSlot
-
-  changeSlot:SetNormalTexture(item.icon)
+  changeSlot.itemTexture:SetTexture(item.icon)
   changeSlot:Show()
 end
 
@@ -270,6 +205,7 @@ function me.UpdateChangeSlotSize(changeSlotSize, changeMenu, changeSlot, xPos, y
     yPos
   )
 
+  mod.themeCoordinator.UpdateSlotTextureAttributes(changeSlot, changeSlotSize)
   me.UpdateCooldownOverlaySize(changeSlot, changeSlotSize)
 end
 
@@ -317,7 +253,7 @@ function me.UpdateEmptyChangeSlot(changeSlotSize, changeMenu, itemCount, gearSlo
 
   me.UpdateChangeSlotSize(
     changeSlotSize, changeMenu, emptyChangeMenuSlot, emptySlotPosition.xPos, emptySlotPosition.yPos)
-  mod.uiHelper.UpdateSlotTextureAttributes(emptyChangeMenuSlot, changeSlotSize) -- TODO
+  mod.themeCoordinator.UpdateSlotTextureAttributes(emptyChangeMenuSlot, changeSlotSize)
 
   emptyChangeMenuSlot.slotId = gearSlotMetaData.slotId
   emptyChangeMenuSlot.itemId = nil
@@ -399,9 +335,8 @@ end
 ]]--
 function me.ResetChangeMenu()
   for i = 1, table.getn(changeMenuSlots) do
-    changeMenuSlots[i]:SetNormalTexture(nil)
-    changeMenuSlots[i].highlightFrame:Hide()
     changeMenuSlots[i]:Hide()
+    mod.themeCoordinator.ChangeMenuSlotReset(i)
   end
 
   changeMenuFrame:Hide()
@@ -435,7 +370,7 @@ function me.UpdateChangeMenuProperties(gearBarId, gearSlotPosition)
   -- update changeMenuFrame's gearSlot position to the currently hovered gearSlot
   changeMenuFrame.gearSlotPosition = gearSlotPosition
 
-  -- cache whether cooldowns should be shown in the changemenu or not
+  -- cache whether cooldowns should be shown in the changeMenu or not
   if mod.gearBarManager.IsShowCooldownsEnabled(gearBarId) then
     changeMenuFrame.showCooldowns = true
   else
@@ -470,28 +405,6 @@ function me.SetupEvents(changeSlot)
 end
 
 --[[
-  Callback for a changeSlot OnEnter
-
-  @param {table} self
-]]--
-function me.ChangeSlotOnEnter(self)
-  self.highlightFrame:SetBackdropBorderColor(0.27, 0.4, 1, 1)
-  self.highlightFrame:Show()
-
-  mod.tooltip.UpdateTooltipById(self.itemId)
-end
-
---[[
-  Callback for a changeSlot OnLeave
-
-  @param {table} self
-]]--
-function me.ChangeSlotOnLeave(self)
-  self.highlightFrame:Hide()
-  mod.tooltip.TooltipClear()
-end
-
---[[
   Callback for a changeSlot OnClick
 
   @param {table} self
@@ -517,6 +430,27 @@ function me.ChangeSlotOnClick(self, button)
   end
 
   me.CloseChangeMenu()
+  mod.themeCoordinator.ChangeSlotOnClick(self, button)
+end
+
+--[[
+  Callback for a changeSlot OnEnter
+
+  @param {table} self
+]]--
+function me.ChangeSlotOnEnter(self)
+  mod.tooltip.UpdateTooltipById(self.itemId)
+  mod.themeCoordinator.ChangeSlotOnEnter(self)
+end
+
+--[[
+  Callback for a changeSlot OnLeave
+
+  @param {table} self
+]]--
+function me.ChangeSlotOnLeave(self)
+  mod.tooltip.TooltipClear()
+  mod.themeCoordinator.ChangeSlotOnLeave(self)
 end
 
 --[[

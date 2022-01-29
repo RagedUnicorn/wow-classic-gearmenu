@@ -71,7 +71,6 @@ function me.BuildTrinketMenu()
   trinketMenuFrame:SetClampedToScreen(true)
 
   me.SetupDragFrame(trinketMenuFrame)
-
   me.CreateTrinketMenuSlots()
   me.UpdateTrinketMenuLockedState()
   me.UpdateTrinketMenuResize()
@@ -81,58 +80,11 @@ end
   Create ui elements for the trinketMenuSlots
 ]]--
 function me.CreateTrinketMenuSlots()
-  for index = 1, RGGM_CONSTANTS.TRINKET_MENU_DEFAULT_SLOT_AMOUNT do
-    local trinketSlot = me.CreateTrinketSlot(index)
-
-    me.SetupEvents(trinketSlot)
+  for position = 1, RGGM_CONSTANTS.TRINKET_MENU_DEFAULT_SLOT_AMOUNT do
+    local trinketSlot = mod.themeCoordinator.CreateTrinketSlot(trinketMenuFrame, position)
+    table.insert(trinketMenuSlots, trinketSlot) -- store trinketSlot
     trinketSlot:Hide()
   end
-end
-
---[[
-  Create a single trinketMenuSlot for the trinketMenu
-
-  @param {number} position
-
-  @return {table}
-    The created trinketMenuSlot
-]]--
-function me.CreateTrinketSlot(position)
-  local trinketMenuSlot = CreateFrame(
-    "Button",
-    RGGM_CONSTANTS.ELEMENT_TRINKET_MENU_SLOT .. position,
-    trinketMenuFrame,
-    "SecureActionButtonTemplate, BackdropTemplate"
-  )
-
-  local backdrop = {
-    bgFile = "Interface\\AddOns\\GearMenu\\assets\\ui_slot_background",
-    edgeFile = "Interface\\AddOns\\GearMenu\\assets\\ui_slot_background",
-    tile = false,
-    tileSize = 32,
-    edgeSize = 20,
-    insets = {
-      left = 12,
-      right = 12,
-      top = 12,
-      bottom = 12
-    }
-  }
-
-  trinketMenuSlot:SetBackdrop(backdrop)
-  trinketMenuSlot:SetBackdropColor(0.15, 0.15, 0.15, 1)
-  trinketMenuSlot:SetBackdropBorderColor(0, 0, 0, 1)
-
-  trinketMenuSlot.highlightFrame = mod.uiHelper.CreateHighlightFrame(trinketMenuSlot)
-  trinketMenuSlot.cooldownOverlay = mod.cooldown.CreateCooldownOverlay(
-    trinketMenuSlot,
-    RGGM_CONSTANTS.ELEMENT_SLOT_COOLDOWN_FRAME,
-    mod.configuration.GetTrinketMenuSlotSize()
-  )
-
-  table.insert(trinketMenuSlots, trinketMenuSlot) -- store trinketMenuSlot
-
-  return trinketMenuSlot
 end
 
 --[[
@@ -200,7 +152,6 @@ function me.UpdateTrinketMenuSlotSize()
 
       local trinketMenuSlot = trinketMenuSlots[index + column -1]
 
-      mod.uiHelper.UpdateSlotTextureAttributes(trinketMenuSlot, trinketMenuSlotSize) -- TODO
       trinketMenuSlot:SetSize(
         trinketMenuSlotSize,
         trinketMenuSlotSize
@@ -217,10 +168,10 @@ function me.UpdateTrinketMenuSlotSize()
         xPos,
         yPos
       )
+
+      mod.themeCoordinator.UpdateSlotTextureAttributes(trinketMenuSlot, trinketMenuSlotSize)
     end
   end
-
-  me.UpdateTrinketMenuSize(#mod.itemManager.GetItemsForInventoryType({RGGM_CONSTANTS.TRINKET_MENU_INV_TYPE}))
 end
 
 --[[
@@ -250,12 +201,11 @@ end
   @param {number} trinketMenuSlotSize
 ]]--
 function me.UpdateTrinketMenuSlot(trinketMenuSlot, item, trinketMenuSlotSize)
-  mod.uiHelper.UpdateSlotTextureAttributes(trinketMenuSlot, trinketMenuSlotSize) -- TODO
+  mod.themeCoordinator.UpdateSlotTextureAttributes(trinketMenuSlot, trinketMenuSlotSize)
 
   trinketMenuSlot.itemId = item.id
   trinketMenuSlot.equipSlot = item.equipSlot
-
-  trinketMenuSlot:SetNormalTexture(item.icon)
+  trinketMenuSlot.itemTexture:SetTexture(item.icon)
   trinketMenuSlot:Show()
 end
 
@@ -283,9 +233,8 @@ end
   @param {table} trinketMenuSlot
 ]]--
 function me.ResetTrinketMenuSlot(trinketMenuSlot)
-  trinketMenuSlot:SetNormalTexture(nil)
-  trinketMenuSlot.highlightFrame:Hide()
   trinketMenuSlot:Hide()
+  mod.themeCoordinator.TrinketMenuSlotReset(trinketMenuSlot)
 end
 
 --[[
@@ -369,10 +318,8 @@ end
   @param {table} self
 ]]--
 function me.TrinketMenuSlotOnEnter(self)
-  self.highlightFrame:SetBackdropBorderColor(0.27, 0.4, 1, 1)
-  self.highlightFrame:Show()
-
   mod.tooltip.UpdateTooltipById(self.itemId)
+  mod.themeCoordinator.TrinketMenuSlotOnEnter(self)
 end
 
 --[[
@@ -381,8 +328,8 @@ end
   @param {table} self
 ]]--
 function me.TrinketMenuSlotOnLeave(self)
-  self.highlightFrame:Hide()
   mod.tooltip.TooltipClear()
+  mod.themeCoordinator.TrinketMenuSlotOnLeave(self)
 end
 
 --[[
@@ -401,6 +348,8 @@ function me.TrinketMenuSlotOnClick(self, button)
   else
     mod.itemManager.EquipItemById(self.itemId, INVSLOT_TRINKET1, self.equipSlot)
   end
+
+  mod.themeCoordinator.TrinketMenuSlotOnClick(self, button)
 end
 
 --[[

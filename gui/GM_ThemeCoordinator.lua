@@ -70,6 +70,43 @@ function me.CreateGearSlot(gearBarFrame, gearBar, position)
 end
 
 --[[
+  Fallthrough for CreateTrinketSlot
+
+  @param {table} changeMenuFrame
+    The changeMenuFrame where the changeSlot gets attached to
+  @param {number} position
+
+  @return {table}
+    The created changeSlot
+]]--
+function me.CreateChangeSlot(changeMenuFrame, position)
+  if type(themeReference.CreateChangeSlot) == "function" then
+    return themeReference.CreateChangeSlot(changeMenuFrame, position)
+  else
+    mod.logger.LogInfo(me.tag, "No implementation for CreateChangeSlot in theme doing nothing...")
+  end
+end
+
+--[[
+  Fallthrough for CreateTrinketSlot
+
+  @param {table} trinketMenuFrame
+    The trinketMenuFrame where the trinketSlot gets attached to
+  @param {number} position
+    Position in the trinketMenu
+
+  @return {table}
+    The created trinketSlot
+]]--
+function me.CreateTrinketSlot(trinketMenuFrame, position)
+  if type(themeReference.CreateTrinketSlot) == "function" then
+    return themeReference.CreateTrinketSlot(trinketMenuFrame, position)
+  else
+    mod.logger.LogInfo(me.tag, "No implementation for CreateTrinketSlot in theme doing nothing...")
+  end
+end
+
+--[[
   Slot prepare texture
 
   @param {table} slot
@@ -120,5 +157,111 @@ function me.GearSlotOnLeave(self)
     themeReference.GearSlotOnLeave(self)
   else
     mod.logger.LogInfo(me.tag, "No implementation for GearSlotOnLeave in theme doing nothing...")
+  end
+end
+
+--[[
+  Callback for a changeSlot OnClick
+
+  @param {table} self
+  @param {string} button
+]]--
+function me.ChangeSlotOnClick(self, button)
+  if type(themeReference.ChangeSlotOnClick) == "function" then
+    themeReference.ChangeSlotOnClick(self, button)
+  else
+    mod.logger.LogInfo(me.tag, "No implementation for ChangeSlotOnClick in theme doing nothing...")
+  end
+end
+
+--[[
+  Callback for a changeSlot OnEnter
+
+  @param {table} self
+]]--
+function me.ChangeSlotOnEnter(self)
+  if type(themeReference.ChangeSlotOnEnter) == "function" then
+    themeReference.ChangeSlotOnEnter(self)
+  else
+    mod.logger.LogInfo(me.tag, "No implementation for ChangeSlotOnEnter in theme doing nothing...")
+  end
+end
+
+--[[
+  Callback for a changeSlot OnLeave
+
+  @param {table} self
+]]--
+function me.ChangeSlotOnLeave(self)
+  if type(themeReference.ChangeSlotOnLeave) == "function" then
+    themeReference.ChangeSlotOnLeave(self)
+  else
+    mod.logger.LogInfo(me.tag, "No implementation for ChangeSlotOnLeave in theme doing nothing...")
+  end
+end
+
+--[[
+  Callback for changeMenuSlotReset
+
+  @param {table} changeMenuSlot
+]]--
+function me.ChangeMenuSlotReset(changeMenuSlot)
+  if type(themeReference.ChangeMenuSlotReset) == "function" then
+    themeReference.ChangeMenuSlotReset(changeMenuSlot)
+  else
+    mod.logger.LogInfo(me.tag, "No implementation for ChangeMenuSlotReset in theme doing nothing...")
+  end
+end
+
+--[[
+  Callback for a trinketMenuSlot OnClick
+
+  @param {table} self
+  @param {string} button
+]]--
+function me.TrinketMenuSlotOnClick(self, button)
+  if type(themeReference.TrinketMenuSlotOnClick) == "function" then
+    themeReference.TrinketMenuSlotOnClick(self, button)
+  else
+    mod.logger.LogInfo(me.tag, "No implementation for TrinketMenuSlotOnClick in theme doing nothing...")
+  end
+end
+
+--[[
+  Callback for a trinketMenuSlot OnEnter
+
+  @param {table} self
+]]--
+function me.TrinketMenuSlotOnEnter(self)
+  if type(themeReference.TrinketMenuSlotOnEnter) == "function" then
+    themeReference.TrinketMenuSlotOnEnter(self)
+  else
+    mod.logger.LogInfo(me.tag, "No implementation for TrinketMenuSlotOnEnter in theme doing nothing...")
+  end
+end
+
+--[[
+  Callback for a trinketMenuSlot OnLeave
+
+  @param {table} self
+]]--
+function me.TrinketMenuSlotOnLeave(self)
+  if type(themeReference.TrinketMenuSlotOnLeave) == "function" then
+    themeReference.TrinketMenuSlotOnLeave(self)
+  else
+    mod.logger.LogInfo(me.tag, "No implementation for TrinketMenuSlotOnLeave in theme doing nothing...")
+  end
+end
+
+--[[
+  Callback for trinketMenuSlotReset
+
+  @param {table} trinketMenuSlot
+]]--
+function me.TrinketMenuSlotReset(trinketMenuSlot)
+  if type(themeReference.TrinketMenuSlotReset) == "function" then
+    themeReference.TrinketMenuSlotReset(trinketMenuSlot)
+  else
+    mod.logger.LogInfo(me.tag, "No implementation for TrinketMenuSlotReset in theme doing nothing...")
   end
 end

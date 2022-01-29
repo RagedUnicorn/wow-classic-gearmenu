@@ -56,13 +56,11 @@ function me.CreateGearSlot(gearBarFrame, gearBar, position)
 
   gearSlot:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square")
   gearSlot:SetNormalTexture("Interface\\Buttons\\UI-Quickslot2")
+  gearSlot:SetPushedTexture("Interface\\Buttons\\UI-Quickslot-Depress")
 
   local normalTexture = gearSlot:GetNormalTexture()
   normalTexture:SetTexCoord(0.19, 0.79, 0.19, 0.79)
   normalTexture:SetSize(gearBar.gearSlotSize, gearBar.gearSlotSize)
-  gearSlot:SetPushedTexture("Interface\\Buttons\\UI-Quickslot-Depress")
-
-  me.CreateItemTexture(gearSlot, gearBar.gearSlotSize) -- create texture for icon
 
   gearSlot:SetSize(gearBar.gearSlotSize, gearBar.gearSlotSize)
   gearSlot:SetPoint(
@@ -80,6 +78,7 @@ function me.CreateGearSlot(gearBarFrame, gearBar, position)
     gearSlot:SetAttribute("item", gearSlotMetaData.slotId)
   end
 
+  mod.uiHelper.CreateItemTexture(gearSlot, gearBar.gearSlotSize)
   gearSlot.combatQueueSlot = mod.gearBar.CreateCombatQueueSlot(gearSlot, gearBar.gearSlotSize)
   gearSlot.keyBindingText = mod.gearBar.CreateKeyBindingText(gearSlot, gearBar.gearSlotSize)
   gearSlot.position = position
@@ -90,27 +89,82 @@ function me.CreateGearSlot(gearBarFrame, gearBar, position)
     RGGM_CONSTANTS.UI_THEME_CLASSIC
   )
 
-  mod.gearBar.UpdateGearSlotTexture(gearSlot, gearSlotMetaData)
-  mod.cooldown.UpdateGearSlotCooldown(gearBar, gearSlot, gearSlotMetaData)
-  me.UpdateSlotTextureAttributes(gearSlot, gearBar.gearSlotSize)
   mod.gearBar.SetupEvents(gearSlot)
 
   return gearSlot
 end
 
 --[[
-  Create a texture for the icon of whatever item is currently in the gearSlot
+  Create a single changeSlot
 
-  @param {table} slot
-  @param {number} slotSize
+  @param {table} changeMenuFrame
+  @param {number} position
+
+  @return {table}
+    The created changeSlot
 ]]--
-function me.CreateItemTexture(slot, slotSize)
-  slot.itemTexture = slot:CreateTexture()
-  slot.itemTexture:SetSize(slotSize - 1, slotSize - 1)
-  slot.itemTexture:SetPoint(
-    "CENTER",
-    0, 0
+function me.CreateChangeSlot(changeMenuFrame, position)
+  local changeSlot = CreateFrame(
+    "Button",
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_SLOT .. position,
+    changeMenuFrame
   )
+
+  changeSlot:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square")
+  changeSlot:SetNormalTexture("Interface\\Buttons\\UI-Quickslot2")
+  changeSlot:SetPushedTexture("Interface\\Buttons\\UI-Quickslot-Depress")
+
+  local normalTexture = changeSlot:GetNormalTexture()
+  normalTexture:SetTexCoord(0.19, 0.79, 0.19, 0.79)
+  normalTexture:SetSize(RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE, RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE)
+
+  mod.uiHelper.CreateItemTexture(changeSlot, RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE)
+  changeSlot.cooldownOverlay = mod.cooldown.CreateCooldownOverlay(
+    changeSlot,
+    RGGM_CONSTANTS.ELEMENT_SLOT_COOLDOWN_FRAME,
+    RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE
+  )
+
+  mod.gearBarChangeMenu.SetupEvents(changeSlot)
+
+  return changeSlot
+end
+
+--[[
+  @param {table} trinketMenuFrame
+    The trinketMenuFrame to attach the created slot to
+  @param {number} position
+    Position withing the trinketMenu
+
+  @return {table}
+    The created trinketMenuSlot
+]]--
+function me.CreateTrinketSlot(trinketMenuFrame, position)
+  local trinketMenuSlot = CreateFrame(
+    "Button",
+    RGGM_CONSTANTS.ELEMENT_TRINKET_MENU_SLOT .. position,
+    trinketMenuFrame
+  )
+
+  trinketMenuSlot:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square")
+  trinketMenuSlot:SetNormalTexture("Interface\\Buttons\\UI-Quickslot2")
+  trinketMenuSlot:SetPushedTexture("Interface\\Buttons\\UI-Quickslot-Depress")
+
+  local normalTexture = trinketMenuSlot:GetNormalTexture()
+  local trinketMenuSlotSize = mod.configuration.GetTrinketMenuSlotSize()
+  normalTexture:SetTexCoord(0.19, 0.79, 0.19, 0.79)
+  normalTexture:SetSize(trinketMenuSlotSize, trinketMenuSlotSize)
+
+  mod.uiHelper.CreateItemTexture(trinketMenuSlot, trinketMenuSlotSize)
+  trinketMenuSlot.cooldownOverlay = mod.cooldown.CreateCooldownOverlay(
+    trinketMenuSlot,
+    RGGM_CONSTANTS.ELEMENT_SLOT_COOLDOWN_FRAME,
+    trinketMenuSlotSize
+  )
+
+  mod.trinketMenu.SetupEvents(trinketMenuSlot)
+
+  return trinketMenuSlot
 end
 
 --[[
@@ -137,4 +191,3 @@ function me.UpdateSlotTextureAttributes(slot, slotSize)
     slotSize * RGGM_CONSTANTS.GEAR_BAR_SLOT_BORDER_MODIFIER
   )
 end
-

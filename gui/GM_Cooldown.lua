@@ -72,7 +72,6 @@ function me.CreateCooldownOverlay(slot, frameName, slotSize, uiTheme)
 end
 
 --[[
-  TODO can this be reused for TrinketMenu and ChangeMenu
   Update the cooldown of a single gearSlot
 
   @param {table} gearBar

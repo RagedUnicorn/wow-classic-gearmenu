@@ -110,7 +110,7 @@ function me.OnEvent(event, ...)
     me.logger.LogEvent(me.tag, "BAG_UPDATE")
 
     if initializationDone then
-      -- trigger UpdateChangeMenu again to update items after an item was equiped
+      -- trigger UpdateChangeMenu again to update items after an item was equipped
       if _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_FRAME]:IsVisible() then
         me.gearBarChangeMenu.UpdateChangeMenu()
       end
@@ -227,7 +227,7 @@ function me.Initialize()
   -- build ui for changeMenu
   me.gearBarChangeMenu.BuildChangeMenu()
   -- update initial view of gearBars after addon initialization
-  --me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarVisual) -- TODO
+  me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarVisual)
 
   if me.configuration.IsTrinketMenuEnabled() then
     -- build ui for trinketMenu
