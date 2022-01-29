@@ -114,6 +114,10 @@ function me.OnEvent(event, ...)
       if _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_FRAME]:IsVisible() then
         me.gearBarChangeMenu.UpdateChangeMenu()
       end
+
+      if me.configuration.IsTrinketMenuEnabled() then
+        me.trinketMenu.UpdateTrinketMenu()
+      end
     end
   elseif event == "UNIT_INVENTORY_CHANGED" then
     me.logger.LogEvent(me.tag, "UNIT_INVENTORY_CHANGED")
