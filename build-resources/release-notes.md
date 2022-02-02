@@ -5,3 +5,7 @@
 # Updates
 
 * Update licensing year to 2022
+
+# Fixes
+
+* Fix adding new gearSlots to a gearBar
