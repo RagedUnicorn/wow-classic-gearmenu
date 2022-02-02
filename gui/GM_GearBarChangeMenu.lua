@@ -336,7 +336,7 @@ end
 function me.ResetChangeMenu()
   for i = 1, table.getn(changeMenuSlots) do
     changeMenuSlots[i]:Hide()
-    mod.themeCoordinator.ChangeMenuSlotReset(i)
+    mod.themeCoordinator.ChangeMenuSlotReset(changeMenuSlots[i])
   end
 
   changeMenuFrame:Hide()
