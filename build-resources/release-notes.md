@@ -1,6 +1,6 @@
 # Features
 
-* GearMenu has no basic support for two themes custom(the current theme) and classic
+* GearMenu has now basic support for two themes custom(the current theme) and classic
 
 # Updates
 
