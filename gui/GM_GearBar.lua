@@ -394,6 +394,7 @@ function me.UpdateGearBarGearSlotTextures(gearBar)
     local uiGearSlot = uiGearBar.gearSlotReferences[index]
 
     me.UpdateGearSlotTexture(uiGearSlot, gearSlot)
+    mod.themeCoordinator.UpdateSlotTextureAttributes(uiGearSlot, gearBar.gearSlotSize)
   end
 end
 
@@ -544,7 +545,7 @@ function me.CreateNewGearSlot(gearBar, uiGearBar, position)
   -- create new gearSlot
   mod.logger.LogInfo(me.tag, "GearSlot does not yet exist. Creating a new one")
 
-  local gearSlot = me.CreateGearSlot2(uiGearBar.gearBarReference, gearBar, position)
+  local gearSlot = me.CreateGearSlot(uiGearBar.gearBarReference, gearBar, position)
   mod.gearBarStorage.AddGearSlot(gearBar.id, gearSlot)
 end
 
