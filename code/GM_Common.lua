@@ -91,4 +91,3 @@ end
 function me.GetUiScale()
   return UIParent:GetScale()
 end
-
