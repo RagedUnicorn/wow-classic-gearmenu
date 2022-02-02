@@ -229,6 +229,18 @@ Not interested to see items with a quality level below a certain level? Filter t
 
 ![](docs/gm_options_filter_item_quality.gif)
 
+#### Themes
+
+GearMenu supports two different themes for its ui elements. By default the custom theme will be used.
+
+##### Custom
+
+![](docs/gm_theme_custom.jpg)
+
+##### Classic
+
+![](docs/gm_theme_classic.jpg)
+
 ### TrinketMenu Configuration
 
 TrinketMenu supports the following configuration features.
