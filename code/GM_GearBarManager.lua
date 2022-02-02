@@ -72,7 +72,6 @@ function me.AddGearBar(gearBarName, addDefaultSlot)
   end
 
   return gearBar
-
 end
 
 --[[
