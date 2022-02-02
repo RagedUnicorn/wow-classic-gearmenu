@@ -44,8 +44,8 @@ local currentSelectedSlotId = RGGM_CONSTANTS.CATEGORY_DROPDOWN_DEFAULT_VALUE
 --[[
   Holds items that match the currentSelectedSlotId and caches them
 ]]--
-local fromCachedQuickChangeItems = nil
-local toCachedQuickChangeItems = nil
+local fromCachedQuickChangeItems
+local toCachedQuickChangeItems
 --[[
   Tracks the current selected 'from' and 'to' item ids
 

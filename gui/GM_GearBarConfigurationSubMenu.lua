@@ -53,13 +53,13 @@ local gearBarConfigurationSlotsList
   of slots that are configurable. More slots can be added or removed. When this frame is reused
   the parent needs to be adapted and the ui update to represent the state of the gearBar
 ]]
-local gearBarConfigurationContentFrame = nil
+local gearBarConfigurationContentFrame
 
 --[[
   The gearBarId of the gearBar that is currently getting configured
   (changes with switching menu to another gearBar in addon settings)
 ]]--
-local gearBarConfiguration = nil
+local gearBarConfiguration
 
 --[[
   Option texts for checkbutton options

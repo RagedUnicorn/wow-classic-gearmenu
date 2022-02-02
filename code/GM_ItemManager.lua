@@ -362,7 +362,7 @@ end
     nil - If no item could be found
 ]]--
 function me.AddItemsMatchingInventoryType(inventoryType, itemId, mustHaveOnUse)
-  local item = nil
+  local item
   local itemName, _, _, _, _, _, _, _, equipSlot, itemIcon = GetItemInfo(itemId)
 
   for it = 1, table.getn(inventoryType) do
