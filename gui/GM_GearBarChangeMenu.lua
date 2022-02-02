@@ -94,7 +94,8 @@ function me.UpdateChangeMenu(gearSlotPosition, gearBarId)
   me.UpdateChangeMenuProperties(gearBarId, gearSlotPosition)
 
   local gearBar = mod.gearBarManager.GetGearBar(changeMenuFrame.gearBarId)
-  local gearBarChangeSlotSize = mod.gearBarManager.GetChangeSlotSize(changeMenuFrame.gearBarId)
+  local gearBarChangeSlotSize =
+    mod.gearBarManager.GetChangeSlotSize(changeMenuFrame.gearBarId) * mod.common.GetUiScale()
   local gearSlotMetaData = gearBar.slots[changeMenuFrame.gearSlotPosition]
   local uiGearBar = mod.gearBarStorage.GetGearBar(changeMenuFrame.gearBarId)
 

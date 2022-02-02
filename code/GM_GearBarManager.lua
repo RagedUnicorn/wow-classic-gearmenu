@@ -512,7 +512,7 @@ function me.GetChangeSlotSize(gearBarId)
   local gearBar = me.GetGearBar(gearBarId)
 
   if gearBar then
-    return gearBar.changeSlotSize * mod.common.GetUiScale()
+    return gearBar.changeSlotSize
   else
     mod.logger.LogError(me.tag, "Failed to retrieve changeSlotSize. Using default size")
 
