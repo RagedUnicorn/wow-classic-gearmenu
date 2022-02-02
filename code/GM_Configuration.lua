@@ -76,7 +76,9 @@ GearMenuConfiguration = {
   ["filterItemQuality"] = 2,
   --[[
     Stores all relevant metadata for the users gearBars. It does only store data that should be persisted. This
-    does not include references to ui elements
+    does not include references to ui elements.
+
+    For details see GM_GearBarManager.lua
 
     {
       ["id"] = {number},
