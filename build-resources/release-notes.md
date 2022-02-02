@@ -1,8 +1,7 @@
+# Features
+
+* GearMenu has no basic support for two themes custom(the current theme) and classic
+
 # Updates
 
-* Update Interface Version to 11401(1.14.1) - Ready for Classic Season of Mastery
-
-# Fix
-
-* Replace AttemptToSaveBindings with SaveBindings
-  * AttemptToSaveBindings is no longer available and was replaced by SaveBindings
+* Update licensing year to 2022
