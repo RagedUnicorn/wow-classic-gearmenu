@@ -1,11 +1,7 @@
-# Features
-
-* GearMenu has now basic support for two themes custom(the current theme) and classic
-
 # Updates
 
-* Update licensing year to 2022
+* Update Interface Version to 11402(1.14.2)
 
 # Fixes
-
-* Fix adding new gearSlots to a gearBar
+* Fix changeMenu size setting
+  * UIScale should only be included into the calculation when displaying the changeMenu but not when displaying the value in the settings menu
