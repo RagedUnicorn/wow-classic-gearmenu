@@ -68,7 +68,7 @@ Certain items cannot be switched while the player is in combat. Weapons will be 
 
 ![](docs/gm_combat_queue.gif)
 
-> Note: You can right click any slot to clear the combatqueue for that slot
+> Note: You can right-click any slot to clear the combatqueue for that slot
 
 ![](docs/gm_combat_queue_cancel.gif)
 
@@ -82,9 +82,9 @@ This is also the case if you cancel your cast.
 
 ### Quick Change
 
-Quick change consists of rules that apply when certain items are used. The player can define rules for items that have a usable effect. An item might be immediately switched after use or only after a certain delay. Otherwise the same rules for item switching apply. This means that if the user is in combat it will be moved to the combat queue and if he is out of combat the item will be immediately switched. See the optionsmenu for defining new rules based on the item type.
+Quick change consists of rules that apply when certain items are used. The player can define rules for items that have a usable effect. An item might be immediately switched after use or only after a certain delay. Otherwise, the same rules for item switching apply. This means that if the user is in combat it will be moved to the combat queue and if he is out of combat the item will be immediately switched. See the optionsmenu for defining new rules based on the item type.
 
-> Note: If an item has a buff effect and you immediately change the item you will usually also lose its buff. In most cases it makes sense to set the delay to the duration of the buff
+> Note: If an item has a buff effect, and you immediately change the item you will usually also lose its buff. In most cases it makes sense to set the delay to the duration of the buff
 
 ![](docs/gm_quick_change_add_rule.gif)
 
@@ -96,7 +96,7 @@ GearMenu allows to keybind to every slot with a keybinding. Keybindings have to 
 
 ### Drag and drop support
 
-GearMenu allows to drag and drop items onto slots, remove from slots and slots can even be switched in between.
+GearMenu allows dragging and dropping items onto slots, remove from slots and slots can even be switched in between.
 
 #### Drag and drop between slots
 
@@ -140,7 +140,7 @@ If you prefer having certain items in your actionslots GearMenu can still be of 
 /run GM_AddToCombatQueue(11815, 14)
 ```
 
-> Note: It is not recommended to use this for weapons because addons cannot switch weapons during combat (GearMenu will put the item into the combatQueue). With a normal weaponswitch macro however this is still possible.
+> Note: It is not recommended using this for weapons because addons cannot switch weapons during combat (GearMenu will put the item into the combatQueue). With a normal weaponswitch macro however this is still possible.
 
 #### Clear Slot From CombatQueue
 ```
@@ -175,7 +175,7 @@ To show the configuration screen use `/rggm opt` while ingame and `/rggm info` f
 
 ### Creating a GearBar
 
-With the latest release it is possible to create multiple GearBars that can act independently of eachother.
+With the latest release it is possible to create multiple GearBars that can act independently of each other.
 
 ![](docs/gm_create_gearbar.gif)
 
@@ -231,7 +231,7 @@ Not interested to see items with a quality level below a certain level? Filter t
 
 #### Themes
 
-GearMenu supports two different themes for its ui elements. By default the custom theme will be used.
+GearMenu supports two different themes for its ui elements. By default, the custom theme will be used.
 
 ##### Custom
 
@@ -260,7 +260,7 @@ Make sure to recheck the installation part of this Readme and check that the Add
 
 #### I get a red error (Lua Error) on my screen. What is this?
 
-This is what we call a Lua error and it usually happens because of an oversight or error by the developer (in this case me). Take a screenshot off the error and create a Github Issue with it and I will see if I can resolve it. It also helps if you can add any additional information of what you we're doing at the time and what other addons you have active. Also if you are able to reproduce the error make sure to check if it still happens if you disable all others addons.
+This is what we call a Lua error, and it usually happens because of an oversight or error by the developer (in this case me). Take a screenshot off the error and create a GitHub Issue with it, and I will see if I can resolve it. It also helps if you can add any additional information of what you were doing at the time and what other addons you have active. Additionally, if you are able to reproduce the error make sure to check if it still happens if you disable all others addons.
 
 #### GearMenu spams my chat with messages. How can I deactivate this?
 
@@ -278,9 +278,9 @@ If you still think you found an issue where GearMenu doesn't switch items as exp
 
 #### Why can't I switch Weapons during Combat?
 
-This is a limitation that Blizzard puts on addons. It is not currently possible to switch to an arbitrary weapon while in combat. It is however possible to create weaponswitch macros because it is already known from which weapon to what weapon the player wants to switch. While it is not ideal, to workaround this issue GearMenu puts weapons in the CombatQueue if a weaponswitch is done while the player is in combat. If he is not in combat the switch will happen immediately. This might be improved in a future release if there is a better workaround possible.
+This is a limitation that Blizzard puts on addons. It is not currently possible to switch to an arbitrary weapon while in combat. It is however possible to create weaponswitch macros because it is already known from which weapon to what weapon the player wants to switch. While it is not ideal, to work around this issue GearMenu puts weapons in the CombatQueue if a weaponswitch is done while the player is in combat. If he is not in combat the switch will happen immediately. This might be improved in a future release if there is a better workaround possible.
 
-> Note: It is also possible to switch a weapon by drag an dropping the weapon in the standard Blizzard interfaces. This however is in no way connected to GearMenu
+> Note: It is also possible to switch a weapon by dragging and dropping the weapon in the standard Blizzard interfaces. This however is in no way connected to GearMenu
 
 #### Why can't I create an Itemset?
 
@@ -296,7 +296,7 @@ Switching between development and release can be achieved with maven.
 mvn generate-resources -D generate.sources.overwrite=true -P development
 ```
 
-This generates and overwrites `GM_Environment.lua` and `GearMenu.toc`. You need to specifically specify that you want to overwrite to files to prevent data loss. It is also possible to omit the profile because development is the default profile that will be used.
+This generates and overwrites `GM_Environment.lua` and `GearMenu.toc`. You need to specifically specify that you want to overwrite the files to prevent data loss. It is also possible to omit the profile because development is the default profile that will be used.
 
 Switching to release can be done as such:
 
@@ -326,7 +326,7 @@ mvn package -D generate.sources.overwrite=true -P release
 
 **Note:** This packaging and switching resources can also be done one after another.
 
-**Note:** The packaging is not fit to be used for curseforge because curseforge expects a specific packaging
+**Note:** The packaging is not fit to be used for CurseForge because CurseForge expects a specific packaging
 
 ```
 # switch environment to release
@@ -361,9 +361,22 @@ mvn package -P deploy-curseforge -D curseforge.auth-token=[token]
 
 **Note:** This is only intended for manual deployment to CurseForge. With GitHub actions the token is supplied as a secret to the build process
 
+### Deploy Wago.io Release
+
+**Note:** It's best to create the release for GitHub first and only afterwards the Wago.io release. That way the tag was already created.
+
+```
+# switch environment to release
+mvn generate-resources -D generate.sources.overwrite=true -P release
+# deploy release
+mvn package -P deploy-wago -D wago.auth-token=[token]
+```
+
+**Note:** This is only intended for manual deployment to Wago.io. With GitHub actions the token is supplied as a secret to the build process
+
 ### GitHub Action Profiles
 
-Both `deploy-github-action` and `deploy-curseforge-action` should not be deployed manually. They are solely intended for being used by GitHub actions
+This project has GitHub action profiles for different Devops related work such as linting and deployments to different providers. See `.github` folder for details.
 
 ## License
 

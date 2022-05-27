@@ -12,12 +12,14 @@
     <addon.author>Michael Wiesendanger &lt;michael.wiesendanger@gmail.com&gt;</addon.author>
     <addon.description>Addon to manage and keybind usable gear</addon.description>
     <addon.name>GearMenu</addon.name>
-    <addon.curseforge.displayName>gearmenu</addon.curseforge.displayName>
+    <addon.displayName>gearmenu</addon.displayName>
     <addon.curseforge.projectId>345496</addon.curseforge.projectId>
     <addon.curseforge.gameVersion>9094</addon.curseforge.gameVersion>
+    <addon.wago.projectId>kaNeybN2</addon.wago.projectId>
     <addon.name.short>GM</addon.name.short>
     <addon.tag.version>v${project.version}</addon.tag.version>
     <addon.interface>11403</addon.interface>
+    <addon.supported.patch>1.14.3</addon.supported.patch>
     <addon.identifier>${project.groupId}.${project.artifactId}</addon.identifier>
     <addon.project.categories>Action Bars Combat PvP</addon.project.categories>
   </properties>
@@ -125,7 +127,7 @@
                 <configuration>
                   <game>wow</game>
                   <projectId>${addon.curseforge.projectId}</projectId>
-                  <displayName>${addon.curseforge.displayName}-${addon.tag.version}-classic.zip</displayName>
+                  <displayName>${addon.displayName}-${addon.tag.version}-classic.zip</displayName>
                   <changelogFile>${basedir}/build-resources/release-notes.md</changelogFile>
                   <changelogType>markdown</changelogType>
                   <gameVersions>
@@ -142,8 +144,47 @@
         </plugins>
       </build>
     </profile>
+    <profile>
+      <id>deploy-wago</id>
+      <properties>
+        <profile.id.value>deploy</profile.id.value>
+        <package.descriptor>${basedir}/build-resources/assembly-release.xml</package.descriptor>
+        <package.filter>${basedir}/build-resources/addon-release.properties</package.filter>
+        <package.finalName>${addon.name}</package.finalName>
+        <package.appendAssemblyId>false</package.appendAssemblyId>
+        <package.includeBaseDirectory>true</package.includeBaseDirectory>
+        <generate.sources.skip>true</generate.sources.skip>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.ragedunicorn.tools.maven</groupId>
+            <artifactId>wago-release-maven-plugin</artifactId>
+            <version>1.0.0</version>
+            <executions>
+              <execution>
+                <id>default-cli</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>wago-release</goal>
+                </goals>
+                <configuration>
+                  <projectId>${addon.wago.projectId}</projectId>
+                  <label>${addon.displayName}-${addon.tag.version}-classic.zip</label>
+                  <changelogFile>${basedir}/build-resources/release-notes.md</changelogFile>
+                  <supportedClassicPatch>${addon.supported.patch}</supportedClassicPatch>
+                  <stability>stable</stability>
+                  <file>${basedir}/target/${addon.name}.zip</file>
+                  <!--suppress UnresolvedMavenProperty -->
+                  <authToken>${wago.auth-token}</authToken>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
-
   <build>
     <plugins>
       <plugin>
