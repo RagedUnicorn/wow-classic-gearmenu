@@ -72,7 +72,7 @@
           <plugin>
             <groupId>com.ragedunicorn.tools.maven</groupId>
             <artifactId>github-release-maven-plugin</artifactId>
-            <version>1.0.3</version>
+            <version>1.0.4</version>
             <executions>
               <execution>
                 <id>default-cli</id>
@@ -113,7 +113,7 @@
           <plugin>
             <groupId>com.ragedunicorn.tools.maven</groupId>
             <artifactId>github-release-maven-plugin</artifactId>
-            <version>1.0.3</version>
+            <version>1.0.4</version>
             <executions>
               <execution>
                 <id>default-cli</id>
