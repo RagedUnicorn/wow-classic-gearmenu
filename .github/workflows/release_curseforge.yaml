@@ -24,6 +24,6 @@ jobs:
       - name: Package Production
         run: mvn generate-resources -D generate.sources.overwrite=true -P release
       - name: Publish Package to CurseForge
-        run: mvn package -P deploy-curseforge-action -D curseforge.auth-token=$TOKEN_CURSEFORGE
+        run: mvn package -P deploy-curseforge -D curseforge.auth-token=$TOKEN_CURSEFORGE
         env:
           TOKEN_CURSEFORGE: ${{ secrets.TOKEN_CURSEFORGE }}
