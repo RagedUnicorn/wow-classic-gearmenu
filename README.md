@@ -6,8 +6,12 @@
 
 ![](docs/wow_badge.svg)
 ![](docs/license_mit.svg)
-[![](docs/curseforge.svg)](https://curseforge.overwolf.com/?addonId=345496&fileId=3767283)
 ![Lint](https://github.com/RagedUnicorn/wow-classic-gearmenu/actions/workflows/lint.yaml/badge.svg?branch=master)
+
+## Providers
+
+[![](docs/curseforge.svg)](https://www.curseforge.com/wow/addons/gearmenu)
+[![](docs/wago.svg)](https://addons.wago.io/addons/gearmenu)
 
 **WoW Burning Crusade Classic Support**
 
