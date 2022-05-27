@@ -24,6 +24,6 @@ jobs:
       - name: Package Production
         run: mvn generate-resources -D generate.sources.overwrite=true -P release
       - name: Publish Package to GitHub
-        run: mvn package -P deploy-github-action -D github.auth-token=$TOKEN_GITHUB
+        run: mvn package -P deploy-github -D github.auth-token=$TOKEN_GITHUB
         env:
           TOKEN_GITHUB: ${{ secrets.TOKEN_GITHUB }}

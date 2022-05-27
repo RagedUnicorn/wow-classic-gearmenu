@@ -337,16 +337,16 @@ mvn package -P release
 
 ### Deploy GitHub Release
 
-Before creating a new release update `addon.tag.version` in `pom.xml`. Afterwards to create a new release and deploy to GitHub the `deploy` profile has to be used.
+Before creating a new release update `addon.tag.version` in `pom.xml`. Afterwards to create a new release and deploy to GitHub the `deploy-github` profile has to be used.
 
 ```
 # switch environment to release
 mvn generate-resources -D generate.sources.overwrite=true -P release
 # deploy release
-mvn package -P deploy-github
+mvn package -P deploy-github -D github.auth-token=[token]
 ```
 
-For this to work an oauth token for GitHub is required and has to be configured in your `.m2` settings file.
+**Note:** This is only intended for manual deployment to GitHub. With GitHub actions the token is supplied as a secret to the build process
 
 ### Deploy CurseForge Release
 
