@@ -1,3 +1,3 @@
-# Updates
+# Fixes
 
-* Add Wago.io as new provider
+* Fix unequip slot texture and position
