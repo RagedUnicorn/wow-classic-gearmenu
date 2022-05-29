@@ -162,7 +162,7 @@ function me.UpdateChangeSlots(changeSlotSize, gearSlotMetaData, items)
     end
   end
 
-  me.UpdateEmptyChangeSlot(changeSlotSize, changeMenuFrame, #items, gearSlotMetaData, emptySlotPosition)
+  me.UpdateEmptyChangeSlot(changeMenuFrame, #items, gearSlotMetaData, emptySlotPosition, changeSlotSize)
   me.UpdateChangeMenuGearSlotCooldown()
 end
 
@@ -226,17 +226,18 @@ end
 --[[
   Visually update an empty changeslot
 
-  @param {number} changeSlotSize
+
   @param {table} changeMenu
   @param {number} itemCount
   @param {table} gearSlotMetaData
   @param {table} emptySlotPosition
+  @param {number} changeSlotSize
 ]]--
-function me.UpdateEmptyChangeSlot(changeSlotSize, changeMenu, itemCount, gearSlotMetaData, emptySlotPosition)
+function me.UpdateEmptyChangeSlot(changeMenu, itemCount, gearSlotMetaData, emptySlotPosition, changeSlotSize)
   if not mod.configuration.IsUnequipSlotEnabled()
     or not mod.itemManager.HasItemEquipedInSlot(gearSlotMetaData.slotId) then return end
 
-  local emptyChangeMenuSlot
+
 
   if itemCount > RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT_ITEMS then
     itemCount = #changeMenuSlots -- last slot is reserved for the empty slot
@@ -244,7 +245,7 @@ function me.UpdateEmptyChangeSlot(changeSlotSize, changeMenu, itemCount, gearSlo
     itemCount = itemCount + 1 -- +1 for the empty "item"
   end
 
-  emptyChangeMenuSlot = changeMenuSlots[itemCount]
+  local emptyChangeMenuSlot = changeMenuSlots[itemCount]
 
   mod.logger.LogDebug(me.tag,
     "Updating EmptyChangeSlot Row{" .. emptySlotPosition.row ..
@@ -256,11 +257,11 @@ function me.UpdateEmptyChangeSlot(changeSlotSize, changeMenu, itemCount, gearSlo
     changeSlotSize, changeMenu, emptyChangeMenuSlot, emptySlotPosition.xPos, emptySlotPosition.yPos)
   mod.themeCoordinator.UpdateSlotTextureAttributes(emptyChangeMenuSlot, changeSlotSize)
 
+  -- update metadata for slot
   emptyChangeMenuSlot.slotId = gearSlotMetaData.slotId
   emptyChangeMenuSlot.itemId = nil
   emptyChangeMenuSlot.equipSlot = nil
-
-  emptyChangeMenuSlot:SetNormalTexture(gearSlotMetaData.textureId)
+  emptyChangeMenuSlot.itemTexture:SetTexture(gearSlotMetaData.textureId)
   emptyChangeMenuSlot:Show()
 end
 
