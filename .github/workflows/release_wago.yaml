@@ -24,6 +24,10 @@ jobs:
       - name: Package Production
         run: mvn generate-resources -D generate.sources.overwrite=true -P release
       - name: Publish Package to Wago.io
-        run: mvn package -P deploy-wago -D wago.auth-token=$TOKEN_WAGO
+        run: |
+          mvn --batch-mode --no-transfer-progress \
+          package \
+          -P deploy-wago \
+          -D wago.auth-token=$TOKEN_WAGO
         env:
           TOKEN_WAGO: ${{ secrets.TOKEN_WAGO }}
