@@ -3,19 +3,19 @@ on: [workflow_dispatch]
 
 jobs:
   wago-release-job:
-    runs-on: ubuntu-latest
     name: Wago.io Release
+    runs-on: ubuntu-latest
     steps:
-      - name: checkout
+      - name: Checkout
         uses: actions/checkout@v2
       - name: Set up Java and Maven
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           java-version: '11'
           distribution: 'adopt'
           cache: 'maven'
       - name: Cache Local Maven Repository
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
