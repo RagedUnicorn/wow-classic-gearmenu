@@ -38,6 +38,7 @@ me.tag = "Tooltip"
 ]]--
 function me.UpdateTooltipById(itemId)
   if itemId == nil then return end
+  if not mod.configuration.IsTooltipsEnabled() then return end
 
   local tooltip = _G[RGGM_CONSTANTS.ELEMENT_TOOLTIP]
 
