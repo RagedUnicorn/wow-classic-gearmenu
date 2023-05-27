@@ -141,9 +141,14 @@ function me.OnEvent(event, ...)
   elseif event == "UPDATE_BINDINGS" then
     me.logger.LogEvent(me.tag, "UPDATE_BINDINGS")
 
-    if initializationDone then
-      me.keyBind.OnUpdateKeyBindings()
-    end
+    --[[
+      On starting up the addon often times GetBindingAction will not return the correct keybinding set but rather an
+      empty string. To prevent this a slight delay is required.
+
+      In case GetBindingAction returns an empty string GearMenu will loose the connection of its keybind. This means
+      that GearMenu is unable to show the shortcuts in the GearBar anymore but the keybinds will continue to work.
+    ]]--
+    C_Timer.After(RGGM_CONSTANTS.KEYBIND_UPDATE_DELAY, me.keyBind.OnUpdateKeyBindings)
   elseif event == "LOSS_OF_CONTROL_ADDED" then
     me.logger.LogEvent(me.tag, "LOSS_OF_CONTROL_ADDED")
 
@@ -240,10 +245,6 @@ function me.Initialize()
     me.trinketMenu.UpdateTrinketMenu()
   end
 
-  --[[
-    Manual call for UPDATE_BINDINGS because we can only update the keyBindings after the ui is present
-  ]]--
-  me.keyBind.OnUpdateKeyBindings()
   -- initialization is done
   initializationDone = true
 
