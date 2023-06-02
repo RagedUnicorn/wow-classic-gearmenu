@@ -318,7 +318,7 @@ end
   @param {table} self
 ]]--
 function me.TrinketMenuSlotOnEnter(self)
-  mod.tooltip.UpdateTooltipById(self.itemId)
+  mod.tooltip.UpdateTooltipForItem(self)
   mod.themeCoordinator.TrinketMenuSlotOnEnter(self)
 end
 
@@ -344,9 +344,9 @@ function me.TrinketMenuSlotOnClick(self, button)
     Rightclick - equip item into second INVSLOT_TRINKET2 slot
   ]]--
   if button == "RightButton" then
-    mod.itemManager.EquipItemById(self.itemId, INVSLOT_TRINKET2, self.equipSlot)
+    mod.itemManager.EquipItemById(tonumber(self.itemId), INVSLOT_TRINKET2)
   else
-    mod.itemManager.EquipItemById(self.itemId, INVSLOT_TRINKET1, self.equipSlot)
+    mod.itemManager.EquipItemById(tonumber(self.itemId), INVSLOT_TRINKET1)
   end
 
   mod.themeCoordinator.TrinketMenuSlotOnClick(self, button)

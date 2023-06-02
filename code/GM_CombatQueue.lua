@@ -34,7 +34,7 @@ me.tag = "CombatQueue"
 local combatQueueStore = {}
 --[[
   Tracks whether an equipment change is blocked or not based on loss of control effects.
-  Does not include other possible states suchs as in combat that can prevent an equipment change
+  Does not include other possible states such as in combat that can prevent an equipment change
 ]]--
 local isEquipChangeBlocked = false
 
@@ -51,15 +51,31 @@ end
   Add item to combatQueue. There can only be one item per slot
 
   @param {number} itemId
+    itemId to consider when equipping the item
+  @param {number} enchantId
+    Optional enchantId to consider when equipping the item
   @param {number} slotId
 ]]--
-function me.AddToQueue(itemId, slotId)
+function me.AddToQueue(itemId, enchantId, slotId)
   if not itemId or not slotId then return end
 
-  combatQueueStore[slotId] = itemId
-  mod.logger.LogDebug(me.tag, "Added item with id " .. itemId .. " in slotId "
-    .. slotId .. " to combatQueueStore")
-  mod.gearBar.UpdateCombatQueue(slotId, itemId)
+  assert(type(itemId) == "number", string.format(
+    "bad argument #1 to `AddToQueue` (expected number got %s)", type(itemId)))
+
+  if enchantId ~= nil then
+    assert(type(enchantId) == "number", string.format(
+      "bad argument #2 to `AddToQueue` (expected number got %s)", type(enchantId)))
+  end
+
+  assert(type(slotId) == "number", string.format(
+    "bad argument #3 to `AddToQueue` (expected number got %s)", type(slotId)))
+
+  combatQueueStore[slotId] = { itemId, enchantId }
+
+  mod.logger.LogDebug(me.tag, "Added item with itemId " .. itemId .. " and enchantId " .. (enchantId or "nil") ..
+    " in slotId " .. slotId .. " to combatQueueStore")
+
+  mod.gearBar.UpdateCombatQueue(itemId, enchantId, slotId)
   mod.ticker.StartTickerCombatQueue()
 end
 
@@ -71,19 +87,23 @@ end
 function me.RemoveFromQueue(slotId)
   if not slotId then return end
 
-  -- get item from queue that is about to be removed
-  local itemId = combatQueueStore[slotId]
+  assert(type(slotId) == "number", string.format(
+    "bad argument #1 to `RemoveFromQueue` (expected number got %s)", type(slotId)))
 
-  -- if no item is registered in queue for that specific slotId
-  if itemId == nil then
-    mod.logger.LogInfo(me.tag, "No item in queue for slotId - " .. slotId)
+  local itemId
+  -- get item from queue that is about to be removed
+  if combatQueueStore[slotId] ~= nil then
+    itemId = combatQueueStore[slotId][1]
+  else
+    -- if no item is registered in queue for that specific slotId
+    mod.logger.LogDebug(me.tag, "No item in queue for slotId - " .. slotId)
     return
   end
 
   combatQueueStore[slotId] = nil
   mod.logger.LogDebug(me.tag, "Removed item with id " .. itemId .. " in slotId "
     .. slotId .. " from combatQueueStore")
-  mod.gearBar.UpdateCombatQueue(slotId)
+  mod.gearBar.UpdateCombatQueue(nil, nil, slotId)
 end
 
 --[[
@@ -102,8 +122,11 @@ function me.ProcessQueue()
   -- update queue for all slotpositions
   for _, gearSlot in pairs(mod.gearManager.GetGearSlots()) do
     if combatQueueStore[gearSlot.slotId] ~= nil then
-      mod.itemManager.EquipItemById(combatQueueStore[gearSlot.slotId], gearSlot.slotId)
-      mod.gearBar.UpdateCombatQueue(gearSlot.slotId, combatQueueStore[gearSlot.slotId])
+      local item = {}
+      item.itemId = combatQueueStore[gearSlot.slotId][1]
+      item.enchantId = combatQueueStore[gearSlot.slotId][2] or nil
+      item.slotId = gearSlot.slotId
+      mod.itemManager.EquipItemByItemAndEnchantId(item)
     end
   end
 end

@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals GetItemInfo GetItemQualityColor UIParent GameTooltip_SetDefaultAnchor
+-- luacheck: globals GetItemInfo GetItemQualityColor UIParent GameTooltip_SetDefaultAnchor strmatch
 
 local mod = rggm
 local me = {}
@@ -32,32 +32,77 @@ mod.tooltip = me
 me.tag = "Tooltip"
 
 --[[
-  Update the tooltip to show the information for the passed itemId
+  Update the tooltip to show the information for the passed item
 
-  @param {number} itemId
+  @param {table} item
 ]]--
-function me.UpdateTooltipById(itemId)
-  if itemId == nil then return end
+function me.UpdateTooltipForItem(item)
+  if item.itemId == nil then return end
   if not mod.configuration.IsTooltipsEnabled() then return end
 
-  local tooltip = _G[RGGM_CONSTANTS.ELEMENT_TOOLTIP]
-
-  tooltip:ClearLines()
-  tooltip:SetOwner(UIParent)
-  GameTooltip_SetDefaultAnchor(tooltip, UIParent)
+  local tooltip = me.PrepareTooltip()
 
   if mod.configuration.IsSimpleTooltipsEnabled() then
-    local itemName, _, itemRarity = GetItemInfo(itemId)
-    local _, _, _, hexColor = GetItemQualityColor(itemRarity)
-
-    tooltip:AddLine("|c" .. hexColor .. itemName .. "|h|r")
+    me.BuildSimpleTooltip(tooltip, item.itemId)
   else
-    local _, itemLink = GetItemInfo(itemId)
+    local _, itemLink = GetItemInfo(item.itemId)
+
+    if item.enchantId ~= nil then
+      itemLink = "item:".. item.itemId .. ":" .. item.enchantId
+    end
 
     tooltip:SetHyperlink(itemLink)
   end
 
   tooltip:Show()
+end
+
+--[[
+  Update the tooltip to show the information for the passed itemLink
+
+  @param {string} itemLink
+]]--
+function me.UpdateTooltipForItemLink(itemLink)
+  if itemLink == nil then return end
+  if not mod.configuration.IsTooltipsEnabled() then return end
+
+  local tooltip = me.PrepareTooltip()
+  local itemId = tonumber(strmatch(itemLink, "|Hitem:(%d+):"))
+
+  if mod.configuration.IsSimpleTooltipsEnabled() then
+    me.BuildSimpleTooltip(tooltip, itemId)
+  else
+    tooltip:SetHyperlink(itemLink)
+  end
+
+  tooltip:Show()
+end
+
+--[[
+  Prepare the tooltip for usage
+
+  @return {table}
+]]--
+function me.PrepareTooltip()
+  local tooltip = _G[RGGM_CONSTANTS.ELEMENT_TOOLTIP]
+  tooltip:ClearLines()
+  tooltip:SetOwner(UIParent)
+  GameTooltip_SetDefaultAnchor(tooltip, UIParent)
+
+  return tooltip
+end
+
+--[[
+  Build a simple tooltip for the passed itemId
+
+  @param {table} tooltip
+  @param {number} itemId
+]]--
+function me.BuildSimpleTooltip(tooltip, itemId)
+  local itemName, _, itemRarity = GetItemInfo(itemId)
+  local  _, _, _, hexColor = GetItemQualityColor(itemRarity)
+
+  tooltip:AddLine("|c" .. hexColor .. itemName .. "|h|r")
 end
 
 --[[

@@ -81,7 +81,8 @@ function me.GetItemsForInventoryType(inventoryType)
 
   for i = 0, 4 do
     for j = 1, GetContainerNumSlots(i) do
-      local itemId = GetContainerItemID(i, j)
+      local item = GetContainerItemLink(i, j)
+      local _, _, itemId, enchantId = string.find(item or "", "item:(%d+):?(%d*)")
 
       if itemId then
         local itemName, _, itemRarity, _, _, _, _, _, equipSlot, itemIcon = GetItemInfo(itemId)
@@ -99,6 +100,7 @@ function me.GetItemsForInventoryType(inventoryType)
               items[idx].id = itemId
               items[idx].equipSlot = equipSlot
               items[idx].quality = itemRarity
+              items[idx].enchantId = enchantId or nil
 
               idx = idx + 1
             else
@@ -142,14 +144,35 @@ function me.EquipItemById(itemId, slotId)
 
   mod.logger.LogDebug(me.tag, "EquipItem: " .. itemId .. " in slot: " .. slotId)
   --[[
-    Blizzard blocks even weapons from being switched by addons during combat. Because of this
+    Blizzard blocks weapons from being switched by addons during combat. Because of this
     all items are added to the combatqueue if the player is in combat.
   ]]--
   if UnitAffectingCombat(RGGM_CONSTANTS.UNIT_ID_PLAYER) or mod.common.IsPlayerReallyDead()
       or mod.combatQueue.IsEquipChangeBlocked() or mod.common.IsPlayerCasting() then
-    mod.combatQueue.AddToQueue(itemId, slotId)
+    mod.combatQueue.AddToQueue(itemId, nil, slotId)
   else
-    me.SwitchItems(itemId, slotId)
+    me.SwitchItems(itemId, nil, slotId)
+  end
+end
+
+--[[
+  Switch items from one slot to another considering both itemId and enchantId
+
+  @param {table} item
+]]--
+function me.EquipItemByItemAndEnchantId(item)
+  if not item then return end
+
+  mod.logger.LogDebug(me.tag, "EquipItem: " .. item.itemId .. " in slot: " .. item.slotId)
+  --[[
+    Blizzard blocks weapons from being switched by addons during combat. Because of this
+    all items are added to the combatqueue if the player is in combat.
+  ]]--
+  if UnitAffectingCombat(RGGM_CONSTANTS.UNIT_ID_PLAYER) or mod.common.IsPlayerReallyDead()
+    or mod.combatQueue.IsEquipChangeBlocked() or mod.common.IsPlayerCasting() then
+    mod.combatQueue.AddToQueue(tonumber(item.itemId), tonumber(item.enchantId), tonumber(item.slotId))
+  else
+    me.SwitchItems(tonumber(item.itemId), tonumber(item.enchantId), tonumber(item.slotId))
   end
 end
 
@@ -174,11 +197,12 @@ end
     INVSLOT_RANGED
 
   @param {number} itemId
+  @param {number} enchantId
   @param {number} slotId
 ]]--
-function me.SwitchItems(itemId, slotId)
+function me.SwitchItems(itemId, enchantId, slotId)
   if not CursorHasItem() and not SpellIsTargeting() then
-    local bagNumber, bagPos = me.FindItemInBag(itemId)
+    local bagNumber, bagPos = me.FindItemInBag(itemId, enchantId)
 
     if bagNumber and bagPos then
       local _, _, isLocked = GetContainerItemInfo(bagNumber, bagPos)
@@ -197,7 +221,7 @@ function me.SwitchItems(itemId, slotId)
 
     --[[
       Special case for when an item can't be found in the bag. This can happen when the
-      user drag and drops an item that he has equiped onto another slot. This essentialy
+      user drag and drops an item that he has equipped onto another slot. This essentially
       needs to cause a switch of those items. This is only possible for INVTYPE_TRINKET and
       INVTYPE_FINGER
     ]]--
@@ -245,20 +269,45 @@ end
 --[[
   Search for an item in all bags
 
-  @param {number} itemId
+  If we have an enchantId set we have to consider it as well. This prevents GearMenu from equipping an item that
+  has a matching itemId but a different enchantId (or no enchant at all)
 
-  @return {number}, {number}
+  @param {number} itemId
+  @param {number} enchantId
+    Optional enchantId to match
+
+  @return {number | nil}, {number | nil}
+    number - the bagNumber where the item was found
+    number - the bagPos where the item was found
+    nil - if the item could not be found
 ]]--
-function me.FindItemInBag(itemId)
+function me.FindItemInBag(itemId, enchantId)
+  mod.logger.LogDebug(me.tag, "Searching for item: " .. itemId .. "with enchant" .. (enchantId or "nil") ..  " in bags")
+
   for i = 0, 4 do
     for j = 1, GetContainerNumSlots(i) do
-      local _, _, id = string.find(GetContainerItemLink(i, j) or "", "item:(%d+):")
+      local _, _, foundItemId, foundEnchantId = string.find(GetContainerItemLink(i, j) or "", "item:(%d+):?(%d*)")
 
-      if tonumber(id) == itemId then
-        return i, j
+      if tonumber(foundItemId) == itemId then
+        if enchantId ~= nil then
+          if tonumber(foundEnchantId) == enchantId then
+            mod.logger.LogDebug(me.tag, "Found a matching itemId " .. itemId .. " and enchantId "
+              .. enchantId .. " in bag: " .. i .. " slot: " .. j)
+            return i, j
+          else
+            mod.logger.LogDebug(me.tag, "Found a matching itemId " .. itemId .. " but enchantId "
+              .. enchantId .. " did not match " .. foundEnchantId .. " in bag: " .. i .. " slot: " .. j)
+          end
+        else
+          mod.logger.LogDebug(me.tag, "Found a matching itemId " .. itemId ..
+            " and we don't have to consider the enchantId because it is nil")
+          return i, j
+        end
       end
     end
   end
+
+  return nil, nil
 end
 
 --[[
