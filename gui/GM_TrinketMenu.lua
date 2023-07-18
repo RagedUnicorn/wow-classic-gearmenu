@@ -343,10 +343,16 @@ function me.TrinketMenuSlotOnClick(self, button)
     Leftclick - equip item into first INVSLOT_TRINKET1 slot
     Rightclick - equip item into second INVSLOT_TRINKET2 slot
   ]]--
+  local item = {}
+  item.itemId = self.itemId
+  item.enchantId = nil -- trinkets can't be enchanted
+
   if button == "RightButton" then
-    mod.itemManager.EquipItemById(tonumber(self.itemId), INVSLOT_TRINKET2)
+    item.slotId = INVSLOT_TRINKET2
+    mod.itemManager.EquipItemByItemAndEnchantId(item)
   else
-    mod.itemManager.EquipItemById(tonumber(self.itemId), INVSLOT_TRINKET1)
+    item.slotId = INVSLOT_TRINKET1
+    mod.itemManager.EquipItemByItemAndEnchantId(item)
   end
 
   mod.themeCoordinator.TrinketMenuSlotOnClick(self, button)

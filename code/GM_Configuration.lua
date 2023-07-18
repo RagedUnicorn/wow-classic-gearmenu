@@ -109,10 +109,12 @@ GearMenuConfiguration = {
     {
       ["changeFromName"] = {string},
       ["changeFromItemId"] = {number},
+      ["changeFromItemEnchantId"] = {number},
       ["changeFromItemIcon"] = {string},
       ["changeFromItemQuality"] = {number},
       ["changeToName"] = {string},
       ["changeToItemId"] = {number},
+      ["changeToItemEnchantId"] = {number},
       ["changeToItemIcon"] = {string},
       ["changeToItemQuality"] = {number},
       ["equipSlot"] = {{number}, {number}},

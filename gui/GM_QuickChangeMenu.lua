@@ -65,10 +65,18 @@ local selectedRule = {
 --[[
   Tracks the currently selected quickchange rule
 
-  ["from"] = itemId,
-    {number} - The itemId to switch from (left side of a quickchange rule)
-  ["to"] = itemId,
-    {number} - {number} - The itemId to switch to (right side of a quickchange rule)
+  ["from"] = {
+    ["enchantId"] = {number},
+      The enchantId to switch from (left side of a quickchange rule)
+    ["itemId"] = {number}
+      The itemId to switch from (left side of a quickchange rule)
+  },
+  ["to"] = {
+    ["enchantId"] = {number},
+      The enchantId to switch to (right side of a quickchange rule)
+    ["itemId"] = {number}
+      The itemId to switch to (right side of a quickchange rule)
+  }
 ]]--
 local quickchangeRule = {
   ["from"] = nil,
@@ -242,7 +250,7 @@ function me.AddRuleOnClick(self)
     return
   end
 
-  mod.quickChange.AddQuickChangeRule(selectedRule.from, selectedRule.to, delay)
+  mod.quickChange.AddQuickChangeRule(selectedRule, delay)
   me.ResetSelectedItems()
   me.ResetDelaySlider(delaySlider)
   -- update items in 'from', 'to' and the rules list
@@ -285,7 +293,7 @@ function me.RemoveRuleOnClick()
     return
   end
 
-  mod.quickChange.RemoveQuickChangeRule(quickchangeRule.from, quickchangeRule.to)
+  mod.quickChange.RemoveQuickChangeRule(quickchangeRule)
   me.ResetSelectedRule()
   me.RulesScrollFrameOnUpdate(rulesScrollFrame)
 end
@@ -447,13 +455,22 @@ function me.CreateRuleRowFrame(frame, position)
   row:SetSize(frame:GetWidth() -5, RGGM_CONSTANTS.QUICK_CHANGE_ROW_HEIGHT)
   row:SetPoint("TOPLEFT", frame, 8, (position -1) * RGGM_CONSTANTS.QUICK_CHANGE_ROW_HEIGHT * -1)
 
-  local fromItemIcon = row:CreateTexture(nil, "ARTWORK")
-  fromItemIcon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
-  fromItemIcon:SetPoint("LEFT", 0, 0)
-  fromItemIcon:SetSize(
+  -- Create an extra frame to catch mouse events
+  local fromContainerFrame = CreateFrame(
+    "Frame",
+    RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_RULES_MOUSEOVER_CONTAINER_LEFT,
+    row
+  )
+  fromContainerFrame:SetPoint("LEFT", 0, 0)
+  fromContainerFrame:SetSize(
     16,
     16
   )
+  fromContainerFrame:EnableMouse(true)
+
+  local fromItemIcon = fromContainerFrame:CreateTexture(nil, "ARTWORK")
+  fromItemIcon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+  fromItemIcon:SetAllPoints()
 
   row.fromItemIcon = fromItemIcon
 
@@ -464,13 +481,22 @@ function me.CreateRuleRowFrame(frame, position)
 
   row.fromItemName = fromItemName
 
-  local toItemIcon = row:CreateTexture(nil, "ARTWORK")
-  toItemIcon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
-  toItemIcon:SetPoint("RIGHT", row.fromItemName, 50, 0)
-  toItemIcon:SetSize(
+  -- Create an extra frame to catch mouse events
+  local toContainerFrame = CreateFrame(
+    "Frame",
+    RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_RULES_MOUSEOVER_CONTAINER_RIGHT,
+    row
+  )
+  toContainerFrame:SetPoint("RIGHT", row.fromItemName, 50, 0)
+  toContainerFrame:SetSize(
     16,
     16
   )
+  toContainerFrame:EnableMouse(true)
+
+  local toItemIcon = toContainerFrame:CreateTexture(nil, "ARTWORK")
+  toItemIcon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+  toItemIcon:SetAllPoints()
 
   row.toItemIcon = toItemIcon
 
@@ -496,6 +522,8 @@ function me.CreateRuleRowFrame(frame, position)
   highlightTexture:Hide()
 
   me.SetupRowEvents(row)
+  me.SetupContainerEvents(fromContainerFrame)
+  me.SetupContainerEvents(toContainerFrame)
 
   return row
 end
@@ -530,12 +558,16 @@ function me.RulesScrollFrameOnUpdate(scrollFrame)
       row.fromItemIcon:SetTexture(quickChangeRules[value].changeFromItemIcon)
       row.fromItemName:SetText(quickChangeRules[value].changeFromName)
       row.fromItemId = quickChangeRules[value].changeFromItemId
+      row.fromItemEnchantId = quickChangeRules[value].changeFromItemEnchantId
       row.toItemIcon:SetTexture(quickChangeRules[value].changeToItemIcon)
       row.toItemName:SetText(quickChangeRules[value].changeToName)
       row.toItemId = quickChangeRules[value].changeToItemId
+      row.toItemEnchantId = quickChangeRules[value].changeToItemEnchantId
       row.delay:SetText(quickChangeRules[value].delay)
 
-      if quickchangeRule.to == row.toItemId and quickchangeRule.from == row.fromItemId then
+      if quickchangeRule.to ~= nil and quickchangeRule.from ~= nil and quickchangeRule.to.itemId == row.toItemId
+        and quickchangeRule.from.itemId == row.fromItemId and quickchangeRule.to.enchantId == row.toItemEnchantId
+        and quickchangeRule.from.enchantId == row.fromItemEnchantId then
         me.ShowHighLight(row)
       else
         me.HideHighlight(row)
@@ -620,9 +652,11 @@ function me.FromFauxScrollFrameOnUpdate(scrollFrame, slotId)
       row.icon:SetTexture(fromCachedQuickChangeItems[value].texture)
       row.name:SetText(fromCachedQuickChangeItems[value].name)
       row.itemId = fromCachedQuickChangeItems[value].id
+      row.enchantId = fromCachedQuickChangeItems[value].enchantId or nil
       row.side = RGGM_CONSTANTS.QUICK_CHANGE_SIDE_FROM
 
-      if selectedRule.from == row.itemId then
+      if selectedRule.from ~= nil and selectedRule.from.itemId == row.itemId
+          and selectedRule.from.enchantId == row.enchantId then
         me.ShowHighLight(row)
       else
         me.HideHighlight(row)
@@ -706,9 +740,11 @@ function me.ToFauxScrollFrameOnUpdate(scrollFrame, slotId)
       row.icon:SetTexture(toCachedQuickChangeItems[value].texture)
       row.name:SetText(toCachedQuickChangeItems[value].name)
       row.itemId = toCachedQuickChangeItems[value].id
+      row.enchantId = toCachedQuickChangeItems[value].enchantId or nil
       row.side = RGGM_CONSTANTS.QUICK_CHANGE_SIDE_TO
 
-      if selectedRule.to == row.itemId then
+      if selectedRule.to ~= nil and selectedRule.to.itemId == row.itemId
+          and selectedRule.to.enchantId == row.enchantId then
         me.ShowHighLight(row)
       else
         me.HideHighlight(row)
@@ -767,13 +803,18 @@ function me.CreateRowFrames(frame, position)
   row:SetSize(frame:GetWidth(), RGGM_CONSTANTS.QUICK_CHANGE_ROW_HEIGHT)
   row:SetPoint("TOPLEFT", frame, 0, (position -1) * RGGM_CONSTANTS.QUICK_CHANGE_ROW_HEIGHT * -1)
 
-  local itemIcon = row:CreateTexture(nil, "ARTWORK")
-  itemIcon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
-  itemIcon:SetPoint("LEFT", 5, 0)
-  itemIcon:SetSize(
+  -- Create an extra frame to catch mouse events
+  local containerFrame = CreateFrame("Frame", nil, row)
+  containerFrame:SetPoint("LEFT", 5, 0)
+  containerFrame:SetSize(
     16,
     16
   )
+  containerFrame:EnableMouse(true)
+
+  local itemIcon = containerFrame:CreateTexture(nil, "ARTWORK")
+  itemIcon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+  itemIcon:SetAllPoints()
 
   row.icon = itemIcon
 
@@ -792,6 +833,7 @@ function me.CreateRowFrames(frame, position)
   highlightTexture:Hide()
 
   me.SetupRowEvents(row)
+  me.SetupContainerEvents(containerFrame)
 
   return row
 end
@@ -807,29 +849,100 @@ function me.SetupRowEvents(row)
   end)
 
   row:SetScript("OnLeave", function(self)
-    if self.side == RGGM_CONSTANTS.QUICK_CHANGE_SIDE_FROM and selectedRule.from ~= self.itemId then
-      me.HideHighlight(self)
-    elseif self.side == RGGM_CONSTANTS.QUICK_CHANGE_SIDE_TO and selectedRule.to ~= self.itemId then
-      me.HideHighlight(self)
+    if self.side == RGGM_CONSTANTS.QUICK_CHANGE_SIDE_FROM then
+      if selectedRule.from == nil or selectedRule.from.itemId ~= self.itemId then
+        me.HideHighlight(self)
+      elseif selectedRule.from.enchantId ~= self.enchantId then
+        me.HideHighlight(self)
+      end
+
+      return
     end
 
-    if self.side == nil and quickchangeRule.to ~= self.toItemId and quickchangeRule.from ~= self.fromItemId then
-      me.HideHighlight(self)
+    if self.side == RGGM_CONSTANTS.QUICK_CHANGE_SIDE_TO then
+      if selectedRule.to == nil or selectedRule.to.itemId ~= self.itemId then
+        me.HideHighlight(self)
+      elseif selectedRule.to.enchantId ~= self.enchantId then
+        me.HideHighlight(self)
+      end
+
+      return
+    end
+
+    if self.side == nil then
+      if quickchangeRule.from == nil or quickchangeRule.to == nil or
+          quickchangeRule.from.itemId ~= self.fromItemId or quickchangeRule.to.itemId ~= self.toItemId then
+        me.HideHighlight(self)
+      elseif quickchangeRule.from.enchantId ~= self.fromItemEnchantId
+          or quickchangeRule.to.enchantId ~= self.toItemEnchantId then
+        me.HideHighlight(self)
+      end
+
+      return
     end
   end)
 
   row:SetScript("OnClick", function(self)
     if self.side == RGGM_CONSTANTS.QUICK_CHANGE_SIDE_FROM then
-      selectedRule.from = self.itemId
+      selectedRule.from = {
+        ["itemId"] = self.itemId,
+        ["enchantId"] = self.enchantId or nil
+      }
+
       me.FromFauxScrollFrameOnUpdate(fromScrollFrame)
     elseif self.side == RGGM_CONSTANTS.QUICK_CHANGE_SIDE_TO then
-      selectedRule.to = self.itemId
+      selectedRule.to = {
+        ["itemId"] = self.itemId,
+        ["enchantId"] = self.enchantId or nil
+      }
       me.ToFauxScrollFrameOnUpdate(toScrollFrame)
     else
-      quickchangeRule.from = self.fromItemId
-      quickchangeRule.to = self.toItemId
+      quickchangeRule.from = {
+        ["itemId"] = self.fromItemId,
+        ["enchantId"] = self.fromItemEnchantId or nil
+      }
+      quickchangeRule.to = {
+        ["itemId"] = self.toItemId,
+        ["enchantId"] = self.toItemEnchantId or nil
+      }
+
       me.RulesScrollFrameOnUpdate(rulesScrollFrame)
     end
+  end)
+end
+
+--[[
+  Setup script handlers for a container frame
+
+  @param {table} containerFrame
+]]--
+function me.SetupContainerEvents(containerFrame)
+  containerFrame:SetScript("OnEnter", function(self)
+    local parentFrame = self:GetParent()
+    local item
+
+    if self:GetName() == RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_RULES_MOUSEOVER_CONTAINER_LEFT then
+      item = {
+        ["itemId"] = parentFrame.fromItemId,
+        ["enchantId"] = parentFrame.fromItemEnchantId
+      }
+    elseif self:GetName() == RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_RULES_MOUSEOVER_CONTAINER_RIGHT then
+      item = {
+        ["itemId"] = parentFrame.toItemId,
+        ["enchantId"] = parentFrame.toItemEnchantId
+      }
+    else
+      item = {
+        ["itemId"] = parentFrame.itemId,
+        ["enchantId"] = parentFrame.enchantId
+      }
+    end
+
+    mod.tooltip.UpdateTooltipForItem(item)
+  end)
+
+  containerFrame:SetScript("OnLeave", function()
+    mod.tooltip.TooltipClear()
   end)
 end
 

@@ -49,12 +49,13 @@ _G["__GM__DEBUG__EXECUTE_QUICK_CHANGE_RULE"] = function()
     mod.logger.LogDebug(me.tag, "Switching to: " .. quickChangeRule.changeToItemId)
     mod.logger.LogDebug(me.tag, "EquipSlot: " .. quickChangeRule.equipSlot)
 
-    if quickChangeRule.delay > 0 then
-      C_Timer.After(quickChangeRule.delay, function()
-        mod.itemManager.EquipItemById(quickChangeRule.changeToItemId, INVSLOT_TRINKET1)
-      end)
-    else
-      mod.itemManager.EquipItemById(quickChangeRule.changeToItemId, INVSLOT_TRINKET1)
-    end
+    C_Timer.After(quickChangeRule.delay or 0, function()
+      local item = {}
+      item.itemId = quickChangeRule.changeToItemId
+      item.enchantId = quickChangeRule.changeToItemEnchantId
+      item.slotId = INVSLOT_TRINKET1
+
+      mod.itemManager.EquipItem(item)
+    end)
   end
 end
