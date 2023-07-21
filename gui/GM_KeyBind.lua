@@ -119,23 +119,23 @@ StaticPopupDialogs["RGPVPW_SET_KEYBIND"] = {
   OnShow = function(self)
     me.ResetKeyBindingRecording()
     -- setup scripts
-    _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SUB_MENU]:SetScript("OnKeyDown", function(_, key)
-        me.OnKeyDown(self, key)
-      end)
+    mod.gearBarConfigurationSubMenu.RegisterScriptWithContentFrame("OnKeyDown", function(_, key)
+      me.OnKeyDown(self, key)
+    end)
 
-    _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SUB_MENU]:SetScript("OnMouseDown", function(_, key)
-        me.OnKeyDown(self, key)
-      end)
+    mod.gearBarConfigurationSubMenu.RegisterScriptWithContentFrame("OnMouseDown", function(_, key)
+      me.OnMouseDown(self, key)
+    end)
 
-    _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SUB_MENU]:SetScript("OnMouseWheel", function(_, key)
-        me.OnMouseWheel(self, key)
-      end)
+    mod.gearBarConfigurationSubMenu.RegisterScriptWithContentFrame("OnMouseWheel", function(_, key)
+      me.OnMouseWheel(self, key)
+    end)
   end,
   OnHide = function()
     -- remove script
-    _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SUB_MENU]:SetScript("OnKeyDown", nil)
-    _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SUB_MENU]:SetScript("OnMouseDown", nil)
-    _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SUB_MENU]:SetScript("OnMouseWheel", nil)
+    mod.gearBarConfigurationSubMenu.UnregisterScriptWithContentFrame("OnKeyDown")
+    mod.gearBarConfigurationSubMenu.UnregisterScriptWithContentFrame("OnMouseDown")
+    mod.gearBarConfigurationSubMenu.UnregisterScriptWithContentFrame("OnMouseWheel")
   end,
   OnAccept = function()
     local gearBar = mod.gearBarManager.GetGearBar(currentGearBarId)
@@ -289,7 +289,7 @@ end
   @param {table} dialog
 ]]--
 function me.LockKeyBinding()
-  _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SUB_MENU]:SetScript("OnKeyDown", nil)
+  mod.gearBarConfigurationSubMenu.UnregisterScriptWithContentFrame("OnKeyDown")
   lockKeyBinding = true
 end
 
