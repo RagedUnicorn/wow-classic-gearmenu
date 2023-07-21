@@ -82,10 +82,8 @@ local quickchangeRule = {
   ["from"] = nil,
   ["to"] = nil
 }
-
 -- track whether the menu was already built
 local builtMenu = false
-
 -- reference to rules scrollFrame
 local rulesScrollFrame
 -- reference to from scrollFrame
@@ -102,12 +100,7 @@ local toScrollFrame
 function me.BuildUi(parentFrame)
   if builtMenu then return end
 
-  local quickChangeContentFrame = CreateFrame(
-    "Frame", RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MENU, parentFrame)
-  quickChangeContentFrame:SetWidth(RGGM_CONSTANTS.INTERFACE_PANEL_CONTENT_FRAME_WIDTH)
-  quickChangeContentFrame:SetHeight(RGGM_CONSTANTS.INTERFACE_PANEL_CONTENT_FRAME_HEIGHT)
-  quickChangeContentFrame:SetPoint("TOPLEFT", parentFrame, 5, -7)
-
+  local quickChangeContentFrame = me.CreateQuickChangeContentFrame(parentFrame)
   me.CreateQuickChangeMenuTitle(quickChangeContentFrame)
   --[[
     Create input elements
@@ -130,6 +123,22 @@ function me.BuildUi(parentFrame)
   me.ToFauxScrollFrameOnUpdate(toScrollFrame)
 
   builtMenu = true
+end
+
+--[[
+  @param {table} parentFrame
+
+  @return {table}
+   The created quickchange content frame
+]]--
+function me.CreateQuickChangeContentFrame(parentFrame)
+  local quickChangeContentFrame = CreateFrame(
+    "Frame", RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MENU, parentFrame)
+  quickChangeContentFrame:SetWidth(RGGM_CONSTANTS.INTERFACE_PANEL_CONTENT_FRAME_WIDTH)
+  quickChangeContentFrame:SetHeight(RGGM_CONSTANTS.INTERFACE_PANEL_CONTENT_FRAME_HEIGHT)
+  quickChangeContentFrame:SetPoint("TOPLEFT", parentFrame, 5, -7)
+
+  return quickChangeContentFrame
 end
 
 --[[
@@ -455,63 +464,44 @@ function me.CreateRuleRowFrame(frame, position)
   row:SetSize(frame:GetWidth() -5, RGGM_CONSTANTS.QUICK_CHANGE_ROW_HEIGHT)
   row:SetPoint("TOPLEFT", frame, 8, (position -1) * RGGM_CONSTANTS.QUICK_CHANGE_ROW_HEIGHT * -1)
 
-  -- Create an extra frame to catch mouse events
-  local fromContainerFrame = CreateFrame(
-    "Frame",
+  local fromContainerFrame = mod.uiHelper.CreateMouseOverEventContainer(
     RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_RULES_MOUSEOVER_CONTAINER_LEFT,
-    row
+    row,
+    { "LEFT", 0, 0 }
   )
-  fromContainerFrame:SetPoint("LEFT", 0, 0)
-  fromContainerFrame:SetSize(
-    16,
-    16
-  )
-  fromContainerFrame:EnableMouse(true)
 
   local fromItemIcon = fromContainerFrame:CreateTexture(nil, "ARTWORK")
   fromItemIcon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
   fromItemIcon:SetAllPoints()
-
   row.fromItemIcon = fromItemIcon
 
   local fromItemName = row:CreateFontString(nil, "OVERLAY")
   fromItemName:SetFont(STANDARD_TEXT_FONT, 14)
   fromItemName:SetPoint("LEFT", row.fromItemIcon, 0, 0)
   fromItemName:SetWidth(250)
-
   row.fromItemName = fromItemName
 
-  -- Create an extra frame to catch mouse events
-  local toContainerFrame = CreateFrame(
-    "Frame",
+  local toContainerFrame = mod.uiHelper.CreateMouseOverEventContainer(
     RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_RULES_MOUSEOVER_CONTAINER_RIGHT,
-    row
+    row,
+    { "RIGHT", row.fromItemName, 50, 0 }
   )
-  toContainerFrame:SetPoint("RIGHT", row.fromItemName, 50, 0)
-  toContainerFrame:SetSize(
-    16,
-    16
-  )
-  toContainerFrame:EnableMouse(true)
 
   local toItemIcon = toContainerFrame:CreateTexture(nil, "ARTWORK")
   toItemIcon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
   toItemIcon:SetAllPoints()
-
   row.toItemIcon = toItemIcon
 
   local toItemName = row:CreateFontString(nil, "OVERLAY")
   toItemName:SetFont(STANDARD_TEXT_FONT, 14)
   toItemName:SetPoint("LEFT", row.toItemIcon, 0, 0)
   toItemName:SetWidth(250)
-
   row.toItemName = toItemName
 
   local delay = row:CreateFontString(nil, "OVERLAY")
   delay:SetFont(STANDARD_TEXT_FONT, 14)
   delay:SetPoint("RIGHT", 0, 0)
   delay:SetWidth(50)
-
   row.delay = delay
 
   local highlightTexture = row:CreateTexture(RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_RULES_ROW_HIGHLIGHT, "BACKGROUND")
@@ -803,26 +793,21 @@ function me.CreateRowFrames(frame, position)
   row:SetSize(frame:GetWidth(), RGGM_CONSTANTS.QUICK_CHANGE_ROW_HEIGHT)
   row:SetPoint("TOPLEFT", frame, 0, (position -1) * RGGM_CONSTANTS.QUICK_CHANGE_ROW_HEIGHT * -1)
 
-  -- Create an extra frame to catch mouse events
-  local containerFrame = CreateFrame("Frame", nil, row)
-  containerFrame:SetPoint("LEFT", 5, 0)
-  containerFrame:SetSize(
-    16,
-    16
+  local containerFrame = mod.uiHelper.CreateMouseOverEventContainer(
+    nil,
+    row,
+    { "LEFT", 5, 0 }
   )
-  containerFrame:EnableMouse(true)
 
   local itemIcon = containerFrame:CreateTexture(nil, "ARTWORK")
   itemIcon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
   itemIcon:SetAllPoints()
-
   row.icon = itemIcon
 
   local itemNameFontString = row:CreateFontString(nil, "OVERLAY")
   itemNameFontString:SetFont(STANDARD_TEXT_FONT, 14)
   itemNameFontString:SetPoint("LEFT", 16 + 5, 0)
   itemNameFontString:SetWidth(row:GetWidth() - 16 - 5)
-
   row.name = itemNameFontString
 
   local highlightTexture = row:CreateTexture(RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_CONTENT_FRAME_HIGHLIGHT, "BACKGROUND")
@@ -939,6 +924,7 @@ function me.SetupContainerEvents(containerFrame)
     end
 
     mod.tooltip.UpdateTooltipForItem(item)
+    me.ShowHighLight(containerFrame:GetParent())
   end)
 
   containerFrame:SetScript("OnLeave", function()

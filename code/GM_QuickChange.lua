@@ -94,15 +94,50 @@ end
 ]]--
 function me.RemoveQuickChangeRule(selectedRule)
   for index, quickChangeRule in ipairs(mod.configuration.GetQuickChangeRules()) do
-    if selectedRule.from.itemId == quickChangeRule.changeFromItemId
-        and selectedRule.from.enchantId == quickChangeRule.changeFromItemEnchantId
-        and selectedRule.to.itemId == quickChangeRule.changeToItemId
-        and selectedRule.to.enchantId == quickChangeRule.changeToItemEnchantId then
+    if me.IsRuleMatching(
+      selectedRule.from.itemId,
+      selectedRule.from.enchantId,
+      selectedRule.to.itemId,
+      selectedRule.to.enchantId,
+      quickChangeRule.changeFromItemId,
+      quickChangeRule.changeFromItemEnchantId,
+      quickChangeRule.changeToItemId,
+      quickChangeRule.changeToItemEnchantId
+    ) then
       mod.configuration.RemoveQuickChangeRule(index)
       mod.logger.LogDebug(me.tag, "Removed quickChange from: " .. quickChangeRule.changeFromItemId ..
         " to: " .. quickChangeRule.changeToItemId)
     end
   end
+end
+
+--[[
+Check if a rule is matching another rule
+
+  @param {number} ruleFromItemId
+  @param {number} ruleFromEnchantId
+  @param {number} ruleToItemId
+  @param {number} ruleToEnchantId
+  @param {number} otherRuleFromItemId
+  @param {number} otherRuleFromEnchantId
+  @param {number} otherRuleToItemId
+  @param {number} otherRuleToEnchantId
+
+  @return {boolean}
+    true if the rules are matching
+    false if the rules are not matching
+]]--
+function me.IsRuleMatching(ruleFromItemId, ruleFromEnchantId, ruleToItemId, ruleToEnchantId, otherRuleFromItemId,
+                           otherRuleFromEnchantId, otherRuleToItemId, otherRuleToEnchantId)
+
+  if ruleFromItemId == otherRuleFromItemId
+    and ruleFromEnchantId == otherRuleFromEnchantId
+    and ruleToItemId == otherRuleToItemId
+    and ruleToEnchantId == otherRuleToEnchantId then
+    return true
+  end
+
+  return false
 end
 
 --[[
