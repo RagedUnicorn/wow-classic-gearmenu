@@ -142,7 +142,7 @@ end
   @param {string} msg
 ]]--
 function me.PrintUserError(msg)
-  UIErrorsFrame:AddMessage(msg, 1.0, 0.0, 0.0, 53, 5)
+  UIErrorsFrame:AddMessage(msg, 1.0, 0.0, 0.0, 1.0, 53)
 end
 
 function me.PrintUserChatError(message)
