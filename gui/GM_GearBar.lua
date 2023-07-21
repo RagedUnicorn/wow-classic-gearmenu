@@ -277,10 +277,13 @@ end
   locking through all gearBars and whether they have a slot with a matching slotId or
   not. This catches cases where multiple gearBars have the same slot present
 
-  @param {table} slotId
   @param {number} itemId
+    The itemId to update the combatQueue for
+  @param {number} enchantId
+  @param {number} slotId
+    The slotId to update the combatQueue for
 ]]--
-function me.UpdateCombatQueue(slotId, itemId)
+function me.UpdateCombatQueue(itemId, enchantId, slotId)
   mod.logger.LogDebug(me.tag, "Updating combatqueues for slotId - " .. slotId)
 
   for _, gearBar in pairs(mod.gearBarStorage.GetGearBars()) do
@@ -289,12 +292,19 @@ function me.UpdateCombatQueue(slotId, itemId)
     for i = 1, table.getn(gearSlots) do
       if gearSlots[i]:GetAttribute("item") == slotId then
         local icon = gearSlots[i].combatQueueSlot.icon
-        local bagNumber, bagPos = mod.itemManager.FindItemInBag(itemId)
 
         if itemId then
+          local bagNumber, bagPos = mod.itemManager.FindItemInBag(itemId, enchantId)
+
           if bagNumber ~= nil and bagPos ~= nil then
             icon:SetTexture(GetContainerItemInfo(bagNumber, bagPos))
             icon:Show()
+          else
+            --[[
+              With the introduction of the macrobridge it would be possible for items to not be found if the player
+              passed an item that he doesn't have in his inventory
+            ]]--
+            mod.logger.LogError(me.tag, "Failed to find item in bag")
           end
         else
           icon:Hide()
@@ -688,8 +698,9 @@ end
 function me.GearSlotOnEnter(self)
   mod.gearBarChangeMenu.UpdateChangeMenu(self.position, self:GetParent().id)
 
-  local itemId = GetInventoryItemID(RGGM_CONSTANTS.UNIT_ID_PLAYER, self:GetAttribute("item"))
-  mod.tooltip.UpdateTooltipById(itemId)
+  local itemLink = GetInventoryItemLink(RGGM_CONSTANTS.UNIT_ID_PLAYER, self:GetAttribute("item"))
+
+  mod.tooltip.UpdateTooltipForItemLink(itemLink)
   mod.themeCoordinator.GearSlotOnEnter(self)
 end
 

@@ -181,6 +181,7 @@ function me.UpdateChangeSlot(changeSlot, gearSlotMetaData, item, changeSlotSize)
   changeSlot.slotId = gearSlotMetaData.slotId
   changeSlot.itemId = item.id
   changeSlot.equipSlot = item.equipSlot
+  changeSlot.enchantId = item.enchantId
   changeSlot.itemTexture:SetTexture(item.icon)
   changeSlot:Show()
 end
@@ -236,8 +237,6 @@ end
 function me.UpdateEmptyChangeSlot(changeMenu, itemCount, gearSlotMetaData, emptySlotPosition, changeSlotSize)
   if not mod.configuration.IsUnequipSlotEnabled()
     or not mod.itemManager.HasItemEquipedInSlot(gearSlotMetaData.slotId) then return end
-
-
 
   if itemCount > RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT_ITEMS then
     itemCount = #changeMenuSlots -- last slot is reserved for the empty slot
@@ -428,7 +427,7 @@ function me.ChangeSlotOnClick(self, button)
   if self.itemId == nil and self.equipSlot == nil and self.slotId ~= nil then
     mod.itemManager.UnequipItemToBag(self)
   else
-    mod.itemManager.EquipItemById(self.itemId, self.slotId, self.equipSlot)
+    mod.itemManager.EquipItemByItemAndEnchantId(self)
   end
 
   me.CloseChangeMenu()
@@ -441,7 +440,7 @@ end
   @param {table} self
 ]]--
 function me.ChangeSlotOnEnter(self)
-  mod.tooltip.UpdateTooltipById(self.itemId)
+  mod.tooltip.UpdateTooltipForItem(self)
   mod.themeCoordinator.ChangeSlotOnEnter(self)
 end
 

@@ -81,10 +81,11 @@ function me.GetItemsForInventoryType(inventoryType)
 
   for i = 0, 4 do
     for j = 1, GetContainerNumSlots(i) do
-      local itemId = GetContainerItemID(i, j)
+      local itemLink = GetContainerItemLink(i, j)
+      local itemInfo = mod.common.GetItemInfo(itemLink)
 
-      if itemId then
-        local itemName, _, itemRarity, _, _, _, _, _, equipSlot, itemIcon = GetItemInfo(itemId)
+      if itemInfo.itemId then
+        local itemName, _, itemRarity, _, _, _, _, _, equipSlot, itemIcon = GetItemInfo(itemInfo.itemId)
         for it = 1, table.getn(inventoryType) do
           if equipSlot == inventoryType[it] then
             if itemRarity >= mod.configuration.GetFilterItemQuality() then
@@ -96,9 +97,10 @@ function me.GetItemsForInventoryType(inventoryType)
               items[idx].slot = j
               items[idx].name = itemName
               items[idx].icon = itemIcon
-              items[idx].id = itemId
+              items[idx].id = itemInfo.itemId
               items[idx].equipSlot = equipSlot
               items[idx].quality = itemRarity
+              items[idx].enchantId = itemInfo.enchantId
 
               idx = idx + 1
             else
@@ -115,41 +117,41 @@ function me.GetItemsForInventoryType(inventoryType)
 end
 
 --[[
-  Equip an item into a specific slot identified by it's itemId
-    INVSLOT_HEAD
-    INVSLOT_NECK
-    INVSLOT_SHOULDER
-    INVSLOT_CHEST
-    INVSLOT_WAIST
-    INVSLOT_LEGS
-    INVSLOT_FEET
-    INVSLOT_WRIST
-    INVSLOT_HAND
-    INVSLOT_FINGER1
-    INVSLOT_FINGER2
-    INVSLOT_TRINKET1
-    INVSLOT_TRINKET2
-    INVSLOT_BACK
-    INVSLOT_MAINHAND
-    INVSLOT_OFFHAND
-    INVSLOT_RANGED
+  Switch items from one to another considering both itemId and enchantId and a target slot
 
-  @param {number} itemId
-  @param {number} slotId
+  INVSLOT_HEAD
+  INVSLOT_NECK
+  INVSLOT_SHOULDER
+  INVSLOT_CHEST
+  INVSLOT_WAIST
+  INVSLOT_LEGS
+  INVSLOT_FEET
+  INVSLOT_WRIST
+  INVSLOT_HAND
+  INVSLOT_FINGER1
+  INVSLOT_FINGER2
+  INVSLOT_TRINKET1
+  INVSLOT_TRINKET2
+  INVSLOT_BACK
+  INVSLOT_MAINHAND
+  INVSLOT_OFFHAND
+  INVSLOT_RANGED
+
+  @param {table} item
 ]]--
-function me.EquipItemById(itemId, slotId)
-  if not itemId or not slotId then return end
+function me.EquipItemByItemAndEnchantId(item)
+  if not item then return end
 
-  mod.logger.LogDebug(me.tag, "EquipItem: " .. itemId .. " in slot: " .. slotId)
+  mod.logger.LogDebug(me.tag, "EquipItem: " .. item.itemId .. " in slot: " .. item.slotId)
   --[[
-    Blizzard blocks even weapons from being switched by addons during combat. Because of this
+    Blizzard blocks weapons from being switched by addons during combat. Because of this
     all items are added to the combatqueue if the player is in combat.
   ]]--
   if UnitAffectingCombat(RGGM_CONSTANTS.UNIT_ID_PLAYER) or mod.common.IsPlayerReallyDead()
-      or mod.combatQueue.IsEquipChangeBlocked() or mod.common.IsPlayerCasting() then
-    mod.combatQueue.AddToQueue(itemId, slotId)
+    or mod.combatQueue.IsEquipChangeBlocked() or mod.common.IsPlayerCasting() then
+    mod.combatQueue.AddToQueue(tonumber(item.itemId), tonumber(item.enchantId), tonumber(item.slotId))
   else
-    me.SwitchItems(itemId, slotId)
+    me.SwitchItems(tonumber(item.itemId), tonumber(item.enchantId), tonumber(item.slotId))
   end
 end
 
@@ -174,11 +176,12 @@ end
     INVSLOT_RANGED
 
   @param {number} itemId
+  @param {number} enchantId
   @param {number} slotId
 ]]--
-function me.SwitchItems(itemId, slotId)
+function me.SwitchItems(itemId, enchantId, slotId)
   if not CursorHasItem() and not SpellIsTargeting() then
-    local bagNumber, bagPos = me.FindItemInBag(itemId)
+    local bagNumber, bagPos = me.FindItemInBag(itemId, enchantId)
 
     if bagNumber and bagPos then
       local _, _, isLocked = GetContainerItemInfo(bagNumber, bagPos)
@@ -197,7 +200,7 @@ function me.SwitchItems(itemId, slotId)
 
     --[[
       Special case for when an item can't be found in the bag. This can happen when the
-      user drag and drops an item that he has equiped onto another slot. This essentialy
+      user drag and drops an item that he has equipped onto another slot. This essentially
       needs to cause a switch of those items. This is only possible for INVTYPE_TRINKET and
       INVTYPE_FINGER
     ]]--
@@ -245,20 +248,46 @@ end
 --[[
   Search for an item in all bags
 
-  @param {number} itemId
+  If we have an enchantId set we have to consider it as well. This prevents GearMenu from equipping an item that
+  has a matching itemId but a different enchantId (or no enchant at all)
 
-  @return {number}, {number}
+  @param {number} itemId
+  @param {number} enchantId
+    Optional enchantId to match
+
+  @return {number | nil}, {number | nil}
+    number - the bagNumber where the item was found
+    number - the bagPos where the item was found
+    nil - if the item could not be found
 ]]--
-function me.FindItemInBag(itemId)
+function me.FindItemInBag(itemId, enchantId)
+  mod.logger.LogDebug(me.tag, "Searching for item: " .. itemId .. "with enchant" .. (enchantId or "nil") ..  " in bags")
+
   for i = 0, 4 do
     for j = 1, GetContainerNumSlots(i) do
-      local _, _, id = string.find(GetContainerItemLink(i, j) or "", "item:(%d+):")
+      local itemLink = GetContainerItemLink(i, j)
+      local itemInfo = mod.common.GetItemInfo(itemLink)
 
-      if tonumber(id) == itemId then
-        return i, j
+      if itemInfo.itemId == itemId then
+        if enchantId ~= nil then
+          if itemInfo.enchantId == enchantId then
+            mod.logger.LogDebug(me.tag, "Found a matching itemId " .. itemId .. " and enchantId "
+              .. enchantId .. " in bag: " .. i .. " slot: " .. j)
+            return i, j
+          else
+            mod.logger.LogDebug(me.tag, "Found a matching itemId " .. itemId .. " but enchantId "
+              .. enchantId .. " did not match " .. itemInfo.enchantId .. " in bag: " .. i .. " slot: " .. j)
+          end
+        else
+          mod.logger.LogDebug(me.tag, "Found a matching itemId " .. itemId ..
+            " and we don't have to consider the enchantId because it is nil")
+          return i, j
+        end
       end
     end
   end
+
+  return nil, nil
 end
 
 --[[
@@ -279,10 +308,11 @@ function me.FindQuickChangeItems(inventoryType, mustHaveOnUse)
 
   for i = 0, 4 do
     for j = 1, GetContainerNumSlots(i) do
-      local itemId = GetContainerItemID(i, j)
+      local itemLink = GetContainerItemLink(i, j)
+      local itemInfo = mod.common.GetItemInfo(itemLink)
 
-      if itemId and not me.IsDuplicateItem(items, itemId) then
-        local item = me.AddItemsMatchingInventoryType(inventoryType, itemId, mustHaveOnUse)
+      if itemInfo.itemId and not me.IsDuplicateItem(items, itemInfo.itemId, itemInfo.enchantId) then
+        local item = me.AddItemsMatchingInventoryType(inventoryType, itemInfo.itemId, itemInfo.enchantId, mustHaveOnUse)
 
         if item ~= nil then
           table.insert(items, item)
@@ -294,10 +324,11 @@ function me.FindQuickChangeItems(inventoryType, mustHaveOnUse)
   local gearSlots = mod.gearManager.GetGearSlots()
 
   for i = 1, table.getn(gearSlots) do
-    local itemId = GetInventoryItemID(RGGM_CONSTANTS.UNIT_ID_PLAYER, gearSlots[i].slotId)
+    local itemLink = GetInventoryItemLink(RGGM_CONSTANTS.UNIT_ID_PLAYER, gearSlots[i].slotId)
+    local itemInfo = mod.common.GetItemInfo(itemLink)
 
-    if itemId and not me.IsDuplicateItem(items, itemId) then
-      local item = me.AddItemsMatchingInventoryType(inventoryType, itemId, mustHaveOnUse)
+    if itemInfo.itemId and not me.IsDuplicateItem(items, itemInfo.itemId, itemInfo.enchantId) then
+      local item = me.AddItemsMatchingInventoryType(inventoryType, itemInfo.itemId, itemInfo.enchantId, mustHaveOnUse)
 
       if item ~= nil then
         table.insert(items, item)
@@ -311,15 +342,21 @@ end
 --[[
   @param {table} items
   @param {number} itemId
+  @param {number} enchantId
+    Optional enchantId to match
 
   @return {boolean}
-    true  - If the list already contains an item with the passed itemId
-    false - If the list does not contain an item with the passed itemId
+    true  - If the list already contains an item with the passed itemId and enchantId
+    false - If the list does not contain an item with the passed itemId and enchantId
 ]]--
-function me.IsDuplicateItem(items, itemId)
+function me.IsDuplicateItem(items, itemId, enchantId)
   for i = 1, table.getn(items) do
-    if items[i].id == itemId then
-      mod.logger.LogDebug(me.tag, "Filtered duplicate item - " .. items[i].name .. " - from item list")
+
+    if items[i].id == itemId and (enchantId ~= nil or items[i].enchantId ~= nil) then
+      if items[i].enchantId == enchantId then
+        return true
+      end
+    elseif items[i].id == itemId then
       return true
     end
   end
@@ -353,15 +390,17 @@ end
 
   @param {table} inventoryType
   @param {number} itemId
+  @param {number} enchantId
+    Optional enchantId
   @param {boolean} mustHaveOnUse
     true - If the items have to have an onUse effect to be considered
-    false - If the items do not have to have an onUse effect to be considered
+    false - If the items do not have an onUse effect to be considered
 
   @return {table, nil}
     table - If an item could be found
     nil - If no item could be found
 ]]--
-function me.AddItemsMatchingInventoryType(inventoryType, itemId, mustHaveOnUse)
+function me.AddItemsMatchingInventoryType(inventoryType, itemId, enchantId, mustHaveOnUse)
   local item
   local itemName, _, _, _, _, _, _, _, equipSlot, itemIcon = GetItemInfo(itemId)
 
@@ -373,6 +412,7 @@ function me.AddItemsMatchingInventoryType(inventoryType, itemId, mustHaveOnUse)
         item = {}
         item.name = itemName
         item.id = itemId
+        item.enchantId = enchantId or nil
         item.texture = itemIcon
       else
         mod.logger.LogDebug(me.tag, "Skipped item: " .. itemName .. " because it has no onUse effect")
@@ -413,8 +453,8 @@ end
   @param {number} slotId
 
   @param {boolean}
-    true - if an item is equiped in the specific slot
-    false - if no item is equiped in the specific slot
+    true - if an item is equipped in the specific slot
+    false - if no item is equipped in the specific slot
 ]]--
 function me.HasItemEquipedInSlot(slotId)
   local equipedItemId = GetInventoryItemID(RGGM_CONSTANTS.UNIT_ID_PLAYER, slotId)

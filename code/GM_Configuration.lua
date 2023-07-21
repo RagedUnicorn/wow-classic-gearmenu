@@ -109,10 +109,12 @@ GearMenuConfiguration = {
     {
       ["changeFromName"] = {string},
       ["changeFromItemId"] = {number},
+      ["changeFromItemEnchantId"] = {number},
       ["changeFromItemIcon"] = {string},
       ["changeFromItemQuality"] = {number},
       ["changeToName"] = {string},
       ["changeToItemId"] = {number},
+      ["changeToItemEnchantId"] = {number},
       ["changeToItemIcon"] = {string},
       ["changeToItemQuality"] = {number},
       ["equipSlot"] = {{number}, {number}},
@@ -353,7 +355,7 @@ end
 
 --[[
   Should be run by versions: All < v2.0.0
-  Description: Complete overhault of how gearBars are created
+  Description: Complete overhaul of how gearBars are created
 ]]--
 function me.UpgradeToV2_0_0()
   local versions = {"v1.6.0", "v1.5.0", "v1.4.0", "v1.3.0", "v1.2.0", "v1.1.0", "v1.0.1", "v1.0.0"}

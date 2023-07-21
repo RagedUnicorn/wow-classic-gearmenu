@@ -182,3 +182,27 @@ function me.CreateItemTexture(slot, slotSize)
     0, 0
   )
 end
+
+--[[
+  Create a container wrapper for textures to be able to capture mouse events
+
+  @param {string} frameName
+  @param {table} parentFrame
+
+  @return {table} containerFrame
+]]--
+function me.CreateMouseOverEventContainer(frameName, parentFrame, position)
+  local containerFrame = CreateFrame(
+    "Frame",
+    frameName,
+    parentFrame
+  )
+  containerFrame:SetPoint(unpack(position))
+  containerFrame:SetSize(
+    16,
+    16
+  )
+  containerFrame:EnableMouse(true)
+
+  return containerFrame
+end

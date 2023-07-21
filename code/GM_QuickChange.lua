@@ -34,39 +34,47 @@ me.tag = "QuickChange"
 --[[
   Save new quick change rule
 
-  @param (number) changeFromItemId
-    item to switch from
-  @param (number) changeToItemId
-    item to switch to
+  @param (table) quickChangeRule
+    A rule with an item to switch from to another one
   @param {number} delay
     time to wait before changing an item
 ]]--
-function me.AddQuickChangeRule(changeFromItemId, changeToItemId, delay)
-  if changeFromItemId == changeToItemId then
+function me.AddQuickChangeRule(quickChangeRule, delay)
+  --[[
+    If items are of the same itemId and also don't have a different enchantId
+    then the rule is invalid
+  ]]--
+  if quickChangeRule.from.itemId == quickChangeRule.to.itemId
+      and quickChangeRule.from.enchantId == quickChangeRule.to.enchantId then
     mod.logger.PrintUserError(rggm.L["quick_change_invalid_rule"])
     return
   end
 
   -- prevent adding duplicate rules
-  for _, quickChangeRule in ipairs(mod.configuration.GetQuickChangeRules()) do
-    if quickChangeRule.changeFromItemId == changeFromItemId then
+  for _, rule in ipairs(mod.configuration.GetQuickChangeRules()) do
+    if rule.changeFromItemId == quickChangeRule.from.itemId
+        and rule.changeFromItemEnchantId == quickChangeRule.from.enchantId then
       mod.logger.PrintUserError(rggm.L["quick_change_unable_to_add_rule_duplicate"])
       return
     end
   end
 
+  local changeFromItemId = quickChangeRule.from.itemId
+  local changeToItemId = quickChangeRule.to.itemId
   local changeFromName, _, itemFromQuality, _, _, _, _, _, equipFromSlot, itemFromTexture =
     GetItemInfo(changeFromItemId)
   local changeToName, _, itemToQuality, _, _, _, _, _, _, itemToTexture = GetItemInfo(changeToItemId)
 
   local _, spellId = GetItemSpell(changeFromItemId)
-  local quickChangeRule = {
+  local rule = {
     ["changeFromName"] = changeFromName,
     ["changeFromItemId"] = changeFromItemId,
+    ["changeFromItemEnchantId"] = quickChangeRule.from.enchantId,
     ["changeFromItemIcon"] = itemFromTexture,
     ["changeFromItemQuality"] = itemFromQuality,
     ["changeToName"] = changeToName,
     ["changeToItemId"] = changeToItemId,
+    ["changeToItemEnchantId"] = quickChangeRule.to.enchantId,
     ["changeToItemIcon"] = itemToTexture,
     ["changeToItemQuality"] = itemToQuality,
     ["equipSlot"] = equipFromSlot,
@@ -74,21 +82,62 @@ function me.AddQuickChangeRule(changeFromItemId, changeToItemId, delay)
     ["delay"] = delay
   }
 
-  mod.configuration.AddQuickChangeRule(quickChangeRule)
-  mod.logger.LogDebug(me.tag, "Added new quickChangeRule from: " .. quickChangeRule.changeFromItemId ..
-    " to: " .. quickChangeRule.changeToItemId)
+  mod.configuration.AddQuickChangeRule(rule)
+  mod.logger.LogDebug(me.tag, "Added new quickChange from: " .. rule.changeFromItemId ..
+    " to: " .. rule.changeToItemId)
 end
 
 --[[
-  @param {number} ruleFromItemdId
-  @param {number} ruleToItemId
+  Search for the selectedRule in the quickChangeRules and remove it if found
+
+  @param {table} selectedRule
 ]]--
-function me.RemoveQuickChangeRule(ruleFromItemdId, ruleToItemId)
+function me.RemoveQuickChangeRule(selectedRule)
   for index, quickChangeRule in ipairs(mod.configuration.GetQuickChangeRules()) do
-    if quickChangeRule.changeFromItemId == ruleFromItemdId and quickChangeRule.changeToItemId == ruleToItemId then
+    if me.IsRuleMatching(
+      selectedRule.from.itemId,
+      selectedRule.from.enchantId,
+      selectedRule.to.itemId,
+      selectedRule.to.enchantId,
+      quickChangeRule.changeFromItemId,
+      quickChangeRule.changeFromItemEnchantId,
+      quickChangeRule.changeToItemId,
+      quickChangeRule.changeToItemEnchantId
+    ) then
       mod.configuration.RemoveQuickChangeRule(index)
+      mod.logger.LogDebug(me.tag, "Removed quickChange from: " .. quickChangeRule.changeFromItemId ..
+        " to: " .. quickChangeRule.changeToItemId)
     end
   end
+end
+
+--[[
+Check if a rule is matching another rule
+
+  @param {number} ruleFromItemId
+  @param {number} ruleFromEnchantId
+  @param {number} ruleToItemId
+  @param {number} ruleToEnchantId
+  @param {number} otherRuleFromItemId
+  @param {number} otherRuleFromEnchantId
+  @param {number} otherRuleToItemId
+  @param {number} otherRuleToEnchantId
+
+  @return {boolean}
+    true if the rules are matching
+    false if the rules are not matching
+]]--
+function me.IsRuleMatching(ruleFromItemId, ruleFromEnchantId, ruleToItemId, ruleToEnchantId, otherRuleFromItemId,
+                           otherRuleFromEnchantId, otherRuleToItemId, otherRuleToEnchantId)
+
+  if ruleFromItemId == otherRuleFromItemId
+    and ruleFromEnchantId == otherRuleFromEnchantId
+    and ruleToItemId == otherRuleToItemId
+    and ruleToEnchantId == otherRuleToEnchantId then
+    return true
+  end
+
+  return false
 end
 
 --[[
@@ -164,9 +213,12 @@ function me.ExecuteQuickChangeRule(quickChangeRule, slotIds)
     if slotMetadata.itemId == quickChangeRule.changeFromItemId
       and not IsEquippedItem(quickChangeRule.changeToItemId) then
       C_Timer.After(quickChangeRule.delay or 0, function()
-        mod.itemManager.EquipItemById(
-          quickChangeRule.changeToItemId, slotMetadata.slotId
-        )
+        local item = {}
+        item.itemId = quickChangeRule.changeToItemId
+        item.enchantId = quickChangeRule.changeToItemEnchantId
+        item.slotId = slotMetadata.slotId
+
+        mod.itemManager.EquipItemByItemAndEnchantId(item)
       end)
 
       return -- rule executed - back out

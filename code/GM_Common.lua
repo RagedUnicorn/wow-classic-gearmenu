@@ -91,3 +91,23 @@ end
 function me.GetUiScale()
   return UIParent:GetScale()
 end
+
+--[[
+  Retrieves the itemId and enchantId from an itemLink
+
+  Note that enchantId is optional and might not be present in the itemLink
+
+  @param {string} itemLink
+    the itemLink to retrieve infos for
+
+  @return {table}
+    a table containing the itemId and enchantId of the item
+]]--
+function me.GetItemInfo(itemLink)
+  local _, _, itemId, enchantId = string.find(itemLink or "", "item:(%d+):?(%d*)")
+
+  return {
+    ["itemId"] = tonumber(itemId),
+    ["enchantId"] = tonumber(enchantId)
+  }
+end
