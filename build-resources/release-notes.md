@@ -1,4 +1,5 @@
-# Fixes
+# Feature
 
-* Fix bug where GearMenu forgets keybinds
-  * Previously, there was a bug in the GearMenu addon where keybinds would be forgotten during the startup process. Specifically, the GetBindingAction function would occasionally return an empty string for buttons, despite a valid keybind being set. Although the keybind would still work, GearMenu wouldn't display it anymore. To address this issue, I have implemented a slight delay before calling GetBindingAction during startup. This ensures that the keybinds are properly recognized and displayed by GearMenu.
+* Fix: #70 - Adding support for enchantIds to the Addon
+  * GearMenu supports itemEnchantIds in QuickChangeRules, ChangeMenu, GearBars and TrinketMenu. This means that items with the same id but different enchant ids will no longer be treated as the same item. Instead, GearMenu also compares the enchant id when looking for items.
+  * Note: All existing QuickChangeRules will have no itemEnchantId set. It is best to recreate the rule if those items have an enchant that is relevant otherwise old rules should still work. Items in the QuickChange can now be hovered to get a detailed tooltip with the enchant id.
