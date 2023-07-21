@@ -24,7 +24,7 @@
 ]]--
 
 -- luacheck: globals CreateFrame UIParent INVSLOT_TRINKET1 INVSLOT_TRINKET2 CooldownFrame_Set CooldownFrame_Clear
--- luacheck: globals GetItemCooldown
+-- luacheck: globals C_Container
 
 local mod = rggm
 local me = {}
@@ -216,7 +216,7 @@ function me.UpdateTrinketMenuSlotCooldowns()
   for _, trinketMenuSlot in pairs(trinketMenuSlots) do
     if trinketMenuSlot.itemId ~= nil then
       if mod.configuration.IsShowCooldownsEnabled() then
-        local startTime, duration = GetItemCooldown(trinketMenuSlot.itemId)
+        local startTime, duration = C_Container.GetItemCooldown(trinketMenuSlot.itemId)
         CooldownFrame_Set(trinketMenuSlot.cooldownOverlay, startTime, duration, true)
       else
         CooldownFrame_Clear(trinketMenuSlot.cooldownOverlay)

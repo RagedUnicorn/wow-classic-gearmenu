@@ -24,7 +24,7 @@
 ]]--
 
 -- luacheck: globals CreateFrame STANDARD_TEXT_FONT COOLDOWN_TYPE_NORMAL CooldownFrame_Clear CooldownFrame_Set
--- luacheck: globals GetInventoryItemID GetItemCooldown
+-- luacheck: globals GetInventoryItemID C_Container
 
 local mod = rggm
 local me = {}
@@ -83,7 +83,7 @@ function me.UpdateGearSlotCooldown(gearBar, uiSlot, gearSlotMetaData)
 
   if itemId ~= nil then
     if mod.gearBarManager.IsShowCooldownsEnabled(gearBar.id) then
-      local startTime, duration = GetItemCooldown(itemId)
+      local startTime, duration = C_Container.GetItemCooldown(itemId)
       CooldownFrame_Set(uiSlot.cooldownOverlay, startTime, duration, true)
 
       return

@@ -24,7 +24,7 @@
 ]]--
 
 -- luacheck: globals CreateFrame UIParent GetInventoryItemID GetCursorInfo STANDARD_TEXT_FONT
--- luacheck: globals GetInventoryItemLink GetItemInfo GetContainerItemInfo IsItemInRange InCombatLockdown
+-- luacheck: globals GetInventoryItemLink GetItemInfo C_Container IsItemInRange InCombatLockdown
 -- luacheck: globals CursorCanGoInSlot EquipCursorItem ClearCursor IsInventoryItemLocked PickupInventoryItem
 
 --[[
@@ -297,7 +297,7 @@ function me.UpdateCombatQueue(itemId, enchantId, slotId)
           local bagNumber, bagPos = mod.itemManager.FindItemInBag(itemId, enchantId)
 
           if bagNumber ~= nil and bagPos ~= nil then
-            icon:SetTexture(GetContainerItemInfo(bagNumber, bagPos))
+            icon:SetTexture(C_Container.GetContainerItemInfo(bagNumber, bagPos))
             icon:Show()
           else
             --[[

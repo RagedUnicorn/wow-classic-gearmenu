@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals CreateFrame MouseIsOver GetItemCooldown STANDARD_TEXT_FONT CooldownFrame_Clear
+-- luacheck: globals CreateFrame MouseIsOver C_Container STANDARD_TEXT_FONT CooldownFrame_Clear
 -- luacheck: globals CooldownFrame_Set UIParent
 
 local mod = rggm
@@ -227,7 +227,6 @@ end
 --[[
   Visually update an empty changeslot
 
-
   @param {table} changeMenu
   @param {number} itemCount
   @param {table} gearSlotMetaData
@@ -320,7 +319,7 @@ function me.UpdateChangeMenuGearSlotCooldown()
   for _, changeMenuSlot in pairs(changeMenuSlots) do
     if changeMenuSlot.itemId ~= nil then
       if changeMenuFrame.showCooldowns then
-        local startTime, duration = GetItemCooldown(changeMenuSlot.itemId)
+        local startTime, duration = C_Container.GetItemCooldown(changeMenuSlot.itemId)
         CooldownFrame_Set(changeMenuSlot.cooldownOverlay, startTime, duration, true)
       else
         CooldownFrame_Clear(changeMenuSlot.cooldownOverlay)
