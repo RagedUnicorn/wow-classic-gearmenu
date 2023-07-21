@@ -111,6 +111,7 @@ StaticPopupDialogs["RGGM_GEAR_BAR_CONFIRM_DELETE"] = {
       mod.gearBarStorage.RemoveGearBar(deleteGearBarId)
       me.GearBarListOnUpdate(gearBarList)
       mod.addonConfiguration.InterfaceOptionsRemoveCategory(deleteGearBarId)
+      mod.gearBarConfigurationSubMenu.RemoveGearBarContentFrame(deleteGearBarId)
 
       deleteGearBarId = nil
     end
@@ -203,17 +204,17 @@ function me.CreateNewGearBar(name)
   -- build visual gearBar representation
   mod.gearBar.BuildGearBar(gearBar)
 
-  local builtCategory = mod.addonConfiguration.BuildCategory(
+  local category, menu = mod.addonConfiguration.BuildCategory(
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_GEAR_BAR_SUB_CONFIG_FRAME .. gearBar.id,
-    _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_GEAR_BAR_CONFIG_FRAME],
+    mod.addonConfiguration.GetGearBarSubCategory(),
     gearBar.displayName,
     mod.gearBarConfigurationSubMenu.GearBarConfigurationCategoryContainerOnCallback
   )
+  menu.gearBarId = gearBar.id
+  category.gearBarId = gearBar.id
 
-  builtCategory.gearBarId = gearBar.id
 
   mod.gearBar.UpdateGearBarVisual(gearBar) -- update visual representation of the newly created gearBar
-  mod.addonConfiguration.UpdateAddonPanel()
 end
 
 --[[
@@ -226,14 +227,14 @@ function me.LoadConfiguredGearBars()
   for i = 1, #gearBars do
     mod.logger.LogDebug(me.tag, "Loading gearBar with id: " .. gearBars[i].id .. " from configuration")
 
-    local builtCategory = mod.addonConfiguration.BuildCategory(
+    local category, menu = mod.addonConfiguration.BuildCategory(
       RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_GEAR_BAR_SUB_CONFIG_FRAME .. gearBars[i].id,
-      _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_GEAR_BAR_CONFIG_FRAME],
+      mod.addonConfiguration.GetGearBarSubCategory(),
       gearBars[i].displayName,
       mod.gearBarConfigurationSubMenu.GearBarConfigurationCategoryContainerOnCallback
     )
-
-    builtCategory.gearBarId = gearBars[i].id
+    menu.gearBarId = gearBars[i].id
+    category.gearBarId = gearBars[i].id
   end
 end
 

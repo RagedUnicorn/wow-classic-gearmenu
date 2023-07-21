@@ -44,23 +44,14 @@ mod.gearBarConfigurationSubMenu = me
 me.tag = "GearBarConfigurationSubMenu"
 
 --[[
-  Reference to the scrollable slots list
-]]--
-local gearBarConfigurationSlotsList
-
---[[
-  Holds a reference to the reusable configuration content frame. This frame holds a list
-  of slots that are configurable. More slots can be added or removed. When this frame is reused
-  the parent needs to be adapted and the ui update to represent the state of the gearBar
+  Holds a references to all contentFrames that are created. One per gearBarId.
 ]]
-local gearBarConfigurationContentFrame
-
+local gearBarConfigurationContentFrames = {}
 --[[
   The gearBarId of the gearBar that is currently getting configured
   (changes with switching menu to another gearBar in addon settings)
 ]]--
 local gearBarConfiguration
-
 --[[
   Option texts for checkbutton options
 ]]--
@@ -83,25 +74,58 @@ local showCooldownsMetaData = {
 }
 
 --[[
+  The active configuration menu for a gearBar. This is the menu that is currently
+  visible to the user. It is used to determine which gearBar is currently getting
+  configured.
+]]--
+local currentActiveGearBarId
+
+--[[
   Callback for when the menu entrypoint is clicked in the interface options. A callback
   like this exists for every separate gearBar that was created.
 
   @param {table} self
 ]]--
 function me.GearBarConfigurationCategoryContainerOnCallback(self)
+  currentActiveGearBarId = self.gearBarId
   -- update the current edited gearBar
-  gearBarConfiguration = mod.gearBarManager.GetGearBar(self.gearBarId)
+  gearBarConfiguration = mod.gearBarManager.GetGearBar(currentActiveGearBarId)
 
-  if gearBarConfigurationContentFrame ~= nil then
-    -- update parent of the reused container
-    gearBarConfigurationContentFrame:SetParent(self)
-    -- trigger visual update
-    me.GearBarConfigurationSlotsListOnUpdate(gearBarConfigurationSlotsList)
-    me.UpdateConfigurationMenuTitle(gearBarConfigurationContentFrame)
-  else
-    -- menu was not yet created
-    me.BuildGearBarConfigurationSubMenu(self)
+  if me.GetCurrentContentFrame() == nil then
+    me.AddGearBarContentFrame(me.BuildGearBarConfigurationSubMenu(self))
   end
+end
+
+--[[
+  We want to store the created contentFrame for a gearBar so that we can reuse it.
+
+  @param {table} contentFrame
+    The contentFrame that should be stored
+]]--
+function me.AddGearBarContentFrame(contentFrame)
+  mod.logger.LogDebug(me.tag, "Adding contentFrame for gearBarId: " .. currentActiveGearBarId)
+  gearBarConfigurationContentFrames[currentActiveGearBarId] = contentFrame
+end
+
+--[[
+  Remove the contentFrame for a gearBarId from the list of stored contentFrames
+
+  @param {number} gearBarId
+    The gearBarId for which to remove the contentFrame
+]]--
+function me.RemoveGearBarContentFrame(gearBarId)
+  mod.logger.LogDebug(me.tag, "Removing contentFrame for gearBarId: " .. gearBarId)
+  gearBarConfigurationContentFrames[gearBarId] = nil
+end
+
+--[[
+  Get the currently active contentFrame for the gearBar that is currently getting configured
+
+  @return {table | nil}
+    The current active content frame or nil if none is active
+]]--
+function me.GetCurrentContentFrame()
+  return gearBarConfigurationContentFrames[currentActiveGearBarId]
 end
 
 --[[
@@ -109,10 +133,13 @@ end
 
   @param {table} parentFrame
     The menu entry in the interface options
+
+  @return {table}
+    The contentFrame for the gearBar
 ]]
 function me.BuildGearBarConfigurationSubMenu(parentFrame)
-  gearBarConfigurationContentFrame = CreateFrame(
-    "Frame", RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SUB_MENU, parentFrame)
+  local gearBarConfigurationContentFrame = CreateFrame(
+    "Frame", RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SUB_MENU .. parentFrame.gearBarId, parentFrame)
   gearBarConfigurationContentFrame:SetWidth(RGGM_CONSTANTS.INTERFACE_PANEL_CONTENT_FRAME_WIDTH)
   gearBarConfigurationContentFrame:SetHeight(RGGM_CONSTANTS.INTERFACE_PANEL_CONTENT_FRAME_HEIGHT)
   gearBarConfigurationContentFrame:SetPoint("TOPLEFT", parentFrame, 5, -7)
@@ -122,7 +149,7 @@ function me.BuildGearBarConfigurationSubMenu(parentFrame)
 
   mod.uiHelper.BuildCheckButtonOption(
     gearBarConfigurationContentFrame,
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_OPT_LOCK_GEAR_BAR,
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_OPT_LOCK_GEAR_BAR .. parentFrame.gearBarId,
     {"TOPLEFT", 20, -50},
     me.LockWindowGearBarOnShow,
     me.LockWindowGearBarOnClick,
@@ -131,7 +158,7 @@ function me.BuildGearBarConfigurationSubMenu(parentFrame)
 
   mod.uiHelper.BuildCheckButtonOption(
     gearBarConfigurationContentFrame,
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_OPT_SHOW_KEY_BINDINGS,
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_OPT_SHOW_KEY_BINDINGS .. parentFrame.gearBarId,
     {"TOPLEFT", 20, -80},
     me.ShowKeyBindingsOnShow,
     me.ShowKeyBindingsOnClick,
@@ -140,7 +167,7 @@ function me.BuildGearBarConfigurationSubMenu(parentFrame)
 
   mod.uiHelper.BuildCheckButtonOption(
     gearBarConfigurationContentFrame,
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_OPT_SHOW_COOLDOWNS,
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_OPT_SHOW_COOLDOWNS .. parentFrame.gearBarId,
     {"TOPLEFT", 20, -110},
     me.ShowCooldownsOnShow,
     me.ShowCooldownsOnClick,
@@ -149,7 +176,7 @@ function me.BuildGearBarConfigurationSubMenu(parentFrame)
 
   mod.uiHelper.CreateSizeSlider(
     gearBarConfigurationContentFrame,
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_GEAR_SLOT_SIZE_SLIDER,
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_GEAR_SLOT_SIZE_SLIDER .. parentFrame.gearBarId,
     {"TOPLEFT", 20, -150},
     RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_MIN,
     RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_MAX,
@@ -162,7 +189,7 @@ function me.BuildGearBarConfigurationSubMenu(parentFrame)
 
   mod.uiHelper.CreateSizeSlider(
     gearBarConfigurationContentFrame,
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_CHANGE_SLOT_SIZE_SLIDER,
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_CHANGE_SLOT_SIZE_SLIDER .. parentFrame.gearBarId,
     {"TOPLEFT", 20, -200},
     RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_MIN,
     RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_MAX,
@@ -173,8 +200,10 @@ function me.BuildGearBarConfigurationSubMenu(parentFrame)
     me.ChangeSlotSizeSliderOnValueChanged
   )
 
-  gearBarConfigurationSlotsList = me.CreateGearBarConfigurationSlotsList(gearBarConfigurationContentFrame)
-  me.GearBarConfigurationSlotsListOnUpdate(gearBarConfigurationSlotsList)
+  local scrollFrame = me.CreateGearBarConfigurationSlotsList(gearBarConfigurationContentFrame)
+  me.GearBarConfigurationSlotsListOnUpdate(scrollFrame)
+
+  return gearBarConfigurationContentFrame
 end
 
 --[[
@@ -184,7 +213,7 @@ end
     The created fontString
 ]]--
 function me.CreateConfigurationMenuTitle(contentFrame)
-  local titleFontString = gearBarConfigurationContentFrame:CreateFontString(
+  local titleFontString = contentFrame:CreateFontString(
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SUB_MENU_TITLE, "OVERLAY")
   titleFontString:SetFont(STANDARD_TEXT_FONT, 20)
   titleFontString:SetPoint("TOP", 0, -20)
@@ -256,7 +285,7 @@ function me.AddGearSlot()
     return
   end
 
-  me.GearBarConfigurationSlotsListOnUpdate(gearBarConfigurationSlotsList)
+  me.GearBarConfigurationSlotsListOnUpdate()
 end
 
 --[[
@@ -442,7 +471,7 @@ function me.GearBarConfigurationSlotsListOnVerticalScroll(self, offset)
   CloseMenus()
   self.ScrollBar:SetValue(offset)
   self.offset = math.floor(offset / RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_ROW_HEIGHT + 0.5)
-  me.GearBarConfigurationSlotsListOnUpdate(self)
+  me.GearBarConfigurationSlotsListOnUpdate()
 end
 
 --[[
@@ -592,7 +621,7 @@ function me.DropDownMenuCallback(self)
   -- include offset to position to get the actual position
   mod.libUiDropDownMenu.UiDropDownMenu_SetSelectedValue(self:GetParent().dropdown, self.value)
   mod.gearBarManager.UpdateGearSlot(gearBarConfiguration.id, position + offset, gearSlotMetaData)
-  me.GearBarConfigurationSlotsListOnUpdate(gearBarConfigurationSlotsList)
+  me.GearBarConfigurationSlotsListOnUpdate()
 end
 
 --[[
@@ -709,15 +738,17 @@ function me.RemoveGearSlot(self)
     return
   end
 
-  me.GearBarConfigurationSlotsListOnUpdate(gearBarConfigurationSlotsList)
+  me.GearBarConfigurationSlotsListOnUpdate()
 end
 
 --[[
   Update a scrollable list holding configuration frames for gearBar slots
 
-  @param {table} scrollFrame
+  @param {table} optional scrollFrameReference
+    The scrollFrameReference to update
 ]]--
-function me.GearBarConfigurationSlotsListOnUpdate(scrollFrame)
+function me.GearBarConfigurationSlotsListOnUpdate(scrollFrameReference)
+  local scrollFrame = scrollFrameReference or me.GetCurrentContentFrame().scrollFrame
   local rows = scrollFrame:GetParent().rows
   local maxValue = table.getn(gearBarConfiguration.slots) or 0
 
@@ -738,9 +769,10 @@ function me.GearBarConfigurationSlotsListOnUpdate(scrollFrame)
 
     if gearSlotPosition <= table.getn(gearBarConfiguration.slots) then
       local row = rows[index]
-
       local slot = gearBarConfiguration.slots[gearSlotPosition]
+
       if slot == nil then return end -- no more slots available for that gearBar
+
       row.position = gearSlotPosition -- add actual gearSlot position
       row.slotIcon:SetTexture(slot.textureId)
       -- update preselected dropdown value for the slot
@@ -761,13 +793,33 @@ function me.GearBarConfigurationSlotsListOnUpdate(scrollFrame)
 end
 
 --[[
-  @param {table} contentFrame
+  Register a script with the currently active content frame. This is used for capturing keybindings.
+
+  @param {string} event
+  @param {function} callback
 ]]--
-function me.UpdateConfigurationMenuTitle(contentFrame)
-  if RGGM_ENVIRONMENT.DEBUG then
-    contentFrame.subMenuTitle:SetText(gearBarConfiguration.displayName .. "_" .. gearBarConfiguration.id)
+function me.RegisterScriptWithContentFrame(event, callback)
+  local activeContentFrame = gearBarConfigurationContentFrames[currentActiveGearBarId]
+
+  if activeContentFrame ~= nil then
+    activeContentFrame:SetScript(event, callback)
   else
-    contentFrame.subMenuTitle:SetText(gearBarConfiguration.displayName)
+    mod.logger.LogError(me.tag, "Failed to register script with content frame - content frame is nil")
+  end
+end
+
+--[[
+  Unregister a script with the currently active content frame. This is used for capturing keybindings.
+
+  @param {string} event
+]]--
+function me.UnregisterScriptWithContentFrame(event)
+  local activeContentFrame = gearBarConfigurationContentFrames[currentActiveGearBarId]
+
+  if activeContentFrame ~= nil then
+    activeContentFrame:SetScript(event, nil)
+  else
+    mod.logger.LogError(me.tag, "Failed to unregister script with content frame - content frame is nil")
   end
 end
 
@@ -776,5 +828,5 @@ end
   a slot was removed or added
 ]]--
 function me.UpdateGearBarConfigurationMenu()
-  me.GearBarConfigurationSlotsListOnUpdate(gearBarConfigurationSlotsList)
+  me.GearBarConfigurationSlotsListOnUpdate()
 end
