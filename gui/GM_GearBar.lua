@@ -153,7 +153,7 @@ function me.CreateCombatQueueSlot(gearSlot, gearSlotSize)
 
   local iconHolderTexture = combatQueueSlot:CreateTexture(
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT_ICON_TEXTURE_NAME,
-    "LOW",
+    "BACKGROUND",
     nil
   )
   iconHolderTexture:SetPoint("TOPLEFT", combatQueueSlot, "TOPLEFT")
