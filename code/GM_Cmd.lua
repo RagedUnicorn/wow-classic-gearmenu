@@ -61,7 +61,7 @@ function me.SetupSlashCmdList()
     elseif args[1] == "rl" or args[1] == "reload" then
       ReloadUI()
     elseif args[1] == "opt" then
-      mod.addonConfiguration.OpenAddonPanel()
+      mod.addonConfiguration.OpenMainCategory()
     else
       mod.logger.PrintUserError(rggm.L["invalid_argument"])
     end
