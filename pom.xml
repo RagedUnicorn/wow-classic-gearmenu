@@ -74,7 +74,7 @@
           <plugin>
             <groupId>com.ragedunicorn.tools.maven</groupId>
             <artifactId>github-release-maven-plugin</artifactId>
-            <version>1.0.4</version>
+            <version>1.0.6</version>
             <executions>
               <execution>
                 <id>default-cli</id>
@@ -160,7 +160,7 @@
           <plugin>
             <groupId>com.ragedunicorn.tools.maven</groupId>
             <artifactId>wago-release-maven-plugin</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.1</version>
             <executions>
               <execution>
                 <id>default-cli</id>
