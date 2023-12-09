@@ -297,7 +297,8 @@ function me.UpdateCombatQueue(itemId, enchantId, slotId)
           local bagNumber, bagPos = mod.itemManager.FindItemInBag(itemId, enchantId)
 
           if bagNumber ~= nil and bagPos ~= nil then
-            icon:SetTexture(C_Container.GetContainerItemInfo(bagNumber, bagPos))
+            local itemInfo = C_Container.GetContainerItemInfo(bagNumber, bagPos)
+            icon:SetTexture(itemInfo.iconFileID)
             icon:Show()
           else
             --[[
