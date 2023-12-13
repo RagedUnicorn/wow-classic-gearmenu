@@ -436,8 +436,10 @@ function me.UnequipItemToBag(slot)
       if itemId == nil then
         if i == 0 then
           PutItemInBackpack()
+          break
         else
-          PutItemInBag(mod.gearManager.GetMappedBag(i))
+          -- PutItemInBag(mod.gearManager.GetMappedBag(i)) seems to be broken with latest patch
+          C_Container.PickupContainerItem(i, j)
           break
         end
       end
