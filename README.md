@@ -143,12 +143,16 @@ TrinketMenu allows the player to have all available trinkets and their status in
 If you prefer having certain items in your actionslots GearMenu can still be of use. By using the macro-bridge you get all the advantages of the combatQueue in a normal macro.
 
 #### Add Item to CombatQueue
+
 ```
-/run GM_AddToCombatQueue(itemId, slotId)
+/run GM_AddToCombatQueue(itemId, enchantId, slotId)
 
 # Example - Equip Hand of Justice into the lower trinket slot
-/run GM_AddToCombatQueue(11815, 14)
+/run GM_AddToCombatQueue(11815, nil, 14)
 ```
+
+**Note:** For classic era and seasons the enchantId is needed additionally for this to work. The enchantId is
+optional. If you don't have multiple items with different enchantIds in your inventory, set it to nil.
 
 > Note: It is not recommended using this for weapons because addons cannot switch weapons during combat (GearMenu will put the item into the combatQueue). With a normal weaponswitch macro however this is still possible.
 
@@ -157,7 +161,7 @@ If you prefer having certain items in your actionslots GearMenu can still be of 
 /run GM_RemoveFromCombatQueue(slotId)
 
 # Example - Clear headSlot queue
-/run GM_AddToCombatQueue(1)
+/run GM_RemoveFromCombatQueue(1)
 ```
 
 ##### Finding itemId
