@@ -684,8 +684,6 @@ end
 function me.GearSlotOnClick(self, button)
   if button == "RightButton" then
     mod.combatQueue.RemoveFromQueue(self:GetAttribute("item"))
-  else
-    return -- ignore other buttons
   end
 
   mod.themeCoordinator.GearSlotOnClick(self, button)
