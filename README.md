@@ -396,7 +396,7 @@ This project has GitHub action profiles for different Devops related work such a
 
 MIT License
 
-Copyright (c) 2023 Michael Wiesendanger
+Copyright (c) 2024 Michael Wiesendanger
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
