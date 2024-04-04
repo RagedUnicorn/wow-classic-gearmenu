@@ -18,8 +18,8 @@
     <addon.wago.projectId>kaNeybN2</addon.wago.projectId>
     <addon.name.short>GM</addon.name.short>
     <addon.tag.version>v${project.version}</addon.tag.version>
-    <addon.interface>11501</addon.interface>
-    <addon.supported.patch>1.15.1</addon.supported.patch>
+    <addon.interface>11502</addon.interface>
+    <addon.supported.patch>1.15.2</addon.supported.patch>
     <addon.identifier>${project.groupId}.${project.artifactId}</addon.identifier>
     <addon.project.categories>Action Bars Combat PvP</addon.project.categories>
   </properties>
