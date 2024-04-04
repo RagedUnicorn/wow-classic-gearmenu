@@ -1,3 +1,3 @@
 # Update
 
-* Update Interface Version 11501(1.15.1)
+* Update Interface Version 11502(1.15.2)
