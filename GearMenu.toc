@@ -4,9 +4,6 @@
 ## Notes: Addon to manage and keybind usable gear
 ## Version: v2.3.8
 ## SavedVariablesPerCharacter: GearMenuConfiguration
-## X-Category: Action Bars Combat PvP
-## X-Curse-Project-ID: 345496
-## X-Wago-ID: kaNeybN2
 
 # constant values
 code/GM_Constants.lua
@@ -34,6 +31,9 @@ code/GM_CombatQueue.lua
 code/GM_QuickChange.lua
 code/GM_Configuration.lua
 code/GM_Macro.lua
+
+# debug
+code/GM_Debug.lua
 
 # gui
 # custom blizzard dropdown impl
