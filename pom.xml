@@ -14,7 +14,7 @@
     <addon.name>GearMenu</addon.name>
     <addon.displayName>gearmenu</addon.displayName>
     <addon.curseforge.projectId>345496</addon.curseforge.projectId>
-    <addon.curseforge.gameVersion>10844</addon.curseforge.gameVersion>
+    <addon.curseforge.gameVersion>11084</addon.curseforge.gameVersion>
     <addon.wago.projectId>kaNeybN2</addon.wago.projectId>
     <addon.name.short>GM</addon.name.short>
     <addon.tag.version>v${project.version}</addon.tag.version>
