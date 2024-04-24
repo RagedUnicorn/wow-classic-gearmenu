@@ -59,7 +59,7 @@ function me.CreateGearSlot(gearBarFrame, gearBar, position)
   gearSlot:SetPushedTexture("Interface\\Buttons\\UI-Quickslot-Depress")
 
   local normalTexture = gearSlot:GetNormalTexture()
-  normalTexture:SetTexCoord(0.19, 0.79, 0.19, 0.79)
+  normalTexture:SetTexCoord(0.19, 0.80, 0.19, 0.80)
   normalTexture:SetSize(gearBar.gearSlotSize, gearBar.gearSlotSize)
 
   gearSlot:SetSize(gearBar.gearSlotSize, gearBar.gearSlotSize)
@@ -115,7 +115,7 @@ function me.CreateChangeSlot(changeMenuFrame, position)
   changeSlot:SetPushedTexture("Interface\\Buttons\\UI-Quickslot-Depress")
 
   local normalTexture = changeSlot:GetNormalTexture()
-  normalTexture:SetTexCoord(0.19, 0.79, 0.19, 0.79)
+  normalTexture:SetTexCoord(0.19, 0.80, 0.19, 0.80)
   normalTexture:SetSize(RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE, RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE)
 
   mod.uiHelper.CreateItemTexture(changeSlot, RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE)
@@ -152,7 +152,7 @@ function me.CreateTrinketSlot(trinketMenuFrame, position)
 
   local normalTexture = trinketMenuSlot:GetNormalTexture()
   local trinketMenuSlotSize = mod.configuration.GetTrinketMenuSlotSize()
-  normalTexture:SetTexCoord(0.19, 0.79, 0.19, 0.79)
+  normalTexture:SetTexCoord(0.19, 0.80, 0.19, 0.80)
   normalTexture:SetSize(trinketMenuSlotSize, trinketMenuSlotSize)
 
   mod.uiHelper.CreateItemTexture(trinketMenuSlot, trinketMenuSlotSize)
