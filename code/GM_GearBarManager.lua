@@ -191,7 +191,7 @@ function me.EnableShowKeyBindings(gearBarId)
 
   gearBar.showKeyBindings = true
   mod.gearBar.UpdateKeyBindingState(gearBar)
-  mod.ticker.UnregisterForTickerRangeCheck(gearBarId)
+  mod.ticker.RegisterForTickerRangeCheck(gearBarId)
 end
 
 --[[
@@ -204,7 +204,7 @@ function me.DisableShowKeyBindings(gearBarId)
 
   gearBar.showKeyBindings = false
   mod.gearBar.UpdateKeyBindingState(gearBar)
-  mod.ticker.RegisterForRangeCheck(gearBarId)
+  mod.ticker.UnregisterForTickerRangeCheck(gearBarId)
 end
 
 --[[
@@ -255,43 +255,6 @@ function me.IsShowCooldownsEnabled(gearBarId)
   local gearBar = me.GetGearBar(gearBarId)
 
   return gearBar.showCooldowns
-end
-
---[[
-  Show keybindings
-
-  @param {number} gearBarId
-]]--
-function me.EnableShowKeyBindings(gearBarId)
-  local gearBar = me.GetGearBar(gearBarId)
-
-  gearBar.showKeyBindings = true
-  mod.gearBar.UpdateKeyBindingState(gearBar)
-end
-
---[[
-  Hide keybindings
-
-  @param {number} gearBarId
-]]--
-function me.DisableShowKeyBindings(gearBarId)
-  local gearBar = me.GetGearBar(gearBarId)
-
-  gearBar.showKeyBindings = false
-  mod.gearBar.UpdateKeyBindingState(gearBar)
-end
-
---[[
-  @param {number} gearBarId
-
-  @return {boolean}
-    true - if showing of keybindings is enabled
-    false - if showing of keybindings is disabled
-]]--
-function me.IsShowKeyBindingsEnabled(gearBarId)
-  local gearBar = me.GetGearBar(gearBarId)
-
-  return gearBar.showKeyBindings
 end
 
 --[[

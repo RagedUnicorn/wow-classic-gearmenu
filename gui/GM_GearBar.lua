@@ -384,9 +384,11 @@ function me.UpdateKeyBindingState(gearBar)
     local uiGearSlot = uiGearBar.gearSlotReferences[index]
 
     if gearSlotMetaData.keyBinding and mod.gearBarManager.IsShowKeyBindingsEnabled(gearBar.id) then
+      mod.ticker.RegisterForTickerRangeCheck(gearBar.id)
       uiGearSlot.keyBindingText:SetText(mod.keyBind.ConvertKeyBindingText(gearSlotMetaData.keyBinding))
       uiGearSlot.keyBindingText:Show()
     else
+      mod.ticker.UnregisterForTickerRangeCheck(gearBar.id)
       uiGearSlot.keyBindingText:SetText("")
       uiGearSlot.keyBindingText:Hide()
     end
