@@ -26,7 +26,7 @@ if (GetLocale() == "deDE") then
   rggm.L["general_title"] = "Allgemeine Konfiguration"
   rggm.L["enable_tooltips"] = "Aktiviere KurzInfo"
   rggm.L["enable_tooltips_tooltip"] = "Aktiviere Kurzinfo für markierte Items"
-  rggm.L["enable_simple_tooltips"] = "Zeige simple Kurzinfo"
+  rggm.L["enable_simple_tooltips"] = "Zeige Simple Kurzinfo"
   rggm.L["enable_simple_tooltips_tooltip"] = "Zeige nur den Titel des markierten Items anstatt die ganze Kurzinfo"
   rggm.L["enable_drag_and_drop"] = "Aktiviere Drag and Drop"
   rggm.L["enable_drag_and_drop_tooltip"] = "Aktiviere Drag and Drop für Items"
