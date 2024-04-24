@@ -473,7 +473,7 @@ function me.CheckKeyBindingSlots(gearBarId)
         local _, _, _, slotPosition = string.find(action, "GM_GearBarFrame_(%d+)Slot_(%d)")
 
         if tonumber(slotPosition) ~= position then
-          mod.logger.LogDebug(me.tag, "Expected action to have position: " .. position .. " but was : " .. slotPosition)
+          mod.logger.LogDebug(me.tag, "Expected action to have position: " .. position .. " but was : " .. (slotPosition or "nil"))
 
           local uiGearBar = mod.gearBarStorage.GetGearBar(gearBarId)
           local uiGearSlot = uiGearBar.gearSlotReferences[position]
