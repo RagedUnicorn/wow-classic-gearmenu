@@ -51,7 +51,7 @@ gui/GM_ThemeCoordinator.lua
 gui/GM_ThemeClassic.lua
 gui/GM_ThemeCustom.lua
 gui/GM_Cooldown.lua
-gui/Gm_GearBarStorage.lua
+gui/GM_GearBarStorage.lua
 gui/GM_GearBarConfigurationMenu.lua
 gui/GM_GearBarConfigurationSubMenu.lua
 gui/GM_AddonConfiguration.lua
