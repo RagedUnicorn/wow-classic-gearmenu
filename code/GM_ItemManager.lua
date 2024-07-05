@@ -258,7 +258,8 @@ end
     nil - if the item could not be found
 ]]--
 function me.FindItemInBag(itemId, enchantId)
-  mod.logger.LogDebug(me.tag, "Searching for item: " .. itemId .. "with enchant" .. (enchantId or "nil") ..  " in bags")
+  mod.logger.LogDebug(me.tag, "Searching for item: " .. itemId .. " with enchant: "
+      .. (enchantId or "nil") ..  " in bags")
 
   for i = 0, 4 do
     for j = 1, C_Container.GetContainerNumSlots(i) do
