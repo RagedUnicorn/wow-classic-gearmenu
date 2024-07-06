@@ -63,8 +63,6 @@ function me.RegisterEvents(self)
   self:RegisterEvent("PLAYER_ENTERING_WORLD")
   -- Fires when a bags inventory changes
   self:RegisterEvent("BAG_UPDATE")
-  -- Fires when the player equips or unequips an item
-  self:RegisterEvent("UNIT_INVENTORY_CHANGED")
   -- Fires when the player leaves combat status
   self:RegisterEvent("PLAYER_REGEN_ENABLED")
   -- Fires when the player enters combat status
@@ -89,6 +87,15 @@ function me.RegisterEvents(self)
   self:RegisterEvent("PLAYER_TARGET_CHANGED")
   -- Fired when a unit stops channeling
   self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
+  --[[
+    Fires when the player equips or unequips an item
+    This is already filtered for the player only and seems to work better than UNIT_INVENTORY_CHANGED
+    UNIT_INVENTORY_CHANGED does not fire when equipping between items that have the same id but might
+    have different enchantments or rune engravings
+  ]]--
+  self:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
+  -- Fires when the player equips or unequips an item this is used as fallback during initial login of the player
+  self:RegisterEvent("UNIT_INVENTORY_CHANGED")
 end
 
 --[[
@@ -119,15 +126,22 @@ function me.OnEvent(event, ...)
         me.trinketMenu.UpdateTrinketMenu()
       end
     end
-  elseif event == "UNIT_INVENTORY_CHANGED" then
-    me.logger.LogEvent(me.tag, "UNIT_INVENTORY_CHANGED")
-    local unit = ...
+  elseif event == "PLAYER_EQUIPMENT_CHANGED" or event == "UNIT_INVENTORY_CHANGED" then
+    if event == "PLAYER_EQUIPMENT_CHANGED" then
+      me.logger.LogEvent(me.tag, "PLAYER_EQUIPMENT_CHANGED")
+    else
+      me.logger.LogEvent(me.tag, "UNIT_INVENTORY_CHANGED")
 
-    if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER and initializationDone then
-      me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarVisual)
-      if me.configuration.IsTrinketMenuEnabled() then
-        me.trinketMenu.UpdateTrinketMenu()
+      local unit = ...
+
+      -- ignore events from other units
+      if unit ~= RGGM_CONSTANTS.UNIT_ID_PLAYER then
+        return
       end
+    end
+
+    if initializationDone then
+      me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarVisual)
     end
   elseif event == "BAG_UPDATE_COOLDOWN" then
     me.logger.LogEvent(me.tag, "BAG_UPDATE_COOLDOWN")

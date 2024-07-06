@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals CreateFrame UIParent GetInventoryItemID GetCursorInfo STANDARD_TEXT_FONT
+-- luacheck: globals CreateFrame UIParent GetInventoryItemID GetCursorInfo STANDARD_TEXT_FONT C_Engraving
 -- luacheck: globals GetInventoryItemLink GetItemInfo C_Container IsItemInRange InCombatLockdown
 -- luacheck: globals CursorCanGoInSlot EquipCursorItem ClearCursor IsInventoryItemLocked PickupInventoryItem
 
@@ -166,6 +166,47 @@ function me.CreateCombatQueueSlot(gearSlot, gearSlotSize)
 end
 
 --[[
+  Note that rune slots are a feature of Season of Discovery and are not available in the classic version
+
+  Rune slot are created even if the player has them disabled in the configuration they are just not displayed.
+  All slots receive a rune slot even though not all slots can actually have a rune engraved. A gearmenu slot can
+  change its type at any point though and thus it is required for all slots to be able to handle runes.
+
+  @param {table} gearSlot
+  @param {number} gearSlotSize
+
+  @return {table}
+    The created runeSlot
+]]--
+function me.CreateRuneSlot(gearSlot, gearSlotSize)
+  if not mod.season.IsSodActive() then return end
+
+  local runeSlot = CreateFrame("Frame", RGGM_CONSTANTS.ELEMENT_GEAR_BAR_RUNE_SLOT, gearSlot)
+  local runeSlotSize = gearSlotSize * RGGM_CONSTANTS.GEAR_BAR_RUNE_SLOT_SIZE_MODIFIER
+
+  runeSlot:SetSize(
+    runeSlotSize,
+    runeSlotSize
+  )
+  runeSlot:SetPoint("BOTTOMRIGHT", gearSlot)
+  -- putting the runeslot above the cooldown overlay
+  runeSlot:SetFrameLevel(runeSlot:GetParent():GetFrameLevel() + 2)
+
+  local iconHolderTexture = runeSlot:CreateTexture(
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT_ICON_TEXTURE_NAME,
+    "BACKGROUND",
+    nil
+  )
+  iconHolderTexture:SetPoint("TOPLEFT", runeSlot, "TOPLEFT")
+  iconHolderTexture:SetPoint("BOTTOMRIGHT", runeSlot, "BOTTOMRIGHT")
+  iconHolderTexture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+
+  runeSlot.icon = iconHolderTexture
+
+  return runeSlot
+end
+
+--[[
   @param {table} gearSlot
   @param {number} gearSlotSize
 
@@ -214,6 +255,7 @@ end
 ]]--
 function me.UpdateGearBarVisual(gearBar)
   me.UpdateGearBarGearSlotTextures(gearBar)
+  me.UpdateGearBarRuneSlotTextures(gearBar)
   me.UpdateGearBarGearSlotCooldowns(gearBar)
   me.UpdateKeyBindingState(gearBar)
 end
@@ -423,11 +465,53 @@ function me.UpdateGearSlotTexture(gearSlot, gearSlotMetaData)
 
   if itemId then
     local itemIcon = select(10, GetItemInfo(itemId))
-    -- If an actual item was found in the inventoryslot said icon is used
+    -- If an actual item was found in the inventory slot said icon is used
     gearSlot.itemTexture:SetTexture(itemIcon or gearSlotMetaData.textureId)
   else
-    -- If no item can be found in the inventoryslot use the default icon
+    -- If no item can be found in the inventory slot use the default icon
     gearSlot.itemTexture:SetTexture(gearSlotMetaData.textureId)
+  end
+end
+
+--[[
+  Note that rune slots are a feature of Season of Discovery and are not available in the classic version
+  Update all runeSlot textures of the passed gearBar
+
+  @param {table} gearBar
+]]--
+function me.UpdateGearBarRuneSlotTextures(gearBar)
+  if not mod.season.IsSodActive() then return end
+
+  local uiGearBar = mod.gearBarStorage.GetGearBar(gearBar.id)
+
+  for index, gearSlotMetaData in pairs(gearBar.slots) do
+    me.UpdateRuneSlotTexture(uiGearBar.gearSlotReferences[index], gearSlotMetaData)
+  end
+end
+
+--[[
+  Update the visual representation of the rune slot on
+
+  @param {table} gearSlot
+  @param {table} gearSlotMetaData
+]]--
+function me.UpdateRuneSlotTexture(gearSlot, gearSlotMetaData)
+  -- not all slots can have a rune engrave, abort if this is the case
+  if not C_Engraving.IsEquipmentSlotEngravable(gearSlotMetaData.slotId) then return end
+
+  if not mod.configuration.IsRuneSlotsEnabled() then
+    gearSlot.runeSlot.icon:SetTexture(nil)
+
+    return
+  end
+
+  mod.logger.LogDebug(me.tag, "Updating rune slot for slotId - " .. gearSlotMetaData.slotId)
+  local rune = C_Engraving.GetRuneForEquipmentSlot(gearSlotMetaData.slotId)
+
+  if rune ~= nil then
+    gearSlot.runeSlot.icon:SetTexture(rune.iconTexture)
+  else
+    gearSlot.runeSlot.icon:SetTexture(nil)
   end
 end
 

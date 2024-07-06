@@ -159,7 +159,11 @@ GearMenuConfiguration = {
   --[[
     Whether to use custom or classic style for gearMenu ui elements (gearBar, changeMenu and trinketMenu)
   ]]--
-  ["uiTheme"] = RGGM_CONSTANTS.UI_THEME_CUSTOM
+  ["uiTheme"] = RGGM_CONSTANTS.UI_THEME_CUSTOM,
+  --[[
+    Whether to enable rune slots or not (this is an SOD specific feature)
+  ]]--
+  ["enableRuneSlots"] = true
 }
 
 --[[
@@ -239,6 +243,11 @@ function me.SetupConfiguration()
   if GearMenuConfiguration.uiTheme == nil then
     mod.logger.LogInfo(me.tag, "uiTheme has unexpected nil value")
     GearMenuConfiguration.uiTheme = RGGM_CONSTANTS.UI_THEME_CUSTOM
+  end
+
+  if GearMenuConfiguration.enableRuneSlots == nil then
+    mod.logger.LogInfo(me.tag, "enableRuneSlots has unexpected nil value")
+    GearMenuConfiguration.enableRuneSlots = true
   end
 
   --[[
@@ -743,6 +752,34 @@ function me.SetUiTheme(uiTheme)
   GearMenuConfiguration.uiTheme = uiTheme
   mod.themeCoordinator.UpdateTheme()
 end
+
+--[[
+  Show rune slots
+]]--
+function me.EnableRuneSlots()
+  GearMenuConfiguration.enableRuneSlots = true
+  mod.gearBar.UpdateGearBars(mod.gearBar.UpdateGearBarVisual)
+end
+
+--[[
+  Hide rune slots
+]]--
+function me.DisableRuneSlots()
+  GearMenuConfiguration.enableRuneSlots = false
+  mod.gearBar.UpdateGearBars(mod.gearBar.UpdateGearBarVisual)
+end
+
+--[[
+  @return {boolean}
+    true - if showing of rune slots is enabled
+    false - if showing of rune slots is disabled
+]]--
+function me.IsRuneSlotsEnabled()
+  return GearMenuConfiguration.enableRuneSlots
+end
+
+
+
 
 --[[
   Save the position of a frame in the addon variables allowing to persist its position
