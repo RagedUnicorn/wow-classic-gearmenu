@@ -63,6 +63,12 @@ local enableUnequipSlotMetaData = {
   rggm.L["enable_unequip_slot_tooltip"]
 }
 
+local enableRuneSlotsMetaData = {
+  "EnableRuneSlots",
+  rggm.L["enable_rune_slots"],
+  rggm.L["enable_rune_slots_tooltip"]
+}
+
 -- track whether the menu was already built
 local builtMenu = false
 
@@ -147,6 +153,15 @@ function me.BuildUi(parentFrame)
     me.EnableUnequipSlotOnShow,
     me.EnableUnequipSlotOnClick,
     enableUnequipSlotMetaData
+  )
+
+  mod.uiHelper.BuildCheckButtonOption(
+    generalMenuContentFrame,
+    RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_RUNE_SLOTS,
+    {"TOPLEFT", 280, -110},
+    me.EnableRuneSlotsOnShow,
+    me.EnableRuneSlotsOnClick,
+    enableRuneSlotsMetaData
   )
 
   me.CreateItemQualityLabel(generalMenuContentFrame)
@@ -448,5 +463,33 @@ function me.EnableUnequipSlotOnClick(self)
     mod.configuration.EnableUnequipSlot()
   else
     mod.configuration.DisableUnequipSlot()
+  end
+end
+
+--[[
+  OnShow callback for checkbuttons - enable rune slots
+
+  @param {table} self
+]]--
+function me.EnableRuneSlotsOnShow(self)
+  if mod.configuration.IsRuneSlotsEnabled() then
+    self:SetChecked(true)
+  else
+    self:SetChecked(false)
+  end
+end
+
+--[[
+  OnClick callback for checkbuttons - enable rune slots
+
+  @param {table} self
+]]--
+function me.EnableRuneSlotsOnClick(self)
+  local enabled = self:GetChecked()
+
+  if enabled then
+    mod.configuration.EnableRuneSlots()
+  else
+    mod.configuration.DisableRuneSlots()
   end
 end

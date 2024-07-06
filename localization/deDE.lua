@@ -35,6 +35,8 @@ if (GetLocale() == "deDE") then
   rggm.L["enable_unequip_slot"] = "Aktiviere Ausrüstung ausziehen Slot"
   rggm.L["enable_unequip_slot_tooltip"] = "Aktiviert einen leeren Slot im ChangeMenu."
     .. " Dies erlaubt es einfacher items auszuziehen"
+  rggm.L["enable_rune_slots"] = "Aktiviere Runenslots"
+  rggm.L["enable_rune_slots_tooltip"] = "Aktiviert die Anzeige von Runenslots im GearBar"
   rggm.L["filter_item_quality"] = "Filtere Gegenstandsqualität:"
   rggm.L["item_quality_poor"] = "Arm (Grau)"
   rggm.L["item_quality_common"] = "Gewöhnlich (Weiss)"
