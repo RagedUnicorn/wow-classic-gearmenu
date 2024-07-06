@@ -33,6 +33,8 @@ if (GetLocale() == "zhCN") then
   rggm.L["enable_drag_and_drop_tooltip"] = "启用可拖动物品"
   rggm.L["enable_unequip_slot"] = "启用取消装备插槽"
   rggm.L["enable_unequip_slot_tooltip"] = "允许将一个空插槽添加到changeMenu。这样可以更轻松地取消装备"
+  rggm.L["enable_rune_slots"] = "启用符文插槽"
+  rggm.L["enable_rune_slots_tooltip"] = "在GearBar中启用符文插槽的显示"
   rggm.L["filter_item_quality"] = "过滤物品品质:"
   rggm.L["item_quality_poor"] = "灰色"
   rggm.L["item_quality_common"] = "白色"

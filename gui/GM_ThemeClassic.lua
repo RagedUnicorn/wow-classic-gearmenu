@@ -80,6 +80,7 @@ function me.CreateGearSlot(gearBarFrame, gearBar, position)
 
   mod.uiHelper.CreateItemTexture(gearSlot, gearBar.gearSlotSize)
   gearSlot.combatQueueSlot = mod.gearBar.CreateCombatQueueSlot(gearSlot, gearBar.gearSlotSize)
+  gearSlot.runeSlot = mod.gearBar.CreateRuneSlot(gearSlot, gearBar.gearSlotSize)
   gearSlot.keyBindingText = mod.gearBar.CreateKeyBindingText(gearSlot, gearBar.gearSlotSize)
   gearSlot.position = position
   gearSlot.cooldownOverlay = mod.cooldown.CreateCooldownOverlay(
