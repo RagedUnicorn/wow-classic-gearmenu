@@ -496,7 +496,7 @@ end
   @param {table} gearSlotMetaData
 ]]--
 function me.UpdateRuneSlotTexture(gearSlot, gearSlotMetaData)
-  -- not all slots can have a rune engrave, abort if this is the case
+  -- not all slots can have a rune engraved, abort if this is the case
   if not C_Engraving.IsEquipmentSlotEngravable(gearSlotMetaData.slotId) then return end
 
   if not mod.configuration.IsRuneSlotsEnabled() then
