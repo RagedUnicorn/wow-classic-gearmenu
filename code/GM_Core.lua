@@ -234,8 +234,12 @@ end
 ]]--
 function me.Initialize()
   me.logger.LogDebug(me.tag, "Initialize addon")
-  -- update runes
-  C_Engraving.RefreshRunesList()
+
+  if me.season.IsSodActive() then
+    me.logger.LogDebug(me.tag, "Season of Discovery is active")
+    -- update runes
+    C_Engraving.RefreshRunesList()
+  end
   -- setup slash commands
   me.cmd.SetupSlashCmdList()
   -- load addon variables
