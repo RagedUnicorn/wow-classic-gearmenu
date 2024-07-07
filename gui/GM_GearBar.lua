@@ -614,6 +614,7 @@ function me.UpdateGearBarGearSlots(gearBar)
 
   -- update visual elements of the gearBar
   me.UpdateGearBarGearSlotTextures(gearBar)
+  me.UpdateGearBarRuneSlotTextures(gearBar)
   me.UpdateGearBarGearSlotCooldowns(gearBar)
   me.UpdateKeyBindingState(gearBar)
   me.UpdateGearBarSize(gearBar)
