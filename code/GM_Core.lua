@@ -70,6 +70,8 @@ function me.RegisterEvents(self)
     have different enchantments or rune engravings
   ]]--
   self:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
+  -- Fires when the player equips or unequips an item this is used as fallback during initial login of the player
+  self:RegisterEvent("UNIT_INVENTORY_CHANGED")
   -- Fires when the player leaves combat status
   self:RegisterEvent("PLAYER_REGEN_ENABLED")
   -- Fires when the player enters combat status
@@ -128,6 +130,14 @@ function me.OnEvent(event, ...)
     me.logger.LogEvent(me.tag, "PLAYER_EQUIPMENT_CHANGED")
 
     if initializationDone then
+      me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarVisual)
+    end
+  elseif event == "UNIT_INVENTORY_CHANGED" then
+    me.logger.LogEvent(me.tag, "UNIT_INVENTORY_CHANGED")
+
+    local unit = ...
+
+    if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER and initializationDone then
       me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarVisual)
     end
   elseif event == "BAG_UPDATE_COOLDOWN" then
@@ -224,6 +234,8 @@ end
 ]]--
 function me.Initialize()
   me.logger.LogDebug(me.tag, "Initialize addon")
+  -- update runes
+  C_Engraving.RefreshRunesList()
   -- setup slash commands
   me.cmd.SetupSlashCmdList()
   -- load addon variables
@@ -246,12 +258,10 @@ function me.Initialize()
     me.trinketMenu.UpdateTrinketMenu()
   end
 
-  -- update runes
-  C_Engraving.RefreshRunesList()
-
   -- initialization is done
   initializationDone = true
 
+  me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarVisual)
   me.ShowWelcomeMessage()
 end
 
