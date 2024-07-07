@@ -284,9 +284,9 @@ function me.FindItemInBag(itemId, enchantId, runeAbilityId)
       end
 
       if itemInfo.itemId == itemId then
-        mod.logger.LogError(me.tag, "Found a matching itemId " .. itemId .. " in bag: " .. i .. " slot: " .. j)
-
         if me.IsEnchantIdMatching(itemInfo, enchantId) and me.IsRuneAbilityIdMatching(rune, runeAbilityId) then
+          mod.logger.LogDebug(me.tag, "Found item in bag: " .. i .. " at position: " .. j)
+
           return i, j
         end
       end
@@ -297,7 +297,6 @@ function me.FindItemInBag(itemId, enchantId, runeAbilityId)
 
   return nil, nil
 end
-
 
 --[[
   Check if the enchantId of an item matches the passed enchantId
