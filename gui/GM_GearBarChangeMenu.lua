@@ -182,6 +182,8 @@ function me.UpdateChangeSlot(changeSlot, gearSlotMetaData, item, changeSlotSize)
   changeSlot.itemId = item.id
   changeSlot.equipSlot = item.equipSlot
   changeSlot.enchantId = item.enchantId
+  changeSlot.runeAbilityId = (item.rune and item.rune.skillLineAbilityID) or nil
+  changeSlot.runeSlot.icon:SetTexture((item.rune and item.rune.iconTexture) or nil)
   changeSlot.itemTexture:SetTexture(item.icon)
   changeSlot:Show()
 end

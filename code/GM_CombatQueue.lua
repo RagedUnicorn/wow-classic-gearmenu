@@ -54,9 +54,13 @@ end
     itemId to consider when equipping the item
   @param {number} enchantId
     Optional enchantId to consider when equipping the item
+  @param {number} runeAbilityId
+    Optional runeAbilityId
+
   @param {number} slotId
+    The slotId to add the item to
 ]]--
-function me.AddToQueue(itemId, enchantId, slotId)
+function me.AddToQueue(itemId, enchantId, runeAbilityId, slotId)
   if not itemId or not slotId then return end
 
   assert(type(itemId) == "number", string.format(
@@ -70,7 +74,7 @@ function me.AddToQueue(itemId, enchantId, slotId)
   assert(type(slotId) == "number", string.format(
     "bad argument #3 to `AddToQueue` (expected number got %s)", type(slotId)))
 
-  combatQueueStore[slotId] = { itemId, enchantId }
+  combatQueueStore[slotId] = { itemId, enchantId, runeAbilityId }
 
   mod.logger.LogDebug(me.tag, "Added item with itemId " .. itemId .. " and enchantId " .. (enchantId or "nil") ..
     " in slotId " .. slotId .. " to combatQueueStore")
@@ -119,12 +123,13 @@ function me.ProcessQueue()
   -- cannot change gear while player is in combat or is casting
   if InCombatLockdown() or mod.common.IsPlayerCasting() or mod.common.IsPlayerReallyDead() then return end
 
-  -- update queue for all slotpositions
+  -- update queue for all slot positions
   for _, gearSlot in pairs(mod.gearManager.GetGearSlots()) do
     if combatQueueStore[gearSlot.slotId] ~= nil then
       local item = {}
       item.itemId = combatQueueStore[gearSlot.slotId][1]
       item.enchantId = combatQueueStore[gearSlot.slotId][2] or nil
+      item.runeAbilityId = combatQueueStore[gearSlot.slotId][3] or nil
       item.slotId = gearSlot.slotId
       mod.itemManager.EquipItemByItemAndEnchantId(item)
     end
