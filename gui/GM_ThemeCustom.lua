@@ -141,6 +141,7 @@ function me.CreateChangeSlot(changeMenuFrame, position)
   changeSlot:SetBackdropBorderColor(0, 0, 0, 1)
 
   mod.uiHelper.CreateItemTexture(changeSlot, RGGM_CONSTANTS.GEAR_BAR_CHANGE_DEFAULT_SLOT_SIZE)
+  changeSlot.runeSlot = mod.gearBar.CreateRuneSlot(changeSlot, RGGM_CONSTANTS.GEAR_BAR_CHANGE_DEFAULT_SLOT_SIZE)
   changeSlot.highlightFrame = me.CreateHighlightFrame(changeSlot)
   changeSlot.cooldownOverlay = mod.cooldown.CreateCooldownOverlay(
     changeSlot,

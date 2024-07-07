@@ -120,6 +120,7 @@ function me.CreateChangeSlot(changeMenuFrame, position)
   normalTexture:SetSize(RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE, RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE)
 
   mod.uiHelper.CreateItemTexture(changeSlot, RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE)
+  changeSlot.runeSlot = mod.gearBar.CreateRuneSlot(changeSlot, RGGM_CONSTANTS.GEAR_BAR_CHANGE_DEFAULT_SLOT_SIZE)
   changeSlot.cooldownOverlay = mod.cooldown.CreateCooldownOverlay(
     changeSlot,
     RGGM_CONSTANTS.ELEMENT_SLOT_COOLDOWN_FRAME,

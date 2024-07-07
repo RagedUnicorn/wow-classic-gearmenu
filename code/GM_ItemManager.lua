@@ -80,9 +80,15 @@ function me.GetItemsForInventoryType(inventoryType)
     for j = 1, C_Container.GetContainerNumSlots(i) do
       local itemLink = C_Container.GetContainerItemLink(i, j)
       local itemInfo = mod.common.GetItemInfo(itemLink)
+      local rune
+
+      if mod.season.IsSodActive() and C_Engraving.IsInventorySlotEngravable(i, j) then
+        rune = C_Engraving.GetRuneForInventorySlot(i, j)
+      end
 
       if itemInfo.itemId then
         local itemName, _, itemRarity, _, _, _, _, _, equipSlot, itemIcon = GetItemInfo(itemInfo.itemId)
+
         for it = 1, table.getn(inventoryType) do
           if equipSlot == inventoryType[it] then
             if itemRarity >= mod.configuration.GetFilterItemQuality() then
@@ -98,6 +104,7 @@ function me.GetItemsForInventoryType(inventoryType)
               items[idx].equipSlot = equipSlot
               items[idx].quality = itemRarity
               items[idx].enchantId = itemInfo.enchantId
+              items[idx].rune = rune or nil
 
               idx = idx + 1
             else
@@ -146,9 +153,9 @@ function me.EquipItemByItemAndEnchantId(item)
   ]]--
   if UnitAffectingCombat(RGGM_CONSTANTS.UNIT_ID_PLAYER) or mod.common.IsPlayerReallyDead()
     or mod.combatQueue.IsEquipChangeBlocked() or mod.common.IsPlayerCasting() then
-    mod.combatQueue.AddToQueue(tonumber(item.itemId), tonumber(item.enchantId), tonumber(item.slotId))
+    mod.combatQueue.AddToQueue(tonumber(item.itemId), tonumber(item.enchantId), tonumber(item.runeAbilityId), tonumber(item.slotId))
   else
-    me.SwitchItems(tonumber(item.itemId), tonumber(item.enchantId), tonumber(item.slotId))
+    me.SwitchItems(tonumber(item.itemId), tonumber(item.enchantId), tonumber(item.runeAbilityId), tonumber(item.slotId))
   end
 end
 
@@ -174,11 +181,14 @@ end
 
   @param {number} itemId
   @param {number} enchantId
+    Optional enchantId
+  @param {number} runeAbilityId
+    Optional runeAbilityId
   @param {number} slotId
 ]]--
-function me.SwitchItems(itemId, enchantId, slotId)
+function me.SwitchItems(itemId, enchantId, runeAbilityId, slotId)
   if not CursorHasItem() and not SpellIsTargeting() then
-    local bagNumber, bagPos = me.FindItemInBag(itemId, enchantId)
+    local bagNumber, bagPos = me.FindItemInBag(itemId, enchantId, runeAbilityId)
 
     if bagNumber and bagPos then
       local _, _, isLocked = C_Container.GetContainerItemInfo(bagNumber, bagPos)
@@ -251,13 +261,15 @@ end
   @param {number} itemId
   @param {number} enchantId
     Optional enchantId to match
+  @param {number} runeAbilityId
+    Optional runeAbilityId to match
 
   @return {number | nil}, {number | nil}
     number - the bagNumber where the item was found
     number - the bagPos where the item was found
     nil - if the item could not be found
 ]]--
-function me.FindItemInBag(itemId, enchantId)
+function me.FindItemInBag(itemId, enchantId, runeAbilityId)
   mod.logger.LogDebug(me.tag, "Searching for item: " .. itemId .. " with enchant: "
       .. (enchantId or "nil") ..  " in bags")
 
@@ -265,27 +277,73 @@ function me.FindItemInBag(itemId, enchantId)
     for j = 1, C_Container.GetContainerNumSlots(i) do
       local itemLink = C_Container.GetContainerItemLink(i, j)
       local itemInfo = mod.common.GetItemInfo(itemLink)
+      local rune
+
+      if mod.season.IsSodActive() and C_Engraving.IsInventorySlotEngravable(i, j) then
+        rune = C_Engraving.GetRuneForInventorySlot(i, j)
+      end
 
       if itemInfo.itemId == itemId then
-        if enchantId ~= nil then
-          if itemInfo.enchantId == enchantId then
-            mod.logger.LogDebug(me.tag, "Found a matching itemId " .. itemId .. " and enchantId "
-              .. enchantId .. " in bag: " .. i .. " slot: " .. j)
-            return i, j
-          else
-            mod.logger.LogDebug(me.tag, "Found a matching itemId " .. itemId .. " but enchantId "
-              .. enchantId .. " did not match " .. (itemInfo.enchantId or "nil") .. " in bag: " .. i .. " slot: " .. j)
-          end
-        else
-          mod.logger.LogDebug(me.tag, "Found a matching itemId " .. itemId ..
-            " and we don't have to consider the enchantId because it is nil")
+        mod.logger.LogError(me.tag, "Found a matching itemId " .. itemId .. " in bag: " .. i .. " slot: " .. j)
+
+        if me.IsEnchantIdMatching(itemInfo, enchantId) and me.IsRuneAbilityIdMatching(rune, runeAbilityId) then
           return i, j
         end
       end
     end
   end
 
+  mod.logger.LogError(me.tag, "Item not found in bags")
+
   return nil, nil
+end
+
+
+--[[
+  Check if the enchantId of an item matches the passed enchantId
+
+  @param {table} itemInfo
+  @param {number} enchantId
+
+  @return {boolean}
+    true - If the enchantId of the item matches the passed enchantId
+    false - If the enchantId of the item does not match the passed enchantId
+]]--
+function me.IsEnchantIdMatching(itemInfo, enchantId)
+  if itemInfo.enchantId == enchantId then
+    return true
+  end
+
+  return false
+end
+
+--[[
+  Check if the runeAbilityId of a rune matches the passed runeAbilityId
+
+  @param {table} rune
+  @param {number} runeAbilityId
+
+  @return {boolean}
+    true - If the runeAbilityId of the rune matches the passed runeAbilityId
+    false - If the runeAbilityId of the rune does not match the passed runeAbilityId
+]]--
+function me.IsRuneAbilityIdMatching(rune, runeAbilityId)
+  --[[
+    If the rune is nil and the runeAbilityId is nil we consider it a match. This can happen when the
+    item doesn't have a rune at all or if SOD is not active and we ignore runes completely
+  ]]--
+  if rune == nil and runeAbilityId == nil then
+    return true
+  end
+
+  --[[
+    If the rune is not nil we expect the runeAbilityId to match the passed skillLineAbilityID
+  ]]--
+  if rune and rune.skillLineAbilityID == runeAbilityId then
+    return true
+  end
+
+  return false
 end
 
 --[[
