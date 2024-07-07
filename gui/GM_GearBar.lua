@@ -321,11 +321,10 @@ end
 
   @param {number} itemId
     The itemId to update the combatQueue for
-  @param {number} enchantId
   @param {number} slotId
     The slotId to update the combatQueue for
 ]]--
-function me.UpdateCombatQueue(itemId, enchantId, slotId)
+function me.UpdateCombatQueue(itemId, slotId)
   mod.logger.LogDebug(me.tag, "Updating combatqueues for slotId - " .. slotId)
 
   for _, gearBar in pairs(mod.gearBarStorage.GetGearBars()) do
@@ -336,7 +335,7 @@ function me.UpdateCombatQueue(itemId, enchantId, slotId)
         local icon = gearSlots[i].combatQueueSlot.icon
 
         if itemId then
-          local bagNumber, bagPos = mod.itemManager.FindItemInBag(itemId, enchantId)
+          local bagNumber, bagPos = mod.itemManager.FindItemInBag(itemId)
 
           if bagNumber ~= nil and bagPos ~= nil then
             local itemInfo = C_Container.GetContainerItemInfo(bagNumber, bagPos)
