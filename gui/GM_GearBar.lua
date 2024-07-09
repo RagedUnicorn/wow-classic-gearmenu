@@ -339,7 +339,7 @@ function me.UpdateSpellRange()
             - Returns false if item is not in range
             - Returns nil if not applicable(e.g. item is passive only) or the slot might be empty
           ]]--
-          local isInRange = IsItemInRange(itemLink, RGGM_CONSTANTS.UNIT_ID_TARGET)
+          local isInRange = IsItemInRange(itemLink or "", RGGM_CONSTANTS.UNIT_ID_TARGET)
 
           if isInRange == nil or isInRange == true then
             gearSlot.keyBindingText:SetTextColor(1, 1, 1, 1)
