@@ -24,7 +24,7 @@
 ]]--
 
 -- luacheck: globals GetItemInfo INVSLOT_MAINHAND INVSLOT_OFFHAND PutItemInBackpack GetInventoryItemID
--- luacheck: globals UnitAffectingCombat CursorHasItem SpellIsTargeting ClearCursor GetItemSpell
+-- luacheck: globals UnitAffectingCombat CursorHasItem SpellIsTargeting ClearCursor GetItemSpell C_Engraving
 -- luacheck: globals IsInventoryItemLocked PutItemInBag PickupInventoryItem C_Container GetInventoryItemLink
 
 --[[
@@ -153,9 +153,13 @@ function me.EquipItemByItemAndEnchantId(item)
   ]]--
   if UnitAffectingCombat(RGGM_CONSTANTS.UNIT_ID_PLAYER) or mod.common.IsPlayerReallyDead()
     or mod.combatQueue.IsEquipChangeBlocked() or mod.common.IsPlayerCasting() then
-    mod.combatQueue.AddToQueue(tonumber(item.itemId), tonumber(item.enchantId), tonumber(item.runeAbilityId), tonumber(item.slotId))
+    mod.combatQueue.AddToQueue(
+      tonumber(item.itemId), tonumber(item.enchantId), tonumber(item.runeAbilityId), tonumber(item.slotId)
+    )
   else
-    me.SwitchItems(tonumber(item.itemId), tonumber(item.enchantId), tonumber(item.runeAbilityId), tonumber(item.slotId))
+    me.SwitchItems(
+      tonumber(item.itemId), tonumber(item.enchantId), tonumber(item.runeAbilityId), tonumber(item.slotId)
+    )
   end
 end
 
