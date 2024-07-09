@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals GetAddOnMetadata ChannelInfo C_Timer
+-- luacheck: globals GetAddOnMetadata ChannelInfo C_Timer C_Engraving
 
 rggm = rggm or {}
 local me = rggm
