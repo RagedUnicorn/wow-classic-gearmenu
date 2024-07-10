@@ -273,7 +273,7 @@ function me.FindItemInBag(itemId, enchantId)
             return i, j
           else
             mod.logger.LogDebug(me.tag, "Found a matching itemId " .. itemId .. " but enchantId "
-              .. enchantId .. " did not match " .. itemInfo.enchantId .. " in bag: " .. i .. " slot: " .. j)
+              .. enchantId .. " did not match " .. (itemInfo.enchantId or "nil") .. " in bag: " .. i .. " slot: " .. j)
           end
         else
           mod.logger.LogDebug(me.tag, "Found a matching itemId " .. itemId ..
