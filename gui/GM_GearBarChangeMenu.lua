@@ -183,6 +183,7 @@ function me.UpdateChangeSlot(changeSlot, gearSlotMetaData, item, changeSlotSize)
   changeSlot.equipSlot = item.equipSlot
   changeSlot.enchantId = item.enchantId
   changeSlot.runeAbilityId = (item.rune and item.rune.skillLineAbilityID) or nil
+  changeSlot.runeName = (item.rune and item.rune.name) or nil
   changeSlot.runeSlot.icon:SetTexture((item.rune and item.rune.iconTexture) or nil)
   changeSlot.itemTexture:SetTexture(item.icon)
   changeSlot:Show()
@@ -261,6 +262,10 @@ function me.UpdateEmptyChangeSlot(changeMenu, itemCount, gearSlotMetaData, empty
   emptyChangeMenuSlot.slotId = gearSlotMetaData.slotId
   emptyChangeMenuSlot.itemId = nil
   emptyChangeMenuSlot.equipSlot = nil
+  emptyChangeMenuSlot.enchantId = nil
+  emptyChangeMenuSlot.runeAbilityId = nil
+  emptyChangeMenuSlot.runeName = nil
+  emptyChangeMenuSlot.runeSlot.icon:SetTexture(nil)
   emptyChangeMenuSlot.itemTexture:SetTexture(gearSlotMetaData.textureId)
   emptyChangeMenuSlot:Show()
 end
