@@ -52,6 +52,7 @@ function me.UpdateTooltipForItem(item)
     end
 
     tooltip:SetHyperlink(itemLink)
+    me.AddRuneToTooltip(tooltip, item.runeName)
   end
 
   tooltip:Show()
@@ -61,8 +62,9 @@ end
   Update the tooltip to show the information for the passed itemLink
 
   @param {string} itemLink
+  @param {string} runeName
 ]]--
-function me.UpdateTooltipForItemLink(itemLink)
+function me.UpdateTooltipForItemLink(itemLink, runeName)
   if itemLink == nil then return end
   if not mod.configuration.IsTooltipsEnabled() then return end
 
@@ -73,9 +75,23 @@ function me.UpdateTooltipForItemLink(itemLink)
     me.BuildSimpleTooltip(tooltip, itemId)
   else
     tooltip:SetHyperlink(itemLink)
+    me.AddRuneToTooltip(tooltip, runeName)
   end
 
   tooltip:Show()
+end
+
+--[[
+  Add a rune to the end of the tooltip
+  This is a Season of Discovery feature
+
+  @param {table} tooltip
+  @param {string} runeName
+]]--
+function me.AddRuneToTooltip(tooltip, runeName)
+  if not mod.season.IsSodActive() or runeName == nil then return end
+
+  tooltip:AddLine(runeName, 0, 1, 0)
 end
 
 --[[

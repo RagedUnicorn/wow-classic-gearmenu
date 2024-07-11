@@ -321,10 +321,14 @@ end
 
   @param {number} itemId
     The itemId to update the combatQueue for
+  @param {number} enchantId
+    The enchantId to update the combatQueue for
+  @param {number} runeAbilityId
+    The runeAbilityId to update the combatQueue for
   @param {number} slotId
     The slotId to update the combatQueue for
 ]]--
-function me.UpdateCombatQueue(itemId, slotId)
+function me.UpdateCombatQueue(itemId, enchantId, runeAbilityId, slotId)
   mod.logger.LogDebug(me.tag, "Updating combatqueues for slotId - " .. slotId)
 
   for _, gearBar in pairs(mod.gearBarStorage.GetGearBars()) do

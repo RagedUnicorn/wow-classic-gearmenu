@@ -369,9 +369,21 @@ function me.FindQuickChangeItems(inventoryType, mustHaveOnUse)
     for j = 1, C_Container.GetContainerNumSlots(i) do
       local itemLink = C_Container.GetContainerItemLink(i, j)
       local itemInfo = mod.common.GetItemInfo(itemLink)
+      local rune
+
+      if mod.season.IsSodActive() and C_Engraving.IsInventorySlotEngravable(i, j) then
+        rune = C_Engraving.GetRuneForInventorySlot(i, j)
+      end
 
       if itemInfo.itemId and not me.IsDuplicateItem(items, itemInfo.itemId, itemInfo.enchantId) then
-        local item = me.AddItemsMatchingInventoryType(inventoryType, itemInfo.itemId, itemInfo.enchantId, mustHaveOnUse)
+        local item = me.AddItemsMatchingInventoryType(
+          inventoryType,
+          itemInfo.itemId,
+          itemInfo.enchantId,
+          (rune and rune.skillLineAbilityID or nil),
+          (rune and rune.name or nil),
+          mustHaveOnUse
+        )
 
         if item ~= nil then
           table.insert(items, item)
@@ -385,9 +397,21 @@ function me.FindQuickChangeItems(inventoryType, mustHaveOnUse)
   for i = 1, table.getn(gearSlots) do
     local itemLink = GetInventoryItemLink(RGGM_CONSTANTS.UNIT_ID_PLAYER, gearSlots[i].slotId)
     local itemInfo = mod.common.GetItemInfo(itemLink)
+    local rune
+
+    if mod.season.IsSodActive() and C_Engraving.IsEquipmentSlotEngravable(gearSlots[i].slotId) then
+      rune = C_Engraving.GetRuneForEquipmentSlot(gearSlots[i].slotId)
+    end
 
     if itemInfo.itemId and not me.IsDuplicateItem(items, itemInfo.itemId, itemInfo.enchantId) then
-      local item = me.AddItemsMatchingInventoryType(inventoryType, itemInfo.itemId, itemInfo.enchantId, mustHaveOnUse)
+      local item = me.AddItemsMatchingInventoryType(
+        inventoryType,
+        itemInfo.itemId,
+        itemInfo.enchantId,
+        (rune and rune.skillLineAbilityID or nil),
+        (rune and rune.name or nil),
+        mustHaveOnUse
+      )
 
       if item ~= nil then
         table.insert(items, item)
@@ -451,6 +475,10 @@ end
   @param {number} itemId
   @param {number} enchantId
     Optional enchantId
+  @param {number} runeAbilityId
+    Optional runeAbilityId
+  @param {string} runeName
+    Optional runeName
   @param {boolean} mustHaveOnUse
     true - If the items have to have an onUse effect to be considered
     false - If the items do not have an onUse effect to be considered
@@ -459,7 +487,7 @@ end
     table - If an item could be found
     nil - If no item could be found
 ]]--
-function me.AddItemsMatchingInventoryType(inventoryType, itemId, enchantId, mustHaveOnUse)
+function me.AddItemsMatchingInventoryType(inventoryType, itemId, enchantId, runeAbilityId, runeName, mustHaveOnUse)
   local item
   local itemName, _, _, _, _, _, _, _, equipSlot, itemIcon = GetItemInfo(itemId)
 
@@ -472,6 +500,8 @@ function me.AddItemsMatchingInventoryType(inventoryType, itemId, enchantId, must
         item.name = itemName
         item.id = itemId
         item.enchantId = enchantId or nil
+        item.runeAbilityId = runeAbilityId or nil
+        item.runeName = runeName or nil
         item.texture = itemIcon
       else
         mod.logger.LogDebug(me.tag, "Skipped item: " .. itemName .. " because it has no onUse effect")
