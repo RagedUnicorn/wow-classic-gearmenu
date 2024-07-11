@@ -40,9 +40,11 @@ me.tag = "Macro"
   @param {number} itemId
   @param {number} enchantId
     Optional enchantId to consider when equipping the item
+  @param {number} runeAbilityId
+    Optional runeAbilityId to consider
   @param {number} slotId
 ]]--
-function GM_AddToCombatQueue(itemId, enchantId, slotId)
+function GM_AddToCombatQueue(itemId, enchantId, runeAbilityId, slotId)
   assert(type(itemId) == "number", string.format(
     "bad argument #1 to `GM_AddToCombatQueue` (expected number got %s)", type(itemId)))
 
@@ -51,15 +53,20 @@ function GM_AddToCombatQueue(itemId, enchantId, slotId)
       "bad argument #2 to `GM_AddToCombatQueue` (expected number got %s)", type(enchantId)))
   end
 
+  if runeAbilityId ~= nil then
+    assert(type(runeAbilityId) == "number", string.format(
+      "bad argument #3 to `GM_AddToCombatQueue` (expected number got %s)", type(runeAbilityId)))
+  end
+
   assert(type(slotId) == "number", string.format(
-    "bad argument #3 to `GM_AddToCombatQueue` (expected number got %s)", type(slotId)))
+    "bad argument #4 to `GM_AddToCombatQueue` (expected number got %s)", type(slotId)))
 
   local equipSlot = me.CheckItemIdValidity(itemId)
 
   if equipSlot == nil then return end
 
   if me.CheckSlotValidity(equipSlot, slotId) then
-    mod.combatQueue.AddToQueue(itemId, enchantId, slotId)
+    mod.combatQueue.AddToQueue(itemId, enchantId, runeAbilityId, slotId)
   else
     mod.logger.PrintUserChatError(string.format(rggm.L["unable_to_find_equipslot"], itemId))
     return
