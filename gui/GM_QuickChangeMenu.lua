@@ -549,10 +549,14 @@ function me.RulesScrollFrameOnUpdate(scrollFrame)
       row.fromItemName:SetText(quickChangeRules[value].changeFromName)
       row.fromItemId = quickChangeRules[value].changeFromItemId
       row.fromItemEnchantId = quickChangeRules[value].changeFromItemEnchantId
+      row.fromRuneAbilityId = quickChangeRules[value].changeFromRuneAbilityId
+      row.fromRuneName = quickChangeRules[value].changeFromRuneName
       row.toItemIcon:SetTexture(quickChangeRules[value].changeToItemIcon)
       row.toItemName:SetText(quickChangeRules[value].changeToName)
       row.toItemId = quickChangeRules[value].changeToItemId
       row.toItemEnchantId = quickChangeRules[value].changeToItemEnchantId
+      row.toRuneAbilityId = quickChangeRules[value].changeToRuneAbilityId
+      row.toRuneName = quickChangeRules[value].changeToRuneName
       row.delay:SetText(quickChangeRules[value].delay)
 
       if quickchangeRule.to ~= nil and quickchangeRule.from ~= nil and quickchangeRule.to.itemId == row.toItemId
@@ -643,6 +647,8 @@ function me.FromFauxScrollFrameOnUpdate(scrollFrame, slotId)
       row.name:SetText(fromCachedQuickChangeItems[value].name)
       row.itemId = fromCachedQuickChangeItems[value].id
       row.enchantId = fromCachedQuickChangeItems[value].enchantId or nil
+      row.runeAbilityId = fromCachedQuickChangeItems[value].runeAbilityId or nil
+      row.runeName = fromCachedQuickChangeItems[value].runeName or nil
       row.side = RGGM_CONSTANTS.QUICK_CHANGE_SIDE_FROM
 
       if selectedRule.from ~= nil and selectedRule.from.itemId == row.itemId
@@ -731,6 +737,8 @@ function me.ToFauxScrollFrameOnUpdate(scrollFrame, slotId)
       row.name:SetText(toCachedQuickChangeItems[value].name)
       row.itemId = toCachedQuickChangeItems[value].id
       row.enchantId = toCachedQuickChangeItems[value].enchantId or nil
+      row.runeAbilityId = toCachedQuickChangeItems[value].runeAbilityId or nil
+      row.runeName = toCachedQuickChangeItems[value].runeName or nil
       row.side = RGGM_CONSTANTS.QUICK_CHANGE_SIDE_TO
 
       if selectedRule.to ~= nil and selectedRule.to.itemId == row.itemId
@@ -871,24 +879,32 @@ function me.SetupRowEvents(row)
     if self.side == RGGM_CONSTANTS.QUICK_CHANGE_SIDE_FROM then
       selectedRule.from = {
         ["itemId"] = self.itemId,
-        ["enchantId"] = self.enchantId or nil
+        ["enchantId"] = self.enchantId or nil,
+        ["runeAbilityId"] = self.runeAbilityId or nil,
+        ["runeName"] = self.runeName or nil
       }
 
       me.FromFauxScrollFrameOnUpdate(fromScrollFrame)
     elseif self.side == RGGM_CONSTANTS.QUICK_CHANGE_SIDE_TO then
       selectedRule.to = {
         ["itemId"] = self.itemId,
-        ["enchantId"] = self.enchantId or nil
+        ["enchantId"] = self.enchantId or nil,
+        ["runeAbilityId"] = self.runeAbilityId or nil,
+        ["runeName"] = self.runeName or nil
       }
       me.ToFauxScrollFrameOnUpdate(toScrollFrame)
     else
       quickchangeRule.from = {
         ["itemId"] = self.fromItemId,
-        ["enchantId"] = self.fromItemEnchantId or nil
+        ["enchantId"] = self.fromItemEnchantId or nil,
+        ["runeAbilityId"] = self.fromRuneAbilityId or nil,
+        ["runeName"] = self.fromRuneName or nil
       }
       quickchangeRule.to = {
         ["itemId"] = self.toItemId,
-        ["enchantId"] = self.toItemEnchantId or nil
+        ["enchantId"] = self.toItemEnchantId or nil,
+        ["runeAbilityId"] = self.toRuneAbilityId or nil,
+        ["runeName"] = self.toRuneName or nil
       }
 
       me.RulesScrollFrameOnUpdate(rulesScrollFrame)
@@ -909,17 +925,23 @@ function me.SetupContainerEvents(containerFrame)
     if self:GetName() == RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_RULES_MOUSEOVER_CONTAINER_LEFT then
       item = {
         ["itemId"] = parentFrame.fromItemId,
-        ["enchantId"] = parentFrame.fromItemEnchantId
+        ["enchantId"] = parentFrame.fromItemEnchantId,
+        ["runeAbilityId"] = parentFrame.fromRuneAbilityId,
+        ["runeName"] = parentFrame.fromRuneName
       }
     elseif self:GetName() == RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_RULES_MOUSEOVER_CONTAINER_RIGHT then
       item = {
         ["itemId"] = parentFrame.toItemId,
-        ["enchantId"] = parentFrame.toItemEnchantId
+        ["enchantId"] = parentFrame.toItemEnchantId,
+        ["runeAbilityId"] = parentFrame.toRuneAbilityId,
+        ["runeName"] = parentFrame.toRuneName
       }
     else
       item = {
         ["itemId"] = parentFrame.itemId,
-        ["enchantId"] = parentFrame.enchantId
+        ["enchantId"] = parentFrame.enchantId,
+        ["runeAbilityId"] = parentFrame.runeAbilityId,
+        ["runeName"] = parentFrame.runeName
       }
     end
 

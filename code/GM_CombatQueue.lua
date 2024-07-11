@@ -79,7 +79,7 @@ function me.AddToQueue(itemId, enchantId, runeAbilityId, slotId)
   mod.logger.LogDebug(me.tag, "Added item with itemId " .. itemId .. " and enchantId " .. (enchantId or "nil") ..
     " in slotId " .. slotId .. " to combatQueueStore")
 
-  mod.gearBar.UpdateCombatQueue(itemId, slotId)
+  mod.gearBar.UpdateCombatQueue(itemId, enchantId, runeAbilityId, slotId)
   mod.ticker.StartTickerCombatQueue()
 end
 
@@ -107,7 +107,7 @@ function me.RemoveFromQueue(slotId)
   combatQueueStore[slotId] = nil
   mod.logger.LogDebug(me.tag, "Removed item with id " .. itemId .. " in slotId "
     .. slotId .. " from combatQueueStore")
-  mod.gearBar.UpdateCombatQueue(nil, slotId)
+  mod.gearBar.UpdateCombatQueue(nil, nil, nil, slotId)
 end
 
 --[[
