@@ -334,8 +334,11 @@ function me.IsRuneAbilityIdMatching(rune, runeAbilityId)
   --[[
     If the rune is nil and the runeAbilityId is nil we consider it a match. This can happen when the
     item doesn't have a rune at all or if SOD is not active and we ignore runes completely
+
+    If runeAbilityId is set to nil we consider it to match as well. This can be the case if we don't care
+    about the rune itself and pass nil for the rune ability id
   ]]--
-  if rune == nil and runeAbilityId == nil then
+  if rune == nil or runeAbilityId == nil then
     return true
   end
 
@@ -375,6 +378,7 @@ function me.FindQuickChangeItems(inventoryType, mustHaveOnUse)
         rune = C_Engraving.GetRuneForInventorySlot(i, j)
       end
 
+      -- TODO duplicate item probably also needs to include runeAbilityId if present
       if itemInfo.itemId and not me.IsDuplicateItem(items, itemInfo.itemId, itemInfo.enchantId) then
         local item = me.AddItemsMatchingInventoryType(
           inventoryType,
@@ -403,6 +407,8 @@ function me.FindQuickChangeItems(inventoryType, mustHaveOnUse)
       rune = C_Engraving.GetRuneForEquipmentSlot(gearSlots[i].slotId)
     end
 
+
+    -- TODO duplicate item probably also needs to include runeAbilityId if present
     if itemInfo.itemId and not me.IsDuplicateItem(items, itemInfo.itemId, itemInfo.enchantId) then
       local item = me.AddItemsMatchingInventoryType(
         inventoryType,

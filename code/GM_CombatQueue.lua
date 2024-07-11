@@ -71,8 +71,13 @@ function me.AddToQueue(itemId, enchantId, runeAbilityId, slotId)
       "bad argument #2 to `AddToQueue` (expected number got %s)", type(enchantId)))
   end
 
+  if runeAbilityId ~= nil then
+    assert(type(runeAbilityId) == "number", string.format(
+      "bad argument #3 to `AddToQueue` (expected number got %s)", type(runeAbilityId)))
+  end
+
   assert(type(slotId) == "number", string.format(
-    "bad argument #3 to `AddToQueue` (expected number got %s)", type(slotId)))
+    "bad argument #4 to `AddToQueue` (expected number got %s)", type(slotId)))
 
   combatQueueStore[slotId] = { itemId, enchantId, runeAbilityId }
 

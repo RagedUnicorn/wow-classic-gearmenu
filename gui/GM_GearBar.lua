@@ -339,7 +339,7 @@ function me.UpdateCombatQueue(itemId, enchantId, runeAbilityId, slotId)
         local icon = gearSlots[i].combatQueueSlot.icon
 
         if itemId then
-          local bagNumber, bagPos = mod.itemManager.FindItemInBag(itemId)
+          local bagNumber, bagPos = mod.itemManager.FindItemInBag(itemId, enchantId, runeAbilityId)
 
           if bagNumber ~= nil and bagPos ~= nil then
             local itemInfo = C_Container.GetContainerItemInfo(bagNumber, bagPos)
