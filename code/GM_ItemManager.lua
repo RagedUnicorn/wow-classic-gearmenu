@@ -313,6 +313,14 @@ end
     false - If the enchantId of the item does not match the passed enchantId
 ]]--
 function me.IsEnchantIdMatching(itemInfo, enchantId)
+  --[[
+    If enchantId is set to nil we consider it to match as well. This can be the case if we don't care
+    about the enchant itself and pass nil for the enchant id
+  ]]--
+  if enchantId == nil then
+    return true
+  end
+
   if itemInfo.enchantId == enchantId then
     return true
   end
