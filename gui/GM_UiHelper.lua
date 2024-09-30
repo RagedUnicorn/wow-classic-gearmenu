@@ -135,7 +135,7 @@ function me.CreateSizeSlider(parentFrame, sliderName, position, sliderMinValue, 
     "Slider",
     sliderName,
     parentFrame,
-    "OptionsSliderTemplate"
+    "UISliderTemplateWithLabels"
   )
   sliderFrame:SetWidth(RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_WIDTH)
   sliderFrame:SetHeight(RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_HEIGHT)

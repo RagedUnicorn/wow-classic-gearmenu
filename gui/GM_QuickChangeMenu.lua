@@ -166,7 +166,7 @@ function me.CreateDelaySlider(frame)
     "Slider",
     RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_DELAY_SLIDER,
     frame,
-    "OptionsSliderTemplate"
+    "UISliderTemplateWithLabels"
   )
   delaySlider:SetWidth(RGGM_CONSTANTS.QUICK_CHANGE_DELAY_SLIDER_WIDTH)
   delaySlider:SetHeight(RGGM_CONSTANTS.QUICK_CHANGE_DELAY_SLIDER_HEIGHT)

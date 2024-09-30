@@ -42,6 +42,8 @@ libs/LibUiDropDownMenu/LibUiDropDownMenu.xml
 libs/LibUiDropDownMenu/LibUiDropDownMenuTemplates.lua
 libs/LibUiDropDownMenu/LibUiDropDownMenuTemplates.xml
 
+# Fix for slider templates
+gui/SliderTemplates.xml
 gui/GM_Frame.xml
 gui/GM_UiHelper.lua
 gui/GM_GearBar.lua
