@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals GetAddOnMetadata ChannelInfo C_Timer C_Engraving
+-- luacheck: globals GetAddOnMetadata ChannelInfo C_Timer
 
 rggm = rggm or {}
 local me = rggm
@@ -234,12 +234,8 @@ end
 ]]--
 function me.Initialize()
   me.logger.LogDebug(me.tag, "Initialize addon")
-
-  if me.season.IsSodActive() then
-    me.logger.LogDebug(me.tag, "Season of Discovery is active")
-    -- update runes
-    C_Engraving.RefreshRunesList()
-  end
+  -- update runes
+  me.engrave.RefreshRunes()
   -- setup slash commands
   me.cmd.SetupSlashCmdList()
   -- load addon variables

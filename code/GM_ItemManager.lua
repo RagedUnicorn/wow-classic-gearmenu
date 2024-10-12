@@ -24,7 +24,7 @@
 ]]--
 
 -- luacheck: globals GetItemInfo INVSLOT_MAINHAND INVSLOT_OFFHAND PutItemInBackpack GetInventoryItemID
--- luacheck: globals UnitAffectingCombat CursorHasItem SpellIsTargeting ClearCursor GetItemSpell C_Engraving
+-- luacheck: globals UnitAffectingCombat CursorHasItem SpellIsTargeting ClearCursor GetItemSpell
 -- luacheck: globals IsInventoryItemLocked PutItemInBag PickupInventoryItem C_Container GetInventoryItemLink
 
 --[[
@@ -80,11 +80,7 @@ function me.GetItemsForInventoryType(inventoryType)
     for j = 1, C_Container.GetContainerNumSlots(i) do
       local itemLink = C_Container.GetContainerItemLink(i, j)
       local itemInfo = mod.common.GetItemInfo(itemLink)
-      local rune
-
-      if mod.season.IsSodActive() and C_Engraving.IsInventorySlotEngravable(i, j) then
-        rune = C_Engraving.GetRuneForInventorySlot(i, j)
-      end
+      local rune = mod.engrave.GetRuneForInventorySlot(i, j)
 
       if itemInfo.itemId then
         local itemName, _, itemRarity, _, _, _, _, _, equipSlot, itemIcon = GetItemInfo(itemInfo.itemId)
@@ -281,11 +277,7 @@ function me.FindItemInBag(itemId, enchantId, runeAbilityId)
     for j = 1, C_Container.GetContainerNumSlots(i) do
       local itemLink = C_Container.GetContainerItemLink(i, j)
       local itemInfo = mod.common.GetItemInfo(itemLink)
-      local rune
-
-      if mod.season.IsSodActive() and C_Engraving.IsInventorySlotEngravable(i, j) then
-        rune = C_Engraving.GetRuneForInventorySlot(i, j)
-      end
+      local rune = mod.engrave.GetRuneForInventorySlot(i, j)
 
       if itemInfo.itemId == itemId then
         if me.IsEnchantIdMatching(itemInfo, enchantId) and me.IsRuneAbilityIdMatching(rune, runeAbilityId) then
@@ -380,11 +372,7 @@ function me.FindQuickChangeItems(inventoryType, mustHaveOnUse)
     for j = 1, C_Container.GetContainerNumSlots(i) do
       local itemLink = C_Container.GetContainerItemLink(i, j)
       local itemInfo = mod.common.GetItemInfo(itemLink)
-      local rune
-
-      if mod.season.IsSodActive() and C_Engraving.IsInventorySlotEngravable(i, j) then
-        rune = C_Engraving.GetRuneForInventorySlot(i, j)
-      end
+      local rune = mod.engrave.GetRuneForInventorySlot(i, j)
 
       -- TODO duplicate item probably also needs to include runeAbilityId if present
       if itemInfo.itemId and not me.IsDuplicateItem(items, itemInfo.itemId, itemInfo.enchantId) then
@@ -409,12 +397,7 @@ function me.FindQuickChangeItems(inventoryType, mustHaveOnUse)
   for i = 1, table.getn(gearSlots) do
     local itemLink = GetInventoryItemLink(RGGM_CONSTANTS.UNIT_ID_PLAYER, gearSlots[i].slotId)
     local itemInfo = mod.common.GetItemInfo(itemLink)
-    local rune
-
-    if mod.season.IsSodActive() and C_Engraving.IsEquipmentSlotEngravable(gearSlots[i].slotId) then
-      rune = C_Engraving.GetRuneForEquipmentSlot(gearSlots[i].slotId)
-    end
-
+    local rune = mod.engrave.GetRuneForEquipmentSlot(gearSlots[i].slotId)
 
     -- TODO duplicate item probably also needs to include runeAbilityId if present
     if itemInfo.itemId and not me.IsDuplicateItem(items, itemInfo.itemId, itemInfo.enchantId) then
