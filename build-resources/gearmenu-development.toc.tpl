@@ -31,6 +31,7 @@ code/GM_CombatQueue.lua
 code/GM_QuickChange.lua
 code/GM_Configuration.lua
 code/GM_Macro.lua
+code/GM_Engrave.lua
 
 # debug
 code/GM_Debug.lua
@@ -60,3 +61,4 @@ gui/GM_GeneralMenu.lua
 gui/GM_TrinketConfigurationMenu.lua
 gui/GM_QuickChangeMenu.lua
 gui/GM_KeyBind.lua
+gui/GM_EngraveFrame.lua
