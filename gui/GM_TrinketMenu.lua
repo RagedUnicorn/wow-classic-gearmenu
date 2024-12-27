@@ -110,6 +110,8 @@ end
 function me.UpdateTrinketMenuResize()
   local items = mod.itemManager.GetItemsForInventoryType({RGGM_CONSTANTS.TRINKET_MENU_INV_TYPE})
 
+  if trinketMenuFrame == nil then return end -- trinketMenu is currently not visible
+
   me.UpdateTrinketMenuSize(#items)
   me.UpdateTrinketMenuSlotSize()
 end
