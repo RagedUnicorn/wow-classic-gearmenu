@@ -155,9 +155,6 @@ function me.OnEvent(event, ...)
     --[[
       On starting up the addon often times GetBindingAction will not return the correct keybinding set but rather an
       empty string. To prevent this a slight delay is required.
-
-      In case GetBindingAction returns an empty string GearMenu will loose the connection of its keybind. This means
-      that GearMenu is unable to show the shortcuts in the GearBar anymore but the keybinds will continue to work.
     ]]--
     C_Timer.After(RGGM_CONSTANTS.KEYBIND_UPDATE_DELAY, me.keyBind.OnUpdateKeyBindings)
   elseif event == "LOSS_OF_CONTROL_ADDED" then
@@ -262,6 +259,7 @@ function me.Initialize()
   initializationDone = true
 
   me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarVisual)
+  me.keyBind.OnUpdateKeyBindings()
   me.ShowWelcomeMessage()
 end
 
