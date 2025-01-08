@@ -519,6 +519,28 @@ function me.CreateRuleRowFrame(frame, position)
 end
 
 --[[
+  Check if a rule is matching
+
+  @param {table} rule
+  @param {table} row
+]]--
+function me.IsRuleMatching(rule, row)
+  if not rule.to or not rule.from then
+    return false
+  end
+
+  local to = rule.to
+  local from = rule.from
+
+  return (to.itemId == row.toItemId)
+    and (from.itemId == row.fromItemId)
+    and (to.enchantId == row.toItemEnchantId)
+    and (from.enchantId == row.fromItemEnchantId)
+    and (to.runeAbilityId == row.toRuneAbilityId)
+    and (from.runeAbilityId == row.fromRuneAbilityId)
+end
+
+--[[
   Update the quickchange rules list
 
   @param {table} scrollFrame
@@ -542,26 +564,25 @@ function me.RulesScrollFrameOnUpdate(scrollFrame)
   for index = 1, RGGM_CONSTANTS.QUICK_CHANGE_MAX_ROWS do
     local value = index + offset
 
-    if value <= table.getn(quickChangeRules) then
+    if value <= #quickChangeRules then
+      local ruleData = quickChangeRules[value]
       local row = rulesRows[index]
 
-      row.fromItemIcon:SetTexture(quickChangeRules[value].changeFromItemIcon)
-      row.fromItemName:SetText(quickChangeRules[value].changeFromName)
-      row.fromItemId = quickChangeRules[value].changeFromItemId
-      row.fromItemEnchantId = quickChangeRules[value].changeFromItemEnchantId
-      row.fromRuneAbilityId = quickChangeRules[value].changeFromRuneAbilityId
-      row.fromRuneName = quickChangeRules[value].changeFromRuneName
-      row.toItemIcon:SetTexture(quickChangeRules[value].changeToItemIcon)
-      row.toItemName:SetText(quickChangeRules[value].changeToName)
-      row.toItemId = quickChangeRules[value].changeToItemId
-      row.toItemEnchantId = quickChangeRules[value].changeToItemEnchantId
-      row.toRuneAbilityId = quickChangeRules[value].changeToRuneAbilityId
-      row.toRuneName = quickChangeRules[value].changeToRuneName
-      row.delay:SetText(quickChangeRules[value].delay)
+      row.fromItemIcon:SetTexture(ruleData.changeFromItemIcon)
+      row.fromItemName:SetText(ruleData.changeFromName)
+      row.fromItemId = ruleData.changeFromItemId
+      row.fromItemEnchantId = ruleData.changeFromItemEnchantId
+      row.fromRuneAbilityId = ruleData.changeFromRuneAbilityId
+      row.fromRuneName = ruleData.changeFromRuneName
+      row.toItemIcon:SetTexture(ruleData.changeToItemIcon)
+      row.toItemName:SetText(ruleData.changeToName)
+      row.toItemId = ruleData.changeToItemId
+      row.toItemEnchantId = ruleData.changeToItemEnchantId
+      row.toRuneAbilityId = ruleData.changeToRuneAbilityId
+      row.toRuneName = ruleData.changeToRuneName
+      row.delay:SetText(ruleData.delay)
 
-      if quickchangeRule.to ~= nil and quickchangeRule.from ~= nil and quickchangeRule.to.itemId == row.toItemId
-        and quickchangeRule.from.itemId == row.fromItemId and quickchangeRule.to.enchantId == row.toItemEnchantId
-        and quickchangeRule.from.enchantId == row.fromItemEnchantId then
+      if me.IsRuleMatching(ruleData, row) then
         me.ShowHighLight(row)
       else
         me.HideHighlight(row)
@@ -651,8 +672,13 @@ function me.FromFauxScrollFrameOnUpdate(scrollFrame, slotId)
       row.runeName = fromCachedQuickChangeItems[value].runeName or nil
       row.side = RGGM_CONSTANTS.QUICK_CHANGE_SIDE_FROM
 
-      if selectedRule.from ~= nil and selectedRule.from.itemId == row.itemId
-          and selectedRule.from.enchantId == row.enchantId then
+      local isMatchingFromRule =
+        selectedRule.from ~= nil and
+        selectedRule.from.itemId == row.itemId and
+        selectedRule.from.enchantId == row.enchantId and
+        selectedRule.from.runeAbilityId == row.runeAbilityId
+
+      if isMatchingFromRule then
         me.ShowHighLight(row)
       else
         me.HideHighlight(row)
@@ -741,8 +767,13 @@ function me.ToFauxScrollFrameOnUpdate(scrollFrame, slotId)
       row.runeName = toCachedQuickChangeItems[value].runeName or nil
       row.side = RGGM_CONSTANTS.QUICK_CHANGE_SIDE_TO
 
-      if selectedRule.to ~= nil and selectedRule.to.itemId == row.itemId
-          and selectedRule.to.enchantId == row.enchantId then
+      local isMatchingToRule =
+        selectedRule.to ~= nil and
+        selectedRule.to.itemId == row.itemId and
+        selectedRule.to.enchantId == row.enchantId and
+        selectedRule.to.runeAbilityId == row.runeAbilityId
+
+      if isMatchingToRule then
         me.ShowHighLight(row)
       else
         me.HideHighlight(row)
@@ -847,6 +878,8 @@ function me.SetupRowEvents(row)
         me.HideHighlight(self)
       elseif selectedRule.from.enchantId ~= self.enchantId then
         me.HideHighlight(self)
+      elseif selectedRule.from.runeAbilityId ~= self.runeAbilityId then
+        me.HideHighlight(self)
       end
 
       return
@@ -856,6 +889,8 @@ function me.SetupRowEvents(row)
       if selectedRule.to == nil or selectedRule.to.itemId ~= self.itemId then
         me.HideHighlight(self)
       elseif selectedRule.to.enchantId ~= self.enchantId then
+        me.HideHighlight(self)
+      elseif selectedRule.to.runeAbilityId ~= self.runeAbilityId then
         me.HideHighlight(self)
       end
 
@@ -868,6 +903,9 @@ function me.SetupRowEvents(row)
         me.HideHighlight(self)
       elseif quickchangeRule.from.enchantId ~= self.fromItemEnchantId
           or quickchangeRule.to.enchantId ~= self.toItemEnchantId then
+        me.HideHighlight(self)
+      elseif quickchangeRule.from.runeAbilityId ~= self.fromRuneAbilityId
+          or quickchangeRule.to.runeAbilityId ~= self.toRuneAbilityId then
         me.HideHighlight(self)
       end
 

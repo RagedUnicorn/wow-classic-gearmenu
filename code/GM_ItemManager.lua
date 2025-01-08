@@ -295,6 +295,31 @@ function me.FindItemInBag(itemId, enchantId, runeAbilityId)
 end
 
 --[[
+  Search for an item in all bags and return the bagNumber and bagPos
+
+  @param {table} itemInfo
+
+  @return {number | nil}, {number | nil}
+    number - the bagNumber where the item was found
+    number - the bagPos where the item was found
+    nil - if the item could not be found
+]]--
+function me.FindItemInBagForCursor(itemInfo)
+  for i = 0, 4 do
+    for j = 1, C_Container.GetContainerNumSlots(i) do
+      local itemLink = C_Container.GetContainerItemLink(i, j)
+      local item = mod.common.GetItemInfo(itemLink)
+
+      if item.itemId == itemInfo.itemId and item.enchantId == itemInfo.enchantId then
+        return i, j
+      end
+    end
+  end
+
+  return nil, nil
+end
+
+--[[
   Check if the enchantId of an item matches the passed enchantId
 
   @param {table} itemInfo
@@ -306,10 +331,10 @@ end
 ]]--
 function me.IsEnchantIdMatching(itemInfo, enchantId)
   --[[
-    If enchantId is set to nil we consider it to match as well. This can be the case if we don't care
-    about the enchant itself and pass nil for the enchant id
+    If enchantId is set to 0 we consider it to match as well. This can be the case if we don't care
+    about the enchant itself and pass 0 for the enchant id
   ]]--
-  if enchantId == nil then
+  if enchantId == 0 then
     return true
   end
 
@@ -332,13 +357,13 @@ end
 ]]--
 function me.IsRuneAbilityIdMatching(rune, runeAbilityId)
   --[[
-    If the rune is nil and the runeAbilityId is nil we consider it a match. This can happen when the
+    If the rune and the runeAbilityId is nil we consider it a match. This can happen when the
     item doesn't have a rune at all or if SOD is not active and we ignore runes completely
 
-    If runeAbilityId is set to nil we consider it to match as well. This can be the case if we don't care
+    If runeAbilityId is set to 0 we consider it to match as well. This can be the case if we don't care
     about the rune itself and pass nil for the rune ability id
   ]]--
-  if rune == nil or runeAbilityId == nil then
+  if runeAbilityId == 0 or (rune == nil and runeAbilityId == nil) then
     return true
   end
 
@@ -368,24 +393,27 @@ function me.FindQuickChangeItems(inventoryType, mustHaveOnUse)
     return items
   end
 
-  for i = 0, 4 do
-    for j = 1, C_Container.GetContainerNumSlots(i) do
-      local itemLink = C_Container.GetContainerItemLink(i, j)
-      local itemInfo = mod.common.GetItemInfo(itemLink)
-      local rune = mod.engrave.GetRuneForInventorySlot(i, j)
+  for bag = 0, 4 do
+    local numSlots = C_Container.GetContainerNumSlots(bag)
 
-      -- TODO duplicate item probably also needs to include runeAbilityId if present
-      if itemInfo.itemId and not me.IsDuplicateItem(items, itemInfo.itemId, itemInfo.enchantId) then
+    for slot = 1, numSlots do
+      local itemLink = C_Container.GetContainerItemLink(bag, slot)
+      local itemInfo = mod.common.GetItemInfo(itemLink)
+      local rune = mod.engrave.GetRuneForInventorySlot(bag, slot)
+      local runeAbilityId = rune and rune.skillLineAbilityID or nil
+      local runeName = rune and rune.name or nil
+
+      if itemInfo.itemId and not me.IsDuplicateItem(items, itemInfo.itemId, itemInfo.enchantId, runeAbilityId) then
         local item = me.AddItemsMatchingInventoryType(
           inventoryType,
           itemInfo.itemId,
           itemInfo.enchantId,
-          (rune and rune.skillLineAbilityID or nil),
-          (rune and rune.name or nil),
+          runeAbilityId,
+          runeName,
           mustHaveOnUse
         )
 
-        if item ~= nil then
+        if item then
           table.insert(items, item)
         end
       end
@@ -394,23 +422,24 @@ function me.FindQuickChangeItems(inventoryType, mustHaveOnUse)
 
   local gearSlots = mod.gearManager.GetGearSlots()
 
-  for i = 1, table.getn(gearSlots) do
-    local itemLink = GetInventoryItemLink(RGGM_CONSTANTS.UNIT_ID_PLAYER, gearSlots[i].slotId)
+  for _, gearSlot in ipairs(gearSlots) do
+    local itemLink = GetInventoryItemLink(RGGM_CONSTANTS.UNIT_ID_PLAYER, gearSlot.slotId)
     local itemInfo = mod.common.GetItemInfo(itemLink)
-    local rune = mod.engrave.GetRuneForEquipmentSlot(gearSlots[i].slotId)
+    local rune = mod.engrave.GetRuneForEquipmentSlot(gearSlot.slotId)
+    local runeAbilityId = rune and rune.skillLineAbilityID or nil
+    local runeName = rune and rune.name or nil
 
-    -- TODO duplicate item probably also needs to include runeAbilityId if present
-    if itemInfo.itemId and not me.IsDuplicateItem(items, itemInfo.itemId, itemInfo.enchantId) then
+    if itemInfo.itemId and not me.IsDuplicateItem(items, itemInfo.itemId, itemInfo.enchantId, runeAbilityId) then
       local item = me.AddItemsMatchingInventoryType(
         inventoryType,
         itemInfo.itemId,
         itemInfo.enchantId,
-        (rune and rune.skillLineAbilityID or nil),
-        (rune and rune.name or nil),
+        runeAbilityId,
+        runeName,
         mustHaveOnUse
       )
 
-      if item ~= nil then
+      if item then
         table.insert(items, item)
       end
     end
@@ -424,16 +453,19 @@ end
   @param {number} itemId
   @param {number} enchantId
     Optional enchantId to match
+  @param {number} runeAbilityId
+    Optional runeAbilityId to match
 
   @return {boolean}
     true  - If the list already contains an item with the passed itemId and enchantId
     false - If the list does not contain an item with the passed itemId and enchantId
 ]]--
-function me.IsDuplicateItem(items, itemId, enchantId)
+function me.IsDuplicateItem(items, itemId, enchantId, runeAbilityId)
   for i = 1, table.getn(items) do
 
-    if items[i].id == itemId and (enchantId ~= nil or items[i].enchantId ~= nil) then
-      if items[i].enchantId == enchantId then
+    if items[i].id == itemId and (enchantId ~= nil or items[i].enchantId ~= nil) or (runeAbilityId ~= nil
+      or items[i].runeAbilityId ~= nil) then
+      if items[i].enchantId == enchantId and items[i].runeAbilityId == runeAbilityId then
         return true
       end
     elseif items[i].id == itemId then
