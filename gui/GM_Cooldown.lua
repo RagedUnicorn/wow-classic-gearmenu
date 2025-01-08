@@ -80,18 +80,20 @@ end
 ]]--
 function me.UpdateGearSlotCooldown(gearBar, uiSlot, gearSlotMetaData)
   local itemId = GetInventoryItemID(RGGM_CONSTANTS.UNIT_ID_PLAYER, gearSlotMetaData.slotId)
+  local showCooldowns = mod.gearBarManager.IsShowCooldownsEnabled(gearBar.id)
+  local cooldownOverlay = uiSlot.cooldownOverlay
 
-  if itemId ~= nil then
-    if mod.gearBarManager.IsShowCooldownsEnabled(gearBar.id) then
-      local startTime, duration = C_Container.GetItemCooldown(itemId)
-      CooldownFrame_Set(uiSlot.cooldownOverlay, startTime, duration, true)
+  if not itemId or not showCooldowns then
+    CooldownFrame_Clear(cooldownOverlay)
+    return
+  end
 
-      return
-    else
-      CooldownFrame_Clear(uiSlot.cooldownOverlay)
-    end
+  local startTime, duration = C_Container.GetItemCooldown(itemId)
+  -- If GetItemCooldown returns 0, 0 (meaning no cooldown), we clear it out
+  if startTime and duration and (startTime ~= 0 or duration ~= 0) then
+    CooldownFrame_Set(cooldownOverlay, startTime, duration, true)
   else
-    CooldownFrame_Clear(uiSlot.cooldownOverlay)
+    CooldownFrame_Clear(cooldownOverlay)
   end
 end
 
