@@ -215,16 +215,22 @@ end
   Updates the cooldown representations of all items in the trinketMenu
 ]]--
 function me.UpdateTrinketMenuSlotCooldowns()
-  for _, trinketMenuSlot in pairs(trinketMenuSlots) do
-    if trinketMenuSlot.itemId ~= nil then
-      if mod.configuration.IsShowCooldownsEnabled() then
-        local startTime, duration = C_Container.GetItemCooldown(trinketMenuSlot.itemId)
-        CooldownFrame_Set(trinketMenuSlot.cooldownOverlay, startTime, duration, true)
+  local showCooldowns = mod.configuration.IsShowCooldownsEnabled()
+
+  for _, slot in pairs(trinketMenuSlots) do
+    local itemId = slot.itemId
+    local cooldownOverlay = slot.cooldownOverlay
+
+    if itemId and showCooldowns then
+      local startTime, duration = C_Container.GetItemCooldown(itemId)
+      -- If GetItemCooldown returns 0, 0 (meaning no cooldown), we clear it out
+      if startTime and duration and (startTime ~= 0 or duration ~= 0) then
+        CooldownFrame_Set(cooldownOverlay, startTime, duration, true)
       else
-        CooldownFrame_Clear(trinketMenuSlot.cooldownOverlay)
+        CooldownFrame_Clear(cooldownOverlay)
       end
     else
-      CooldownFrame_Clear(trinketMenuSlot.cooldownOverlay)
+      CooldownFrame_Clear(cooldownOverlay)
     end
   end
 end
