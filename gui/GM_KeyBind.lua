@@ -516,8 +516,8 @@ end
 
 --[[
   Callback for UPDATE_BINDINGS event. Iterate all keyBindings in all gearBars and check if they
-  are still valid. KeyBinds could have been changed outside of gearMenu. If this case is detected we remove
-  the visual representation of that keyBind from gearMenu
+  are still valid. KeyBinds could have been changed outside of gearMenu. If this is the case a warning is logged. This
+  seems to be happening in some cases but it is not clear what the cause is.
 ]]--
 function me.OnUpdateKeyBindings()
   mod.logger.LogDebug(me.tag, "UPDATE_BINDINGS event. Checking gearMenus keyBinds")
@@ -532,8 +532,7 @@ function me.OnUpdateKeyBindings()
         local action = GetBindingAction(gearSlot.keyBinding)
 
         if action == nil or action == "" then
-          mod.logger.LogInfo(me.tag, "Found a gearBar keyBinding that is not actually set. Resetting keyBind")
-          mod.gearBarManager.SetSlotKeyBinding(gearBars[i].id, position, nil)
+          mod.logger.LogWarn(me.tag, "Found a gearBar keyBinding that is not actually set")
         end
       end
     end
