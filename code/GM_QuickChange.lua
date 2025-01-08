@@ -220,8 +220,8 @@ function me.ExecuteQuickChangeRule(quickChangeRule, slotIds)
         local item = {}
         item.itemId = quickChangeRule.changeToItemId
         item.enchantId = quickChangeRule.changeToItemEnchantId
+        item.runeAbilityId = quickChangeRule.changeToRuneAbilityId
         item.slotId = slotMetadata.slotId
-
         mod.itemManager.EquipItemByItemAndEnchantId(item)
       end)
 

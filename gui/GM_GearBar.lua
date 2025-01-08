@@ -738,9 +738,26 @@ function me.GearSlotOnReceiveDrag(self)
 
   if CursorCanGoInSlot(gearSlotMetaData.slotId) then
     if InCombatLockdown() or mod.common.IsPlayerCasting() then
-      local _, itemId = GetCursorInfo()
+      local cursorType, _, itemLink = GetCursorInfo()
 
-      mod.combatQueue.AddToQueue(itemId, gearSlotMetaData.slotId)
+      if cursorType ~= "item" or itemLink == nil then return end
+
+      --[[
+        Limited support for runeAbilityId. We cannot extract the rune just from the info we
+        get from the cursor info. This means that the item first has to be searched in the bags.
+        Based on that the rune can then be extracted. If two items have the same itemId and enchantId
+        however the one that is first found in the bags will be used.
+      ]]--
+      local itemInfo = mod.common.GetItemInfo(itemLink)
+      local bagNumber, bagPos = mod.itemManager.FindItemInBagForCursor(itemInfo)
+      local rune = mod.engrave.GetRuneForInventorySlot(bagNumber, bagPos)
+
+      mod.combatQueue.AddToQueue(
+        itemInfo.itemId,
+        itemInfo.enchantId,
+        rune and rune.runeAbilityId or nil,
+        gearSlotMetaData.slotId
+      )
       ClearCursor()
     else
       EquipCursorItem(gearSlotMetaData.slotId)
