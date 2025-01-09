@@ -155,15 +155,7 @@ function me.BuildUi(parentFrame)
     enableUnequipSlotMetaData
   )
 
-  mod.uiHelper.BuildCheckButtonOption(
-    generalMenuContentFrame,
-    RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_RUNE_SLOTS,
-    {"TOPLEFT", 280, -110},
-    me.EnableRuneSlotsOnShow,
-    me.EnableRuneSlotsOnClick,
-    enableRuneSlotsMetaData
-  )
-
+  me.CreateEnableRunesCheckBox(generalMenuContentFrame)
   me.CreateItemQualityLabel(generalMenuContentFrame)
   me.CreateItemQualityDropdown(generalMenuContentFrame)
   me.CreateThemeLabel(generalMenuContentFrame)
@@ -181,6 +173,22 @@ function me.CreateGeneralMenuTitle(contentFrame)
   titleFontString:SetPoint("TOP", 0, -20)
   titleFontString:SetSize(contentFrame:GetWidth(), 20)
   titleFontString:SetText(rggm.L["general_title"])
+end
+
+--[[
+  @param {table} parentFrame
+]]--
+function me.CreateEnableRunesCheckBox(parentFrame)
+  if not mod.season.IsSodActive() then return end
+
+  mod.uiHelper.BuildCheckButtonOption(
+    parentFrame,
+    RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_RUNE_SLOTS,
+    {"TOPLEFT", 280, -110},
+    me.EnableRuneSlotsOnShow,
+    me.EnableRuneSlotsOnClick,
+    enableRuneSlotsMetaData
+  )
 end
 
 --[[
