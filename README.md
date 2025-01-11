@@ -138,6 +138,14 @@ TrinketMenu allows the player to have all available trinkets and their status in
 
 ![](docs/gm_trinketmenu_demo.gif)
 
+### Season of Discovery Rune Support
+
+Gearmenu has some support for displaying active runes on items that the player is either wearing or has in his inventory. This feature can be deactivated in the options' menu.
+
+![](docs/gm_rune_support.gif)
+
+**Note:** There are some items that are buggy and will not display runes properly. This is a bug in the Blizzard API and cannot be fixed by GearMenu.
+
 ### Macro Support
 
 If you prefer having certain items in your actionslots GearMenu can still be of use. By using the macro-bridge you get all the advantages of the combatQueue in a normal macro.
@@ -145,14 +153,17 @@ If you prefer having certain items in your actionslots GearMenu can still be of 
 #### Add Item to CombatQueue
 
 ```
-/run GM_AddToCombatQueue(itemId, enchantId, slotId)
+/run GM_AddToCombatQueue(itemId, enchantId, runeAbilityId, slotId)
 
 # Example - Equip Hand of Justice into the lower trinket slot
-/run GM_AddToCombatQueue(11815, nil, 14)
+/run GM_AddToCombatQueue(233734, 0, 0, 11)
 ```
 
 **Note:** For classic era and seasons the enchantId is needed additionally for this to work. The enchantId is
-optional. If you don't have multiple items with different enchantIds in your inventory, set it to nil.
+optional. If you don't have multiple items with different enchantIds in your inventory, set it to 0.
+
+**Note:** Season of Discovery requires the runeAbilityId to be set. This affects
+classic era as well. Just set it to 0 if you don't have a runeAbilityId or you don't care about the rune(usually the case if you don't have multiple items with different runes).
 
 > Note: It is not recommended using this for weapons because addons cannot switch weapons during combat (GearMenu will put the item into the combatQueue). With a normal weaponswitch macro however this is still possible.
 
