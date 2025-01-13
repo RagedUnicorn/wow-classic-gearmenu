@@ -184,9 +184,22 @@ function me.UpdateChangeSlot(changeSlot, gearSlotMetaData, item, changeSlotSize)
   changeSlot.enchantId = item.enchantId
   changeSlot.runeAbilityId = (item.rune and item.rune.skillLineAbilityID) or nil
   changeSlot.runeName = (item.rune and item.rune.name) or nil
-  changeSlot.runeSlot.icon:SetTexture((item.rune and item.rune.iconTexture) or nil)
+
+  me.UpdateRuneSlotTexture(changeSlot, item)
+
   changeSlot.itemTexture:SetTexture(item.icon)
   changeSlot:Show()
+end
+
+--[[
+  Updates the rune slot texture if engraving is active
+
+  @param {table} changeSlot
+  @param {table} item
+]]--
+function me.UpdateRuneSlotTexture(changeSlot, item)
+  if not mod.engrave.IsEngravingActive() or not changeSlot.runeSlot then return end
+  changeSlot.runeSlot.icon:SetTexture((item.rune and item.rune.iconTexture) or nil)
 end
 
 --[[
@@ -265,9 +278,21 @@ function me.UpdateEmptyChangeSlot(changeMenu, itemCount, gearSlotMetaData, empty
   emptyChangeMenuSlot.enchantId = nil
   emptyChangeMenuSlot.runeAbilityId = nil
   emptyChangeMenuSlot.runeName = nil
-  emptyChangeMenuSlot.runeSlot.icon:SetTexture(nil)
+
+  me.ClearRuneSlotTexture(emptyChangeMenuSlot)
+
   emptyChangeMenuSlot.itemTexture:SetTexture(gearSlotMetaData.textureId)
   emptyChangeMenuSlot:Show()
+end
+
+--[[
+  Clear the rune slot texture if engraving is active
+
+  @param {table} slot
+]]--
+function me.ClearRuneSlotTexture(slot)
+  if not mod.engrave.IsEngravingActive() or not slot.runeSlot then return end
+  slot.runeSlot.icon:SetTexture(nil)
 end
 
 --[[
