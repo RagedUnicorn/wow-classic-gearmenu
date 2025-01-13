@@ -25,3 +25,7 @@ If you had a previous macro that you want to adapt, and you don't care about a s
 * Fixed an issue where the TrinketMenu UI was being accessed before it was initialized. Fixes #102
 * Add better safety checks when retrieving the cooldown of an item. Fixes #103
 * Prevent GearMenu from forgetting its Keybinds visually.
+
+# Fix 2.4.1
+
+* Fix #105 - limit access to runeslot for Season of Discovery only
