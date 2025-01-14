@@ -113,4 +113,30 @@ function me.UpdateRuneSlotTexture(gearSlot, gearSlotMetaData)
   end
 end
 
+--[[
+  Updates the changeMenu rune slot texture
 
+  @param {table} changeSlot
+  @param {table} item
+]]--
+function me.UpdateChangeMenuRuneSlotTexture(changeSlot, item)
+  if not mod.season.IsSodActive() then return end
+
+  if not mod.configuration.IsRuneSlotsEnabled() then
+    me.ClearChangeMenuRuneSlotTexture(changeSlot)
+    return
+  end
+
+  changeSlot.runeSlot.icon:SetTexture((item.rune and item.rune.iconTexture) or nil)
+end
+
+--[[
+  Clear the changeMenu rune slot texture
+
+  @param {table} slot
+]]--
+function me.ClearChangeMenuRuneSlotTexture(slot)
+  if not mod.season.IsSodActive() then return end
+
+  slot.runeSlot.icon:SetTexture(nil)
+end
