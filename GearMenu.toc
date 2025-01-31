@@ -1,4 +1,4 @@
-## Interface: 11505
+## Interface: 11506
 ## Title: GearMenu
 ## Author: Michael Wiesendanger <michael.wiesendanger@gmail.com>
 ## Notes: Addon to manage and keybind usable gear
