@@ -182,6 +182,8 @@ function me.UpdateChangeSlot(changeSlot, gearSlotMetaData, item, changeSlotSize)
   changeSlot.itemId = item.id
   changeSlot.equipSlot = item.equipSlot
   changeSlot.enchantId = item.enchantId
+  changeSlot.bag = item.bag
+  changeSlot.slot = item.slot
   changeSlot.runeAbilityId = (item.rune and item.rune.skillLineAbilityID) or nil
   changeSlot.runeName = (item.rune and item.rune.name) or nil
 
@@ -329,8 +331,8 @@ end
 function me.UpdateChangeMenuGearSlotCooldown()
   for _, changeMenuSlot in pairs(changeMenuSlots) do
     if changeMenuSlot.itemId ~= nil then
-      if changeMenuFrame.showCooldowns then
-        local startTime, duration = C_Container.GetItemCooldown(changeMenuSlot.itemId)
+      local startTime, duration = C_Container.GetItemCooldown(changeMenuSlot.itemId)
+      if changeMenuFrame.showCooldowns and startTime then
         CooldownFrame_Set(changeMenuSlot.cooldownOverlay, startTime, duration, true)
       else
         CooldownFrame_Clear(changeMenuSlot.cooldownOverlay)
