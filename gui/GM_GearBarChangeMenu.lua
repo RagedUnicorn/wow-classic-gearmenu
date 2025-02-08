@@ -182,6 +182,8 @@ function me.UpdateChangeSlot(changeSlot, gearSlotMetaData, item, changeSlotSize)
   changeSlot.itemId = item.id
   changeSlot.equipSlot = item.equipSlot
   changeSlot.enchantId = item.enchantId
+  changeSlot.bag = item.bag
+  changeSlot.slot = item.slot
   changeSlot.runeAbilityId = (item.rune and item.rune.skillLineAbilityID) or nil
   changeSlot.runeName = (item.rune and item.rune.name) or nil
 

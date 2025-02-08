@@ -45,13 +45,15 @@ function me.UpdateTooltipForItem(item)
   if mod.configuration.IsSimpleTooltipsEnabled() then
     me.BuildSimpleTooltip(tooltip, item.itemId)
   else
-    local _, itemLink = GetItemInfo(item.itemId)
-
-    if item.enchantId ~= nil then
-      itemLink = "item:".. item.itemId .. ":" .. item.enchantId
+    if (item.bag and item.slot) then
+      tooltip:SetBagItem(item.bag, item.slot)
+    else
+      local _, itemLink = GetItemInfo(item.itemId)
+      if item.enchantId ~= nil then
+        itemLink = "item:" .. item.itemId .. ":" .. item.enchantId
+      end
+      tooltip:SetHyperlink(itemLink)
     end
-
-    tooltip:SetHyperlink(itemLink)
     me.AddRuneToTooltip(tooltip, item.runeName)
   end
 
