@@ -1,4 +1,4 @@
-name: "Release CurseForge"
+name: Release CurseForge
 on: [workflow_dispatch]
 
 jobs:
@@ -7,13 +7,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Set up Java and Maven
         uses: actions/setup-java@v3
         with:
-          java-version: '11'
-          distribution: 'adopt'
-          cache: 'maven'
+          java-version: 11
+          distribution: adopt
+          cache: maven
       - name: Cache Local Maven Repository
         uses: actions/cache@v3
         with:
