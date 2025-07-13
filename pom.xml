@@ -32,14 +32,14 @@
       </activation>
       <properties>
         <profile.id.value>development</profile.id.value>
-        <package.descriptor>${basedir}/build-resources/assembly-development.xml</package.descriptor>
-        <package.filter>${basedir}/build-resources/addon-development.properties</package.filter>
+        <package.descriptor>${project.basedir}/build-resources/assembly-development.xml</package.descriptor>
+        <package.filter>${project.basedir}/build-resources/addon-development.properties</package.filter>
         <package.finalName>${addon.name}</package.finalName>
         <package.appendAssemblyId>true</package.appendAssemblyId>
         <package.includeBaseDirectory>false</package.includeBaseDirectory>
         <generate.sources.skip>false</generate.sources.skip>
-        <generate.sources.filter>${basedir}/build-resources/addon-development.properties</generate.sources.filter>
-        <generate.sources.descriptor>${basedir}/build-resources/generate-development.xml</generate.sources.descriptor>
+        <generate.sources.filter>${project.basedir}/build-resources/addon-development.properties</generate.sources.filter>
+        <generate.sources.descriptor>${project.basedir}/build-resources/generate-development.xml</generate.sources.descriptor>
         <generate.sources.overwrite>false</generate.sources.overwrite>
       </properties>
     </profile>
@@ -47,14 +47,14 @@
       <id>release</id>
       <properties>
         <profile.id.value>release</profile.id.value>
-        <package.descriptor>${basedir}/build-resources/assembly-release.xml</package.descriptor>
-        <package.filter>${basedir}/build-resources/addon-release.properties</package.filter>
+        <package.descriptor>${project.basedir}/build-resources/assembly-release.xml</package.descriptor>
+        <package.filter>${project.basedir}/build-resources/addon-release.properties</package.filter>
         <package.finalName>${addon.name}</package.finalName>
         <package.appendAssemblyId>false</package.appendAssemblyId>
         <package.includeBaseDirectory>false</package.includeBaseDirectory>
         <generate.sources.skip>false</generate.sources.skip>
-        <generate.sources.filter>${basedir}/build-resources/addon-release.properties</generate.sources.filter>
-        <generate.sources.descriptor>${basedir}/build-resources/generate-release.xml</generate.sources.descriptor>
+        <generate.sources.filter>${project.basedir}/build-resources/addon-release.properties</generate.sources.filter>
+        <generate.sources.descriptor>${project.basedir}/build-resources/generate-release.xml</generate.sources.descriptor>
         <generate.sources.overwrite>false</generate.sources.overwrite>
       </properties>
     </profile>
@@ -62,8 +62,8 @@
       <id>deploy-github</id>
       <properties>
         <profile.id.value>deploy</profile.id.value>
-        <package.descriptor>${basedir}/build-resources/assembly-release.xml</package.descriptor>
-        <package.filter>${basedir}/build-resources/addon-release.properties</package.filter>
+        <package.descriptor>${project.basedir}/build-resources/assembly-release.xml</package.descriptor>
+        <package.filter>${project.basedir}/build-resources/addon-release.properties</package.filter>
         <package.finalName>${addon.name}</package.finalName>
         <package.appendAssemblyId>false</package.appendAssemblyId>
         <package.includeBaseDirectory>false</package.includeBaseDirectory>
@@ -89,9 +89,9 @@
                   <authToken>${github.auth-token}</authToken>
                   <tagName>${addon.tag.version}</tagName>
                   <name>${addon.tag.version}</name>
-                  <releaseNotes>${basedir}/build-resources/release-notes.md</releaseNotes>
+                  <releaseNotes>${project.basedir}/build-resources/release-notes.md</releaseNotes>
                   <assets>
-                    <asset>${basedir}/target/${addon.name}.zip</asset>
+                    <asset>${project.basedir}/target/${addon.name}.zip</asset>
                   </assets>
                 </configuration>
               </execution>
@@ -104,8 +104,8 @@
       <id>deploy-curseforge</id>
       <properties>
         <profile.id.value>deploy</profile.id.value>
-        <package.descriptor>${basedir}/build-resources/assembly-release.xml</package.descriptor>
-        <package.filter>${basedir}/build-resources/addon-release.properties</package.filter>
+        <package.descriptor>${project.basedir}/build-resources/assembly-release.xml</package.descriptor>
+        <package.filter>${project.basedir}/build-resources/addon-release.properties</package.filter>
         <package.finalName>${addon.name}</package.finalName>
         <package.appendAssemblyId>false</package.appendAssemblyId>
         <package.includeBaseDirectory>true</package.includeBaseDirectory>
@@ -128,13 +128,13 @@
                   <game>wow</game>
                   <projectId>${addon.curseforge.projectId}</projectId>
                   <displayName>${addon.displayName}-${addon.tag.version}-classic.zip</displayName>
-                  <changelogFile>${basedir}/build-resources/release-notes.md</changelogFile>
+                  <changelogFile>${project.basedir}/build-resources/release-notes.md</changelogFile>
                   <changelogType>markdown</changelogType>
                   <gameVersions>
                     <gameVersion>${addon.curseforge.gameVersion}</gameVersion>
                   </gameVersions>
                   <releaseType>release</releaseType>
-                  <file>${basedir}/target/${addon.name}.zip</file>
+                  <file>${project.basedir}/target/${addon.name}.zip</file>
                   <!--suppress UnresolvedMavenProperty -->
                   <authToken>${curseforge.auth-token}</authToken>
                 </configuration>
@@ -148,8 +148,8 @@
       <id>deploy-wago</id>
       <properties>
         <profile.id.value>deploy</profile.id.value>
-        <package.descriptor>${basedir}/build-resources/assembly-release.xml</package.descriptor>
-        <package.filter>${basedir}/build-resources/addon-release.properties</package.filter>
+        <package.descriptor>${project.basedir}/build-resources/assembly-release.xml</package.descriptor>
+        <package.filter>${project.basedir}/build-resources/addon-release.properties</package.filter>
         <package.finalName>${addon.name}</package.finalName>
         <package.appendAssemblyId>false</package.appendAssemblyId>
         <package.includeBaseDirectory>true</package.includeBaseDirectory>
@@ -171,10 +171,10 @@
                 <configuration>
                   <projectId>${addon.wago.projectId}</projectId>
                   <label>${addon.displayName}-${addon.tag.version}-classic.zip</label>
-                  <changelogFile>${basedir}/build-resources/release-notes.md</changelogFile>
+                  <changelogFile>${project.basedir}/build-resources/release-notes.md</changelogFile>
                   <supportedClassicPatch>${addon.supported.patch}</supportedClassicPatch>
                   <stability>stable</stability>
-                  <file>${basedir}/target/${addon.name}.zip</file>
+                  <file>${project.basedir}/target/${addon.name}.zip</file>
                   <!--suppress UnresolvedMavenProperty -->
                   <authToken>${wago.auth-token}</authToken>
                 </configuration>
@@ -242,20 +242,20 @@
             </goals>
             <configuration>
               <skip>${generate.sources.skip}</skip>
-              <outputDirectory>${basedir}</outputDirectory>
+              <outputDirectory>${project.basedir}</outputDirectory>
               <overwrite>${generate.sources.overwrite}</overwrite>
               <resources>
                 <resource>
-                  <directory>${basedir}/target/generated-${profile.id.value}</directory>
-                  <targetPath>${basedir}</targetPath>
+                  <directory>${project.basedir}/target/generated-${profile.id.value}</directory>
+                  <targetPath>${project.basedir}</targetPath>
                   <filtering>false</filtering>
                   <includes>
                     <include>GearMenu.toc</include>
                   </includes>
                 </resource>
                 <resource>
-                  <directory>${basedir}/target/generated-${profile.id.value}</directory>
-                  <targetPath>${basedir}/code</targetPath>
+                  <directory>${project.basedir}/target/generated-${profile.id.value}</directory>
+                  <targetPath>${project.basedir}/code</targetPath>
                   <filtering>false</filtering>
                   <includes>
                     <include>GM_Environment.lua</include>

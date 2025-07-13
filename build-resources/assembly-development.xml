@@ -8,7 +8,7 @@
   <includeBaseDirectory>${package.includeBaseDirectory}</includeBaseDirectory>
   <fileSets>
     <fileSet>
-      <directory>${basedir}</directory>
+      <directory>${project.basedir}</directory>
       <includes>
         <include>README.md</include>
         <include>LICENSE</include>
