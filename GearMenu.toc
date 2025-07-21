@@ -1,3 +1,4 @@
+# THIS FILE IS AUTO-GENERATED. ALL CHANGES ARE OVERWRITTEN
 ## Interface: 11507
 ## Title: GearMenu
 ## Author: Michael Wiesendanger <michael.wiesendanger@gmail.com>

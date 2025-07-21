@@ -1,3 +1,4 @@
+${addon.comment.generated.toc}
 ## Interface: ${addon.interface}
 ## Title: ${addon.name}
 ## Author: ${addon.author}
