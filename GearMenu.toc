@@ -1,9 +1,9 @@
 # THIS FILE IS AUTO-GENERATED. ALL CHANGES ARE OVERWRITTEN
-## Interface: 11507
+## Interface: 11508
 ## Title: GearMenu
 ## Author: Michael Wiesendanger <michael.wiesendanger@gmail.com>
 ## Notes: Addon to manage and keybind usable gear
-## Version: v2.4.3
+## Version: v2.4.4
 ## SavedVariablesPerCharacter: GearMenuConfiguration
 
 # constant values
