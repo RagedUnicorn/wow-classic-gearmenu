@@ -1,0 +1,23 @@
+# GearMenu Docker Services
+#
+# Usage:
+#   docker compose run --rm luacheck                    # Run lua linting
+#   docker compose run --rm luacheck-report             # Generate lua lint report
+
+services:
+  luacheck:
+    image: ragedunicorn/luacheck:1.2.0-alpine3.22.1-1
+    container_name: gear-menu-luacheck
+    volumes:
+      - ./:/workspace:ro
+    working_dir: /workspace
+    command: ["."]
+  luacheck-report:
+    image: ragedunicorn/luacheck:1.2.0-alpine3.22.1-1
+    container_name: gear-menu-luacheck-report
+    volumes:
+      - ./:/workspace:ro
+      - ./target:/reports
+    working_dir: /workspace
+    entrypoint: /bin/sh
+    command: ["-c", "luacheck --formatter JUnit . > /reports/luacheck-junit.xml"]
