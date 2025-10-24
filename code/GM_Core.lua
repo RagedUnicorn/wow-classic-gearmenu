@@ -31,6 +31,10 @@ local me = rggm
 me.tag = "Core"
 
 local initializationDone = false
+-- Forward declarations
+local RegisterEvents
+local Initialize
+local ShowWelcomeMessage
 
 --[[
   Hook GetLocale to return a fixed value. This is used for testing only.
@@ -58,7 +62,7 @@ end
 
   @param {table} self
 ]]--
-function me.RegisterEvents(self)
+RegisterEvents = function(self)
   -- Fired when the player logs in, /reloads the UI, or zones between map instances
   self:RegisterEvent("PLAYER_ENTERING_WORLD")
   -- Fires when a bags inventory changes
@@ -111,7 +115,7 @@ function me.OnEvent(event, ...)
     local isInitialLogin, isReloadingUi = ...
 
     if isInitialLogin or isReloadingUi then
-      me.Initialize()
+      Initialize()
     end
   elseif event == "BAG_UPDATE" then
     me.logger.LogEvent(me.tag, "BAG_UPDATE")
@@ -229,7 +233,7 @@ end
 --[[
   Initialize addon
 ]]--
-function me.Initialize()
+Initialize = function()
   me.logger.LogDebug(me.tag, "Initialize addon")
   -- update runes
   me.engrave.RefreshRunes()
@@ -260,13 +264,13 @@ function me.Initialize()
 
   me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarVisual)
   me.keyBind.OnUpdateKeyBindings()
-  me.ShowWelcomeMessage()
+  ShowWelcomeMessage()
 end
 
 --[[
   Show welcome message to user
 ]]--
-function me.ShowWelcomeMessage()
+ShowWelcomeMessage = function()
   print(
     string.format("|cFF00FFB0" .. RGGM_CONSTANTS.ADDON_NAME .. rggm.L["help"],
     GetAddOnMetadata(RGGM_CONSTANTS.ADDON_NAME, "Version"))
