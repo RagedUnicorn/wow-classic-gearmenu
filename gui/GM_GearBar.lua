@@ -293,7 +293,7 @@ function me.UpdateCombatQueue(itemId, enchantId, runeAbilityId, slotId)
   for _, gearBar in pairs(mod.gearBarStorage.GetGearBars()) do
     local gearSlots = gearBar.gearSlotReferences
 
-    for i = 1, table.getn(gearSlots) do
+    for i = 1, #gearSlots do
       if gearSlots[i]:GetAttribute("item") == slotId then
         local icon = gearSlots[i].combatQueueSlot.icon
 

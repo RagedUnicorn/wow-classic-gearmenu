@@ -54,7 +54,7 @@ end
   @param {table} self
 ]]--
 function me.OnLoad(self)
-  me.RegisterEvents(self)
+  RegisterEvents(self)
 end
 
 --[[

@@ -750,7 +750,7 @@ end
 function me.GearBarConfigurationSlotsListOnUpdate(scrollFrameReference)
   local scrollFrame = scrollFrameReference or me.GetCurrentContentFrame().scrollFrame
   local rows = scrollFrame:GetParent().rows
-  local maxValue = table.getn(gearBarConfiguration.slots) or 0
+  local maxValue = #gearBarConfiguration.slots or 0
 
   if maxValue <= RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_MAX_ROWS then
     maxValue = RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_MAX_ROWS + 1
@@ -767,7 +767,7 @@ function me.GearBarConfigurationSlotsListOnUpdate(scrollFrameReference)
   for index = 1, RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_MAX_ROWS do
     local gearSlotPosition = index + offset
 
-    if gearSlotPosition <= table.getn(gearBarConfiguration.slots) then
+    if gearSlotPosition <= #gearBarConfiguration.slots then
       local row = rows[index]
       local slot = gearBarConfiguration.slots[gearSlotPosition]
 

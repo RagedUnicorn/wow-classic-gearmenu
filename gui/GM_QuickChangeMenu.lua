@@ -547,7 +547,7 @@ end
 ]]--
 function me.RulesScrollFrameOnUpdate(scrollFrame)
   local quickChangeRules = mod.configuration.GetQuickChangeRules()
-  local maxValue = table.getn(quickChangeRules) or 0
+  local maxValue = #quickChangeRules or 0
 
   if maxValue <= RGGM_CONSTANTS.QUICK_CHANGE_MAX_ROWS then
     maxValue = RGGM_CONSTANTS.QUICK_CHANGE_MAX_ROWS + 1

@@ -56,7 +56,7 @@ end
     A name name to filter
 ]]--
 function me.DeregisterFilter(name)
-  for i = 1, table.getn(filters) do
+  for i = 1, #filters do
     if filters[i].name == name then
       table.remove(filters, i)
       break
@@ -72,7 +72,7 @@ end
     false - if the tag should not be filtered
 ]]--
 function me.ShouldFilterTag(tag)
-  for i = 1, table.getn(filters) do
+  for i = 1, #filters do
     if string.match(tag, filters[i].filter) then
       return true
     end

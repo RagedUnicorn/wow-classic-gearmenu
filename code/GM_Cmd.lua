@@ -56,7 +56,7 @@ function me.SetupSlashCmdList()
       table.insert(args, arg)
     end
 
-    if args[1] == "" or args[1] == "help" or table.getn(args) == 0 then
+    if args[1] == "" or args[1] == "help" or #args == 0 then
       ShowInfoMessage()
     elseif args[1] == "rl" or args[1] == "reload" then
       ReloadUI()

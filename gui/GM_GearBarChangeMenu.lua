@@ -345,7 +345,7 @@ end
   Reset all changeMenuSlots into their initial state
 ]]--
 function me.ResetChangeMenu()
-  for i = 1, table.getn(changeMenuSlots) do
+  for i = 1, #changeMenuSlots do
     changeMenuSlots[i]:Hide()
     mod.themeCoordinator.ChangeMenuSlotReset(changeMenuSlots[i])
   end

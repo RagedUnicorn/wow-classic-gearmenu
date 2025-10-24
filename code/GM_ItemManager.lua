@@ -85,7 +85,7 @@ function me.GetItemsForInventoryType(inventoryType)
       if itemInfo.itemId then
         local itemName, _, itemRarity, _, _, _, _, _, equipSlot, itemIcon = GetItemInfo(itemInfo.itemId)
 
-        for it = 1, table.getn(inventoryType) do
+        for it = 1, #inventoryType do
           if equipSlot == inventoryType[it] then
             if itemRarity >= mod.configuration.GetFilterItemQuality() then
               if not items[idx] then
@@ -240,7 +240,7 @@ end
 function me.FindEquipedItem(itemId)
   local gearSlots = mod.gearManager.GetGearSlots()
 
-  for i = 1, table.getn(gearSlots) do
+  for i = 1, #gearSlots do
     local equipedItemId = GetInventoryItemID(RGGM_CONSTANTS.UNIT_ID_PLAYER, gearSlots[i].slotId)
 
     if equipedItemId == itemId then
@@ -461,7 +461,7 @@ end
     false - If the list does not contain an item with the passed itemId and enchantId
 ]]--
 function me.IsDuplicateItem(items, itemId, enchantId, runeAbilityId)
-  for i = 1, table.getn(items) do
+  for i = 1, #items do
 
     if items[i].id == itemId and (enchantId ~= nil or items[i].enchantId ~= nil) or (runeAbilityId ~= nil
       or items[i].runeAbilityId ~= nil) then
@@ -520,7 +520,7 @@ function me.AddItemsMatchingInventoryType(inventoryType, itemId, enchantId, rune
   local item
   local itemName, _, _, _, _, _, _, _, equipSlot, itemIcon = GetItemInfo(itemId)
 
-  for it = 1, table.getn(inventoryType) do
+  for it = 1, #inventoryType do
     if equipSlot == inventoryType[it] then
       local spellName, spellId = GetItemSpell(itemId)
 
