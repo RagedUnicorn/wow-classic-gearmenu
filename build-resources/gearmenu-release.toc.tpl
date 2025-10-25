@@ -18,6 +18,7 @@ code/GM_Environment.lua
 localization/enUS.lua
 localization/deDE.lua
 localization/zhCN.lua
+localization/ruRU.lua
 
 code/GM_Core.lua
 code/GM_Logger.lua
