@@ -326,7 +326,7 @@ end
   @param {table} self
 ]]--
 function me.TrinketMenuSlotOnEnter(self)
-  mod.tooltip.UpdateTooltipForItem(self)
+  mod.tooltip.UpdateTooltipForBagItem(self.itemId)
   mod.themeCoordinator.TrinketMenuSlotOnEnter(self)
 end
 
