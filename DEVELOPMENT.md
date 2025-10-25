@@ -106,3 +106,16 @@ Before committing changes:
 1. Run Luacheck to ensure code quality: `docker compose run --rm luacheck`
 2. Test the addon in-game with `/reload` to ensure functionality works correctly
 3. Verify the addon loads without errors
+
+## Dependency Management
+
+This repository uses [Renovate](https://renovatebot.com/) for automated dependency updates. Renovate monitors and updates:
+
+- Maven dependencies (plugins and libraries)
+- GitHub Actions versions
+- World of Warcraft interface versions and related properties
+  - `addon.interface` - WoW interface version
+  - `addon.supported.patch` - WoW patch version
+  - `addon.curseforge.gameVersion` - CurseForge game version ID
+
+The configuration can be found in `renovate.json`. Renovate runs on a weekly schedule and creates pull requests for available updates.

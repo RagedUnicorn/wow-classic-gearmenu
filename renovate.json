@@ -1,0 +1,133 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "schedule": [
+    "on monday"
+  ],
+  "timezone": "UTC",
+  "labels": [
+    "dependencies",
+    "renovate"
+  ],
+  "commitMessagePrefix": "chore(deps):",
+  "prConcurrentLimit": 2,
+  "prCreation": "immediate",
+  "automerge": false,
+  "packageRules": [
+    {
+      "matchManagers": [
+        "maven"
+      ],
+      "groupName": "ragedunicorn maven plugins",
+      "description": "Group all ragedunicorn Maven plugin updates",
+      "matchPackageNames": [
+        "/^com.ragedunicorn.tools.maven/"
+      ]
+    },
+    {
+      "matchManagers": [
+        "github-actions"
+      ],
+      "groupName": "github actions",
+      "description": "Group all GitHub Actions updates"
+    },
+    {
+      "matchDepTypes": [
+        "devDependencies"
+      ],
+      "automerge": true,
+      "automergeType": "pr",
+      "description": "Automerge dev dependencies"
+    },
+    {
+      "matchDatasources": [
+        "custom.wow-versions",
+        "custom.wow-game-versions"
+      ],
+      "groupName": "WoW Classic Era Updates",
+      "description": "Update WoW Classic Era interface version"
+    }
+  ],
+  "maven": {
+    "managerFilePatterns": [
+      "/^pom\\.xml$/"
+    ]
+  },
+  "github-actions": {
+    "managerFilePatterns": [
+      "/^\\.github/workflows/.*\\.ya?ml$/"
+    ]
+  },
+  "customDatasources": {
+    "wow-versions": {
+      "defaultRegistryUrlTemplate": "https://raw.githubusercontent.com/RagedUnicorn/wow-renovate-data/master/versions.json",
+      "format": "json",
+      "transformTemplates": [
+        "{ \"releases\": $.versions[variant = 'classic_era'].{ \"version\": version } }"
+      ]
+    },
+    "wow-patch-versions": {
+      "defaultRegistryUrlTemplate": "https://raw.githubusercontent.com/RagedUnicorn/wow-renovate-data/master/versions.json",
+      "format": "json",
+      "transformTemplates": [
+        "{ \"releases\": $.versions[variant = 'classic_era'].{ \"version\": name } }"
+      ]
+    },
+    "wow-game-versions": {
+      "defaultRegistryUrlTemplate": "https://raw.githubusercontent.com/RagedUnicorn/wow-renovate-data/master/game-versions.json",
+      "format": "json",
+      "transformTemplates": [
+        "{ \"releases\": $.releases[variant = 'classic_era'] }"
+      ]
+    }
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^pom\\.xml$/"
+      ],
+      "matchStrings": [
+        "<!-- renovate: datasource=custom.wow-versions depName=wow-interface versioning=loose -->\\n\\s*<addon\\.interface>(?<currentValue>\\d+)</addon\\.interface>"
+      ],
+      "datasourceTemplate": "custom.wow-versions",
+      "depNameTemplate": "wow-interface"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^pom\\.xml$/"
+      ],
+      "matchStrings": [
+        "<!-- renovate: datasource=custom.wow-patch-versions depName=wow-patch versioning=loose -->\\n\\s*<addon\\.supported\\.patch>(?<currentValue>[\\d\\.]+)</addon\\.supported\\.patch>"
+      ],
+      "datasourceTemplate": "custom.wow-patch-versions",
+      "depNameTemplate": "wow-patch"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^pom\\.xml$/"
+      ],
+      "matchStrings": [
+        "<!-- renovate: datasource=custom.wow-game-versions depName=wow-gameversion versioning=loose -->\\n\\s*<addon\\.curseforge\\.gameVersion>(?<currentValue>\\d+)</addon\\.curseforge\\.gameVersion>"
+      ],
+      "datasourceTemplate": "custom.wow-game-versions",
+      "depNameTemplate": "wow-gameversion"
+    }
+  ],
+  "prBodyDefinitions": {
+    "Package": "{{depName}}",
+    "Type": "{{depType}}",
+    "Change": "{{updateType}}",
+    "Current": "{{currentVersion}}",
+    "New": "{{newVersion}}",
+    "Age": "{{age}}",
+    "Adoption": "{{adoption}}",
+    "Passing": "{{passing}}",
+    "Confidence": "{{confidence}}"
+  },
+  "postUpdateOptions": []
+}

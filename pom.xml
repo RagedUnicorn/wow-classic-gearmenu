@@ -14,11 +14,14 @@
     <addon.name>GearMenu</addon.name>
     <addon.displayName>gearmenu</addon.displayName>
     <addon.curseforge.projectId>345496</addon.curseforge.projectId>
+    <!-- renovate: datasource=custom.wow-game-versions depName=wow-gameversion versioning=loose -->
     <addon.curseforge.gameVersion>14029</addon.curseforge.gameVersion>
     <addon.wago.projectId>kaNeybN2</addon.wago.projectId>
     <addon.name.short>GM</addon.name.short>
     <addon.tag.version>v${project.version}</addon.tag.version>
+    <!-- renovate: datasource=custom.wow-versions depName=wow-interface versioning=loose -->
     <addon.interface>11508</addon.interface>
+    <!-- renovate: datasource=custom.wow-patch-versions depName=wow-patch versioning=loose -->
     <addon.supported.patch>1.15.8</addon.supported.patch>
     <addon.identifier>${project.groupId}.${project.artifactId}</addon.identifier>
     <addon.project.categories>Action Bars Combat PvP</addon.project.categories>
