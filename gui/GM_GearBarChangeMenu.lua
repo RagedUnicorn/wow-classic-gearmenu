@@ -333,7 +333,10 @@ function me.UpdateChangeMenuGearSlotCooldown()
     if changeMenuSlot.itemId ~= nil then
       if changeMenuFrame.showCooldowns then
         local startTime, duration = C_Container.GetItemCooldown(changeMenuSlot.itemId)
-        CooldownFrame_Set(changeMenuSlot.cooldownOverlay, startTime, duration, true)
+
+        if startTime and duration then
+          CooldownFrame_Set(changeMenuSlot.cooldownOverlay, startTime, duration, true)
+        end
       else
         CooldownFrame_Clear(changeMenuSlot.cooldownOverlay)
       end
