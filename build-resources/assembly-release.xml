@@ -22,7 +22,7 @@
         <include>localization/*.lua</include>
       </includes>
       <excludes>
-        <exclude>code/GM_Debug.lua</exclude>
+        <exclude>code/Debug.lua</exclude>
       </excludes>
     </fileSet>
   </fileSets>

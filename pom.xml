@@ -261,7 +261,7 @@
                   <targetPath>${project.basedir}/code</targetPath>
                   <filtering>false</filtering>
                   <includes>
-                    <include>GM_Environment.lua</include>
+                    <include>Environment.lua</include>
                   </includes>
                 </resource>
               </resources>

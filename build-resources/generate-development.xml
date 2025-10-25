@@ -17,7 +17,7 @@
       <source>build-resources/environment.lua.tpl</source>
       <outputDirectory>./</outputDirectory>
       <filtered>true</filtered>
-      <destName>GM_Environment.lua</destName>
+      <destName>Environment.lua</destName>
     </file>
   </files>
 </assembly>

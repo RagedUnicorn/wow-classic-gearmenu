@@ -7,9 +7,9 @@ ${addon.comment.generated.toc}
 ## SavedVariablesPerCharacter: ${addon.savedVariablesPerCharacter}
 
 # constant values
-code/GM_Constants.lua
+code/Constants.lua
 # environment variables
-code/GM_Environment.lua
+code/Environment.lua
 
 # localization
 localization/enUS.lua
@@ -17,26 +17,26 @@ localization/deDE.lua
 localization/zhCN.lua
 localization/ruRU.lua
 
-code/GM_Core.lua
-code/GM_Logger.lua
-code/GM_Cmd.lua
-code/GM_Filter.lua
-code/GM_Ticker.lua
-code/GM_Common.lua
-code/GM_Season.lua
-code/GM_Tooltip.lua
-code/GM_Target.lua
-code/GM_GearManager.lua
-code/GM_GearBarManager.lua
-code/GM_ItemManager.lua
-code/GM_CombatQueue.lua
-code/GM_QuickChange.lua
-code/GM_Configuration.lua
-code/GM_Macro.lua
-code/GM_Engrave.lua
+code/Core.lua
+code/Logger.lua
+code/Cmd.lua
+code/Filter.lua
+code/Ticker.lua
+code/Common.lua
+code/Season.lua
+code/Tooltip.lua
+code/Target.lua
+code/GearManager.lua
+code/GearBarManager.lua
+code/ItemManager.lua
+code/CombatQueue.lua
+code/QuickChange.lua
+code/Configuration.lua
+code/Macro.lua
+code/Engrave.lua
 
 # debug
-code/GM_Debug.lua
+code/Debug.lua
 
 # gui
 # custom blizzard dropdown impl
@@ -45,22 +45,22 @@ libs/LibUiDropDownMenu/LibUiDropDownMenu.xml
 libs/LibUiDropDownMenu/LibUiDropDownMenuTemplates.lua
 libs/LibUiDropDownMenu/LibUiDropDownMenuTemplates.xml
 
-gui/GM_Frame.xml
-gui/GM_UiHelper.lua
-gui/GM_GearBar.lua
-gui/GM_GearBarChangeMenu.lua
-gui/GM_TrinketMenu.lua
-gui/GM_ThemeCoordinator.lua
-gui/GM_ThemeClassic.lua
-gui/GM_ThemeCustom.lua
-gui/GM_Cooldown.lua
-gui/GM_GearBarStorage.lua
-gui/GM_GearBarConfigurationMenu.lua
-gui/GM_GearBarConfigurationSubMenu.lua
-gui/GM_AddonConfiguration.lua
-gui/GM_AboutContent.lua
-gui/GM_GeneralMenu.lua
-gui/GM_TrinketConfigurationMenu.lua
-gui/GM_QuickChangeMenu.lua
-gui/GM_KeyBind.lua
-gui/GM_EngraveFrame.lua
+gui/Frame.xml
+gui/UiHelper.lua
+gui/GearBar.lua
+gui/GearBarChangeMenu.lua
+gui/TrinketMenu.lua
+gui/ThemeCoordinator.lua
+gui/ThemeClassic.lua
+gui/ThemeCustom.lua
+gui/Cooldown.lua
+gui/GearBarStorage.lua
+gui/GearBarConfigurationMenu.lua
+gui/GearBarConfigurationSubMenu.lua
+gui/AddonConfiguration.lua
+gui/AboutContent.lua
+gui/GeneralMenu.lua
+gui/TrinketConfigurationMenu.lua
+gui/QuickChangeMenu.lua
+gui/KeyBind.lua
+gui/EngraveFrame.lua
