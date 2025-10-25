@@ -1,6 +1,7 @@
 
 -- luacheck: globals GetAddOnMetadata
 -- Translator ZamestoTV
+if (GetLocale() == "ruRU") then
 rggm = rggm or {}
 rggm.L = {}
 
@@ -148,3 +149,4 @@ rggm.L["gear_bar_configuration_key_binding_user_error"] = "Не удалось �
 -- macro bridge user errors
 rggm.L["unable_to_find_equipslot"] = "Не удается найти подходящий слот для itemId %s"
 rggm.L["unable_to_find_item"] = "Не удается найти информацию о предмете для itemId %s"
+end
