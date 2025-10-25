@@ -66,22 +66,21 @@ StaticPopupDialogs["RGGM_CHOOSE_GEAR_BAR_NAME"] = {
   text = rggm.L["gear_bar_choose_name"],
   button1 = rggm.L["gear_bar_choose_name_accept_button"],
   button2 = rggm.L["gear_bar_choose_name_cancel_button"],
-  OnShow = function(self)
-    local editBox = self:GetParent().EditBox
-    local button1 = self:GetParent().button1
+  OnShow = function(dialog)
+    local editBox = dialog:GetEditBox()
+    local button1 = dialog:GetButton1()
 
     if editBox ~= nil and button1 ~= nil then
       button1:Disable()
       editBox:SetText("") -- reset text to empty
     end
   end,
-  OnAccept = function(self)
-    me.CreateNewGearBar(self.EditBox:GetText())
+  OnAccept = function(dialog)
+    me.CreateNewGearBar(dialog:GetEditBox():GetText())
     me.GearBarListOnUpdate(gearBarList)
   end,
-  EditBoxOnTextChanged = function(self)
-    local editBox = self:GetParent().EditBox
-    local button1 = self:GetParent().button1
+  EditBoxOnTextChanged = function(editBox)
+    local button1 = editBox:GetParent():GetButton1()
 
     if editBox ~= nil and button1 ~= nil then
       if string.len(editBox:GetText()) > 0 then
