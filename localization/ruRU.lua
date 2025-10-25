@@ -1,6 +1,7 @@
 
--- luacheck: globals GetAddOnMetadata
+-- luacheck: globals GetLocale GetAddOnMetadata
 -- Translator ZamestoTV
+
 if (GetLocale() == "ruRU") then
   rggm = rggm or {}
   rggm.L = {}
@@ -26,8 +27,8 @@ if (GetLocale() == "ruRU") then
   rggm.L["enable_tooltips"] = "Включить подсказки"
   rggm.L["enable_tooltips_tooltip"] = "Показывать подсказку при наведении на предмет"
   rggm.L["enable_simple_tooltips"] = "Простые подсказки"
-  rggm.L["enable_simple_tooltips_tooltip"] = "Показывать только название предмета"
-    .. " вместо полной подсказки"
+  rggm.L["enable_simple_tooltips_tooltip"] = "Показывать только название предмета "
+    .. "вместо полной подсказки"
   rggm.L["enable_fast_press"] = "Включить быстрый отклик"
   rggm.L["enable_fast_press_tooltip"] = "Действие срабатывает при нажатии клавиши, а не при её отпускании"
   rggm.L["enable_drag_and_drop"] = "Включить перетаскивание"
@@ -78,7 +79,8 @@ if (GetLocale() == "ruRU") then
   rggm.L["quick_change_unable_to_remove_rule"] = "Не удалось удалить правило — сначала выберите правило"
   rggm.L["quick_change_unable_to_add_rule_from"] = "Не удалось добавить правило — не выбран предмет «от»"
   rggm.L["quick_change_unable_to_add_rule_to"] = "Не удалось добавить правило — не выбран предмет «к»"
-  rggm.L["quick_change_unable_to_add_rule_duplicate"] = "Не удалось добавить правило — правило для этого предмета уже существует"
+  rggm.L["quick_change_unable_to_add_rule_duplicate"] = "Не удалось добавить правило — правило для этого предмета "
+    .. "уже существует"
 
   -- slot translations
   rggm.L["slot_name_head"] = "Голова"
@@ -138,7 +140,8 @@ if (GetLocale() == "ruRU") then
   rggm.L["gear_bar_configuration_key_binding_button"] = "Установить/Снять привязку клавиши"
   rggm.L["gear_bar_configuration_key_binding_not_set"] = "Привязка не установлена"
   rggm.L["gear_bar_configuration_key_binding_dialog"] = "Установить привязку на: "
-  rggm.L["gear_bar_configuration_key_binding_dialog_initial"] = "(нажмите клавишу для привязки или оставьте пустым для снятия)"
+  rggm.L["gear_bar_configuration_key_binding_dialog_initial"] = "(нажмите клавишу для привязки или оставьте пустым "
+    .. "для снятия)"
   rggm.L["gear_bar_configuration_key_binding_dialog_accept"] = "Принять"
   rggm.L["gear_bar_configuration_key_binding_dialog_cancel"] = "Отмена"
   rggm.L["gear_bar_configuration_key_binding_override_dialog"] = "Привязка уже используется. Перезаписать?"
