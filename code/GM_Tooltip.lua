@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals GetItemInfo GetItemQualityColor UIParent GameTooltip_SetDefaultAnchor strmatch
+-- luacheck: globals GetItemInfo GetItemQualityColor UIParent GameTooltip_SetDefaultAnchor strmatch GetInventoryItemID
 
 local mod = rggm
 local me = {}
@@ -45,53 +45,50 @@ function me.UpdateTooltipForItem(item)
   if mod.configuration.IsSimpleTooltipsEnabled() then
     me.BuildSimpleTooltip(tooltip, item.itemId)
   else
-    local _, itemLink = GetItemInfo(item.itemId)
-
-    if item.enchantId ~= nil then
-      itemLink = "item:".. item.itemId .. ":" .. item.enchantId
+    if item.bag and item.slot then
+      tooltip:SetBagItem(item.bag, item.slot)
+    else
+      tooltip:SetInventoryItem(RGGM_CONSTANTS.UNIT_ID_PLAYER, item.inventorySlotId)
     end
-
-    tooltip:SetHyperlink(itemLink)
-    me.AddRuneToTooltip(tooltip, item.runeName)
   end
 
   tooltip:Show()
 end
 
 --[[
-  Update the tooltip to show the information for the passed itemLink
+  Update the tooltip to show the information for the item in the passed slot
 
-  @param {string} itemLink
-  @param {string} runeName
+  @param {number} inventorySlotId
 ]]--
-function me.UpdateTooltipForItemLink(itemLink, runeName)
-  if itemLink == nil then return end
-  if not mod.configuration.IsTooltipsEnabled() then return end
+function me.UpdateTooltipForSlot(inventorySlotId)
+  if inventorySlotId == nil then return end
 
-  local tooltip = me.PrepareTooltip()
-  local itemId = tonumber(strmatch(itemLink, "|Hitem:(%d+):"))
+  local item = {
+    inventorySlotId = inventorySlotId,
+    itemId = GetInventoryItemID(RGGM_CONSTANTS.UNIT_ID_PLAYER, inventorySlotId)
+  }
 
-  if mod.configuration.IsSimpleTooltipsEnabled() then
-    me.BuildSimpleTooltip(tooltip, itemId)
-  else
-    tooltip:SetHyperlink(itemLink)
-    me.AddRuneToTooltip(tooltip, runeName)
-  end
-
-  tooltip:Show()
+  me.UpdateTooltipForItem(item)
 end
 
 --[[
-  Add a rune to the end of the tooltip
-  This is a Season of Discovery feature
+  Update the tooltip to show the information for the item in the bag
 
-  @param {table} tooltip
-  @param {string} runeName
+  @param {number} itemId
 ]]--
-function me.AddRuneToTooltip(tooltip, runeName)
-  if not mod.season.IsSodActive() or runeName == nil then return end
+function me.UpdateTooltipForBagItem(itemId)
+  if itemId == nil then return end
 
-  tooltip:AddLine(runeName, 0, 1, 0)
+  local bag, slot = mod.itemManager.FindItemInBag(itemId)
+  if bag == nil or slot == nil then return end
+
+  local item = {
+    bag = bag,
+    slot = slot,
+    itemId = itemId
+  }
+
+  me.UpdateTooltipForItem(item)
 end
 
 --[[

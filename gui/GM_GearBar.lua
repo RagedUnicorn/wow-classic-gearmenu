@@ -704,9 +704,7 @@ end
 function me.GearSlotOnEnter(self)
   mod.gearBarChangeMenu.UpdateChangeMenu(self.position, self:GetParent().id)
 
-  local itemLink = GetInventoryItemLink(RGGM_CONSTANTS.UNIT_ID_PLAYER, self:GetAttribute("item"))
-
-  mod.tooltip.UpdateTooltipForItemLink(itemLink)
+  mod.tooltip.UpdateTooltipForSlot(self:GetAttribute("item"))
   mod.themeCoordinator.GearSlotOnEnter(self)
 end
 
