@@ -54,10 +54,10 @@ local builtMenu = false
 
 --[[
   Holds the gearBarId to delete after clicking on the delete button. The static popup
-  to confirm the deletion will use this to delete the propere url if the user confirms
+  to confirm the deletion will use this to delete the proper gearBar if the user confirms
   the deletion
 ]]
-local deleteGearBarId;
+local deleteGearBarId
 
 --[[
   Popup dialog for choosing a profile name
@@ -67,7 +67,7 @@ StaticPopupDialogs["RGGM_CHOOSE_GEAR_BAR_NAME"] = {
   button1 = rggm.L["gear_bar_choose_name_accept_button"],
   button2 = rggm.L["gear_bar_choose_name_cancel_button"],
   OnShow = function(self)
-    local editBox = self:GetParent().editBox
+    local editBox = self:GetParent().EditBox
     local button1 = self:GetParent().button1
 
     if editBox ~= nil and button1 ~= nil then
@@ -76,11 +76,11 @@ StaticPopupDialogs["RGGM_CHOOSE_GEAR_BAR_NAME"] = {
     end
   end,
   OnAccept = function(self)
-    me.CreateNewGearBar(self.editBox:GetText())
+    me.CreateNewGearBar(self.EditBox:GetText())
     me.GearBarListOnUpdate(gearBarList)
   end,
   EditBoxOnTextChanged = function(self)
-    local editBox = self:GetParent().editBox
+    local editBox = self:GetParent().EditBox
     local button1 = self:GetParent().button1
 
     if editBox ~= nil and button1 ~= nil then
