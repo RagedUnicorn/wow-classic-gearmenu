@@ -22,7 +22,8 @@
   SOFTWARE.
 ]]--
 
--- luacheck: globals CreateFrame STANDARD_TEXT_FONT FauxScrollFrame_Update FauxScrollFrame_GetOffset
+-- luacheck: globals CreateFrame STANDARD_TEXT_FONT FauxScrollFrame_Update FauxScrollFrame_GetOffset Settings
+-- luacheck: globals MinimalSliderWithSteppersMixin
 
 local mod = rggm
 local me = {}
@@ -162,49 +163,70 @@ end
     The created delay slider
 ]]--
 function me.CreateDelaySlider(frame)
+  local sliderMin = RGGM_CONSTANTS.QUICK_CHANGE_DELAY_SLIDER_MIN
+  local sliderMax = RGGM_CONSTANTS.QUICK_CHANGE_DELAY_SLIDER_MAX
+
+  local sliderOptions = Settings.CreateSliderOptions(
+    sliderMin,
+    sliderMax,
+    RGGM_CONSTANTS.QUICK_CHANGE_DELAY_SLIDER_STEP
+  )
+  sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+    return value .. " " .. rggm.L["quick_change_slider_unit"]
+  end)
+  sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Max, function() return sliderMax end)
+  sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Min, function() return sliderMin end)
+  sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Top, function()
+    return rggm.L["quick_change_slider_title"]
+  end)
+
   local delaySlider = CreateFrame(
-    "Slider",
+    "Frame",
     RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_DELAY_SLIDER,
     frame,
-    "UISliderTemplateWithLabels"
+    "MinimalSliderWithSteppersTemplate"
   )
   delaySlider:SetWidth(RGGM_CONSTANTS.QUICK_CHANGE_DELAY_SLIDER_WIDTH)
-  delaySlider:SetHeight(RGGM_CONSTANTS.QUICK_CHANGE_DELAY_SLIDER_HEIGHT)
-  delaySlider:SetOrientation('HORIZONTAL')
   delaySlider:SetPoint("TOPLEFT", 15, -450)
-  delaySlider:SetMinMaxValues(
-    RGGM_CONSTANTS.QUICK_CHANGE_DELAY_SLIDER_MIN,
-    RGGM_CONSTANTS.QUICK_CHANGE_DELAY_SLIDER_MAX
+  delaySlider:Init(
+    sliderMin,
+    sliderOptions.minValue,
+    sliderOptions.maxValue,
+    sliderOptions.steps,
+    sliderOptions.formatters
   )
-  delaySlider:SetValueStep(RGGM_CONSTANTS.QUICK_CHANGE_DELAY_SLIDER_STEP)
-  delaySlider:SetObeyStepOnDrag(true)
-  delaySlider:SetValue(RGGM_CONSTANTS.QUICK_CHANGE_DELAY_SLIDER_MIN)
 
-  -- Update slider texts
-  _G[delaySlider:GetName() .. "Low"]:SetText(RGGM_CONSTANTS.QUICK_CHANGE_DELAY_SLIDER_MIN)
-  _G[delaySlider:GetName() .. "High"]:SetText(RGGM_CONSTANTS.QUICK_CHANGE_DELAY_SLIDER_MAX)
-  _G[delaySlider:GetName() .. "Text"]:SetText(rggm.L["quick_change_slider_title"])
-  delaySlider.tooltipText = rggm.L["quick_change_slider_tooltip"]
+  -- Setup tooltips on the frame and all interactive sub-elements
+  local sliderTitle = rggm.L["quick_change_slider_title"]
+  local sliderTooltip = rggm.L["quick_change_slider_tooltip"]
 
-  local valueFontString = delaySlider:CreateFontString(nil, "OVERLAY")
-  valueFontString:SetFont(STANDARD_TEXT_FONT, 12)
-  valueFontString:SetPoint("BOTTOM", 0, -15)
-  valueFontString:SetText(delaySlider:GetValue() .. " " .. rggm.L["quick_change_slider_unit"])
+  local function ShowTooltip()
+    mod.tooltip.BuildTooltipForOption(sliderTitle, sliderTooltip)
+  end
 
-  delaySlider.valueFontString = valueFontString
-  delaySlider:SetScript("OnValueChanged", me.DelaySliderOnValueChange)
+  local function HideTooltip()
+    _G[RGGM_CONSTANTS.ELEMENT_TOOLTIP]:Hide()
+  end
+
+  delaySlider:SetScript("OnEnter", ShowTooltip)
+  delaySlider:SetScript("OnLeave", HideTooltip)
+
+  if delaySlider.Slider then
+    delaySlider.Slider:SetScript("OnEnter", ShowTooltip)
+    delaySlider.Slider:SetScript("OnLeave", HideTooltip)
+  end
+
+  if delaySlider.Back then
+    delaySlider.Back:SetScript("OnEnter", ShowTooltip)
+    delaySlider.Back:SetScript("OnLeave", HideTooltip)
+  end
+
+  if delaySlider.Forward then
+    delaySlider.Forward:SetScript("OnEnter", ShowTooltip)
+    delaySlider.Forward:SetScript("OnLeave", HideTooltip)
+  end
 
   return delaySlider
-end
-
---[[
-  OnValueChanged callback for delay slider
-
-  @param {table} self
-  @param {number} value
-]]--
-function me.DelaySliderOnValueChange(self, value)
-  self.valueFontString:SetText(value .. " " .. rggm.L["quick_change_slider_unit"])
 end
 
 --[[
@@ -219,7 +241,7 @@ function me.CreateAddRuleButton(parentFrame)
     parentFrame,
     "UIPanelButtonTemplate"
   )
-  addRuleButton:SetPoint("RIGHT", 120, 0)
+  addRuleButton:SetPoint("RIGHT", 170, 0)
   addRuleButton:SetText(rggm.L["quick_change_add_rule"])
 
   local buttonSize = addRuleButton:GetTextWidth() + RGGM_CONSTANTS.QUICK_CHANGE_BUTTON_MARGIN
