@@ -14,15 +14,34 @@
     <addon.name>GearMenu</addon.name>
     <addon.displayName>gearmenu</addon.displayName>
     <addon.curseforge.projectId>345496</addon.curseforge.projectId>
-    <!-- renovate: datasource=custom.wow-game-versions depName=wow-gameversion versioning=loose -->
-    <addon.curseforge.gameVersion>14029</addon.curseforge.gameVersion>
+    <!--
+      CurseForge game version IDs (not WoW interface numbers)
+
+      Classic (Interface: 11508) - covers: Classic Era, Hardcore, Season of Discovery
+    -->
+    <!-- renovate: datasource=custom.wow-game-versions depName=wow-gameversion-classic versioning=loose -->
+    <addon.curseforge.gameVersionClassic>14029</addon.curseforge.gameVersionClassic>
+    <!--
+      Anniversary TBC (Interface: 20505) - covers: TBC Anniversary Edition
+    -->
+    <!-- renovate: datasource=custom.wow-game-versions depName=wow-gameversion-anniversary versioning=loose -->
+    <addon.curseforge.gameVersionAnniversary>14300</addon.curseforge.gameVersionAnniversary>
     <addon.wago.projectId>kaNeybN2</addon.wago.projectId>
     <addon.name.short>GM</addon.name.short>
     <addon.tag.version>v${project.version}</addon.tag.version>
     <!-- renovate: datasource=custom.wow-versions depName=wow-interface versioning=loose -->
-    <addon.interface>11508</addon.interface>
-    <!-- renovate: datasource=custom.wow-patch-versions depName=wow-patch versioning=loose -->
-    <addon.supported.patch>1.15.8</addon.supported.patch>
+    <addon.interface>11508, 20505</addon.interface>
+    <!--
+      Wago patch versions.
+      Classic (1.15.8) - covers: Classic Era, Hardcore, Season of Discovery
+    -->
+    <!-- renovate: datasource=custom.wow-patch-versions depName=wow-patch-classic versioning=loose -->
+    <addon.supported.patch.classic>1.15.8</addon.supported.patch.classic>
+    <!--
+      Anniversary TBC (2.5.5) - covers: TBC Anniversary Edition
+    -->
+    <!-- renovate: datasource=custom.wow-patch-versions depName=wow-patch-bcc versioning=loose -->
+    <addon.supported.patch.bcc>2.5.5</addon.supported.patch.bcc>
     <addon.identifier>${project.groupId}.${project.artifactId}</addon.identifier>
     <addon.project.categories>Action Bars Combat PvP</addon.project.categories>
   </properties>
@@ -130,11 +149,12 @@
                 <configuration>
                   <game>wow</game>
                   <projectId>${addon.curseforge.projectId}</projectId>
-                  <displayName>${addon.displayName}-${addon.tag.version}-classic.zip</displayName>
+                  <displayName>${addon.displayName}-${addon.tag.version}.zip</displayName>
                   <changelogFile>${project.basedir}/build-resources/release-notes.md</changelogFile>
                   <changelogType>markdown</changelogType>
                   <gameVersions>
-                    <gameVersion>${addon.curseforge.gameVersion}</gameVersion>
+                    <gameVersion>${addon.curseforge.gameVersionClassic}</gameVersion>
+                    <gameVersion>${addon.curseforge.gameVersionAnniversary}</gameVersion>
                   </gameVersions>
                   <releaseType>release</releaseType>
                   <file>${project.basedir}/target/${addon.name}.zip</file>
@@ -173,9 +193,10 @@
                 </goals>
                 <configuration>
                   <projectId>${addon.wago.projectId}</projectId>
-                  <label>${addon.displayName}-${addon.tag.version}-classic.zip</label>
+                  <label>${addon.displayName}-${addon.tag.version}.zip</label>
                   <changelogFile>${project.basedir}/build-resources/release-notes.md</changelogFile>
-                  <supportedClassicPatch>${addon.supported.patch}</supportedClassicPatch>
+                  <supportedClassicPatch>${addon.supported.patch.classic}</supportedClassicPatch>
+                  <supportedBccPatch>${addon.supported.patch.bcc}</supportedBccPatch>
                   <stability>stable</stability>
                   <file>${project.basedir}/target/${addon.name}.zip</file>
                   <!--suppress UnresolvedMavenProperty -->
