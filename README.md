@@ -4,7 +4,8 @@
 
 > GearMenu aims to help the player switching between items in and out of combat. When the player is in combat a combatqueue will take care of switching the item as soon as possible. It also allows you to define switching rules and keybinding slots.
 
-![](docs/wow_badge.svg)
+![](docs/wow_badge_classic.svg)
+![](docs/wow_badge_tbc.svg)
 ![](docs/license_mit.svg)
 ![Lint](https://github.com/RagedUnicorn/wow-classic-gearmenu/actions/workflows/lint.yaml/badge.svg?branch=master)
 
@@ -15,15 +16,9 @@
 
 **WoW Burning Crusade Classic Support**
 
-> This Addon supports WoW Burning Crusade Classic see - [bcc-GearMenu](https://github.com/RagedUnicorn/wow-bcc-gearmenu/)
+> This Addon supports WoW Burning Crusade Anniversary
 
-<a href="https://github.com/RagedUnicorn/wow-bcc-gearmenu/"><img src="/docs/the_burning_crusade_logo.png" width="40%"></img></a>
-
-**WoW Wrath of The Lich King Classic Support**
-
-> This Addon supports WoW Wrath of The Lich King Classic see - [wotlkc-GearMenu](https://github.com/RagedUnicorn/wow-wotlkc-gearmenu/)
-
-<a href="https://github.com/RagedUnicorn/wow-wotlkc-gearmenu/"><img src="/docs/wrath_of_the_lich_king_logo.png" width="40%"></img></a>
+<img src="/docs/the_burning_crusade_anniversary_logo.png" width="40%"></img>
 
 ## Installation
 
