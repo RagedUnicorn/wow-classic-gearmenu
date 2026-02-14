@@ -180,10 +180,9 @@ function me.BuildGearBarConfigurationSubMenu(parentFrame)
     {"TOPLEFT", 20, -150},
     RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_MIN,
     RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_MAX,
-    RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE,
+    mod.gearBarManager.GetGearSlotSize(parentFrame.gearBarId),
     rggm.L["gear_slot_size_slider_title"],
     rggm.L["gear_slot_size_slider_tooltip"],
-    me.GearSlotSizeSliderOnShow,
     me.GearSlotSizeSliderOnValueChanged
   )
 
@@ -193,10 +192,9 @@ function me.BuildGearBarConfigurationSubMenu(parentFrame)
     {"TOPLEFT", 20, -200},
     RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_MIN,
     RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_MAX,
-    RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE,
+    mod.gearBarManager.GetChangeSlotSize(parentFrame.gearBarId),
     rggm.L["change_slot_size_slider_title"],
     rggm.L["change_slot_size_slider_tooltip"],
-    me.ChangeSlotSizeSliderOnShow,
     me.ChangeSlotSizeSliderOnValueChanged
   )
 
@@ -385,18 +383,6 @@ function me.GearSlotSizeSliderOnValueChanged(self, value)
   local gearBarId = self:GetParent():GetParent().gearBarId
 
   mod.gearBarManager.SetGearSlotSize(gearBarId, value)
-  self.valueFontString:SetText(value)
-end
-
---[[
-  Invoked when the gearSlot size slider is shown. Updates the configured value
-
-  @param {table} self
-]]--
-function me.GearSlotSizeSliderOnShow(self)
-  local gearBarId = self:GetParent():GetParent().gearBarId
-
-  self:SetValue(mod.gearBarManager.GetGearSlotSize(gearBarId))
 end
 
 --[[
@@ -409,18 +395,6 @@ function me.ChangeSlotSizeSliderOnValueChanged(self, value)
   local gearBarId = self:GetParent():GetParent().gearBarId
 
   mod.gearBarManager.SetChangeSlotSize(gearBarId, value)
-  self.valueFontString:SetText(value)
-end
-
---[[
-  Invoked when the changeSlot size slider is shown. Updates the configured value
-
-  @param {table} self
-]]--
-function me.ChangeSlotSizeSliderOnShow(self)
-  local gearBarId = self:GetParent():GetParent().gearBarId
-
-  self:SetValue(mod.gearBarManager.GetChangeSlotSize(gearBarId))
 end
 
 --[[

@@ -105,10 +105,9 @@ function me.BuildUi(parentFrame)
     {"TOPLEFT", 20, -190},
     RGGM_CONSTANTS.TRINKET_MENU_COLUMN_AMOUNT_SLIDER_MIN,
     RGGM_CONSTANTS.TRINKET_MENU_COLUMN_AMOUNT_SLIDER_MAX,
-    RGGM_CONSTANTS.TRINKET_MENU_DEFAULT_COLUMN_AMOUNT,
+    mod.configuration.GetTrinketMenuColumnAmount(),
     rggm.L["trinket_menu_column_amount_slider_title"],
     rggm.L["trinket_menu_column_amount_slider_tooltip"],
-    me.TrinketMenuColumnAmountSliderOnShow,
     me.TrinketMenuColumnAmountSliderOnValueChanged
   )
 
@@ -118,10 +117,9 @@ function me.BuildUi(parentFrame)
     {"TOPLEFT", 20, -250},
     RGGM_CONSTANTS.TRINKET_MENU_SLOT_SIZE_SLIDER_MIN,
     RGGM_CONSTANTS.TRINKET_MENU_SLOT_SIZE_SLIDER_MAX,
-    RGGM_CONSTANTS.TRINKET_MENU_DEFAULT_SLOT_SIZE,
+    mod.configuration.GetTrinketMenuSlotSize(),
     rggm.L["trinket_menu_slot_size_slider_title"],
     rggm.L["trinket_menu_slot_size_slider_tooltip"],
-    me.TrinketMenuSlotSizeSliderOnShow,
     me.TrinketMenuSlotSizeSliderOnValueChanged
   )
 
@@ -229,19 +227,9 @@ end
   @param {table} self
   @param {number} value
 ]]--
-function me.TrinketMenuColumnAmountSliderOnValueChanged(self, value)
+function me.TrinketMenuColumnAmountSliderOnValueChanged(_, value)
   mod.configuration.SetTrinketMenuColumnAmount(value)
   mod.trinketMenu.UpdateTrinketMenuResize()
-  self.valueFontString:SetText(value)
-end
-
---[[
-  Invoked when the trinketMenu column slider is shown. Updates the configured value
-
-  @param {table} self
-]]--
-function me.TrinketMenuColumnAmountSliderOnShow(self)
-  self:SetValue(mod.configuration.GetTrinketMenuColumnAmount())
 end
 
 --[[
@@ -250,17 +238,8 @@ end
   @param {table} self
   @param {number} value
 ]]--
-function me.TrinketMenuSlotSizeSliderOnValueChanged(self, value)
+function me.TrinketMenuSlotSizeSliderOnValueChanged(_, value)
   mod.configuration.SetTrinketMenuSlotSize(value)
   mod.trinketMenu.UpdateTrinketMenuResize()
-  self.valueFontString:SetText(value)
 end
 
---[[
-  Invoked when the trinketMenu size slider is shown. Updates the configured value
-
-  @param {table} self
-]]--
-function me.TrinketMenuSlotSizeSliderOnShow(self)
-  self:SetValue(mod.configuration.GetTrinketMenuSlotSize())
-end

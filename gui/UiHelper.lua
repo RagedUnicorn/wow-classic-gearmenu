@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals CreateFrame STANDARD_TEXT_FONT
+-- luacheck: globals CreateFrame STANDARD_TEXT_FONT Settings MinimalSliderWithSteppersMixin
 
 local mod = rggm
 local me = {}
@@ -31,6 +31,9 @@ local me = {}
 mod.uiHelper = me
 
 me.tag = "UiHelper"
+
+local CreateSliderOptions
+local SetupSliderTooltips
 
 --[[
   Create a dropdown button for a dropdown menu
@@ -114,6 +117,64 @@ function me.OptTooltipOnLeave()
 end
 
 --[[
+  Create slider options for MinimalSliderWithSteppersTemplate
+
+  @param {number} minValue
+  @param {number} maxValue
+  @param {string} title
+
+  @return {table} sliderOptions
+]]--
+CreateSliderOptions = function(minValue, maxValue, title)
+  local sliderOptions = Settings.CreateSliderOptions(
+    minValue,
+    maxValue,
+    RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_STEP
+  )
+  sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value) return value end)
+  sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Max, function() return maxValue end)
+  sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Min, function() return minValue end)
+  sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Top, function() return title end)
+
+  return sliderOptions
+end
+
+--[[
+  Setup tooltips for a MinimalSliderWithSteppersTemplate slider frame and its sub-elements
+
+  @param {table} sliderFrame
+  @param {string} title
+  @param {string} tooltip
+]]--
+SetupSliderTooltips = function(sliderFrame, title, tooltip)
+  local function ShowTooltip()
+    mod.tooltip.BuildTooltipForOption(title, tooltip)
+  end
+
+  local function HideTooltip()
+    _G[RGGM_CONSTANTS.ELEMENT_TOOLTIP]:Hide()
+  end
+
+  sliderFrame:SetScript("OnEnter", ShowTooltip)
+  sliderFrame:SetScript("OnLeave", HideTooltip)
+
+  if sliderFrame.Slider then
+    sliderFrame.Slider:SetScript("OnEnter", ShowTooltip)
+    sliderFrame.Slider:SetScript("OnLeave", HideTooltip)
+  end
+
+  if sliderFrame.Back then
+    sliderFrame.Back:SetScript("OnEnter", ShowTooltip)
+    sliderFrame.Back:SetScript("OnLeave", HideTooltip)
+  end
+
+  if sliderFrame.Forward then
+    sliderFrame.Forward:SetScript("OnEnter", ShowTooltip)
+    sliderFrame.Forward:SetScript("OnLeave", HideTooltip)
+  end
+end
+
+--[[
   Create a slider for changing the size of the gearSlots
 
   @param {table} parentFrame
@@ -125,47 +186,36 @@ end
   @param {number} defaultValue
   @param {string} sliderTitle
   @param {string} sliderTooltip
-  @param {function} onShowCallback
-  @param {function} OnValueChangedCallback
+  @param {function} onValueChangedCallback
 ]]--
 function me.CreateSizeSlider(parentFrame, sliderName, position, sliderMinValue, sliderMaxValue, defaultValue,
-    sliderTitle, sliderTooltip, onShowCallback, OnValueChangedCallback)
+    sliderTitle, sliderTooltip, onValueChangedCallback)
+
+  local sliderOptions = CreateSliderOptions(sliderMinValue, sliderMaxValue, sliderTitle)
 
   local sliderFrame = CreateFrame(
-    "Slider",
+    "Frame",
     sliderName,
     parentFrame,
-    "UISliderTemplateWithLabels"
+    "MinimalSliderWithSteppersTemplate"
   )
   sliderFrame:SetWidth(RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_WIDTH)
-  sliderFrame:SetHeight(RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_HEIGHT)
-  sliderFrame:SetOrientation('HORIZONTAL')
   sliderFrame:SetPoint(unpack(position))
-  sliderFrame:SetMinMaxValues(
-    sliderMinValue,
-    sliderMaxValue
+  sliderFrame:Init(
+    defaultValue,
+    sliderOptions.minValue,
+    sliderOptions.maxValue,
+    sliderOptions.steps,
+    sliderOptions.formatters
   )
-  sliderFrame:SetValueStep(RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_STEP)
-  sliderFrame:SetObeyStepOnDrag(true)
-  sliderFrame:SetValue(defaultValue)
 
-  -- Update slider texts
-  _G[sliderFrame:GetName() .. "Low"]:SetText(sliderMinValue)
-  _G[sliderFrame:GetName() .. "High"]:SetText(sliderMaxValue)
-  _G[sliderFrame:GetName() .. "Text"]:SetText(sliderTitle)
-  sliderFrame.tooltipText = sliderTooltip
+  if onValueChangedCallback then
+    sliderFrame:RegisterCallback("OnValueChanged", onValueChangedCallback, sliderFrame)
+  end
 
-  local valueFontString = sliderFrame:CreateFontString(nil, "OVERLAY")
-  valueFontString:SetFont(STANDARD_TEXT_FONT, 12)
-  valueFontString:SetPoint("BOTTOM", 0, -15)
-  valueFontString:SetText(sliderFrame:GetValue())
+  SetupSliderTooltips(sliderFrame, sliderTitle, sliderTooltip)
 
-  sliderFrame.valueFontString = valueFontString
-  sliderFrame:SetScript("OnValueChanged", OnValueChangedCallback)
-  sliderFrame:SetScript("OnShow", onShowCallback)
-
-  -- load initial state
-  onShowCallback(sliderFrame)
+  return sliderFrame
 end
 
 --[[
