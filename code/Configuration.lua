@@ -25,7 +25,7 @@
 
 -- luacheck: globals INVSLOT_HEAD INVSLOT_NECK INVSLOT_SHOULDER INVSLOT_CHEST INVSLOT_WAIST INVSLOT_LEGS INVSLOT_FEET
 -- luacheck: globals INVSLOT_WRIST INVSLOT_HAND INVSLOT_FINGER1 INVSLOT_FINGER2 INVSLOT_TRINKET1 INVSLOT_TRINKET2
--- luacheck: globals INVSLOT_BACK INVSLOT_MAINHAND INVSLOT_OFFHAND INVSLOT_RANGED INVSLOT_AMMO GetAddOnMetadata ReloadUI
+-- luacheck: globals INVSLOT_BACK INVSLOT_MAINHAND INVSLOT_OFFHAND INVSLOT_RANGED INVSLOT_AMMO C_AddOns ReloadUI
 -- luacheck: globals GetBindingKey SetBinding SetBindingClick GetCurrentBindingSet SaveBindings
 
 local mod = rggm
@@ -264,12 +264,12 @@ end
 function me.SetAddonVersion()
   -- if no version set so far make sure to set the current one
   if GearMenuConfiguration.addonVersion == nil then
-    GearMenuConfiguration.addonVersion = GetAddOnMetadata(RGGM_CONSTANTS.ADDON_NAME, "Version")
+    GearMenuConfiguration.addonVersion = C_AddOns.GetAddOnMetadata(RGGM_CONSTANTS.ADDON_NAME, "Version")
   end
 
   me.MigrationPath()
   -- migration done update addon version to current
-  GearMenuConfiguration.addonVersion = GetAddOnMetadata(RGGM_CONSTANTS.ADDON_NAME, "Version")
+  GearMenuConfiguration.addonVersion = C_AddOns.GetAddOnMetadata(RGGM_CONSTANTS.ADDON_NAME, "Version")
 
   if #GearMenuConfiguration.gearBars == 0 and not GearMenuConfiguration.firstTimeInitializationDone then
     me.FirstTimeInitialization()

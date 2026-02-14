@@ -1,5 +1,5 @@
 
--- luacheck: globals GetLocale GetAddOnMetadata
+-- luacheck: globals GetLocale C_AddOns
 
 if (GetLocale() == "zhCN") then
   rggm = rggm or {}
@@ -17,7 +17,7 @@ if (GetLocale() == "zhCN") then
   -- about
   rggm.L["author"] = "Author: Michael Wiesendanger"
   rggm.L["email"] = "E-Mail: michael.wiesendanger@gmail.com"
-  rggm.L["version"] = "Version: " .. GetAddOnMetadata(RGGM_CONSTANTS.ADDON_NAME, "Version")
+  rggm.L["version"] = "Version: " .. C_AddOns.GetAddOnMetadata(RGGM_CONSTANTS.ADDON_NAME, "Version")
   rggm.L["issues"] = "Issues: https://github.com/RagedUnicorn/wow-classic-gearmenu/issues"
 
   -- general

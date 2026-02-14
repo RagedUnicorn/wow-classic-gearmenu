@@ -1,5 +1,5 @@
 
--- luacheck: globals GetAddOnMetadata
+-- luacheck: globals C_AddOns
 
 rggm = rggm or {}
 rggm.L = {}
@@ -16,7 +16,7 @@ rggm.L["invalid_argument"] = "Invalid argument passed"
 -- about
 rggm.L["author"] = "Author: Michael Wiesendanger"
 rggm.L["email"] = "E-Mail: michael.wiesendanger@gmail.com"
-rggm.L["version"] = "Version: " .. GetAddOnMetadata(RGGM_CONSTANTS.ADDON_NAME, "Version")
+rggm.L["version"] = "Version: " .. C_AddOns.GetAddOnMetadata(RGGM_CONSTANTS.ADDON_NAME, "Version")
 rggm.L["issues"] = "Issues: https://github.com/RagedUnicorn/wow-classic-gearmenu/issues"
 
 -- general

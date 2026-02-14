@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals GetAddOnMetadata ChannelInfo C_Timer
+-- luacheck: globals C_AddOns ChannelInfo C_Timer
 
 rggm = rggm or {}
 local me = rggm
@@ -273,6 +273,6 @@ end
 ShowWelcomeMessage = function()
   print(
     string.format("|cFF00FFB0" .. RGGM_CONSTANTS.ADDON_NAME .. rggm.L["help"],
-    GetAddOnMetadata(RGGM_CONSTANTS.ADDON_NAME, "Version"))
+    C_AddOns.GetAddOnMetadata(RGGM_CONSTANTS.ADDON_NAME, "Version"))
   )
 end

@@ -1,5 +1,5 @@
 
--- luacheck: globals GetLocale GetAddOnMetadata
+-- luacheck: globals GetLocale C_AddOns
 -- Translator ZamestoTV
 
 if (GetLocale() == "ruRU") then
@@ -18,7 +18,7 @@ if (GetLocale() == "ruRU") then
   -- about
   rggm.L["author"] = "Автор: Michael Wiesendanger"
   rggm.L["email"] = "E-Mail: michael.wiesendanger@gmail.com"
-  rggm.L["version"] = "Версия: " .. GetAddOnMetadata(RGGM_CONSTANTS.ADDON_NAME, "Version")
+  rggm.L["version"] = "Версия: " .. C_AddOns.GetAddOnMetadata(RGGM_CONSTANTS.ADDON_NAME, "Version")
   rggm.L["issues"] = "Баги: https://github.com/RagedUnicorn/wow-classic-gearmenu/issues"
 
   -- general

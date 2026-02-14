@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals GetAddOnMetadata UIErrorsFrame
+-- luacheck: globals C_AddOns UIErrorsFrame
 
 local mod = rggm
 local me = {}
@@ -81,7 +81,7 @@ local PrintLogMessage = function(levelColor, tag, message)
   end
 
   if not mod.filter.ShouldFilterTag(tag) then
-    print(levelColor .. GetAddOnMetadata(RGGM_CONSTANTS.ADDON_NAME, "Title") .. ":" .. tag .. " - " .. message)
+    print(levelColor .. C_AddOns.GetAddOnMetadata(RGGM_CONSTANTS.ADDON_NAME, "Title") .. ":" .. tag .. " - " .. message)
   end
 end
 
