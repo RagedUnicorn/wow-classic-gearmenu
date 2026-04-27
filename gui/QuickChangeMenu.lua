@@ -261,7 +261,7 @@ end
 ]]--
 function me.AddRuleOnClick(self)
   local delaySlider = self:GetParent()
-  local delay = delaySlider:GetValue()
+  local delay = delaySlider.Slider:GetValue()
 
   if delay == nil then
     -- internal user
