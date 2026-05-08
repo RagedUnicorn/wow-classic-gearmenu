@@ -48,6 +48,16 @@
       ],
       "groupName": "WoW Classic Era Updates",
       "description": "Update WoW Classic Era interface version"
+    },
+    {
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchPackageNames": [
+        "ragedunicorn/luacheck"
+      ],
+      "groupName": "ragedunicorn docker images",
+      "description": "Group alpine base bumps for ragedunicorn docker images"
     }
   ],
   "maven": {
@@ -116,6 +126,19 @@
       ],
       "datasourceTemplate": "custom.wow-game-versions",
       "depNameTemplate": "wow-gameversion"
+    },
+    {
+      "customType": "regex",
+      "description": "Track alpine base bumps in compound tags for ragedunicorn docker images",
+      "managerFilePatterns": [
+        "/(^|/)docker-compose[^/]*\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "image:\\s+(?<depName>ragedunicorn/luacheck):[\\d.]+-alpine(?<currentValue>\\d+\\.\\d+\\.\\d+)-\\d+"
+      ],
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^[\\d.]+-alpine(?<version>\\d+\\.\\d+\\.\\d+)-\\d+$"
     }
   ],
   "prBodyDefinitions": {
