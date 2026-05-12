@@ -50,8 +50,8 @@
         "custom.wow-game-versions-classic",
         "custom.wow-game-versions-tbcc"
       ],
-      "groupName": "WoW Classic Era Updates",
-      "description": "Update WoW Classic Era interface version"
+      "groupName": "WoW Updates",
+      "description": "Update WoW interface, patch and game versions across all variants"
     },
     {
       "matchManagers": [
