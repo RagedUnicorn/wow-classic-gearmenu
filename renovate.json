@@ -43,8 +43,12 @@
     },
     {
       "matchDatasources": [
-        "custom.wow-versions",
-        "custom.wow-game-versions"
+        "custom.wow-versions-classic",
+        "custom.wow-versions-tbcc",
+        "custom.wow-patch-versions-classic",
+        "custom.wow-patch-versions-tbcc",
+        "custom.wow-game-versions-classic",
+        "custom.wow-game-versions-tbcc"
       ],
       "groupName": "WoW Classic Era Updates",
       "description": "Update WoW Classic Era interface version"
@@ -71,25 +75,46 @@
     ]
   },
   "customDatasources": {
-    "wow-versions": {
+    "wow-versions-classic": {
       "defaultRegistryUrlTemplate": "https://raw.githubusercontent.com/RagedUnicorn/wow-renovate-data/master/versions.json",
       "format": "json",
       "transformTemplates": [
         "{ \"releases\": $.versions[variant = 'classic_era'].{ \"version\": version } }"
       ]
     },
-    "wow-patch-versions": {
+    "wow-versions-tbcc": {
+      "defaultRegistryUrlTemplate": "https://raw.githubusercontent.com/RagedUnicorn/wow-renovate-data/master/versions.json",
+      "format": "json",
+      "transformTemplates": [
+        "{ \"releases\": $.versions[variant = 'tbc_classic'].{ \"version\": version } }"
+      ]
+    },
+    "wow-patch-versions-classic": {
       "defaultRegistryUrlTemplate": "https://raw.githubusercontent.com/RagedUnicorn/wow-renovate-data/master/versions.json",
       "format": "json",
       "transformTemplates": [
         "{ \"releases\": $.versions[variant = 'classic_era'].{ \"version\": name } }"
       ]
     },
-    "wow-game-versions": {
+    "wow-patch-versions-tbcc": {
+      "defaultRegistryUrlTemplate": "https://raw.githubusercontent.com/RagedUnicorn/wow-renovate-data/master/versions.json",
+      "format": "json",
+      "transformTemplates": [
+        "{ \"releases\": $.versions[variant = 'tbc_classic'].{ \"version\": name } }"
+      ]
+    },
+    "wow-game-versions-classic": {
       "defaultRegistryUrlTemplate": "https://raw.githubusercontent.com/RagedUnicorn/wow-renovate-data/master/game-versions.json",
       "format": "json",
       "transformTemplates": [
         "{ \"releases\": $.releases[variant = 'classic_era'] }"
+      ]
+    },
+    "wow-game-versions-tbcc": {
+      "defaultRegistryUrlTemplate": "https://raw.githubusercontent.com/RagedUnicorn/wow-renovate-data/master/game-versions.json",
+      "format": "json",
+      "transformTemplates": [
+        "{ \"releases\": $.releases[variant = 'tbc_classic'] }"
       ]
     }
   },
@@ -100,10 +125,10 @@
         "/^pom\\.xml$/"
       ],
       "matchStrings": [
-        "<!-- renovate: datasource=custom.wow-versions depName=wow-interface versioning=loose -->\\n\\s*<addon\\.interface>(?<currentValue>\\d+)</addon\\.interface>"
+        "<!-- renovate: datasource=custom.wow-versions-classic depName=wow-interface-classic versioning=loose -->\\n\\s*<addon\\.interface\\.classic>(?<currentValue>\\d+)</addon\\.interface\\.classic>"
       ],
-      "datasourceTemplate": "custom.wow-versions",
-      "depNameTemplate": "wow-interface"
+      "datasourceTemplate": "custom.wow-versions-classic",
+      "depNameTemplate": "wow-interface-classic"
     },
     {
       "customType": "regex",
@@ -111,10 +136,10 @@
         "/^pom\\.xml$/"
       ],
       "matchStrings": [
-        "<!-- renovate: datasource=custom.wow-patch-versions depName=wow-patch versioning=loose -->\\n\\s*<addon\\.supported\\.patch>(?<currentValue>[\\d\\.]+)</addon\\.supported\\.patch>"
+        "<!-- renovate: datasource=custom.wow-versions-tbcc depName=wow-interface-tbcc versioning=loose -->\\n\\s*<addon\\.interface\\.tbcc>(?<currentValue>\\d+)</addon\\.interface\\.tbcc>"
       ],
-      "datasourceTemplate": "custom.wow-patch-versions",
-      "depNameTemplate": "wow-patch"
+      "datasourceTemplate": "custom.wow-versions-tbcc",
+      "depNameTemplate": "wow-interface-tbcc"
     },
     {
       "customType": "regex",
@@ -122,10 +147,43 @@
         "/^pom\\.xml$/"
       ],
       "matchStrings": [
-        "<!-- renovate: datasource=custom.wow-game-versions depName=wow-gameversion versioning=loose -->\\n\\s*<addon\\.curseforge\\.gameVersion>(?<currentValue>\\d+)</addon\\.curseforge\\.gameVersion>"
+        "<!-- renovate: datasource=custom.wow-patch-versions-classic depName=wow-patch-classic versioning=loose -->\\n\\s*<addon\\.supported\\.patch\\.classic>(?<currentValue>[\\d\\.]+)</addon\\.supported\\.patch\\.classic>"
       ],
-      "datasourceTemplate": "custom.wow-game-versions",
-      "depNameTemplate": "wow-gameversion"
+      "datasourceTemplate": "custom.wow-patch-versions-classic",
+      "depNameTemplate": "wow-patch-classic"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^pom\\.xml$/"
+      ],
+      "matchStrings": [
+        "<!-- renovate: datasource=custom.wow-patch-versions-tbcc depName=wow-patch-tbcc versioning=loose -->\\n\\s*<addon\\.supported\\.patch\\.tbcc>(?<currentValue>[\\d\\.]+)</addon\\.supported\\.patch\\.tbcc>"
+      ],
+      "datasourceTemplate": "custom.wow-patch-versions-tbcc",
+      "depNameTemplate": "wow-patch-tbcc"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^pom\\.xml$/"
+      ],
+      "matchStrings": [
+        "<!-- renovate: datasource=custom.wow-game-versions-classic depName=wow-gameversion-classic versioning=loose -->\\n\\s*<addon\\.curseforge\\.gameVersionClassic>(?<currentValue>\\d+)</addon\\.curseforge\\.gameVersionClassic>"
+      ],
+      "datasourceTemplate": "custom.wow-game-versions-classic",
+      "depNameTemplate": "wow-gameversion-classic"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^pom\\.xml$/"
+      ],
+      "matchStrings": [
+        "<!-- renovate: datasource=custom.wow-game-versions-tbcc depName=wow-gameversion-tbcc versioning=loose -->\\n\\s*<addon\\.curseforge\\.gameVersionTbcc>(?<currentValue>\\d+)</addon\\.curseforge\\.gameVersionTbcc>"
+      ],
+      "datasourceTemplate": "custom.wow-game-versions-tbcc",
+      "depNameTemplate": "wow-gameversion-tbcc"
     },
     {
       "customType": "regex",

@@ -1,0 +1,44 @@
+name: Generate Sources
+on:
+  pull_request:
+    branches: [master]
+    paths: ['pom.xml']
+
+permissions:
+  contents: write
+
+jobs:
+  generate-sources:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+      - name: Set up Java and Maven
+        uses: actions/setup-java@v5
+        with:
+          java-version: 11
+          distribution: adopt
+          cache: maven
+      - name: Cache Local Maven Repository
+        uses: actions/cache@v5
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Generate sources
+        run: mvn generate-resources -D generate.sources.overwrite=true -P development
+      - name: Commit generated files if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add GearMenu.toc code/Environment.lua
+          if git diff --staged --quiet; then
+            echo "No generated changes to commit"
+          else
+            git commit -m "chore: generate sources"
+            git push
+          fi
