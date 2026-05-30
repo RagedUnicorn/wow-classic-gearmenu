@@ -17,38 +17,29 @@
     <!--
       CurseForge game version IDs (not WoW interface numbers)
 
-      Classic (Interface: 11508) - covers: Classic Era, Hardcore, Season of Discovery
+      Classic - covers: Classic Era, Hardcore, Season of Discovery
+      Anniversary TBC - covers: TBC Anniversary Edition
     -->
     <!-- renovate: datasource=custom.wow-game-versions-classic depName=wow-gameversion-classic versioning=loose -->
     <addon.curseforge.gameVersionClassic>14029</addon.curseforge.gameVersionClassic>
-    <!--
-      Anniversary TBC (Interface: 20505) - covers: TBC Anniversary Edition
-    -->
     <!-- renovate: datasource=custom.wow-game-versions-tbcc depName=wow-gameversion-tbcc versioning=loose -->
     <addon.curseforge.gameVersionTbcc>14300</addon.curseforge.gameVersionTbcc>
     <addon.wago.projectId>kaNeybN2</addon.wago.projectId>
     <addon.name.short>GM</addon.name.short>
     <addon.tag.version>v${project.version}</addon.tag.version>
-    <!--
-      Classic (Interface: 11508) - covers: Classic Era, Hardcore, Season of Discovery
-    -->
     <!-- renovate: datasource=custom.wow-versions-classic depName=wow-interface-classic versioning=loose -->
     <addon.interface.classic>11508</addon.interface.classic>
-    <!--
-      Anniversary TBC (Interface: 20505) - covers: TBC Anniversary Edition
-    -->
     <!-- renovate: datasource=custom.wow-versions-tbcc depName=wow-interface-tbcc versioning=loose -->
     <addon.interface.tbcc>20505</addon.interface.tbcc>
+    <!-- Aggregated interface line consumed by the .toc template. -->
     <addon.interface>${addon.interface.classic}, ${addon.interface.tbcc}</addon.interface>
     <!--
       Wago patch versions.
-      Classic (1.15.8) - covers: Classic Era, Hardcore, Season of Discovery
+      Classic - covers: Classic Era, Hardcore, Season of Discovery
+      TBC - covers: TBC Anniversary (Burning Crusade Classic)
     -->
     <!-- renovate: datasource=custom.wow-patch-versions-classic depName=wow-patch-classic versioning=loose -->
     <addon.supported.patch.classic>1.15.8</addon.supported.patch.classic>
-    <!--
-      Anniversary TBC (2.5.5) - covers: TBC Anniversary Edition
-    -->
     <!-- renovate: datasource=custom.wow-patch-versions-tbcc depName=wow-patch-tbcc versioning=loose -->
     <addon.supported.patch.tbcc>2.5.5</addon.supported.patch.tbcc>
     <addon.identifier>${project.groupId}.${project.artifactId}</addon.identifier>
