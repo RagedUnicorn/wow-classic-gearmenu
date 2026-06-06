@@ -34,6 +34,18 @@ me.tag = "Tooltip"
 --[[
   Update the tooltip to show the information for the passed item
 
+  Resolves the tooltip source in priority order:
+    1. item.bag + item.slot          - a bag item (e.g. a change-menu candidate)
+    2. item.inventorySlotId/slotId   - an equipped inventory slot
+    3. item.itemId                   - fallback by item id
+
+  Both `inventorySlotId` and `slotId` are accepted for the inventory branch -
+  `slotId` is the name used for an INVSLOT id everywhere else in the addon, while
+  `inventorySlotId` is what the tooltip's own helpers build. Accepting either keeps
+  the contract tolerant of both names. bag + slot is intentionally checked first so a
+  change-menu slot (whose `slotId` is the target equip slot, not the item's location)
+  still shows the hovered bag candidate.
+
   @param {table} item
 ]]--
 function me.UpdateTooltipForItem(item)
@@ -45,10 +57,12 @@ function me.UpdateTooltipForItem(item)
   if mod.configuration.IsSimpleTooltipsEnabled() then
     me.BuildSimpleTooltip(tooltip, item.itemId)
   else
+    local inventorySlotId = item.inventorySlotId or item.slotId
+
     if item.bag and item.slot then
       tooltip:SetBagItem(item.bag, item.slot)
-    elseif item.inventorySlotId then
-      tooltip:SetInventoryItem(RGGM_CONSTANTS.UNIT_ID_PLAYER, item.inventorySlotId)
+    elseif inventorySlotId then
+      tooltip:SetInventoryItem(RGGM_CONSTANTS.UNIT_ID_PLAYER, inventorySlotId)
     else
       tooltip:SetItemByID(item.itemId)
     end
