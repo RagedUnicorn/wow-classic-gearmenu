@@ -19,11 +19,14 @@
 
       Classic - covers: Classic Era, Hardcore, Season of Discovery
       Anniversary TBC - covers: TBC Anniversary Edition
+      MoP Classic - covers: Mists of Pandaria Classic
     -->
     <!-- renovate: datasource=custom.wow-game-versions-classic depName=wow-gameversion-classic versioning=loose -->
     <addon.curseforge.gameVersionClassic>14029</addon.curseforge.gameVersionClassic>
     <!-- renovate: datasource=custom.wow-game-versions-tbcc depName=wow-gameversion-tbcc versioning=loose -->
     <addon.curseforge.gameVersionTbcc>14300</addon.curseforge.gameVersionTbcc>
+    <!-- renovate: datasource=custom.wow-game-versions-mop depName=wow-gameversion-mop versioning=loose -->
+    <addon.curseforge.gameVersionMop>16168</addon.curseforge.gameVersionMop>
     <addon.wago.projectId>kaNeybN2</addon.wago.projectId>
     <addon.name.short>GM</addon.name.short>
     <addon.tag.version>v${project.version}</addon.tag.version>
@@ -31,17 +34,22 @@
     <addon.interface.classic>11508</addon.interface.classic>
     <!-- renovate: datasource=custom.wow-versions-tbcc depName=wow-interface-tbcc versioning=loose -->
     <addon.interface.tbcc>20505</addon.interface.tbcc>
+    <!-- renovate: datasource=custom.wow-versions-mop depName=wow-interface-mop versioning=loose -->
+    <addon.interface.mop>50504</addon.interface.mop>
     <!-- Aggregated interface line consumed by the .toc template. -->
-    <addon.interface>${addon.interface.classic}, ${addon.interface.tbcc}</addon.interface>
+    <addon.interface>${addon.interface.classic}, ${addon.interface.tbcc}, ${addon.interface.mop}</addon.interface>
     <!--
       Wago patch versions.
       Classic - covers: Classic Era, Hardcore, Season of Discovery
       TBC - covers: TBC Anniversary (Burning Crusade Classic)
+      MoP - covers: Mists of Pandaria Classic
     -->
     <!-- renovate: datasource=custom.wow-patch-versions-classic depName=wow-patch-classic versioning=loose -->
     <addon.supported.patch.classic>1.15.8</addon.supported.patch.classic>
     <!-- renovate: datasource=custom.wow-patch-versions-tbcc depName=wow-patch-tbcc versioning=loose -->
     <addon.supported.patch.tbcc>2.5.5</addon.supported.patch.tbcc>
+    <!-- renovate: datasource=custom.wow-patch-versions-mop depName=wow-patch-mop versioning=loose -->
+    <addon.supported.patch.mop>5.5.4</addon.supported.patch.mop>
     <addon.identifier>${project.groupId}.${project.artifactId}</addon.identifier>
     <addon.project.categories>Action Bars Combat PvP</addon.project.categories>
   </properties>
@@ -155,6 +163,7 @@
                   <gameVersions>
                     <gameVersion>${addon.curseforge.gameVersionClassic}</gameVersion>
                     <gameVersion>${addon.curseforge.gameVersionTbcc}</gameVersion>
+                    <gameVersion>${addon.curseforge.gameVersionMop}</gameVersion>
                   </gameVersions>
                   <releaseType>release</releaseType>
                   <file>${project.basedir}/target/${addon.name}.zip</file>
@@ -197,6 +206,7 @@
                   <changelogFile>${project.basedir}/build-resources/release-notes.md</changelogFile>
                   <supportedClassicPatch>${addon.supported.patch.classic}</supportedClassicPatch>
                   <supportedBccPatch>${addon.supported.patch.tbcc}</supportedBccPatch>
+                  <supportedMopPatch>${addon.supported.patch.mop}</supportedMopPatch>
                   <stability>stable</stability>
                   <file>${project.basedir}/target/${addon.name}.zip</file>
                   <!--suppress UnresolvedMavenProperty -->

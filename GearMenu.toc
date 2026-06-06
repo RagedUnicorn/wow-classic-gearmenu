@@ -1,5 +1,5 @@
 # THIS FILE IS AUTO-GENERATED. ALL CHANGES ARE OVERWRITTEN
-## Interface: 11508, 20505
+## Interface: 11508, 20505, 50504
 ## Title: GearMenu
 ## Author: Michael Wiesendanger <michael.wiesendanger@gmail.com>
 ## Notes: Addon to manage and keybind usable gear

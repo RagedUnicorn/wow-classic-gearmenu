@@ -45,10 +45,13 @@
       "matchDatasources": [
         "custom.wow-versions-classic",
         "custom.wow-versions-tbcc",
+        "custom.wow-versions-mop",
         "custom.wow-patch-versions-classic",
         "custom.wow-patch-versions-tbcc",
+        "custom.wow-patch-versions-mop",
         "custom.wow-game-versions-classic",
-        "custom.wow-game-versions-tbcc"
+        "custom.wow-game-versions-tbcc",
+        "custom.wow-game-versions-mop"
       ],
       "groupName": "WoW Updates",
       "description": "Update WoW interface, patch and game versions across all variants"
@@ -89,6 +92,13 @@
         "{ \"releases\": $.versions[variant = 'tbc_classic'].{ \"version\": version } }"
       ]
     },
+    "wow-versions-mop": {
+      "defaultRegistryUrlTemplate": "https://raw.githubusercontent.com/RagedUnicorn/wow-renovate-data/master/versions.json",
+      "format": "json",
+      "transformTemplates": [
+        "{ \"releases\": $.versions[variant = 'mop_classic'].{ \"version\": version } }"
+      ]
+    },
     "wow-patch-versions-classic": {
       "defaultRegistryUrlTemplate": "https://raw.githubusercontent.com/RagedUnicorn/wow-renovate-data/master/versions.json",
       "format": "json",
@@ -103,6 +113,13 @@
         "{ \"releases\": $.versions[variant = 'tbc_classic'].{ \"version\": name } }"
       ]
     },
+    "wow-patch-versions-mop": {
+      "defaultRegistryUrlTemplate": "https://raw.githubusercontent.com/RagedUnicorn/wow-renovate-data/master/versions.json",
+      "format": "json",
+      "transformTemplates": [
+        "{ \"releases\": $.versions[variant = 'mop_classic'].{ \"version\": name } }"
+      ]
+    },
     "wow-game-versions-classic": {
       "defaultRegistryUrlTemplate": "https://raw.githubusercontent.com/RagedUnicorn/wow-renovate-data/master/game-versions.json",
       "format": "json",
@@ -115,6 +132,13 @@
       "format": "json",
       "transformTemplates": [
         "{ \"releases\": $.releases[variant = 'tbc_classic'] }"
+      ]
+    },
+    "wow-game-versions-mop": {
+      "defaultRegistryUrlTemplate": "https://raw.githubusercontent.com/RagedUnicorn/wow-renovate-data/master/game-versions.json",
+      "format": "json",
+      "transformTemplates": [
+        "{ \"releases\": $.releases[variant = 'mop_classic'] }"
       ]
     }
   },
@@ -147,6 +171,17 @@
         "/^pom\\.xml$/"
       ],
       "matchStrings": [
+        "<!-- renovate: datasource=custom.wow-versions-mop depName=wow-interface-mop versioning=loose -->\\n\\s*<addon\\.interface\\.mop>(?<currentValue>\\d+)</addon\\.interface\\.mop>"
+      ],
+      "datasourceTemplate": "custom.wow-versions-mop",
+      "depNameTemplate": "wow-interface-mop"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^pom\\.xml$/"
+      ],
+      "matchStrings": [
         "<!-- renovate: datasource=custom.wow-patch-versions-classic depName=wow-patch-classic versioning=loose -->\\n\\s*<addon\\.supported\\.patch\\.classic>(?<currentValue>[\\d\\.]+)</addon\\.supported\\.patch\\.classic>"
       ],
       "datasourceTemplate": "custom.wow-patch-versions-classic",
@@ -169,6 +204,17 @@
         "/^pom\\.xml$/"
       ],
       "matchStrings": [
+        "<!-- renovate: datasource=custom.wow-patch-versions-mop depName=wow-patch-mop versioning=loose -->\\n\\s*<addon\\.supported\\.patch\\.mop>(?<currentValue>[\\d\\.]+)</addon\\.supported\\.patch\\.mop>"
+      ],
+      "datasourceTemplate": "custom.wow-patch-versions-mop",
+      "depNameTemplate": "wow-patch-mop"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^pom\\.xml$/"
+      ],
+      "matchStrings": [
         "<!-- renovate: datasource=custom.wow-game-versions-classic depName=wow-gameversion-classic versioning=loose -->\\n\\s*<addon\\.curseforge\\.gameVersionClassic>(?<currentValue>\\d+)</addon\\.curseforge\\.gameVersionClassic>"
       ],
       "datasourceTemplate": "custom.wow-game-versions-classic",
@@ -184,6 +230,17 @@
       ],
       "datasourceTemplate": "custom.wow-game-versions-tbcc",
       "depNameTemplate": "wow-gameversion-tbcc"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^pom\\.xml$/"
+      ],
+      "matchStrings": [
+        "<!-- renovate: datasource=custom.wow-game-versions-mop depName=wow-gameversion-mop versioning=loose -->\\n\\s*<addon\\.curseforge\\.gameVersionMop>(?<currentValue>\\d+)</addon\\.curseforge\\.gameVersionMop>"
+      ],
+      "datasourceTemplate": "custom.wow-game-versions-mop",
+      "depNameTemplate": "wow-gameversion-mop"
     },
     {
       "customType": "regex",
