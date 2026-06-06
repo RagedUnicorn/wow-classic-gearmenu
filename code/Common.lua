@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals UnitIsDeadOrGhost UnitBuff UnitCastingInfo UnitChannelInfo UnitIsFeignDeath UIParent
+-- luacheck: globals UnitIsDeadOrGhost UnitCastingInfo UnitChannelInfo UnitIsFeignDeath UIParent
 
 local mod = rggm
 local me = {}
