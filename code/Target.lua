@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals UnitIsEnemy UnitGUID UnitName
+-- luacheck: globals UnitGUID UnitName
 
 local mod = rggm
 local me = {}
@@ -54,7 +54,7 @@ function me.GetCurrentTargetName()
 end
 
 --[[
-  Get players current target (if enemy) in the form of the targets unique id and update the currentTarget.
+  Get players current target in the form of the targets unique id and update the currentTarget.
 ]]--
 function me.UpdateCurrentTarget()
   local targetId
