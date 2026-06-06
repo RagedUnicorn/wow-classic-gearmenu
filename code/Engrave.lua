@@ -41,16 +41,7 @@ me.tag = "Engrave"
   @return {table | nil}
 ]]--
 function me.GetRuneForInventorySlot(bagNumber, bagPos)
-  if not me.IsEngravingActive() then return end
-
-  --[[
-    Note there are some buggy items in SOD that are not correctly identified as engrave able such as
-    Merithra's Inheritence - 220649
-   ]]--
-  if not C_Engraving.IsInventorySlotEngravable(bagNumber, bagPos) then
-    mod.logger.LogDebug(me.tag, "Item in position " .. bagNumber .. " " .. bagPos .. " is not engrave able")
-    return nil
-  end
+  if not me.IsInventorySlotEngravable(bagNumber, bagPos) then return end
 
   return C_Engraving.GetRuneForInventorySlot(bagNumber, bagPos)
 end
@@ -63,25 +54,9 @@ end
   @return {table | nil}
 ]]--
 function me.GetRuneForEquipmentSlot(slotId)
-  if not me.IsEngravingActive() then return end
   if not me.IsEquipmentSlotEngravable(slotId) then return end
 
   return C_Engraving.GetRuneForEquipmentSlot(slotId)
-end
-
---[[
-  Check if engraving is active
-
-  @param {number) bagNumber
-  @param {number} bagPos
-
-  @return {table | nil}
-]]--
-function me.GetRuneForInventorySlot(bagNumber, bagPos)
-  if not me.IsEngravingActive() then return end
-  if not me.IsInventorySlotEngravable(bagNumber, bagPos) then return end
-
-  return C_Engraving.GetRuneForInventorySlot(bagNumber, bagPos)
 end
 
 --[[
@@ -136,6 +111,10 @@ function me.IsInventorySlotEngravable(bagNumber, bagPos)
 
   if not me.IsEngravingActive() then return end
 
+  --[[
+    Note there are some buggy items in SOD that are not correctly identified as engrave able such as
+    Merithra's Inheritence - 220649
+  ]]--
   isEngravable = C_Engraving.IsInventorySlotEngravable(bagNumber, bagPos)
 
   if not isEngravable then
