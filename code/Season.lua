@@ -33,15 +33,17 @@ me.tag = "Season"
 --[[
   Test if Season of Discovery is active
 
-  Enum.SeasonID.Placeholder = Season of Discovery 2
-  Enum.SeasonID.Hardcore = Hardcore 3
+  Enum.SeasonID.SeasonOfDiscovery = Season of Discovery (2)
+  Enum.SeasonID.Hardcore = Hardcore (3)
 
   @return {boolean}
     true if SOD is active
     false if SOD is not active
 ]]--
 function me.IsSodActive()
-  if C_Seasons.HasActiveSeason() and C_Seasons.GetActiveSeason() == Enum.SeasonID.Placeholder then
+  local sodSeasonId = Enum.SeasonID.SeasonOfDiscovery or Enum.SeasonID.Placeholder
+
+  if C_Seasons.HasActiveSeason() and C_Seasons.GetActiveSeason() == sodSeasonId then
     return true
   end
 
