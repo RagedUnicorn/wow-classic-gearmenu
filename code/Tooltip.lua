@@ -47,8 +47,10 @@ function me.UpdateTooltipForItem(item)
   else
     if item.bag and item.slot then
       tooltip:SetBagItem(item.bag, item.slot)
-    else
+    elseif item.inventorySlotId then
       tooltip:SetInventoryItem(RGGM_CONSTANTS.UNIT_ID_PLAYER, item.inventorySlotId)
+    else
+      tooltip:SetItemByID(item.itemId)
     end
   end
 
