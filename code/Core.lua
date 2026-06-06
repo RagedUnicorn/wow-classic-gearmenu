@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals C_AddOns ChannelInfo C_Timer
+-- luacheck: globals C_AddOns UnitChannelInfo C_Timer
 
 rggm = rggm or {}
 local me = rggm
@@ -178,7 +178,7 @@ function me.OnEvent(event, ...)
     local unit = ...
 
     if initializationDone then
-      local channelledSpell = ChannelInfo(RGGM_CONSTANTS.UNIT_ID_PLAYER)
+      local channelledSpell = UnitChannelInfo(RGGM_CONSTANTS.UNIT_ID_PLAYER)
 
       if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER and not channelledSpell then
         me.quickChange.OnUnitSpellCastSucceeded(...)

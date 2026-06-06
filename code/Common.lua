@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals UnitIsDeadOrGhost UnitBuff CastingInfo ChannelInfo UnitIsFeignDeath UIParent
+-- luacheck: globals UnitIsDeadOrGhost UnitBuff UnitCastingInfo UnitChannelInfo UnitIsFeignDeath UIParent
 
 local mod = rggm
 local me = {}
@@ -56,8 +56,8 @@ end
     false - If the player is not currently casting or channeling a spell
 ]]--
 function me.IsPlayerCasting()
-  local castName = CastingInfo(RGGM_CONSTANTS.UNIT_ID_PLAYER)
-  local channelingName = ChannelInfo(RGGM_CONSTANTS.UNIT_ID_PLAYER)
+  local castName = UnitCastingInfo(RGGM_CONSTANTS.UNIT_ID_PLAYER)
+  local channelingName = UnitChannelInfo(RGGM_CONSTANTS.UNIT_ID_PLAYER)
 
   if castName ~= nil or channelingName ~= nil then
     return true
