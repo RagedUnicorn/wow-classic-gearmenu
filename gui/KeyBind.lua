@@ -299,7 +299,11 @@ end
   @param {table} dialog
 ]]--
 function me.UpdateDialogText(dialog)
-  dialog.text:SetText(rggm.L["gear_bar_configuration_key_binding_dialog"] .. " " .. recordedKeyBinding)
+  local dialogText = _G[dialog:GetName() .. "Text"]
+
+  if dialogText ~= nil then
+    dialogText:SetText(rggm.L["gear_bar_configuration_key_binding_dialog"] .. " " .. recordedKeyBinding)
+  end
 end
 
 --[[
@@ -308,10 +312,14 @@ end
   @param {table} dialog
 ]]--
 function me.UpdateDialog(dialog)
+  local button1 = dialog:GetButton1()
+
+  if button1 == nil then return end
+
   if isKeyBindingValid then
-    dialog.button1:Enable() -- enable accept button
+    button1:Enable() -- enable accept button
   else
-    dialog.button1:Disable() -- disable accept button
+    button1:Disable() -- disable accept button
   end
 end
 
