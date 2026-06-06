@@ -261,7 +261,7 @@ end
 ]]--
 function me.AddRuleOnClick(self)
   local delaySlider = self:GetParent()
-  local delay = delaySlider:GetValue()
+  local delay = delaySlider.Slider:GetValue()
 
   if delay == nil then
     -- internal user
@@ -351,7 +351,7 @@ Reset the delay slider to its initial value
 @param {table} slider
 ]]--
 function me.ResetDelaySlider(slider)
-  slider:SetValue(RGGM_CONSTANTS.QUICK_CHANGE_DELAY_SLIDER_MIN)
+  slider.Slider:SetValue(RGGM_CONSTANTS.QUICK_CHANGE_DELAY_SLIDER_MIN)
 end
 
 --[[
