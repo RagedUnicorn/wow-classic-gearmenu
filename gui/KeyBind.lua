@@ -110,7 +110,7 @@ local currentGearSlotPosition
   Popup dialog for setting a new keybind
 ]]--
 
-StaticPopupDialogs["RGPVPW_SET_KEYBIND"] = {
+StaticPopupDialogs["RGGM_SET_KEYBIND"] = {
   text = rggm.L["gear_bar_configuration_key_binding_dialog"]
     .. rggm.L["gear_bar_configuration_key_binding_dialog_initial"],
   button1 = rggm.L["gear_bar_configuration_key_binding_dialog_accept"],
@@ -162,19 +162,19 @@ StaticPopupDialogs["RGPVPW_SET_KEYBIND"] = {
 --[[
   Popup dialog for confirming the overriding of another keybind
 ]]--
-StaticPopupDialogs["RGPVPW_SET_KEYBIND_OVERRIDE"] = {
+StaticPopupDialogs["RGGM_SET_KEYBIND_OVERRIDE"] = {
   text = rggm.L["gear_bar_configuration_key_binding_override_dialog"],
   button1 = rggm.L["gear_bar_configuration_key_binding_dialog_override_yes"],
   button2 = rggm.L["gear_bar_configuration_key_binding_dialog_override_no"],
   OnShow = function()
-    StaticPopup_Hide("RGPVPW_SET_KEYBIND")
+    StaticPopup_Hide("RGGM_SET_KEYBIND")
   end,
   OnAccept = function()
     me.SetKeyBindingToGearSlot(currentGearBarId, recordedKeyBinding, currentGearSlotPosition)
-    StaticPopup_Hide("RGPVPW_SET_KEYBIND")
+    StaticPopup_Hide("RGGM_SET_KEYBIND")
   end,
   OnCancel = function()
-    StaticPopup_Hide("RGPVPW_SET_KEYBIND")
+    StaticPopup_Hide("RGGM_SET_KEYBIND")
   end,
   timeout = 0,
   whileDead = true,
@@ -347,7 +347,7 @@ function me.SetKeyBinding(gearBarId, gearSlotPosition, keyBinding)
       the keybinding.
     ]]--
     mod.logger.LogInfo(me.tag, "Keybinding is already in use: " .. action)
-    StaticPopup_Show("RGPVPW_SET_KEYBIND_OVERRIDE")
+    StaticPopup_Show("RGGM_SET_KEYBIND_OVERRIDE")
   else
     mod.logger.LogDebug(me.tag, "Keybinding is not in use")
     me.SetKeyBindingToGearSlot(gearBarId, keyBinding, gearSlotPosition)
@@ -519,7 +519,7 @@ end
 function me.SetKeyBindingForGearSlot(gearBarId, gearSlotPosition)
   currentGearBarId = gearBarId
   currentGearSlotPosition = gearSlotPosition
-  StaticPopup_Show("RGPVPW_SET_KEYBIND")
+  StaticPopup_Show("RGGM_SET_KEYBIND")
 end
 
 --[[
