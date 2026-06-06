@@ -1,10 +1,10 @@
-${addon.comment.generated.toc}
 ## Interface: ${addon.interface}
 ## Title: ${addon.name}
 ## Author: ${addon.author}
 ## Notes: ${addon.description}
 ## Version: ${addon.tag.version}
 ## SavedVariablesPerCharacter: ${addon.savedVariablesPerCharacter}
+${addon.comment.generated.toc}
 
 # constant values
 code/Constants.lua

@@ -1,4 +1,3 @@
-${addon.comment.generated.toc}
 ## Interface: ${addon.interface}
 ## Title: ${addon.name}
 ## Author: ${addon.author}
@@ -8,6 +7,7 @@ ${addon.comment.generated.toc}
 ## X-Category: ${addon.project.categories}
 ## X-Curse-Project-ID: ${addon.curseforge.projectId}
 ## X-Wago-ID: ${addon.wago.projectId}
+${addon.comment.generated.toc}
 
 # constant values
 code/Constants.lua
