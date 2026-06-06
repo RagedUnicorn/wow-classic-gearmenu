@@ -23,8 +23,8 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals GetItemInfo INVSLOT_MAINHAND INVSLOT_OFFHAND PutItemInBackpack GetInventoryItemID
--- luacheck: globals UnitAffectingCombat CursorHasItem SpellIsTargeting ClearCursor GetItemSpell
+-- luacheck: globals C_Item INVSLOT_MAINHAND INVSLOT_OFFHAND PutItemInBackpack GetInventoryItemID
+-- luacheck: globals UnitAffectingCombat CursorHasItem SpellIsTargeting ClearCursor
 -- luacheck: globals IsInventoryItemLocked PutItemInBag PickupInventoryItem C_Container GetInventoryItemLink
 
 --[[
@@ -83,7 +83,7 @@ function me.GetItemsForInventoryType(inventoryType)
       local rune = mod.engrave.GetRuneForInventorySlot(i, j)
 
       if itemInfo.itemId then
-        local itemName, _, itemRarity, _, _, _, _, _, equipSlot, itemIcon = GetItemInfo(itemInfo.itemId)
+        local itemName, _, itemRarity, _, _, _, _, _, equipSlot, itemIcon = C_Item.GetItemInfo(itemInfo.itemId)
 
         for it = 1, #inventoryType do
           if equipSlot == inventoryType[it] then
@@ -519,11 +519,11 @@ end
 ]]--
 function me.AddItemsMatchingInventoryType(inventoryType, itemId, enchantId, runeAbilityId, runeName, mustHaveOnUse)
   local item
-  local itemName, _, _, _, _, _, _, _, equipSlot, itemIcon = GetItemInfo(itemId)
+  local itemName, _, _, _, _, _, _, _, equipSlot, itemIcon = C_Item.GetItemInfo(itemId)
 
   for it = 1, #inventoryType do
     if equipSlot == inventoryType[it] then
-      local spellName, spellId = GetItemSpell(itemId)
+      local spellName, spellId = C_Item.GetItemSpell(itemId)
 
       if spellName ~= nil and spellId ~= nil or not mustHaveOnUse then
         item = {}

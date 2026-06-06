@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals GetItemInfo GetItemQualityColor UIParent GameTooltip_SetDefaultAnchor strmatch GetInventoryItemID
+-- luacheck: globals C_Item UIParent GameTooltip_SetDefaultAnchor strmatch GetInventoryItemID
 
 local mod = rggm
 local me = {}
@@ -112,10 +112,10 @@ end
   @param {number} itemId
 ]]--
 function me.BuildSimpleTooltip(tooltip, itemId)
-  local itemName, _, itemRarity = GetItemInfo(itemId)
-  local  _, _, _, hexColor = GetItemQualityColor(itemRarity)
+  local itemName, _, itemRarity = C_Item.GetItemInfo(itemId)
+  local r, g, b = C_Item.GetItemQualityColor(itemRarity)
 
-  tooltip:AddLine("|c" .. hexColor .. itemName .. "|h|r")
+  tooltip:AddLine(itemName, r, g, b)
 end
 
 --[[

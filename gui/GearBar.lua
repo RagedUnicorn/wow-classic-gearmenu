@@ -24,7 +24,7 @@
 ]]--
 
 -- luacheck: globals CreateFrame UIParent GetInventoryItemID GetCursorInfo STANDARD_TEXT_FONT
--- luacheck: globals GetInventoryItemLink GetItemInfo C_Container IsItemInRange InCombatLockdown
+-- luacheck: globals GetInventoryItemLink C_Item C_Container InCombatLockdown
 -- luacheck: globals CursorCanGoInSlot EquipCursorItem ClearCursor IsInventoryItemLocked PickupInventoryItem
 
 --[[
@@ -343,7 +343,7 @@ function me.UpdateSpellRange()
             - Returns false if item is not in range
             - Returns nil if not applicable(e.g. item is passive only) or the slot might be empty
           ]]--
-          local isInRange = IsItemInRange(itemLink or "", RGGM_CONSTANTS.UNIT_ID_TARGET)
+          local isInRange = C_Item.IsItemInRange(itemLink or "", RGGM_CONSTANTS.UNIT_ID_TARGET)
 
           if isInRange == nil or isInRange == true then
             gearSlot.keyBindingText:SetTextColor(1, 1, 1, 1)
@@ -426,7 +426,7 @@ function me.UpdateGearSlotTexture(gearSlot, gearSlotMetaData)
   local itemId = GetInventoryItemID(RGGM_CONSTANTS.UNIT_ID_PLAYER, gearSlotMetaData.slotId)
 
   if itemId then
-    local itemIcon = select(10, GetItemInfo(itemId))
+    local itemIcon = select(10, C_Item.GetItemInfo(itemId))
     -- If an actual item was found in the inventory slot said icon is used
     gearSlot.itemTexture:SetTexture(itemIcon or gearSlotMetaData.textureId)
   else

@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals GetItemInfo GM_AddToCombatQueue GM_RemoveFromCombatQueue
+-- luacheck: globals C_Item GM_AddToCombatQueue GM_RemoveFromCombatQueue
 
 --[[
   Macro bridge for using certain functions from gearmenu directly in a macro
@@ -94,7 +94,7 @@ end
   @return {string | nil}
 ]]--
 function me.CheckItemIdValidity(itemId)
-  local _, _, _, _, _, _, _, _, equipSlot = GetItemInfo(itemId)
+  local _, _, _, _, _, _, _, _, equipSlot = C_Item.GetItemInfo(itemId)
 
   if equipSlot == nil then
     mod.logger.PrintUserChatError(string.format(rggm.L["unable_to_find_item"], itemId))
