@@ -1,6 +1,6 @@
 # GearMenu
 
-![](docs/gm_ragedunicorn_love_classic.png)
+![](docs/ragedunicorn_wow_banner.png)
 
 > GearMenu aims to help the player switching between items in and out of combat. When the player is in combat a combatqueue will take care of switching the item as soon as possible. It also allows you to define switching rules and keybinding slots.
 
@@ -14,18 +14,6 @@
 
 [![](docs/curseforge.svg)](https://www.curseforge.com/wow/addons/gearmenu)
 [![](docs/wago.svg)](https://addons.wago.io/addons/gearmenu)
-
-**WoW Burning Crusade Classic Support**
-
-> This Addon supports WoW Burning Crusade Anniversary
-
-<img src="/docs/the_burning_crusade_anniversary_logo.png" width="40%"></img>
-
-**WoW Mists of Pandaria Support**
-
-> This Addon supports WoW Mists of Pandaria Anniversary
-
-<img src="/docs/the_mists_of_pandaria_classic_logo.png" width="40%"></img>
 
 ## Installation
 
