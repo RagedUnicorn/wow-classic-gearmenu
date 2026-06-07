@@ -6,6 +6,7 @@
 
 ![](docs/wow_badge_classic.svg)
 ![](docs/wow_badge_tbc.svg)
+![](docs/wow_badge_mop.svg)
 ![](docs/license_mit.svg)
 ![Lint](https://github.com/RagedUnicorn/wow-classic-gearmenu/actions/workflows/lint.yaml/badge.svg?branch=master)
 
@@ -19,6 +20,12 @@
 > This Addon supports WoW Burning Crusade Anniversary
 
 <img src="/docs/the_burning_crusade_anniversary_logo.png" width="40%"></img>
+
+**WoW Mists of Pandaria Support**
+
+> This Addon supports WoW Mists of Pandaria Anniversary
+
+<img src="/docs/the_mists_of_pandaria_classic_logo.png" width="40%"></img>
 
 ## Installation
 
