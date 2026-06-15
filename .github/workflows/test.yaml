@@ -1,0 +1,17 @@
+name: Test Project
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  test-busted:
+    runs-on: ubuntu-latest
+    name: Busted unit tests
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+      - name: Busted unit tests
+        uses: RagedUnicorn/action-busted@v1.0.0
+        with:
+          files: test/headless/spec
