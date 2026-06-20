@@ -36,6 +36,11 @@
   enUS is the declared source of truth (see CLAUDE.md); every other locale is compared against it and
   must have exactly the same key set -- no missing keys, no extra keys. The locale list is globbed
   from localization/*.lua so a future locale file is covered without editing this spec.
+
+  On top of key parity, each shared key's string.format placeholder set is compared: a translation
+  must consume the same arguments as enUS (e.g. enUS "(%s)" with a stray placeholder dropped, or an
+  extra one added, in a translation would crash the formatting call at runtime). Placeholders are
+  compared as a sorted multiset so a translator may legitimately reorder them.
 ]]--
 
 -- busted extends `assert` with .same / .equal / etc. at runtime; luacheck cannot verify those
@@ -72,14 +77,14 @@ local function discoverLocaleFiles()
 end
 
 --[[
-  Load a single locale file under stubbed globals and return its rggm.L key set as a set
-  (key -> true). Restores the globals it touched afterwards so nothing leaks across loads.
+  Load a single locale file under stubbed globals and return a shallow copy of its rggm.L table
+  (key -> string). Restores the globals it touched afterwards so nothing leaks across loads.
 
   @param {table} file
     { path, locale }
   @return {table}
 ]]--
-local function loadLocaleKeys(file)
+local function loadLocale(file)
   local restore = wowStubs.install({
     GetLocale = wowStubs.stubs.GetLocale(file.locale),
     C_AddOns  = wowStubs.stubs.C_AddOns({ Version = "0.0.0-test" })
@@ -97,12 +102,50 @@ local function loadLocaleKeys(file)
     file.path .. " did not populate rggm.L when GetLocale() == '" .. tostring(file.locale) .. "'"
   )
 
+  local strings = {}
+  for key, value in pairs(loaded) do
+    strings[key] = value
+  end
+
+  return strings
+end
+
+--[[
+  Return the key set (key -> true) of a locale's string table.
+
+  @param {table} strings
+  @return {table}
+]]--
+local function keySet(strings)
   local keys = {}
-  for key in pairs(loaded) do
+  for key in pairs(strings) do
     keys[key] = true
   end
 
   return keys
+end
+
+--[[
+  Extract the string.format placeholders from a localized string as a sorted list, so two strings
+  can be compared as a multiset (a reorder by a translator is allowed, a count/type change is not).
+
+  Escaped "%%" (a literal percent) is stripped first so it is not mistaken for a placeholder. The
+  remaining specifiers are matched as "%" + optional positional index ("1$") + optional
+  flags/width/precision + a conversion letter, covering plain ("%s"), typed ("%d") and positional
+  ("%1$s") forms.
+
+  @param {string} value
+  @return {table}
+]]--
+local function extractPlaceholders(value)
+  local specifiers = {}
+
+  for spec in value:gsub("%%%%", ""):gmatch("%%[%d%$%-%+ #%.]*[diouxXeEfgGqcsaA]") do
+    specifiers[#specifiers + 1] = spec
+  end
+  table.sort(specifiers)
+
+  return specifiers
 end
 
 --[[
@@ -126,11 +169,11 @@ end
 
 describe("localization parity", function()
   local localeFiles = discoverLocaleFiles()
-  local localeKeys = {}
+  local localeStrings = {}
 
   setup(function()
     for _, file in ipairs(localeFiles) do
-      localeKeys[file.locale] = loadLocaleKeys(file)
+      localeStrings[file.locale] = loadLocale(file)
     end
   end)
 
@@ -149,8 +192,8 @@ describe("localization parity", function()
   for _, file in ipairs(localeFiles) do
     if file.locale ~= REFERENCE_LOCALE then
       it("locale " .. file.locale .. " has the same keys as " .. REFERENCE_LOCALE, function()
-        local reference = localeKeys[REFERENCE_LOCALE]
-        local locale = localeKeys[file.locale]
+        local reference = keySet(localeStrings[REFERENCE_LOCALE])
+        local locale = keySet(localeStrings[file.locale])
 
         local missing = difference(reference, locale) -- in reference, absent from this locale
         local extra = difference(locale, reference)   -- in this locale, absent from reference
@@ -164,6 +207,40 @@ describe("localization parity", function()
           #extra == 0,
           file.locale .. " has keys not present in " .. REFERENCE_LOCALE .. ": "
             .. table.concat(extra, ", ")
+        )
+      end)
+
+      it("locale " .. file.locale .. " has the same format placeholders as " .. REFERENCE_LOCALE, function()
+        local reference = localeStrings[REFERENCE_LOCALE]
+        local locale = localeStrings[file.locale]
+
+        local mismatches = {}
+        local sharedKeys = {}
+        for key in pairs(reference) do
+          if locale[key] ~= nil then
+            sharedKeys[#sharedKeys + 1] = key
+          end
+        end
+        table.sort(sharedKeys)
+
+        for _, key in ipairs(sharedKeys) do
+          local referenceSpecs = extractPlaceholders(reference[key])
+          local localeSpecs = extractPlaceholders(locale[key])
+
+          if table.concat(referenceSpecs, ",") ~= table.concat(localeSpecs, ",") then
+            mismatches[#mismatches + 1] = string.format(
+              "%s (%s expects [%s], %s has [%s])",
+              key,
+              REFERENCE_LOCALE, table.concat(referenceSpecs, ","),
+              file.locale, table.concat(localeSpecs, ",")
+            )
+          end
+        end
+
+        assert.is_true(
+          #mismatches == 0,
+          file.locale .. " has format-placeholder mismatches vs " .. REFERENCE_LOCALE .. ": "
+            .. table.concat(mismatches, "; ")
         )
       end)
     end
