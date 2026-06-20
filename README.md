@@ -2,7 +2,7 @@
 
 ![](docs/ragedunicorn_wow_banner.png)
 
-> GearMenu aims to help the player switching between items in and out of combat. When the player is in combat a combatqueue will take care of switching the item as soon as possible. It also allows you to define switching rules and keybinding slots.
+> GearMenu aims to help the player switch between items in and out of combat. When the player is in combat a combatqueue will take care of switching the item as soon as possible. It also allows you to define switching rules and keybinding slots.
 
 ![](docs/wow_badge_classic.svg)
 ![](docs/wow_badge_tbc.svg)
@@ -25,11 +25,13 @@ Make sure to get the newest version of the Addon from the releases tab:
 
 [GearMenu-Releases](https://github.com/RagedUnicorn/wow-classic-gearmenu/releases)
 
-> Note: If the Addon is not showing up in your ingame Addonlist make sure that the Addon is named `GearMenu` in your Addons folder
+> Note: If the Addon is not showing up in your in-game Addon list make sure that the Addon is named `GearMenu` in your Addons folder
 
 ## What is GearMenu?
 
-GearMenus goal is to help the player switching between items on certain slots. Often players have items such as engineering items that have a one time use followed by a long cooldown. After using them during a fight the player wants to switch back to a more useful item. While changing items during combat is not possible (with some exceptions such as weapons) GearMenu can help with switching them as soon as possible. When a player tries to switch an item during combat it will be put into the combatqueue and switched as soon as possible. If the player leaves combat for just a split second all the items in the combatqueue will be switched. For some classes this might be even easier because they can use spells such as rogue - vanish or hunter - feign death.
+GearMenu's goal is to help the player switch between items on certain slots. Often players have items such as engineering items that have a one-time use followed by a long cooldown. After using them during a fight the player wants to switch back to a more useful item. While changing items during combat is not possible (with some exceptions such as weapons) GearMenu can help with switching them as soon as possible. When a player tries to switch an item during combat it will be put into the combatqueue and switched as soon as possible. If the player leaves combat for just a split second all the items in the combatqueue will be switched. For some classes this might be even easier because they can use spells such as rogue - vanish or hunter - feign death.
+
+GearMenu supports World of Warcraft Classic Era, TBC Anniversary and Mists of Pandaria Classic, including Hardcore and Season of Discovery.
 
 **Supported slots:**
 
@@ -82,7 +84,7 @@ This is also the case if you cancel your cast.
 
 ### Quick Change
 
-Quick change consists of rules that apply when certain items are used. The player can define rules for items that have a usable effect. An item might be immediately switched after use or only after a certain delay. Otherwise, the same rules for item switching apply. This means that if the user is in combat it will be moved to the combat queue and if he is out of combat the item will be immediately switched. See the optionsmenu for defining new rules based on the item type.
+Quick change consists of rules that apply when certain items are used. The player can define rules for items that have a usable effect. An item might be immediately switched after use or only after a certain delay. Otherwise, the same rules for item switching apply. This means that if the user is in combat it will be moved to the combat queue and if he is out of combat the item will be immediately switched. See the options menu for defining new rules based on the item type.
 
 > Note: If an item has a buff effect, and you immediately change the item you will usually also lose its buff. In most cases it makes sense to set the delay to the duration of the buff
 
@@ -90,13 +92,13 @@ Quick change consists of rules that apply when certain items are used. The playe
 
 ### Keybinding
 
-GearMenu allows to keybind to every slot with a keybinding. Keybindings have to be set directly inside GearMenus configuration.
+GearMenu allows to keybind to every slot with a keybinding. Keybindings have to be set directly inside GearMenu's configuration.
 
 ![](docs/gm_keybinding.gif)
 
 ### Drag and drop support
 
-GearMenu allows dragging and dropping items onto slots, remove from slots and slots can even be switched in between.
+GearMenu allows dragging and dropping items onto slots, removing them from slots, and even swapping items between slots.
 
 #### Drag and drop between slots
 
@@ -112,7 +114,7 @@ GearMenu allows dragging and dropping items onto slots, remove from slots and sl
 
 ### Combined Equipping
 
-Slots such as trinket and ring slots have combined equipping enabled. This means that in addition to a left click on the item the player wishes to equip they also support right click. Slots that do not support combined quipping (which most don't) will normally equip any item whether it was left- or right-clicked. If the slot has combined equipping enabled a right click will instead put the chosen item into the opposite slot.
+Slots such as trinket and ring slots have combined equipping enabled. This means that in addition to a left click on the item the player wishes to equip they also support right click. Slots that do not support combined equipping (which most don't) will normally equip any item whether it was left- or right-clicked. If the slot has combined equipping enabled a right click will instead put the chosen item into the opposite slot.
 
 ![](docs/gm_combined_equip.gif)
 
@@ -130,7 +132,7 @@ TrinketMenu allows the player to have all available trinkets and their status in
 
 ### Season of Discovery Rune Support
 
-Gearmenu has some support for displaying active runes on items that the player is either wearing or has in his inventory. This feature can be deactivated in the options' menu.
+GearMenu has some support for displaying active runes on items that the player is either wearing or has in his inventory. This feature can be deactivated in the options' menu.
 
 ![](docs/gm_rune_support.gif)
 
@@ -149,11 +151,10 @@ If you prefer having certain items in your actionslots GearMenu can still be of 
 /run GM_AddToCombatQueue(233734, 0, 0, 11)
 ```
 
-**Note:** For classic era and seasons the enchantId is needed additionally for this to work. The enchantId is
-optional. If you don't have multiple items with different enchantIds in your inventory, set it to 0.
+**Note:** The enchantId is optional. If you don't have multiple items with different enchantIds in your inventory, set it to 0.
 
 **Note:** Season of Discovery requires the runeAbilityId to be set. This affects
-classic era as well. Just set it to 0 if you don't have a runeAbilityId or you don't care about the rune(usually the case if you don't have multiple items with different runes).
+Classic Era as well. Just set it to 0 if you don't have a runeAbilityId or you don't care about the rune (usually the case if you don't have multiple items with different runes).
 
 > Note: It is not recommended using this for weapons because addons cannot switch weapons during combat (GearMenu will put the item into the combatQueue). With a normal weaponswitch macro however this is still possible.
 
@@ -186,7 +187,7 @@ For finding the correct slotId refer to the image below. Only InventorySlotIds a
 
 GearMenu is configurable. Don't need a certain slot? You can hide it.
 
-To show the configuration screen use `/rggm opt` while ingame and `/rggm info` for an overview of options or check the standard blizzard addon options.
+To show the configuration screen use `/rggm opt` while in-game and `/rggm` for an overview of options or check the standard Blizzard addon options.
 
 ### Creating a GearBar
 
@@ -222,13 +223,13 @@ Whether a GearBar should be freely movable or be locked in place can be configur
 
 #### GearSlot Size
 
-Every GearBar can have a different size for its GearSlots. You could for an example have a GearBar with very big trinkets and another with smaller slots for less important items.
+Every GearBar can have a different size for its GearSlots. You could, for example, have a GearBar with very big trinkets and another with smaller slots for less important items.
 
 ![](docs/gm_options_gearslot_size.gif)
 
 #### ChangeMenu Size
 
-The size of the ChangeMenu can be configured individual from the GearSlot size.
+The size of the ChangeMenu can be configured independently of the GearSlot size.
 
 ![](docs/gm_options_changemenu_size.gif)
 
@@ -236,17 +237,17 @@ The size of the ChangeMenu can be configured individual from the GearSlot size.
 
 #### FastPress Support
 
-Enable whether an item in a Gearslot should be used when the player pressed down(keydown) or only after the key was released(keyup).
+Enable whether an item in a Gearslot should be used when the player presses the key down (keydown) or only after the key is released (keyup).
 
 #### Filter Items by Quality
 
-Not interested to see items with a quality level below a certain level? Filter them out and only items that meet your set level will be considered to be displayed in GearMenu.
+Not interested in seeing items with a quality level below a certain level? Filter them out and only items that meet your set level will be considered to be displayed in GearMenu.
 
 ![](docs/gm_options_filter_item_quality.gif)
 
 #### Themes
 
-GearMenu supports two different themes for its ui elements. By default, the custom theme will be used.
+GearMenu supports two different themes for its UI elements. By default, the custom theme will be used.
 
 ##### Custom
 
@@ -271,7 +272,7 @@ TrinketMenu supports the following configuration features.
 
 #### The Addon is not showing up in WoW. What can I do?
 
-Make sure to recheck the installation part of this Readme and check that the Addon is placed inside `[WoW-installation-directory]\Interface\AddOns` and is correctly named as `GearMenu`.
+Make sure to recheck the installation part of this Readme and check that the Addon is placed inside `[WoW-installation-directory]\Interface\AddOns` and is correctly named `GearMenu`.
 
 #### I get a red error (Lua Error) on my screen. What is this?
 
@@ -279,11 +280,11 @@ This is what we call a Lua error, and it usually happens because of an oversight
 
 #### GearMenu spams my chat with messages. How can I deactivate this?
 
-Those obnoxious messages are intended for the development of this addon and means that you download a development version of the addon instead of a proper release. Releases can be downloaded from here - https://github.com/RagedUnicorn/wow-classic-gearmenu/releases
+Those obnoxious messages are intended for the development of this addon and mean that you are running a development version of the addon instead of a proper release. Releases can be downloaded from here - https://github.com/RagedUnicorn/wow-classic-gearmenu/releases
 
 #### A certain item is not showing up when I hover a slot. Why is that?
 
-GearMenu filters by default, items that are below common (green) quality. This can be changed in the addon configuration settings in the option "Filter Item Quality".
+GearMenu by default filters out items that are below uncommon (green) quality. This can be changed in the addon configuration settings in the option "Filter Item Quality".
 
 #### GearMenu failed to switch my item. What happened?
 
@@ -321,9 +322,9 @@ mvn generate-resources -D generate.sources.overwrite=true -P release
 
 In this case it is mandatory to add the release profile.
 
-**Note:** Switching environments has the effect changing certain files to match an expected value depending on the environment. To be more specific this means that as an example test and debug files are not included when switching to release. It also means that variables such as loglevel change to match the environment.
+**Note:** Switching environments has the effect of changing certain files to match an expected value depending on the environment. To be more specific, this means that, for example, test and debug files are not included when switching to release. It also means that variables such as loglevel change to match the environment.
 
-As to not change those files all the time the repository should always stay in the development environment. Do not commit `GearMenu.toc` and `GM_Environment.lua` in their release state. Changes to those files should always be done inside `build-resources` and their respective template files marked with `.tpl`.
+To avoid changing those files all the time the repository should always stay in the development environment. Do not commit `GearMenu.toc` and `GM_Environment.lua` in their release state. Changes to those files should always be done inside `build-resources` and their respective template files marked with `.tpl`.
 
 ### Packaging the Addon
 
@@ -391,7 +392,7 @@ mvn package -P deploy-wago -D wago.auth-token=[token]
 
 ### GitHub Action Profiles
 
-This project has GitHub action profiles for different Devops related work such as linting and deployments to different providers. See `.github` folder for details.
+This project has GitHub action profiles for different DevOps-related work such as linting and deployments to different providers. See `.github` folder for details.
 
 ## License
 
