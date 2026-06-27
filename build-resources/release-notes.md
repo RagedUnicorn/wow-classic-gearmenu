@@ -1,13 +1,13 @@
 # New Features
-* Add support for Mists of Pandaria Classic (Interface 50504)
+* Add per-GearBar orientation support to lay out GearSlots horizontally or vertically
+* Add a configurable ChangeMenu open direction (up/down for horizontal, left/right for vertical GearBars)
+* Add a drag handle to move a GearBar while it is unlocked
 
 # Bug Fixes
-* Fix keybinding dialog text and button state handling
-* Fix delay slider value retrieval in the quick change menu
-* Add fallback for item id in tooltip handling
-* Improve item lock check for inventory management
+* Fix ChangeMenu width to match the visible columns instead of the total item count
 
 # Refactoring and Improvements
-* Migrate item and spell lookups to the C_Item API
-* Update casting and channeling checks to current WoW API functions
-* Enhance tooltip source resolution logic
+* Add a headless unit test suite based on the Busted framework covering the CombatQueue, GearBarManager, configuration migration, ItemManager matchers and macro slot validity
+* Add localization parity tests to ensure key and format placeholder consistency across all locales
+* Add lint and test status badges to the README
+* Upgrade the CI toolchain to Java 21
