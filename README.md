@@ -234,6 +234,16 @@ The size of the ChangeMenu can be configured independently of the GearSlot size.
 
 ![](docs/gm_options_changemenu_size.gif)
 
+#### Orientation
+
+Each GearBar can lay out its GearSlots either horizontally or vertically. This makes it possible to place a vertical bar along the side of your screen while keeping another bar horizontal at the bottom.
+
+![](docs/gm_orientation_support.png)
+
+When switching the orientation, you can also choose the direction in which the ChangeMenu opens relative to the hovered GearSlot. Horizontal GearBars open the ChangeMenu up or down, while vertical GearBars open it to the left or right so it does not overlap neighboring slots.
+
+![](docs/gm_vertical_and_horizontal_gearbar.png)
+
 ### General Configuration
 
 #### FastPress Support
