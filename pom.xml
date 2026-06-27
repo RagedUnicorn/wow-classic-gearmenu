@@ -33,7 +33,7 @@
     <!-- renovate: datasource=custom.wow-versions-classic depName=wow-interface-classic versioning=loose -->
     <addon.interface.classic>11508</addon.interface.classic>
     <!-- renovate: datasource=custom.wow-versions-tbcc depName=wow-interface-tbcc versioning=loose -->
-    <addon.interface.tbcc>20505</addon.interface.tbcc>
+    <addon.interface.tbcc>20506</addon.interface.tbcc>
     <!-- renovate: datasource=custom.wow-versions-mop depName=wow-interface-mop versioning=loose -->
     <addon.interface.mop>50504</addon.interface.mop>
     <!-- Aggregated interface line consumed by the .toc template. -->
