@@ -47,7 +47,7 @@
     <!-- renovate: datasource=custom.wow-patch-versions-classic depName=wow-patch-classic versioning=loose -->
     <addon.supported.patch.classic>1.15.8</addon.supported.patch.classic>
     <!-- renovate: datasource=custom.wow-patch-versions-tbcc depName=wow-patch-tbcc versioning=loose -->
-    <addon.supported.patch.tbcc>2.5.5</addon.supported.patch.tbcc>
+    <addon.supported.patch.tbcc>2.5.6</addon.supported.patch.tbcc>
     <!-- renovate: datasource=custom.wow-patch-versions-mop depName=wow-patch-mop versioning=loose -->
     <addon.supported.patch.mop>5.5.4</addon.supported.patch.mop>
     <addon.identifier>${project.groupId}.${project.artifactId}</addon.identifier>
