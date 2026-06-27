@@ -198,6 +198,14 @@ function me.BuildGearBarConfigurationSubMenu(parentFrame)
     me.ChangeSlotSizeSliderOnValueChanged
   )
 
+  me.CreateOrientationLabel(gearBarConfigurationContentFrame)
+  gearBarConfigurationContentFrame.orientationDropdown =
+    me.CreateOrientationDropdown(gearBarConfigurationContentFrame, parentFrame.gearBarId)
+
+  me.CreateChangeMenuDirectionLabel(gearBarConfigurationContentFrame)
+  gearBarConfigurationContentFrame.changeMenuDirectionDropdown =
+    me.CreateChangeMenuDirectionDropdown(gearBarConfigurationContentFrame, parentFrame.gearBarId)
+
   local scrollFrame = me.CreateGearBarConfigurationSlotsList(gearBarConfigurationContentFrame)
   me.GearBarConfigurationSlotsListOnUpdate(scrollFrame)
 
@@ -395,6 +403,238 @@ function me.ChangeSlotSizeSliderOnValueChanged(self, value)
   local gearBarId = self:GetParent():GetParent().gearBarId
 
   mod.gearBarManager.SetChangeSlotSize(gearBarId, value)
+end
+
+--[[
+  Create a label for the orientation dropdown
+
+  @param {table} parentFrame
+]]--
+function me.CreateOrientationLabel(parentFrame)
+  local orientationLabel = parentFrame:CreateFontString(nil, "OVERLAY")
+  orientationLabel:SetPoint("TOPLEFT", 230, -52)
+  orientationLabel:SetFont(STANDARD_TEXT_FONT, 12)
+  orientationLabel:SetTextColor(1, 1, 1)
+  orientationLabel:SetText(rggm.L["gearbar_orientation"])
+end
+
+--[[
+  Create a dropdown that allows switching the orientation of the gearBar between
+  horizontal and vertical
+
+  @param {table} parentFrame
+  @param {number} gearBarId
+    The id of the gearBar this dropdown configures
+
+  @return {table}
+    The created dropdown menu
+]]--
+function me.CreateOrientationDropdown(parentFrame, gearBarId)
+  local orientationDropdownMenu = mod.libUiDropDownMenu.CreateUiDropDownMenu(
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_ORIENTATION_DROPDOWN .. gearBarId,
+    parentFrame
+  )
+
+  orientationDropdownMenu.gearBarId = gearBarId
+  orientationDropdownMenu:SetPoint("TOPLEFT", 210, -72)
+
+  mod.libUiDropDownMenu.UiDropDownMenu_SetWidth(orientationDropdownMenu, 150)
+  mod.libUiDropDownMenu.UiDropDownMenu_Initialize(orientationDropdownMenu, me.InitializeOrientationDropdownMenu)
+
+  orientationDropdownMenu:SetScript("OnEnter", function()
+    mod.tooltip.BuildTooltipForOption(rggm.L["gearbar_orientation"], rggm.L["gearbar_orientation_tooltip"])
+  end)
+  orientationDropdownMenu:SetScript("OnLeave", function()
+    _G[RGGM_CONSTANTS.ELEMENT_TOOLTIP]:Hide()
+  end)
+
+  return orientationDropdownMenu
+end
+
+--[[
+  Initialize the orientation dropdown menu with the horizontal and vertical entries
+
+  @param {table} self
+]]--
+function me.InitializeOrientationDropdownMenu(self)
+  local button
+
+  button = mod.uiHelper.CreateDropdownButton(
+    rggm.L["orientation_horizontal"],
+    RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_HORIZONTAL,
+    me.OrientationDropdownMenuCallback
+  )
+  mod.libUiDropDownMenu.UiDropDownMenu_AddButton(button)
+
+  button = mod.uiHelper.CreateDropdownButton(
+    rggm.L["orientation_vertical"],
+    RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL,
+    me.OrientationDropdownMenuCallback
+  )
+  mod.libUiDropDownMenu.UiDropDownMenu_AddButton(button)
+
+  if mod.libUiDropDownMenu.UiDropDownMenu_GetSelectedValue(self) == nil then
+    mod.libUiDropDownMenu.UiDropDownMenu_SetSelectedValue(
+      self, mod.gearBarManager.GetGearBarOrientation(self.gearBarId))
+  end
+end
+
+--[[
+  Callback for the orientation dropdown
+
+  @param {table} self
+]]--
+function me.OrientationDropdownMenuCallback(self)
+  local orientationDropdown = self:GetParent().dropdown
+  local gearBarId = orientationDropdown.gearBarId
+
+  mod.gearBarManager.SetGearBarOrientation(gearBarId, self.value)
+  mod.libUiDropDownMenu.UiDropDownMenu_SetSelectedValue(orientationDropdown, self.value)
+
+  -- the available change menu directions depend on the orientation - refresh that dropdown so it
+  -- shows the correct entries and the (possibly normalized) selected direction
+  me.RefreshChangeMenuDirectionDropdown(orientationDropdown:GetParent())
+end
+
+--[[
+  Create a label for the change menu direction dropdown
+
+  @param {table} parentFrame
+]]--
+function me.CreateChangeMenuDirectionLabel(parentFrame)
+  local changeMenuDirectionLabel = parentFrame:CreateFontString(nil, "OVERLAY")
+  changeMenuDirectionLabel:SetPoint("TOPLEFT", 420, -52)
+  changeMenuDirectionLabel:SetFont(STANDARD_TEXT_FONT, 12)
+  changeMenuDirectionLabel:SetTextColor(1, 1, 1)
+  changeMenuDirectionLabel:SetText(rggm.L["change_menu_direction"])
+end
+
+--[[
+  Create a dropdown that allows switching the direction in which the change menu opens
+  relative to the hovered gearSlot
+
+  @param {table} parentFrame
+  @param {number} gearBarId
+    The id of the gearBar this dropdown configures
+
+  @return {table}
+    The created dropdown menu
+]]--
+function me.CreateChangeMenuDirectionDropdown(parentFrame, gearBarId)
+  local changeMenuDirectionDropdownMenu = mod.libUiDropDownMenu.CreateUiDropDownMenu(
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_CHANGE_MENU_DIRECTION_DROPDOWN .. gearBarId,
+    parentFrame
+  )
+
+  changeMenuDirectionDropdownMenu.gearBarId = gearBarId
+  changeMenuDirectionDropdownMenu:SetPoint("TOPLEFT", 400, -72)
+
+  mod.libUiDropDownMenu.UiDropDownMenu_SetWidth(changeMenuDirectionDropdownMenu, 150)
+  mod.libUiDropDownMenu.UiDropDownMenu_Initialize(
+    changeMenuDirectionDropdownMenu, me.InitializeChangeMenuDirectionDropdownMenu)
+
+  changeMenuDirectionDropdownMenu:SetScript("OnEnter", function()
+    mod.tooltip.BuildTooltipForOption(rggm.L["change_menu_direction"], rggm.L["change_menu_direction_tooltip"])
+  end)
+  changeMenuDirectionDropdownMenu:SetScript("OnLeave", function()
+    _G[RGGM_CONSTANTS.ELEMENT_TOOLTIP]:Hide()
+  end)
+
+  return changeMenuDirectionDropdownMenu
+end
+
+--[[
+  Initialize the change menu direction dropdown menu. The available entries depend on the gearBar
+  orientation - horizontal gearBars offer up/down, vertical gearBars offer left/right.
+
+  @param {table} self
+]]--
+function me.InitializeChangeMenuDirectionDropdownMenu(self)
+  local button
+
+  if mod.gearBarManager.GetGearBarOrientation(self.gearBarId) == RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL then
+    button = mod.uiHelper.CreateDropdownButton(
+      rggm.L["change_menu_direction_right"],
+      RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_RIGHT,
+      me.ChangeMenuDirectionDropdownMenuCallback
+    )
+    mod.libUiDropDownMenu.UiDropDownMenu_AddButton(button)
+
+    button = mod.uiHelper.CreateDropdownButton(
+      rggm.L["change_menu_direction_left"],
+      RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_LEFT,
+      me.ChangeMenuDirectionDropdownMenuCallback
+    )
+    mod.libUiDropDownMenu.UiDropDownMenu_AddButton(button)
+  else
+    button = mod.uiHelper.CreateDropdownButton(
+      rggm.L["change_menu_direction_up"],
+      RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_UP,
+      me.ChangeMenuDirectionDropdownMenuCallback
+    )
+    mod.libUiDropDownMenu.UiDropDownMenu_AddButton(button)
+
+    button = mod.uiHelper.CreateDropdownButton(
+      rggm.L["change_menu_direction_down"],
+      RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_DOWN,
+      me.ChangeMenuDirectionDropdownMenuCallback
+    )
+    mod.libUiDropDownMenu.UiDropDownMenu_AddButton(button)
+  end
+
+  if mod.libUiDropDownMenu.UiDropDownMenu_GetSelectedValue(self) == nil then
+    mod.libUiDropDownMenu.UiDropDownMenu_SetSelectedValue(
+      self, mod.gearBarManager.GetChangeMenuDirection(self.gearBarId))
+  end
+end
+
+--[[
+  Map a ChangeMenu direction value to its localization key
+
+  @param {number} changeMenuDirection
+
+  @return {string}
+]]--
+function me.GetChangeMenuDirectionLocaleKey(changeMenuDirection)
+  if changeMenuDirection == RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_DOWN then
+    return "change_menu_direction_down"
+  elseif changeMenuDirection == RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_LEFT then
+    return "change_menu_direction_left"
+  elseif changeMenuDirection == RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_RIGHT then
+    return "change_menu_direction_right"
+  end
+
+  return "change_menu_direction_up"
+end
+
+--[[
+  Refresh the change menu direction dropdown after the orientation changed so its visible selection
+  reflects the (possibly normalized) stored direction. The dropdown rebuilds its entries for the new
+  orientation the next time it is opened.
+
+  @param {table} contentFrame
+    The gearBar configuration content frame holding the dropdown reference
+]]--
+function me.RefreshChangeMenuDirectionDropdown(contentFrame)
+  local dropdown = contentFrame.changeMenuDirectionDropdown
+
+  if dropdown == nil then return end
+
+  local direction = mod.gearBarManager.GetChangeMenuDirection(dropdown.gearBarId)
+  mod.libUiDropDownMenu.UiDropDownMenu_SetSelectedValue(dropdown, direction)
+  mod.libUiDropDownMenu.UiDropDownMenu_SetText(dropdown, rggm.L[me.GetChangeMenuDirectionLocaleKey(direction)])
+end
+
+--[[
+  Callback for the change menu direction dropdown
+
+  @param {table} self
+]]--
+function me.ChangeMenuDirectionDropdownMenuCallback(self)
+  local gearBarId = self:GetParent().dropdown.gearBarId
+
+  mod.gearBarManager.SetChangeMenuDirection(gearBarId, self.value)
+  mod.libUiDropDownMenu.UiDropDownMenu_SetSelectedValue(self:GetParent().dropdown, self.value)
 end
 
 --[[

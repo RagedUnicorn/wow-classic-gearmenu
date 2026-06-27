@@ -98,6 +98,13 @@ GearMenuConfiguration = {
         The configured gearSlot size
       ["changeSlotSize"] = {number},
         The configured changeSlot size
+      ["orientation"] = {number},
+        The configured orientation of the gearBar. One of
+        RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_HORIZONTAL or RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL
+      ["changeMenuDirection"] = {number},
+        The direction in which the ChangeMenu opens relative to the hovered gearSlot. One of
+        RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_UP / _DOWN (horizontal gearBars) or _LEFT / _RIGHT
+        (vertical gearBars)
       ["position"] = {table},
         A position object that can be unpacked into SetPoint
         e.g. {"LEFT", 150, 0}
@@ -203,6 +210,19 @@ function me.SetupConfiguration()
   if GearMenuConfiguration.gearBars == nil then
     mod.logger.LogInfo(me.tag, "gearBars has unexpected nil value")
     GearMenuConfiguration.gearBars = {}
+  end
+
+  for _, gearBar in pairs(GearMenuConfiguration.gearBars) do
+    if gearBar.orientation == nil then
+      mod.logger.LogInfo(me.tag, "gearBar orientation has unexpected nil value")
+      gearBar.orientation = RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_HORIZONTAL
+    end
+
+    if not mod.gearBarManager.IsChangeMenuDirectionValidForOrientation(
+        gearBar.changeMenuDirection, gearBar.orientation) then
+      mod.logger.LogInfo(me.tag, "gearBar changeMenuDirection has unexpected value")
+      gearBar.changeMenuDirection = mod.gearBarManager.GetDefaultChangeMenuDirection(gearBar.orientation)
+    end
   end
 
   if GearMenuConfiguration.quickChangeRules == nil then

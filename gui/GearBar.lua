@@ -75,8 +75,13 @@ function me.BuildGearBar(gearBar)
     UIParent,
     "BackdropTemplate"
   )
-  gearBarFrame:SetWidth(RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN)
-  gearBarFrame:SetHeight(RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE)
+  if gearBar.orientation == RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL then
+    gearBarFrame:SetWidth(RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE)
+    gearBarFrame:SetHeight(RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE + RGGM_CONSTANTS.GEAR_BAR_DRAG_HANDLE_SIZE)
+  else
+    gearBarFrame:SetWidth(RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE + RGGM_CONSTANTS.GEAR_BAR_DRAG_HANDLE_SIZE)
+    gearBarFrame:SetHeight(RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE)
+  end
   gearBarFrame:SetPoint("CENTER", 0, 0)
   gearBarFrame:SetMovable(true)
   -- prevent dragging the frame outside the actual 3d-window
@@ -88,6 +93,7 @@ function me.BuildGearBar(gearBar)
 
   me.CreateGearSlots(gearBarFrame, gearBar)
   me.SetupDragFrame(gearBarFrame)
+  me.CreateDragHandle(gearBarFrame)
   me.UpdateGearBarSize(gearBar)
   me.UpdateGearBarPosition(gearBar)
   me.UpdateGearBarLockedState(gearBar)
@@ -188,6 +194,51 @@ function me.CreateKeyBindingText(gearSlot, gearSlotSize)
 end
 
 --[[
+  Create the drag handle (grip) for a gearBar. The handle is a mouse-enabled child
+  frame that lives in the trailing margin strip of the bar and is only shown while
+  the bar is unlocked. It drives the parent gearBarFrame's existing drag handlers so
+  the bar can be moved by grabbing the handle. The actual size and position of the
+  handle is set in me.UpdateGearBarSize once the orientation and slotSize are known.
+
+  @param {table} gearBarFrame
+    The gearBarFrame the drag handle gets attached to
+]]--
+function me.CreateDragHandle(gearBarFrame)
+  local dragHandle = CreateFrame("Frame", nil, gearBarFrame)
+  dragHandle:EnableMouse(true)
+
+  local texture = dragHandle:CreateTexture(nil, "OVERLAY")
+  texture:SetAllPoints(dragHandle)
+  texture:SetColorTexture(1, 1, 1, .3)
+  dragHandle.texture = texture
+
+  dragHandle:SetScript("OnEnter", function(self)
+    self.texture:SetColorTexture(1, 1, 1, .5)
+    local tooltip = _G[RGGM_CONSTANTS.ELEMENT_TOOLTIP]
+    tooltip:SetOwner(self, "ANCHOR_TOP")
+    tooltip:SetText(rggm.L["gear_bar_drag_handle_tooltip"])
+    tooltip:Show()
+  end)
+
+  dragHandle:SetScript("OnLeave", function(self)
+    self.texture:SetColorTexture(1, 1, 1, .3)
+    mod.tooltip.TooltipClear()
+  end)
+
+  dragHandle:SetScript("OnMouseDown", function(self)
+    me.StartDragFrame(self:GetParent())
+  end)
+
+  dragHandle:SetScript("OnMouseUp", function(self)
+    me.StopDragFrame(self:GetParent())
+  end)
+
+  gearBarFrame.dragHandle = dragHandle
+
+  return dragHandle
+end
+
+--[[
   UPDATE
 
   GearBar update functions
@@ -246,10 +297,12 @@ function me.UpdateGearBarLockedState(gearBar)
 
   if gearBar.isLocked then
     uiGearBar.gearBarReference:SetBackdrop(nil)
+    uiGearBar.gearBarReference.dragHandle:Hide()
   else
     uiGearBar.gearBarReference:SetBackdrop({
       bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background"
     })
+    uiGearBar.gearBarReference.dragHandle:Show()
   end
 end
 
@@ -262,9 +315,42 @@ end
 ]]--
 function me.UpdateGearBarSize(gearBar)
   local uiGearBar = mod.gearBarStorage.GetGearBar(gearBar.id)
+  local gearBarReference = uiGearBar.gearBarReference
 
-  uiGearBar.gearBarReference:SetWidth(#gearBar.slots * gearBar.gearSlotSize + RGGM_CONSTANTS.GEAR_BAR_WIDTH_MARGIN)
-  uiGearBar.gearBarReference:SetHeight(gearBar.gearSlotSize)
+  if gearBar.orientation == RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL then
+    gearBarReference:SetWidth(gearBar.gearSlotSize)
+    gearBarReference:SetHeight(#gearBar.slots * gearBar.gearSlotSize + RGGM_CONSTANTS.GEAR_BAR_DRAG_HANDLE_SIZE)
+  else
+    gearBarReference:SetWidth(#gearBar.slots * gearBar.gearSlotSize + RGGM_CONSTANTS.GEAR_BAR_DRAG_HANDLE_SIZE)
+    gearBarReference:SetHeight(gearBar.gearSlotSize)
+  end
+
+  me.UpdateDragHandleLayout(gearBar)
+end
+
+--[[
+  Position and size the drag handle (grip) on the trailing edge of the gearBar based
+  on its current orientation and slotSize. Called from me.UpdateGearBarSize so the
+  handle stays correct after slotSize and orientation changes.
+
+  @param {table} gearBar
+    Data representation of a gearBar
+]]--
+function me.UpdateDragHandleLayout(gearBar)
+  local uiGearBar = mod.gearBarStorage.GetGearBar(gearBar.id)
+  local dragHandle = uiGearBar.gearBarReference.dragHandle
+
+  dragHandle:ClearAllPoints()
+
+  if gearBar.orientation == RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL then
+    -- bottom strip spanning the width of the bar
+    dragHandle:SetSize(gearBar.gearSlotSize, RGGM_CONSTANTS.GEAR_BAR_DRAG_HANDLE_SIZE)
+    dragHandle:SetPoint("BOTTOMLEFT", uiGearBar.gearBarReference, "BOTTOMLEFT", 0, 0)
+  else
+    -- right strip spanning the height of the bar
+    dragHandle:SetSize(RGGM_CONSTANTS.GEAR_BAR_DRAG_HANDLE_SIZE, gearBar.gearSlotSize)
+    dragHandle:SetPoint("TOPRIGHT", uiGearBar.gearBarReference, "TOPRIGHT", 0, 0)
+  end
 end
 
 --[[
@@ -466,7 +552,7 @@ function me.UpdateGearSlotSizes(gearBar)
   for position, _ in pairs(gearBar.slots) do
     local uiGearSlot = uiGearBar.gearSlotReferences[position]
 
-    me.UpdateGearSlotSize(uiGearBar, uiGearSlot, gearBar.gearSlotSize, position)
+    me.UpdateGearSlotSize(uiGearBar, uiGearSlot, gearBar.gearSlotSize, position, gearBar.orientation)
     mod.cooldown.UpdateGearSlotCooldownOverlaySize(uiGearSlot, gearBar.gearSlotSize)
     me.UpdateGearSlotCombatQueueSize(uiGearSlot, gearBar.gearSlotSize)
     me.UpdateGearSlotKeyBindingTextSize(uiGearSlot, gearBar.gearSlotSize)
@@ -479,16 +565,30 @@ end
   @param {table} uiGearSlot
   @param {number} gearSlotSize
   @param {number} position
+  @param {number} orientation
+    One of RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_HORIZONTAL or RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL
 ]]--
-function me.UpdateGearSlotSize(uiGearBar, uiGearSlot, gearSlotSize, position)
+function me.UpdateGearSlotSize(uiGearBar, uiGearSlot, gearSlotSize, position, orientation)
   uiGearSlot:SetSize(gearSlotSize, gearSlotSize)
-  uiGearSlot:SetPoint(
-    "LEFT",
-    uiGearBar.gearBarReference,
-    "LEFT",
-    RGGM_CONSTANTS.GEAR_BAR_SLOT_X + (position - 1) * gearSlotSize,
-    RGGM_CONSTANTS.GEAR_BAR_SLOT_Y
-  )
+  uiGearSlot:ClearAllPoints()
+
+  if orientation == RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL then
+    uiGearSlot:SetPoint(
+      "TOP",
+      uiGearBar.gearBarReference,
+      "TOP",
+      RGGM_CONSTANTS.GEAR_BAR_SLOT_X,
+      RGGM_CONSTANTS.GEAR_BAR_SLOT_Y - (position - 1) * gearSlotSize
+    )
+  else
+    uiGearSlot:SetPoint(
+      "LEFT",
+      uiGearBar.gearBarReference,
+      "LEFT",
+      RGGM_CONSTANTS.GEAR_BAR_SLOT_X + (position - 1) * gearSlotSize,
+      RGGM_CONSTANTS.GEAR_BAR_SLOT_Y
+    )
+  end
 end
 
 --[[

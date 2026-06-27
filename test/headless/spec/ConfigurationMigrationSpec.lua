@@ -329,6 +329,104 @@ describe("Configuration migration", function()
     end)
   end)
 
+  describe("SetupConfiguration", function()
+    -- SetupConfiguration backfills per-bar orientation / changeMenuDirection through the
+    -- gearBarManager pure helpers. The migration before_each only stubs AddGearBar, so augment the
+    -- stub with the two helpers (their own behaviour is covered by GearBarManagerSpec); the outer
+    -- after_each restores the original module table.
+    before_each(function()
+      rggm.gearBarManager.IsChangeMenuDirectionValidForOrientation = function(direction, orientation)
+        if orientation == RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL then
+          return direction == RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_LEFT
+            or direction == RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_RIGHT
+        end
+
+        return direction == RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_UP
+          or direction == RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_DOWN
+      end
+      rggm.gearBarManager.GetDefaultChangeMenuDirection = function(orientation)
+        if orientation == RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL then
+          return RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_RIGHT
+        end
+
+        return RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_UP
+      end
+    end)
+
+    it("backfills a nil orientation to horizontal", function()
+      local config = useConfig({ gearBars = { { id = 1, slots = {} } } })
+
+      configuration.SetupConfiguration()
+
+      assert.are.equal(RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_HORIZONTAL, config.gearBars[1].orientation)
+    end)
+
+    it("normalizes a now-invalid change menu direction to the orientation default", function()
+      -- LEFT is invalid for a (backfilled) horizontal bar, so it resets to UP
+      local config = useConfig({
+        gearBars = { { id = 1, slots = {}, changeMenuDirection = RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_LEFT } }
+      })
+
+      configuration.SetupConfiguration()
+
+      assert.are.equal(
+        RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_UP, config.gearBars[1].changeMenuDirection)
+    end)
+
+    it("backfills a nil change menu direction to the orientation default", function()
+      local config = useConfig({
+        gearBars = { { id = 1, slots = {}, orientation = RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL } }
+      })
+
+      configuration.SetupConfiguration()
+
+      assert.are.equal(
+        RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_RIGHT, config.gearBars[1].changeMenuDirection)
+    end)
+
+    it("leaves a valid orientation / direction pair untouched", function()
+      local config = useConfig({
+        gearBars = {
+          {
+            id = 1,
+            slots = {},
+            orientation = RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL,
+            changeMenuDirection = RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_LEFT
+          }
+        }
+      })
+
+      configuration.SetupConfiguration()
+
+      assert.are.equal(RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL, config.gearBars[1].orientation)
+      assert.are.equal(
+        RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_LEFT, config.gearBars[1].changeMenuDirection)
+    end)
+
+    it("backfills each bar independently", function()
+      local config = useConfig({
+        gearBars = {
+          { id = 1, slots = {} },
+          {
+            id = 2,
+            slots = {},
+            orientation = RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL,
+            changeMenuDirection = RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_RIGHT
+          }
+        }
+      })
+
+      configuration.SetupConfiguration()
+
+      assert.are.equal(RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_HORIZONTAL, config.gearBars[1].orientation)
+      assert.are.equal(
+        RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_UP, config.gearBars[1].changeMenuDirection)
+      assert.are.equal(RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL, config.gearBars[2].orientation)
+      assert.are.equal(
+        RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_RIGHT, config.gearBars[2].changeMenuDirection)
+    end)
+  end)
+
   describe("MigrationPath", function()
     it("is a no-op for an up-to-date configuration", function()
       local config = useConfig({

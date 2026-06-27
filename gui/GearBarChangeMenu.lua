@@ -94,6 +94,8 @@ function me.UpdateChangeMenu(gearSlotPosition, gearBarId)
   me.UpdateChangeMenuProperties(gearBarId, gearSlotPosition)
 
   local gearBar = mod.gearBarManager.GetGearBar(changeMenuFrame.gearBarId)
+  -- stash the direction on the frame so the slot layout (which only receives the frame) can read it
+  changeMenuFrame.changeMenuDirection = gearBar.changeMenuDirection
   local gearBarChangeSlotSize =
     mod.gearBarManager.GetChangeSlotSize(changeMenuFrame.gearBarId) * mod.common.GetUiScale()
   local gearSlotMetaData = gearBar.slots[changeMenuFrame.gearSlotPosition]
@@ -105,7 +107,8 @@ function me.UpdateChangeMenu(gearSlotPosition, gearBarId)
     me.UpdateChangeSlots(gearBarChangeSlotSize, gearSlotMetaData, items)
     me.UpdateChangeMenuSize(gearBarChangeSlotSize, gearSlotMetaData, #items)
     me.UpdateChangeMenuPosition(
-      uiGearBar.gearSlotReferences[changeMenuFrame.gearSlotPosition]
+      uiGearBar.gearSlotReferences[changeMenuFrame.gearSlotPosition],
+      gearBar.changeMenuDirection
     )
 
     mod.ticker.StartTickerChangeMenu()
@@ -206,13 +209,26 @@ function me.UpdateChangeSlotSize(changeSlotSize, changeMenu, changeSlot, xPos, y
   -- update slotsize to match configuration
   changeSlot:SetSize(changeSlotSize, changeSlotSize)
   changeSlot:ClearAllPoints()
-  changeSlot:SetPoint(
-    "BOTTOMLEFT",
-    changeMenu,
-    "BOTTOMLEFT",
-    xPos,
-    yPos
-  )
+
+  --[[
+    The slots grow up and to the right from the anchored corner. For UP/RIGHT that corner sits next
+    to the gearSlot, so the first item is adjacent and items grow away - the natural reading order.
+    For DOWN/LEFT the menu is flipped to the opposite side of the gearSlot, so the growth direction
+    has to be inverted as well or the first item would end up furthest from the slot.
+  ]]--
+  local point = "BOTTOMLEFT"
+  local xOffset = xPos
+  local yOffset = yPos
+
+  if changeMenu.changeMenuDirection == RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_DOWN then
+    point = "TOPLEFT"
+    yOffset = -yPos
+  elseif changeMenu.changeMenuDirection == RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_LEFT then
+    point = "BOTTOMRIGHT"
+    xOffset = -xPos
+  end
+
+  changeSlot:SetPoint(point, changeMenu, point, xOffset, yOffset)
 
   mod.themeCoordinator.UpdateSlotTextureAttributes(changeSlot, changeSlotSize)
   me.UpdateCooldownOverlaySize(changeSlot, changeSlotSize)
@@ -308,18 +324,35 @@ function me.UpdateChangeMenuSize(changeSlotSize, gearSlotMetaData, itemCount)
   if rows < 1 then rows = 1 end
 
   changeMenuFrame:SetHeight(math.ceil(rows) * changeSlotSize)
-  changeMenuFrame:SetWidth((totalItems or itemCount) * changeSlotSize)
+  -- width is capped at the column amount - the slots are laid out in a fixed number of columns,
+  -- so the frame must match the visible content width (not the total item count) or it anchors wrong
+  changeMenuFrame:SetWidth(
+    math.min(totalItems or itemCount, RGGM_CONSTANTS.GEAR_BAR_CHANGE_COLUMN_AMOUNT) * changeSlotSize)
 end
 
 --[[
-  Moves the changeMenuFrame to the currently hovered gearSlot
+  Moves the changeMenuFrame to the currently hovered gearSlot. The menu is anchored adjacent to the
+  slot in the direction configured for the gearBar so it does not overlap neighbouring slots
+  (relevant for vertical gearBars).
 
   @param {table} gearSlot
     The gearSlot that was hovered
+  @param {number} changeMenuDirection
+    One of RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_UP / _DOWN / _LEFT / _RIGHT
 ]]--
-function me.UpdateChangeMenuPosition(gearSlot)
+function me.UpdateChangeMenuPosition(gearSlot, changeMenuDirection)
   changeMenuFrame:ClearAllPoints()
-  changeMenuFrame:SetPoint("BOTTOMLEFT", gearSlot, "TOPLEFT", 0, 0)
+
+  if changeMenuDirection == RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_DOWN then
+    changeMenuFrame:SetPoint("TOPLEFT", gearSlot, "BOTTOMLEFT", 0, 0)
+  elseif changeMenuDirection == RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_LEFT then
+    changeMenuFrame:SetPoint("BOTTOMRIGHT", gearSlot, "BOTTOMLEFT", 0, 0)
+  elseif changeMenuDirection == RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_RIGHT then
+    changeMenuFrame:SetPoint("BOTTOMLEFT", gearSlot, "BOTTOMRIGHT", 0, 0)
+  else
+    -- GEAR_BAR_CHANGE_MENU_DIRECTION_UP (default)
+    changeMenuFrame:SetPoint("BOTTOMLEFT", gearSlot, "TOPLEFT", 0, 0)
+  end
 end
 
 --[[

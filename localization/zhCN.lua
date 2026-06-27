@@ -117,6 +117,7 @@ if (GetLocale() == "zhCN") then
   -- gearbar options
   rggm.L["window_lock_gear_bar"] = "锁定装备条"
   rggm.L["window_lock_gear_bar_tooltip"] = "防止装备条移动"
+  rggm.L["gear_bar_drag_handle_tooltip"] = "拖动以移动装备条"
   rggm.L["show_keybindings"] = "显示快捷键"
   rggm.L["show_keybindings_tooltip"] = "显示装备物品上的按键绑定"
   rggm.L["show_cooldowns"] = "显示冷却计时"
@@ -125,6 +126,16 @@ if (GetLocale() == "zhCN") then
   rggm.L["gear_slot_size_slider_tooltip"] = "修改齿槽的大小"
   rggm.L["change_slot_size_slider_title"] = "备选齿槽大小"
   rggm.L["change_slot_size_slider_tooltip"] = "修改备选齿槽的大小"
+  rggm.L["gearbar_orientation"] = "方向"
+  rggm.L["gearbar_orientation_tooltip"] = "选择此装备条以水平还是垂直方式排列其槽位"
+  rggm.L["orientation_horizontal"] = "水平"
+  rggm.L["orientation_vertical"] = "垂直"
+  rggm.L["change_menu_direction"] = "切换菜单方向"
+  rggm.L["change_menu_direction_tooltip"] = "选择切换菜单相对于装备槽的打开方向"
+  rggm.L["change_menu_direction_up"] = "向上"
+  rggm.L["change_menu_direction_down"] = "向下"
+  rggm.L["change_menu_direction_left"] = "向左"
+  rggm.L["change_menu_direction_right"] = "向右"
   rggm.L["gear_bar_max_amount_of_gear_slots_reached"] =
     "你达到了最大值 " .. RGGM_CONSTANTS.MAX_GEAR_BAR_SLOTS .. " 装备条"
 

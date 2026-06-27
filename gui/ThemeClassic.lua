@@ -63,13 +63,24 @@ function me.CreateGearSlot(gearBarFrame, gearBar, position)
   normalTexture:SetSize(gearBar.gearSlotSize, gearBar.gearSlotSize)
 
   gearSlot:SetSize(gearBar.gearSlotSize, gearBar.gearSlotSize)
-  gearSlot:SetPoint(
-    "LEFT",
-    gearBarFrame,
-    "LEFT",
-    RGGM_CONSTANTS.GEAR_BAR_SLOT_X + (position - 1) * gearBar.gearSlotSize,
-    RGGM_CONSTANTS.GEAR_BAR_SLOT_Y
-  )
+
+  if gearBar.orientation == RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL then
+    gearSlot:SetPoint(
+      "TOP",
+      gearBarFrame,
+      "TOP",
+      RGGM_CONSTANTS.GEAR_BAR_SLOT_X,
+      RGGM_CONSTANTS.GEAR_BAR_SLOT_Y - (position - 1) * gearBar.gearSlotSize
+    )
+  else
+    gearSlot:SetPoint(
+      "LEFT",
+      gearBarFrame,
+      "LEFT",
+      RGGM_CONSTANTS.GEAR_BAR_SLOT_X + (position - 1) * gearBar.gearSlotSize,
+      RGGM_CONSTANTS.GEAR_BAR_SLOT_Y
+    )
+  end
 
   local gearSlotMetaData = gearBar.slots[position]
 

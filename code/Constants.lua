@@ -94,10 +94,17 @@ RGGM_CONSTANTS = {
   GEAR_BAR_COMBAT_QUEUE_SLOT_SIZE_MODIFIER = .55,
   GEAR_BAR_RUNE_SLOT_SIZE_MODIFIER = .35,
   GEAR_BAR_SLOT_BORDER_MODIFIER = 0.065,
-  GEAR_BAR_WIDTH_MARGIN = 10,
+  --[[
+    Size (in pixels) of the drag handle strip reserved on the trailing edge of an
+    unlocked gearBar. Doubles as the bar's trailing margin in both orientations so
+    the grip always fits exactly and is visible while a bar is unlocked.
+  ]]--
+  GEAR_BAR_DRAG_HANDLE_SIZE = 10,
   GEAR_BAR_DEFAULT_SLOT_SIZE = 40,
   GEAR_BAR_SLOT_X = 0,
   GEAR_BAR_SLOT_Y = 0,
+  GEAR_BAR_ORIENTATION_HORIZONTAL = 1,
+  GEAR_BAR_ORIENTATION_VERTICAL = 2,
   --[[
     ChangeMenu
   ]]--
@@ -111,6 +118,12 @@ RGGM_CONSTANTS = {
   GEAR_BAR_CHANGE_SLOT_AMOUNT = 41,
   -- Maximum amount of supported items
   GEAR_BAR_CHANGE_SLOT_AMOUNT_ITEMS = 40,
+  -- Direction in which the ChangeMenu opens relative to the hovered gearSlot.
+  -- UP/DOWN apply to horizontal gearBars, LEFT/RIGHT apply to vertical gearBars.
+  GEAR_BAR_CHANGE_MENU_DIRECTION_UP = 1,
+  GEAR_BAR_CHANGE_MENU_DIRECTION_DOWN = 2,
+  GEAR_BAR_CHANGE_MENU_DIRECTION_LEFT = 3,
+  GEAR_BAR_CHANGE_MENU_DIRECTION_RIGHT = 4,
   --[[
     GearBar Configuration Menus
   ]]--
@@ -243,6 +256,8 @@ RGGM_CONSTANTS = {
   ELEMENT_GEAR_BAR_CONFIGURATION_OPT_SHOW_COOLDOWNS = "GM_GearBarConfigurationOptTooltipShowCooldowns_",
   ELEMENT_GEAR_BAR_CONFIGURATION_GEAR_SLOT_SIZE_SLIDER = "GM_GearBarGearSlotSizeSlider_",
   ELEMENT_GEAR_BAR_CONFIGURATION_CHANGE_SLOT_SIZE_SLIDER = "GM_GearBarChangeSlotSizeSlider_",
+  ELEMENT_GEAR_BAR_CONFIGURATION_ORIENTATION_DROPDOWN = "GM_GearBarOrientationDropdown_",
+  ELEMENT_GEAR_BAR_CONFIGURATION_CHANGE_MENU_DIRECTION_DROPDOWN = "GM_GearBarChangeMenuDirectionDropdown_",
   GEAR_BAR_CONFIGURATION_SLOTS_KEY_BINDING_TEXT_WIDTH = 150,
   GEAR_BAR_CONFIGURATION_SIZE_SLIDER_WIDTH = 450,
   GEAR_BAR_CONFIGURATION_SIZE_SLIDER_MIN = 24,

@@ -57,6 +57,8 @@ function me.AddGearBar(gearBarName, addDefaultSlot)
     ["slots"] = {},
     ["gearSlotSize"] = RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE,
     ["changeSlotSize"] = RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE,
+    ["orientation"] = RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_HORIZONTAL,
+    ["changeMenuDirection"] = RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_UP,
     ["position"] = { -- default position
       ["point"] = RGGM_CONSTANTS.GEAR_BAR_DEFAULT_POSITION[1],
       ["posX"] = RGGM_CONSTANTS.GEAR_BAR_DEFAULT_POSITION[2],
@@ -422,6 +424,127 @@ function me.SetGearSlotSize(gearBarId, gearSlotSize)
   end
 
   mod.gearBar.UpdateGearBarSize(gearBar) -- resize the underlying gearBarFrame
+end
+
+--[[
+  Update the gearbar orientation in the gearBars configuration and invoke an ui
+  update of the specific gearBar so the slots reflow along the new axis
+
+  @param {number} gearBarId
+    An id of a gearBar
+  @param {number} orientation
+    One of RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_HORIZONTAL or RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL
+]]--
+function me.SetGearBarOrientation(gearBarId, orientation)
+  local gearBar = me.GetGearBar(gearBarId)
+
+  if gearBar then
+    gearBar.orientation = orientation
+
+    -- the available ChangeMenu directions depend on the orientation - if the current direction is no
+    -- longer valid for the new orientation reset it to that orientation's default
+    if not me.IsChangeMenuDirectionValidForOrientation(gearBar.changeMenuDirection, orientation) then
+      gearBar.changeMenuDirection = me.GetDefaultChangeMenuDirection(orientation)
+    end
+
+    mod.gearBar.UpdateGearSlotSizes(gearBar)
+    mod.gearBar.UpdateGearBarSize(gearBar) -- resize the underlying gearBarFrame
+  else
+    mod.logger.LogError(me.tag, "Failed to update the orientation of the gearBar with id: " .. gearBarId)
+  end
+end
+
+--[[
+  Whether a ChangeMenu direction is valid for the given gearBar orientation. Horizontal gearBars
+  support UP/DOWN, vertical gearBars support LEFT/RIGHT.
+
+  @param {number} changeMenuDirection
+  @param {number} orientation
+
+  @return {boolean}
+]]--
+function me.IsChangeMenuDirectionValidForOrientation(changeMenuDirection, orientation)
+  if orientation == RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL then
+    return changeMenuDirection == RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_LEFT
+      or changeMenuDirection == RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_RIGHT
+  end
+
+  return changeMenuDirection == RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_UP
+    or changeMenuDirection == RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_DOWN
+end
+
+--[[
+  Get the default ChangeMenu direction for an orientation - UP for horizontal, RIGHT for vertical.
+
+  @param {number} orientation
+
+  @return {number}
+]]--
+function me.GetDefaultChangeMenuDirection(orientation)
+  if orientation == RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL then
+    return RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_RIGHT
+  end
+
+  return RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_UP
+end
+
+--[[
+  Get the configured gearbar orientation
+
+  @param {number} gearBarId
+    An id of a gearBar
+
+  @return {number | nil}
+]]--
+function me.GetGearBarOrientation(gearBarId)
+  local gearBar = me.GetGearBar(gearBarId)
+
+  if gearBar then
+    return gearBar.orientation
+  else
+    mod.logger.LogError(me.tag, "Failed to retrieve orientation - returning nil")
+
+    return nil
+  end
+end
+
+--[[
+  Update the direction in which the ChangeMenu opens for the gearBar. The ChangeMenu is transient
+  (shown on hover) so no immediate re-layout is required - the next hover picks up the new value.
+
+  @param {number} gearBarId
+    An id of a gearBar
+  @param {number} changeMenuDirection
+    One of RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_UP / _DOWN / _LEFT / _RIGHT
+]]--
+function me.SetChangeMenuDirection(gearBarId, changeMenuDirection)
+  local gearBar = me.GetGearBar(gearBarId)
+
+  if gearBar then
+    gearBar.changeMenuDirection = changeMenuDirection
+  else
+    mod.logger.LogError(me.tag, "Failed to update the changeMenuDirection of the gearBar with id: " .. gearBarId)
+  end
+end
+
+--[[
+  Get the configured ChangeMenu direction
+
+  @param {number} gearBarId
+    An id of a gearBar
+
+  @return {number | nil}
+]]--
+function me.GetChangeMenuDirection(gearBarId)
+  local gearBar = me.GetGearBar(gearBarId)
+
+  if gearBar then
+    return gearBar.changeMenuDirection
+  else
+    mod.logger.LogError(me.tag, "Failed to retrieve changeMenuDirection - returning nil")
+
+    return nil
+  end
 end
 
 --[[

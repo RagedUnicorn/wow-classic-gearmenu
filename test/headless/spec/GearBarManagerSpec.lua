@@ -158,6 +158,8 @@ describe("GearBarManager", function()
       assert.are.same({}, gearBar.slots)
       assert.are.equal(RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE, gearBar.gearSlotSize)
       assert.are.equal(RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE, gearBar.changeSlotSize)
+      assert.are.equal(RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_HORIZONTAL, gearBar.orientation)
+      assert.are.equal(RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_UP, gearBar.changeMenuDirection)
     end)
 
     it("seeds the default position from the constant", function()
@@ -474,6 +476,108 @@ describe("GearBarManager", function()
 
     it("returns nil for an unknown gearBar id", function()
       assert.is_nil(gearBarManager.GetChangeSlotSize(99999999))
+    end)
+  end)
+
+  describe("IsChangeMenuDirectionValidForOrientation", function()
+    it("accepts only up/down for a horizontal orientation", function()
+      local horizontal = RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_HORIZONTAL
+
+      assert.is_true(gearBarManager.IsChangeMenuDirectionValidForOrientation(
+        RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_UP, horizontal))
+      assert.is_true(gearBarManager.IsChangeMenuDirectionValidForOrientation(
+        RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_DOWN, horizontal))
+      assert.is_false(gearBarManager.IsChangeMenuDirectionValidForOrientation(
+        RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_LEFT, horizontal))
+      assert.is_false(gearBarManager.IsChangeMenuDirectionValidForOrientation(
+        RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_RIGHT, horizontal))
+    end)
+
+    it("accepts only left/right for a vertical orientation", function()
+      local vertical = RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL
+
+      assert.is_true(gearBarManager.IsChangeMenuDirectionValidForOrientation(
+        RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_LEFT, vertical))
+      assert.is_true(gearBarManager.IsChangeMenuDirectionValidForOrientation(
+        RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_RIGHT, vertical))
+      assert.is_false(gearBarManager.IsChangeMenuDirectionValidForOrientation(
+        RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_UP, vertical))
+      assert.is_false(gearBarManager.IsChangeMenuDirectionValidForOrientation(
+        RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_DOWN, vertical))
+    end)
+
+    it("treats a nil direction as invalid for either orientation", function()
+      assert.is_false(gearBarManager.IsChangeMenuDirectionValidForOrientation(
+        nil, RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_HORIZONTAL))
+      assert.is_false(gearBarManager.IsChangeMenuDirectionValidForOrientation(
+        nil, RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL))
+    end)
+  end)
+
+  describe("GetDefaultChangeMenuDirection", function()
+    it("defaults to up for a horizontal orientation", function()
+      assert.are.equal(
+        RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_UP,
+        gearBarManager.GetDefaultChangeMenuDirection(RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_HORIZONTAL))
+    end)
+
+    it("defaults to right for a vertical orientation", function()
+      assert.are.equal(
+        RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_RIGHT,
+        gearBarManager.GetDefaultChangeMenuDirection(RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL))
+    end)
+  end)
+
+  describe("SetGearBarOrientation / GetGearBarOrientation", function()
+    it("updates the orientation and reflows the gear bar frame", function()
+      local id = addBar("BarA")
+
+      gearBarManager.SetGearBarOrientation(id, RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL)
+
+      assert.are.equal(
+        RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL, gearBarManager.GetGearBarOrientation(id))
+      assert.are.equal(1, calls.updateGearSlotSizes)
+      assert.are.equal(1, calls.updateGearBarSize)
+    end)
+
+    it("normalizes a now-invalid change menu direction to the new orientation's default", function()
+      local id = addBar("BarA")
+      -- fresh bars default to UP which is invalid once the bar becomes vertical
+      gearBarManager.SetGearBarOrientation(id, RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL)
+
+      assert.are.equal(
+        RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_RIGHT, gearBarManager.GetChangeMenuDirection(id))
+    end)
+
+    it("keeps a still-valid change menu direction untouched", function()
+      local id = addBar("BarA")
+      gearBarManager.SetChangeMenuDirection(id, RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_DOWN)
+
+      -- staying horizontal leaves DOWN valid
+      gearBarManager.SetGearBarOrientation(id, RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_HORIZONTAL)
+
+      assert.are.equal(
+        RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_DOWN, gearBarManager.GetChangeMenuDirection(id))
+    end)
+
+    it("returns nil orientation for an unknown gearBar id", function()
+      assert.is_nil(gearBarManager.GetGearBarOrientation(99999999))
+    end)
+  end)
+
+  describe("SetChangeMenuDirection / GetChangeMenuDirection", function()
+    it("updates the direction without resizing the gear bar frame", function()
+      local id = addBar("BarA")
+
+      gearBarManager.SetChangeMenuDirection(id, RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_DOWN)
+
+      assert.are.equal(
+        RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_DOWN, gearBarManager.GetChangeMenuDirection(id))
+      assert.are.equal(0, calls.updateGearBarSize)
+    end)
+
+    it("returns nil direction for an unknown gearBar id", function()
+      assert.is_nil(gearBarManager.GetChangeMenuDirection(99999999))
     end)
   end)
 

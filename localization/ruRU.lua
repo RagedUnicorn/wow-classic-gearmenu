@@ -121,6 +121,7 @@ if (GetLocale() == "ruRU") then
   -- gearbar options
   rggm.L["window_lock_gear_bar"] = "Заблокировать панель экипировки"
   rggm.L["window_lock_gear_bar_tooltip"] = "Запрещает перемещение рамки панели экипировки"
+  rggm.L["gear_bar_drag_handle_tooltip"] = "Перетащите, чтобы переместить панель экипировки"
   rggm.L["show_keybindings"] = "Показать привязки клавиш"
   rggm.L["show_keybindings_tooltip"] = "Отображать привязки клавиш над надетыми предметами"
   rggm.L["show_cooldowns"] = "Показывать кулдауны"
@@ -129,6 +130,18 @@ if (GetLocale() == "ruRU") then
   rggm.L["gear_slot_size_slider_tooltip"] = "Изменить размер слотов экипировки"
   rggm.L["change_slot_size_slider_title"] = "Размер слота смены"
   rggm.L["change_slot_size_slider_tooltip"] = "Изменить размер слотов смены"
+  rggm.L["gearbar_orientation"] = "Ориентация"
+  rggm.L["gearbar_orientation_tooltip"] =
+    "Выберите, как панель экипировки располагает слоты — горизонтально или вертикально"
+  rggm.L["orientation_horizontal"] = "Горизонтально"
+  rggm.L["orientation_vertical"] = "Вертикально"
+  rggm.L["change_menu_direction"] = "Направление меню смены"
+  rggm.L["change_menu_direction_tooltip"] =
+    "Выберите, в каком направлении открывается меню смены относительно слота экипировки"
+  rggm.L["change_menu_direction_up"] = "Вверх"
+  rggm.L["change_menu_direction_down"] = "Вниз"
+  rggm.L["change_menu_direction_left"] = "Влево"
+  rggm.L["change_menu_direction_right"] = "Вправо"
   rggm.L["gear_bar_max_amount_of_gear_slots_reached"] =
     "Достигнут максимум из " .. RGGM_CONSTANTS.MAX_GEAR_BAR_SLOTS .. " слотов панели экипировки"
 

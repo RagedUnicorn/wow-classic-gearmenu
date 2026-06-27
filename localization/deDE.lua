@@ -125,6 +125,7 @@ if (GetLocale() == "deDE") then
   -- gearbar options
   rggm.L["window_lock_gear_bar"] = "Sperre Ausrüstungsbalken"
   rggm.L["window_lock_gear_bar_tooltip"] = "Verhindert das bewegen des Ausrüstungsbalken"
+  rggm.L["gear_bar_drag_handle_tooltip"] = "Ziehen, um den Ausrüstungsbalken zu bewegen"
   rggm.L["show_keybindings"] = "Zeige Tastaturkürzel an"
   rggm.L["show_keybindings_tooltip"] = "Zeige Tastaturkürzel auf den ausgerüsteten Items an"
   rggm.L["show_cooldowns"] = "Zeige Abklingzeiten an"
@@ -133,6 +134,18 @@ if (GetLocale() == "deDE") then
   rggm.L["gear_slot_size_slider_tooltip"] = "Verändere die Grösse der Ausrüstungsslots"
   rggm.L["change_slot_size_slider_title"] = "Wechselslots Grösse"
   rggm.L["change_slot_size_slider_tooltip"] = "Verändere die Grösse der Wechselslots"
+  rggm.L["gearbar_orientation"] = "Ausrichtung"
+  rggm.L["gearbar_orientation_tooltip"] =
+    "Wähle, ob dieser Ausrüstungsbalken seine Slots horizontal oder vertikal anordnet"
+  rggm.L["orientation_horizontal"] = "Horizontal"
+  rggm.L["orientation_vertical"] = "Vertikal"
+  rggm.L["change_menu_direction"] = "Wechselmenü-Richtung"
+  rggm.L["change_menu_direction_tooltip"] =
+    "Wähle, in welche Richtung sich das Wechselmenü relativ zum Ausrüstungsslot öffnet"
+  rggm.L["change_menu_direction_up"] = "Oben"
+  rggm.L["change_menu_direction_down"] = "Unten"
+  rggm.L["change_menu_direction_left"] = "Links"
+  rggm.L["change_menu_direction_right"] = "Rechts"
   rggm.L["gear_bar_max_amount_of_gear_slots_reached"] =
     "Du hast das maximum von " .. RGGM_CONSTANTS.MAX_GEAR_BAR_SLOTS .. " GearBar Slots erreicht"
   -- add/remove slots
