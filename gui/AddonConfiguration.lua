@@ -102,6 +102,12 @@ function me.SetupAddonConfiguration()
     rggm.L["quick_change_category_name"],
     mod.quickChangeMenu.BuildUi
   )
+  me.BuildCategory(
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_PROFILE_FRAME,
+    category,
+    rggm.L["profile_category_name"],
+    mod.profileMenu.BuildUi
+  )
   local gearBarConfigurationSubCategory = me.BuildCategory(
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_GEAR_BAR_CONFIG_FRAME,
     category,

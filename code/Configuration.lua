@@ -170,7 +170,12 @@ GearMenuConfiguration = {
   --[[
     Whether to enable rune slots or not (this is an SOD specific feature)
   ]]--
-  ["enableRuneSlots"] = true
+  ["enableRuneSlots"] = true,
+  --[[
+    Named configuration profiles keyed by the user given name. Each entry is a
+    snapshot of the configurable fields (see code/Profile.lua me.PROFILE_FIELDS)
+  ]]--
+  ["profiles"] = {}
 }
 
 --[[
@@ -268,6 +273,11 @@ function me.SetupConfiguration()
   if GearMenuConfiguration.enableRuneSlots == nil then
     mod.logger.LogInfo(me.tag, "enableRuneSlots has unexpected nil value")
     GearMenuConfiguration.enableRuneSlots = true
+  end
+
+  if GearMenuConfiguration.profiles == nil then
+    mod.logger.LogInfo(me.tag, "profiles has unexpected nil value")
+    GearMenuConfiguration.profiles = {}
   end
 
   --[[

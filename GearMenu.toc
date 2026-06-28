@@ -32,6 +32,9 @@ code/ItemManager.lua
 code/CombatQueue.lua
 code/QuickChange.lua
 code/Configuration.lua
+code/Serializer.lua
+code/Encoder.lua
+code/Profile.lua
 code/Macro.lua
 code/Engrave.lua
 
@@ -57,6 +60,7 @@ gui/Cooldown.lua
 gui/GearBarStorage.lua
 gui/GearBarConfigurationMenu.lua
 gui/GearBarConfigurationSubMenu.lua
+gui/ProfileMenu.lua
 gui/AddonConfiguration.lua
 gui/AboutContent.lua
 gui/GeneralMenu.lua

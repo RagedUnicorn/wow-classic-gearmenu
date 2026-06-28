@@ -279,6 +279,28 @@ TrinketMenu supports the following configuration features.
 
 ![](docs/gm_trinketmenu_configuration.gif)
 
+### Profiles
+
+GearMenu lets you save your entire configuration as named profiles, so you can switch between different setups or carry your settings to another character. Profiles are managed under the **Profiles** tab of the configuration interface (`/rggm opt`).
+
+![](docs/gm_profile_configuration.png)
+
+A profile captures your full GearMenu setup – all of your GearBars (their GearSlots, sizes, orientation, lock state and on-screen position), your QuickChange rules, the TrinketMenu settings, the selected theme and the general options.
+
+- **Save current as...**: Snapshots your current configuration into a new named profile (or overwrites an existing one of the same name).
+- **Apply**: Loads the selected profile, applies its settings and reloads the UI.
+- **Rename**: Renames the selected profile.
+- **Delete**: Removes the selected profile.
+
+#### Sharing Profiles (Export / Import)
+
+Profiles can be shared as portable strings, making it easy to copy a setup between characters or hand it to another player.
+
+- **Export**: Generates a copy-pasteable profile string for the selected profile in the *Profile String* field.
+- **Import**: Paste a profile string into the field and import it as a new profile. Imported strings are validated, so an invalid, corrupted, or non-GearMenu string is rejected without changing any of your settings.
+
+> Note: Profiles are stored per character. Use export/import to move a profile to another character.
+
 ## FAQ
 
 #### The Addon is not showing up in WoW. What can I do?
