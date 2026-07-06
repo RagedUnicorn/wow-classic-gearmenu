@@ -75,7 +75,7 @@ RegisterEvents = function(self)
   ]]--
   self:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
   -- Fires when the player equips or unequips an item this is used as fallback during initial login of the player
-  self:RegisterEvent("UNIT_INVENTORY_CHANGED")
+  self:RegisterUnitEvent("UNIT_INVENTORY_CHANGED", "player")
   -- Fires when the player leaves combat status
   self:RegisterEvent("PLAYER_REGEN_ENABLED")
   -- Fires when the player enters combat status
@@ -89,9 +89,9 @@ RegisterEvents = function(self)
   -- Fires when the keybindings are changed.
   self:RegisterEvent("UPDATE_BINDINGS")
   -- Fires when a spell is cast successfully. Event is received even if spell is resisted.
-  self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+  self:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
   -- Fires when a unit's spellcast is interrupted
-  self:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+  self:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", "player")
   -- Fires when the player is affected by some sort of control loss
   self:RegisterEvent("LOSS_OF_CONTROL_ADDED")
   -- Fires when the a loss of control is updated (or removed)
@@ -99,7 +99,7 @@ RegisterEvents = function(self)
   -- Register to the event that fires when the players target changes
   self:RegisterEvent("PLAYER_TARGET_CHANGED")
   -- Fired when a unit stops channeling
-  self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
+  self:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_STOP", "player")
 end
 
 --[[
@@ -170,10 +170,10 @@ function me.OnEvent(event, ...)
     me.logger.LogEvent(me.tag, "UNIT_SPELLCAST_SUCCEEDED")
     local unit = ...
 
-    if initializationDone then
+    if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER and initializationDone then
       local channelledSpell = UnitChannelInfo(RGGM_CONSTANTS.UNIT_ID_PLAYER)
 
-      if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER and not channelledSpell then
+      if not channelledSpell then
         me.quickChange.OnUnitSpellCastSucceeded(...)
         me.combatQueue.ProcessQueue()
       end
