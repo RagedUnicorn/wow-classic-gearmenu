@@ -617,9 +617,19 @@ end
 --[[
   Used in response to adding, removing or updating a gearSlot in the Interfaces Panel
 
+  Note that gearSlots inherit from the SecureActionButtonTemplate. Creating a new slot or updating an
+  existing one calls SetAttribute, which CANNOT be executed while in combat. Guard the whole update here
+  so a slot change made during combat hits the graceful error path instead of a blocked protected operation.
+
   @param {table} gearBar
 ]]--
 function me.UpdateGearBarGearSlots(gearBar)
+  if InCombatLockdown() then
+    mod.logger.LogError(me.tag, "Unable to update slots in combat. Please /reload after your are out of combat")
+
+    return
+  end
+
   local uiGearBar = mod.gearBarStorage.GetGearBar(gearBar.id)
 
   for position, gearSlotMetaData in pairs(gearBar.slots) do
