@@ -33,6 +33,26 @@ mod.themeCustom = me
 me.tag = "ThemeCustom"
 
 --[[
+  Shared backdrop definition for the custom theme slots (gearSlot, changeSlot and
+  trinketMenuSlot all use the same styling). Kept as a single module-local so the three
+  slot constructors cannot drift apart. SetBackdrop copies the values, so sharing one
+  table instance across all three calls is safe.
+]]--
+local slotBackdrop = {
+  bgFile = "Interface\\AddOns\\GearMenu\\assets\\ui_slot_background",
+  edgeFile = "Interface\\AddOns\\GearMenu\\assets\\ui_slot_background",
+  tile = false,
+  tileSize = 32,
+  edgeSize = 20,
+  insets = {
+    left = 12,
+    right = 12,
+    top = 12,
+    bottom = 12
+  }
+}
+
+--[[
   Create a single gearSlot. Note that a gearSlot inherits from the SecureActionButtonTemplate to enable the usage
   of clicking items. Because of SetAttribute this function CANNOT be executed while in combat. Callers of this function
   need to check combatState before calling.
@@ -47,63 +67,17 @@ me.tag = "ThemeCustom"
     The created gearSlot
 ]]--
 function me.CreateGearSlot(gearBarFrame, gearBar, position)
-  local gearSlot = CreateFrame(
-    "Button",
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT .. position,
+  local gearSlot = mod.gearBar.CreateGearSlotBase(
     gearBarFrame,
+    gearBar,
+    position,
     "SecureActionButtonTemplate, BackdropTemplate"
   )
 
-  gearSlot:SetSize(gearBar.gearSlotSize, gearBar.gearSlotSize)
-
-  if gearBar.orientation == RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL then
-    gearSlot:SetPoint(
-      "TOP",
-      gearBarFrame,
-      "TOP",
-      RGGM_CONSTANTS.GEAR_BAR_SLOT_X,
-      RGGM_CONSTANTS.GEAR_BAR_SLOT_Y - (position - 1) * gearBar.gearSlotSize
-    )
-  else
-    gearSlot:SetPoint(
-      "LEFT",
-      gearBarFrame,
-      "LEFT",
-      RGGM_CONSTANTS.GEAR_BAR_SLOT_X + (position - 1) * gearBar.gearSlotSize,
-      RGGM_CONSTANTS.GEAR_BAR_SLOT_Y
-    )
-  end
-
-  local backdrop = {
-    bgFile = "Interface\\AddOns\\GearMenu\\assets\\ui_slot_background",
-    edgeFile = "Interface\\AddOns\\GearMenu\\assets\\ui_slot_background",
-    tile = false,
-    tileSize = 32,
-    edgeSize = 20,
-    insets = {
-      left = 12,
-      right = 12,
-      top = 12,
-      bottom = 12
-    }
-  }
-
-  local gearSlotMetaData = gearBar.slots[position]
-
-  if gearSlotMetaData ~= nil then
-    gearSlot:SetAttribute("type1", "item")
-    gearSlot:SetAttribute("item", gearSlotMetaData.slotId)
-  end
-
-  gearSlot:SetBackdrop(backdrop)
+  gearSlot:SetBackdrop(slotBackdrop)
   gearSlot:SetBackdropColor(0.15, 0.15, 0.15, 1)
   gearSlot:SetBackdropBorderColor(0, 0, 0, 1)
 
-  mod.uiHelper.CreateItemTexture(gearSlot, gearBar.gearSlotSize)
-  gearSlot.combatQueueSlot = mod.gearBar.CreateCombatQueueSlot(gearSlot, gearBar.gearSlotSize)
-  gearSlot.runeSlot = mod.engraveFrame.CreateRuneSlot(gearSlot, gearBar.gearSlotSize)
-  gearSlot.keyBindingText = mod.gearBar.CreateKeyBindingText(gearSlot, gearBar.gearSlotSize)
-  gearSlot.position = position
   gearSlot.highlightFrame = me.CreateHighlightFrame(gearSlot)
   gearSlot.cooldownOverlay = mod.cooldown.CreateCooldownOverlay(
     gearSlot,
@@ -133,21 +107,7 @@ function me.CreateChangeSlot(changeMenuFrame, position)
     "BackdropTemplate"
   )
 
-  local backdrop = {
-    bgFile = "Interface\\AddOns\\GearMenu\\assets\\ui_slot_background",
-    edgeFile = "Interface\\AddOns\\GearMenu\\assets\\ui_slot_background",
-    tile = false,
-    tileSize = 32,
-    edgeSize = 20,
-    insets = {
-      left = 12,
-      right = 12,
-      top = 12,
-      bottom = 12
-    }
-  }
-
-  changeSlot:SetBackdrop(backdrop)
+  changeSlot:SetBackdrop(slotBackdrop)
   changeSlot:SetBackdropColor(0.15, 0.15, 0.15, 1)
   changeSlot:SetBackdropBorderColor(0, 0, 0, 1)
 
@@ -183,21 +143,7 @@ function me.CreateTrinketSlot(trinketMenuFrame, position)
     "BackdropTemplate"
   )
 
-  local backdrop = {
-    bgFile = "Interface\\AddOns\\GearMenu\\assets\\ui_slot_background",
-    edgeFile = "Interface\\AddOns\\GearMenu\\assets\\ui_slot_background",
-    tile = false,
-    tileSize = 32,
-    edgeSize = 20,
-    insets = {
-      left = 12,
-      right = 12,
-      top = 12,
-      bottom = 12
-    }
-  }
-
-  trinketMenuSlot:SetBackdrop(backdrop)
+  trinketMenuSlot:SetBackdrop(slotBackdrop)
   trinketMenuSlot:SetBackdropColor(0.15, 0.15, 0.15, 1)
   trinketMenuSlot:SetBackdropBorderColor(0, 0, 0, 1)
 

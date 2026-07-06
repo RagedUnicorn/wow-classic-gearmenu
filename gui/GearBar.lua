@@ -141,6 +141,89 @@ function me.CreateGearSlot(gearBarFrame, gearBar, position)
 end
 
 --[[
+  Anchor a gearSlot within its gearBar based on the bar orientation. This is the single
+  source of truth for gearSlot positioning math and is used both when a slot is first
+  created (by the themes) and when a slot is resized (me.UpdateGearSlotSize).
+
+  @param {table} gearSlot
+    The gearSlot to anchor
+  @param {table} anchorFrame
+    The frame the gearSlot is anchored to (the gearBarFrame)
+  @param {number} position
+    Position on the gearBar
+  @param {number} gearSlotSize
+  @param {number} orientation
+    One of RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_HORIZONTAL or RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL
+]]--
+function me.AnchorGearSlot(gearSlot, anchorFrame, position, gearSlotSize, orientation)
+  gearSlot:ClearAllPoints()
+
+  if orientation == RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL then
+    gearSlot:SetPoint(
+      "TOP",
+      anchorFrame,
+      "TOP",
+      RGGM_CONSTANTS.GEAR_BAR_SLOT_X,
+      RGGM_CONSTANTS.GEAR_BAR_SLOT_Y - (position - 1) * gearSlotSize
+    )
+  else
+    gearSlot:SetPoint(
+      "LEFT",
+      anchorFrame,
+      "LEFT",
+      RGGM_CONSTANTS.GEAR_BAR_SLOT_X + (position - 1) * gearSlotSize,
+      RGGM_CONSTANTS.GEAR_BAR_SLOT_Y
+    )
+  end
+end
+
+--[[
+  Shared gearSlot construction used by both themes. Creates the secure button, sizes and
+  anchors it, applies the secure item attributes and wires up the child widgets common to
+  every theme. Theme-specific styling (textures/backdrop, highlightFrame, cooldownOverlay)
+  is layered on top by the calling theme. Because of SetAttribute this CANNOT run in combat;
+  the me.CreateGearSlot dispatcher already guards against that.
+
+  @param {table} gearBarFrame
+    The gearBarFrame where the gearSlot gets attached to
+  @param {table} gearBar
+  @param {number} position
+    Position on the gearBar
+  @param {string} template
+    The frame template the button inherits from (themes differ, e.g. the custom theme
+    additionally mixes in BackdropTemplate)
+
+  @return {table}
+    The created gearSlot
+]]--
+function me.CreateGearSlotBase(gearBarFrame, gearBar, position, template)
+  local gearSlot = CreateFrame(
+    "Button",
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT .. position,
+    gearBarFrame,
+    template
+  )
+
+  gearSlot:SetSize(gearBar.gearSlotSize, gearBar.gearSlotSize)
+  me.AnchorGearSlot(gearSlot, gearBarFrame, position, gearBar.gearSlotSize, gearBar.orientation)
+
+  local gearSlotMetaData = gearBar.slots[position]
+
+  if gearSlotMetaData ~= nil then
+    gearSlot:SetAttribute("type1", "item")
+    gearSlot:SetAttribute("item", gearSlotMetaData.slotId)
+  end
+
+  mod.uiHelper.CreateItemTexture(gearSlot, gearBar.gearSlotSize)
+  gearSlot.combatQueueSlot = me.CreateCombatQueueSlot(gearSlot, gearBar.gearSlotSize)
+  gearSlot.runeSlot = mod.engraveFrame.CreateRuneSlot(gearSlot, gearBar.gearSlotSize)
+  gearSlot.keyBindingText = me.CreateKeyBindingText(gearSlot, gearBar.gearSlotSize)
+  gearSlot.position = position
+
+  return gearSlot
+end
+
+--[[
   @param {table} gearSlot
   @param {number} gearSlotSize
 
@@ -576,25 +659,7 @@ end
 ]]--
 function me.UpdateGearSlotSize(uiGearBar, uiGearSlot, gearSlotSize, position, orientation)
   uiGearSlot:SetSize(gearSlotSize, gearSlotSize)
-  uiGearSlot:ClearAllPoints()
-
-  if orientation == RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL then
-    uiGearSlot:SetPoint(
-      "TOP",
-      uiGearBar.gearBarReference,
-      "TOP",
-      RGGM_CONSTANTS.GEAR_BAR_SLOT_X,
-      RGGM_CONSTANTS.GEAR_BAR_SLOT_Y - (position - 1) * gearSlotSize
-    )
-  else
-    uiGearSlot:SetPoint(
-      "LEFT",
-      uiGearBar.gearBarReference,
-      "LEFT",
-      RGGM_CONSTANTS.GEAR_BAR_SLOT_X + (position - 1) * gearSlotSize,
-      RGGM_CONSTANTS.GEAR_BAR_SLOT_Y
-    )
-  end
+  me.AnchorGearSlot(uiGearSlot, uiGearBar.gearBarReference, position, gearSlotSize, orientation)
 end
 
 --[[

@@ -47,10 +47,10 @@ me.tag = "ThemeClassic"
     The created gearSlot
 ]]--
 function me.CreateGearSlot(gearBarFrame, gearBar, position)
-  local gearSlot = CreateFrame(
-    "Button",
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT .. position,
+  local gearSlot = mod.gearBar.CreateGearSlotBase(
     gearBarFrame,
+    gearBar,
+    position,
     "SecureActionButtonTemplate"
   )
 
@@ -62,38 +62,6 @@ function me.CreateGearSlot(gearBarFrame, gearBar, position)
   normalTexture:SetTexCoord(0.19, 0.80, 0.19, 0.80)
   normalTexture:SetSize(gearBar.gearSlotSize, gearBar.gearSlotSize)
 
-  gearSlot:SetSize(gearBar.gearSlotSize, gearBar.gearSlotSize)
-
-  if gearBar.orientation == RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL then
-    gearSlot:SetPoint(
-      "TOP",
-      gearBarFrame,
-      "TOP",
-      RGGM_CONSTANTS.GEAR_BAR_SLOT_X,
-      RGGM_CONSTANTS.GEAR_BAR_SLOT_Y - (position - 1) * gearBar.gearSlotSize
-    )
-  else
-    gearSlot:SetPoint(
-      "LEFT",
-      gearBarFrame,
-      "LEFT",
-      RGGM_CONSTANTS.GEAR_BAR_SLOT_X + (position - 1) * gearBar.gearSlotSize,
-      RGGM_CONSTANTS.GEAR_BAR_SLOT_Y
-    )
-  end
-
-  local gearSlotMetaData = gearBar.slots[position]
-
-  if gearSlotMetaData ~= nil then
-    gearSlot:SetAttribute("type1", "item")
-    gearSlot:SetAttribute("item", gearSlotMetaData.slotId)
-  end
-
-  mod.uiHelper.CreateItemTexture(gearSlot, gearBar.gearSlotSize)
-  gearSlot.combatQueueSlot = mod.gearBar.CreateCombatQueueSlot(gearSlot, gearBar.gearSlotSize)
-  gearSlot.runeSlot = mod.engraveFrame.CreateRuneSlot(gearSlot, gearBar.gearSlotSize)
-  gearSlot.keyBindingText = mod.gearBar.CreateKeyBindingText(gearSlot, gearBar.gearSlotSize)
-  gearSlot.position = position
   gearSlot.cooldownOverlay = mod.cooldown.CreateCooldownOverlay(
     gearSlot,
     RGGM_CONSTANTS.ELEMENT_SLOT_COOLDOWN_FRAME,
