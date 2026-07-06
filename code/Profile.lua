@@ -53,29 +53,70 @@ local EXPORT_PREFIX = "GearMenu1:"
 local ADDON_TAG = "GearMenu"
 
 --[[
-  The single source of truth for what a profile contains. Snapshot and apply
-  both iterate this list, so adding a new configurable option is a one-line
-  change here. Deliberately excludes bookkeeping (addonVersion,
-  firstTimeInitializationDone) and the profile store itself (profiles).
+  The single source of truth for what a profile contains: each entry pairs a
+  configurable field with the Lua type it must have. Snapshot and apply iterate
+  the derived name list (me.PROFILE_FIELDS); import validates each present payload
+  field against the derived type map (PROFILE_FIELD_TYPES). Adding a configurable
+  option is therefore a one-line change here. Deliberately excludes bookkeeping
+  (addonVersion, firstTimeInitializationDone) and the profile store itself
+  (profiles). Types mirror the defaults in code/Configuration.lua (note gearBars
+  defaults to nil there, hence the explicit "table").
 ]]--
-me.PROFILE_FIELDS = {
-  "enableTooltips",
-  "enableSimpleTooltips",
-  "enableDragAndDrop",
-  "enableFastPress",
-  "enableUnequipSlot",
-  "filterItemQuality",
-  "gearBars",
-  "quickChangeRules",
-  "frames",
-  "enableTrinketMenu",
-  "lockTrinketMenuFrame",
-  "trinketMenuShowCooldowns",
-  "trinketMenuColumns",
-  "trinketMenuSlotSize",
-  "uiTheme",
-  "enableRuneSlots"
+local PROFILE_FIELD_SPEC = {
+  { ["name"] = "enableTooltips",           ["type"] = "boolean" },
+  { ["name"] = "enableSimpleTooltips",     ["type"] = "boolean" },
+  { ["name"] = "enableDragAndDrop",        ["type"] = "boolean" },
+  { ["name"] = "enableFastPress",          ["type"] = "boolean" },
+  { ["name"] = "enableUnequipSlot",        ["type"] = "boolean" },
+  { ["name"] = "filterItemQuality",        ["type"] = "number"  },
+  { ["name"] = "gearBars",                 ["type"] = "table"   },
+  { ["name"] = "quickChangeRules",         ["type"] = "table"   },
+  { ["name"] = "frames",                   ["type"] = "table"   },
+  { ["name"] = "enableTrinketMenu",        ["type"] = "boolean" },
+  { ["name"] = "lockTrinketMenuFrame",     ["type"] = "boolean" },
+  { ["name"] = "trinketMenuShowCooldowns", ["type"] = "boolean" },
+  { ["name"] = "trinketMenuColumns",       ["type"] = "number"  },
+  { ["name"] = "trinketMenuSlotSize",      ["type"] = "number"  },
+  { ["name"] = "uiTheme",                  ["type"] = "number"  },
+  { ["name"] = "enableRuneSlots",          ["type"] = "boolean" }
 }
+
+--[[
+  Ordered list of profile field names, derived from PROFILE_FIELD_SPEC. Public so
+  BuildSnapshot / ApplySnapshot can iterate it.
+]]--
+me.PROFILE_FIELDS = {}
+--[[
+  Field name -> expected Lua type, derived from PROFILE_FIELD_SPEC. Import validates
+  each present payload field against this map before it can touch the live config, so
+  a crafted or corrupt string of the wrong shape (e.g. gearBars = "x") is rejected at
+  the envelope boundary instead of bricking the configuration when a later consumer
+  iterates it.
+]]--
+local PROFILE_FIELD_TYPES = {}
+
+for _, spec in ipairs(PROFILE_FIELD_SPEC) do
+  me.PROFILE_FIELDS[#me.PROFILE_FIELDS + 1] = spec.name
+  PROFILE_FIELD_TYPES[spec.name] = spec.type
+end
+
+--[[
+  Validate that every field present in a payload has the expected Lua type.
+  Fields left out are fine - SetupConfiguration backfills them with defaults.
+
+  @param {table} payload
+  @return {boolean}
+    true if all present fields are well typed, false on the first mismatch
+]]--
+local function IsPayloadWellTyped(payload)
+  for field, expectedType in pairs(PROFILE_FIELD_TYPES) do
+    if payload[field] ~= nil and type(payload[field]) ~= expectedType then
+      return false
+    end
+  end
+
+  return true
+end
 
 --[[
   Recursively copy a value so a profile and the live config never share table
@@ -222,6 +263,10 @@ function me.ImportString(encoded)
   end
 
   if type(envelope.payload) ~= "table" then
+    return nil, "profile_error_invalid"
+  end
+
+  if not IsPayloadWellTyped(envelope.payload) then
     return nil, "profile_error_invalid"
   end
 

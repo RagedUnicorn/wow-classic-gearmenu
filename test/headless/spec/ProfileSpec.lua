@@ -111,6 +111,44 @@ describe("Profile", function()
     assert.are.equal("profile_error_version", err)
   end)
 
+  it("rejects a payload whose field has the wrong type", function()
+    local serialized = rggm.serializer.Serialize({
+      addon = "GearMenu",
+      schemaVersion = 1,
+      -- gearBars must be a table; a string would later error in SetupConfiguration
+      payload = { gearBars = "x" }
+    })
+    local envelope, err = profile.ImportString("GearMenu1:" .. rggm.encoder.Encode(serialized))
+
+    assert.is_nil(envelope)
+    assert.are.equal("profile_error_invalid", err)
+  end)
+
+  it("rejects a payload whose boolean field is a number", function()
+    local serialized = rggm.serializer.Serialize({
+      addon = "GearMenu",
+      schemaVersion = 1,
+      payload = { enableTooltips = 1 }
+    })
+    local envelope, err = profile.ImportString("GearMenu1:" .. rggm.encoder.Encode(serialized))
+
+    assert.is_nil(envelope)
+    assert.are.equal("profile_error_invalid", err)
+  end)
+
+  it("accepts a partial payload that omits fields", function()
+    local serialized = rggm.serializer.Serialize({
+      addon = "GearMenu",
+      schemaVersion = 1,
+      payload = { enableTooltips = false, filterItemQuality = 4 }
+    })
+    local envelope, err = profile.ImportString("GearMenu1:" .. rggm.encoder.Encode(serialized))
+
+    assert.is_nil(err)
+    assert.is_table(envelope)
+    assert.is_false(envelope.payload.enableTooltips)
+  end)
+
   it("rejects a corrupt string via the checksum", function()
     local exported = profile.ExportString(profile.BuildSnapshot(), "P")
     local prefixLength = #("GearMenu1:")

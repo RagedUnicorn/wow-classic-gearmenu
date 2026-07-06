@@ -94,6 +94,7 @@ RGGM_ENVIRONMENT = {
 -- load the pure modules in GearMenu.toc dependency order
 dofile("code/Constants.lua") -- defines RGGM_CONSTANTS
 dofile("code/Logger.lua")    -- defines rggm.logger (reads RGGM_ENVIRONMENT at load time)
+dofile("code/Common.lua")    -- defines rggm.common (Clone; used by Configuration.SetupConfiguration)
 
 -- a minimal stand-in for the per-character saved variables, carrying the fields a profile snapshots
 GearMenuConfiguration = {

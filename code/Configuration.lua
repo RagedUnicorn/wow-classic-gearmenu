@@ -34,37 +34,45 @@ mod.configuration = me
 
 me.tag = "Configuration"
 
-GearMenuConfiguration = {
-  ["addonVersion"] = nil,
+--[[
+  The single source of truth for the default value of every persisted configuration
+  field. me.SetupConfiguration backfills the live GearMenuConfiguration from this
+  list, so adding a configurable option is a one-line change here. Deliberately
+  excludes addonVersion (bookkeeping handled by me.SetAddonVersion).
+
+  Each entry is a { ["name"], ["default"] } record, matching the metadata-record idiom
+  used elsewhere (see gearSlots in code/GearManager.lua and PROFILE_FIELD_SPEC in
+  code/Profile.lua).
+]]--
+local CONFIGURATION_DEFAULTS = {
   --[[
     Whether the first time initialization was already done
   ]]--
-  ["firstTimeInitializationDone"] = false,
+  { ["name"] = "firstTimeInitializationDone", ["default"] = false },
   --[[
     Whether to enable tooltips
   ]]--
-  ["enableTooltips"] = true,
+  { ["name"] = "enableTooltips", ["default"] = true },
   --[[
     Whether simple tooltips (single line) are enabled or not
   ]]--
-  ["enableSimpleTooltips"] = false,
+  { ["name"] = "enableSimpleTooltips", ["default"] = false },
   --[[
     Whether to disable drag and drop between and onto GearMenu itemslots
   ]]--
-  ["enableDragAndDrop"] = true,
+  { ["name"] = "enableDragAndDrop", ["default"] = true },
   --[[
     Whether fastpress is enabled or not. If fastpress is activated actions will be
     triggered as soon as a key is pressed down instead of waiting for the keyup event
   ]]--
-  ["enableFastPress"] = false,
+  { ["name"] = "enableFastPress", ["default"] = false },
   --[[
     Whether an empty slot that enables unequipping items is displayed or not
   ]]--
-  ["enableUnequipSlot"] = true,
+  { ["name"] = "enableUnequipSlot", ["default"] = true },
   --[[
     Itemquality to filter items by their quality. Everything that is below the settings value
     will not be considered a valid item to display when building the changemenu.
-    By default all items are allowed
 
     0 Poor (gray)
     1 Common (white)
@@ -73,7 +81,7 @@ GearMenuConfiguration = {
     4 Epic (purple)
     5 Legendary (orange)
   ]]--
-  ["filterItemQuality"] = 2,
+  { ["name"] = "filterItemQuality", ["default"] = 2 },
   --[[
     Stores all relevant metadata for the users gearBars. It does only store data that should be persisted. This
     does not include references to ui elements.
@@ -110,7 +118,7 @@ GearMenuConfiguration = {
         e.g. {"LEFT", 150, 0}
     }
   ]]--
-  ["gearBars"] = nil,
+  { ["name"] = "gearBars", ["default"] = {} },
   --[[
     example
     {
@@ -129,7 +137,7 @@ GearMenuConfiguration = {
       ["delay"] = {number} -- delay in seconds
     }
   ]]--
-  ["quickChangeRules"] = {},
+  { ["name"] = "quickChangeRules", ["default"] = {} },
   --[[
     Framepositions for user draggable Frames
     frames = {
@@ -142,80 +150,66 @@ GearMenuConfiguration = {
       ...
     }
   ]]--
-  ["frames"] = {},
+  { ["name"] = "frames", ["default"] = {} },
   --[[
     Whether the trinketMenu is enabled or not
   ]]--
-  ["enableTrinketMenu"] = true,
+  { ["name"] = "enableTrinketMenu", ["default"] = true },
   --[[
     Whether the trinketMenuFrame is locked or not
   ]]--
-  ["lockTrinketMenuFrame"] = false,
+  { ["name"] = "lockTrinketMenuFrame", ["default"] = false },
   --[[
     Whether to show item cooldowns in the trinketMenu or not
   ]]--
-  ["trinketMenuShowCooldowns"] = true,
+  { ["name"] = "trinketMenuShowCooldowns", ["default"] = true },
   --[[
     The amount of columns to use when displaying the trinketMenu
   ]]--
-  ["trinketMenuColumns"] = RGGM_CONSTANTS.TRINKET_MENU_DEFAULT_COLUMN_AMOUNT,
+  { ["name"] = "trinketMenuColumns", ["default"] = RGGM_CONSTANTS.TRINKET_MENU_DEFAULT_COLUMN_AMOUNT },
   --[[
     Configurable size of the trinketMenu slots
   ]]--
-  ["trinketMenuSlotSize"] = RGGM_CONSTANTS.TRINKET_MENU_DEFAULT_SLOT_SIZE,
+  { ["name"] = "trinketMenuSlotSize", ["default"] = RGGM_CONSTANTS.TRINKET_MENU_DEFAULT_SLOT_SIZE },
   --[[
     Whether to use custom or classic style for gearMenu ui elements (gearBar, changeMenu and trinketMenu)
   ]]--
-  ["uiTheme"] = RGGM_CONSTANTS.UI_THEME_CUSTOM,
+  { ["name"] = "uiTheme", ["default"] = RGGM_CONSTANTS.UI_THEME_CUSTOM },
   --[[
     Whether to enable rune slots or not (this is an SOD specific feature)
   ]]--
-  ["enableRuneSlots"] = true,
+  { ["name"] = "enableRuneSlots", ["default"] = true },
   --[[
     Named configuration profiles keyed by the user given name. Each entry is a
     snapshot of the configurable fields (see code/Profile.lua me.PROFILE_FIELDS)
   ]]--
-  ["profiles"] = {}
+  { ["name"] = "profiles", ["default"] = {} }
 }
+
+--[[
+  Populated by me.SetupConfiguration() on the first PLAYER_ENTERING_WORLD, from
+  CONFIGURATION_DEFAULTS. Nothing may read GearMenuConfiguration fields before then.
+]]--
+GearMenuConfiguration = GearMenuConfiguration or {}
+
+--[[
+  Fill any missing field of the live GearMenuConfiguration with a fresh deep copy of
+  its default. Seeds a brand-new config and backfills fields a saved config from an
+  older addon version is missing.
+]]--
+local function ApplyConfigurationDefaults()
+  for _, entry in ipairs(CONFIGURATION_DEFAULTS) do
+    if GearMenuConfiguration[entry.name] == nil then
+      GearMenuConfiguration[entry.name] = mod.common.Clone(entry.default)
+    end
+  end
+end
 
 --[[
   Set default values if property is nil. This might happen after an addon upgrade
 ]]--
 function me.SetupConfiguration()
-  if GearMenuConfiguration.enableTooltips == nil then
-    mod.logger.LogInfo(me.tag, "enableTooltips has unexpected nil value")
-    GearMenuConfiguration.enableTooltips = true
-  end
-
-  if GearMenuConfiguration.enableSimpleTooltips == nil then
-    mod.logger.LogInfo(me.tag, "enableSimpleTooltips has unexpected nil value")
-    GearMenuConfiguration.enableSimpleTooltips = false
-  end
-
-  if GearMenuConfiguration.enableDragAndDrop == nil then
-    mod.logger.LogInfo(me.tag, "enableDragAndDrop has unexpected nil value")
-    GearMenuConfiguration.enableDragAndDrop = true
-  end
-
-  if GearMenuConfiguration.enableFastPress == nil then
-    mod.logger.LogInfo(me.tag, "enableFastPress has unexpected nil value")
-    GearMenuConfiguration.enableFastPress = false
-  end
-
-  if GearMenuConfiguration.enableUnequipSlot == nil then
-    mod.logger.LogInfo(me.tag, "enableUnequipSlot has unexpected nil value")
-    GearMenuConfiguration.enableUnequipSlot = false
-  end
-
-  if GearMenuConfiguration.filterItemQuality == nil then
-    mod.logger.LogInfo(me.tag, "filterItemQuality has unexpected nil value")
-    GearMenuConfiguration.filterItemQuality = 0
-  end
-
-  if GearMenuConfiguration.gearBars == nil then
-    mod.logger.LogInfo(me.tag, "gearBars has unexpected nil value")
-    GearMenuConfiguration.gearBars = {}
-  end
+  ApplyConfigurationDefaults()
 
   for _, gearBar in pairs(GearMenuConfiguration.gearBars) do
     if gearBar.orientation == nil then
@@ -228,56 +222,6 @@ function me.SetupConfiguration()
       mod.logger.LogInfo(me.tag, "gearBar changeMenuDirection has unexpected value")
       gearBar.changeMenuDirection = mod.gearBarManager.GetDefaultChangeMenuDirection(gearBar.orientation)
     end
-  end
-
-  if GearMenuConfiguration.quickChangeRules == nil then
-    mod.logger.LogInfo(me.tag, "quickChangeRules has unexpected nil value")
-    GearMenuConfiguration.quickChangeRules = {}
-  end
-
-  if GearMenuConfiguration.frames == nil then
-    mod.logger.LogInfo(me.tag, "frames has unexpected nil value")
-    GearMenuConfiguration.frames = {}
-  end
-
-  if GearMenuConfiguration.enableTrinketMenu == nil then
-    mod.logger.LogInfo(me.tag, "enableTrinketMenu has unexpected nil value")
-    GearMenuConfiguration.enableTrinketMenu = true
-  end
-
-  if GearMenuConfiguration.lockTrinketMenuFrame == nil then
-    mod.logger.LogInfo(me.tag, "lockTrinketMenuFrame has unexpected nil value")
-    GearMenuConfiguration.lockTrinketMenuFrame = false
-  end
-
-  if GearMenuConfiguration.trinketMenuShowCooldowns == nil then
-    mod.logger.LogInfo(me.tag, "trinketMenuShowCooldowns has unexpected nil value")
-    GearMenuConfiguration.trinketMenuShowCooldowns = true
-  end
-
-  if GearMenuConfiguration.trinketMenuColumns == nil then
-    mod.logger.LogInfo(me.tag, "trinketMenuColumns has unexpected nil value")
-    GearMenuConfiguration.trinketMenuColumns = RGGM_CONSTANTS.TRINKET_MENU_DEFAULT_COLUMN_AMOUNT
-  end
-
-  if GearMenuConfiguration.trinketMenuSlotSize == nil then
-    mod.logger.LogInfo(me.tag, "trinketMenuSlotSize has unexpected nil value")
-    GearMenuConfiguration.trinketMenuSlotSize = RGGM_CONSTANTS.TRINKET_MENU_DEFAULT_SLOT_SIZE
-  end
-
-  if GearMenuConfiguration.uiTheme == nil then
-    mod.logger.LogInfo(me.tag, "uiTheme has unexpected nil value")
-    GearMenuConfiguration.uiTheme = RGGM_CONSTANTS.UI_THEME_CUSTOM
-  end
-
-  if GearMenuConfiguration.enableRuneSlots == nil then
-    mod.logger.LogInfo(me.tag, "enableRuneSlots has unexpected nil value")
-    GearMenuConfiguration.enableRuneSlots = true
-  end
-
-  if GearMenuConfiguration.profiles == nil then
-    mod.logger.LogInfo(me.tag, "profiles has unexpected nil value")
-    GearMenuConfiguration.profiles = {}
   end
 
   --[[
