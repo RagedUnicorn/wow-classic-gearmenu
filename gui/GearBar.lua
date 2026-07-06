@@ -869,7 +869,7 @@ function me.GearSlotOnReceiveDrag(self)
       mod.combatQueue.AddToQueue(
         itemInfo.itemId,
         itemInfo.enchantId,
-        rune and rune.runeAbilityId or nil,
+        rune and rune.skillLineAbilityID or nil,
         gearSlotMetaData.slotId
       )
       ClearCursor()
