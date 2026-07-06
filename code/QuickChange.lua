@@ -195,8 +195,10 @@ function me.CollectEligibleSlotIds(quickChangeRule)
   for _, gearSlot in ipairs(mod.gearManager.GetGearSlots()) do
     for _, inventoryType in ipairs(gearSlot.type) do
       if inventoryType == quickChangeRule.equipSlot then
-        gearSlot.itemId = GetInventoryItemID(RGGM_CONSTANTS.UNIT_ID_PLAYER, gearSlot.slotId)
-        table.insert(slotIds, gearSlot)
+        table.insert(slotIds, {
+          ["slotId"] = gearSlot.slotId,
+          ["itemId"] = GetInventoryItemID(RGGM_CONSTANTS.UNIT_ID_PLAYER, gearSlot.slotId)
+        })
       end
     end
   end
