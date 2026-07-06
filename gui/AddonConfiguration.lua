@@ -42,6 +42,15 @@ local mainCategoryId
   {number}
 ]]--
 local gearBarSubCategoryId
+--[[
+  Holds the id reference to a stable, addon-owned subcategory (the general options
+  panel) used purely as a bounce target in me.UpdateAddonPanel to force the Blizzard
+  settings panel to rebuild its cached category tree after a gearBar subcategory is
+  removed. Using an addon-owned id keeps the refresh independent of Blizzard's
+  built-in category ordering.
+  {number}
+]]--
+local settingsRefreshBounceCategoryId
 
 --[[
   Retrieve a reference to the main category of the addon
@@ -84,12 +93,13 @@ function me.SetupAddonConfiguration()
   -- add about content into main category
   mod.aboutContent.BuildAboutContent(menu)
 
-  me.BuildCategory(
+  local generalSubCategory = me.BuildCategory(
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_GENERAL_OPTIONS_FRAME,
     category,
     rggm.L["general_category_name"],
     mod.generalMenu.BuildUi
   )
+  settingsRefreshBounceCategoryId = generalSubCategory.ID
   me.BuildCategory(
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_TRINKET_MENU_FRAME,
     category,
@@ -209,10 +219,17 @@ end
 
 --[[
     This is a workaround to force a refresh of the interface addon panel after a gearBar was deleted.
-    Moving to another category in the Blizzard settings and back to the addon panel will refresh the
-    panel and show the updated gearBar list.
+    The Blizzard settings panel caches its category tree, so moving to another category and back to
+    the addon panel rebuilds the list and shows the updated gearBars.
+
+    The bounce target is the addon's own general options subcategory rather than a hardcoded built-in
+    category id. It is always registered, is never the panel the delete is triggered from (so the
+    navigation is a genuine transition), and stays independent of Blizzard's category ordering.
   ]]--
 function me.UpdateAddonPanel()
-  Settings.OpenToCategory(11)
+  if settingsRefreshBounceCategoryId ~= nil then
+    Settings.OpenToCategory(settingsRefreshBounceCategoryId)
+  end
+
   me.OpenMainCategory()
 end
