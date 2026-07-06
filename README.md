@@ -67,7 +67,7 @@ With GearMenu it is easy to switch between items in supported slots. This is esp
 
 ### CombatQueue
 
-Certain items cannot be switched while the player is in combat. Weapons will be switched immediately whether the player is in combat or not. Other items that cannot be switched in combat will be enqueued in the combatqueue and switched as soon as possible. This is especially useful in PvP when you leave combat for a short time.
+Certain items cannot be switched while the player is in combat. While in combat all items, including weapons, are placed in the combatqueue and switched as soon as possible. This is especially useful in PvP when you leave combat for a short time.
 
 ![](docs/gm_combat_queue.gif)
 
@@ -149,7 +149,7 @@ If you prefer having certain items in your actionslots GearMenu can still be of 
 /run GM_AddToCombatQueue(itemId, enchantId, runeAbilityId, slotId)
 
 # Example - Equip Hand of Justice into the lower trinket slot
-/run GM_AddToCombatQueue(233734, 0, 0, 11)
+/run GM_AddToCombatQueue(233734, 0, 0, 14)
 ```
 
 **Note:** The enchantId is optional. If you don't have multiple items with different enchantIds in your inventory, set it to 0.
@@ -345,7 +345,7 @@ Switching between development and release can be achieved with maven.
 mvn generate-resources -D generate.sources.overwrite=true -P development
 ```
 
-This generates and overwrites `GM_Environment.lua` and `GearMenu.toc`. You need to specifically specify that you want to overwrite the files to prevent data loss. It is also possible to omit the profile because development is the default profile that will be used.
+This generates and overwrites `code/Environment.lua` and `GearMenu.toc`. You need to specifically specify that you want to overwrite the files to prevent data loss. It is also possible to omit the profile because development is the default profile that will be used.
 
 Switching to release can be done as such:
 
@@ -357,7 +357,7 @@ In this case it is mandatory to add the release profile.
 
 **Note:** Switching environments has the effect of changing certain files to match an expected value depending on the environment. To be more specific, this means that, for example, test and debug files are not included when switching to release. It also means that variables such as loglevel change to match the environment.
 
-To avoid changing those files all the time the repository should always stay in the development environment. Do not commit `GearMenu.toc` and `GM_Environment.lua` in their release state. Changes to those files should always be done inside `build-resources` and their respective template files marked with `.tpl`.
+To avoid changing those files all the time the repository should always stay in the development environment. Do not commit `GearMenu.toc` and `code/Environment.lua` in their release state. Changes to those files should always be done inside `build-resources` and their respective template files marked with `.tpl`.
 
 ### Packaging the Addon
 
