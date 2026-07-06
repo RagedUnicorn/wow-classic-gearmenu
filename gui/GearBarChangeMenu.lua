@@ -511,6 +511,12 @@ end
 function me.ChangeMenuOnUpdate()
   local gearBar = mod.gearBarStorage.GetGearBar(changeMenuFrame.gearBarId)
 
+  if gearBar == nil then
+    -- the hovered gearBar was deleted while its changeMenu was open - close the menu
+    me.CloseChangeMenu()
+    return
+  end
+
   if not MouseIsOver(gearBar.gearBarReference) and not MouseIsOver(changeMenuFrame) then
     me.CloseChangeMenu()
   end
