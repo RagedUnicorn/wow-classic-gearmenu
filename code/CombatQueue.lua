@@ -125,8 +125,9 @@ function me.ProcessQueue()
     return
   end
 
-  -- cannot change gear while player is in combat or is casting
-  if InCombatLockdown() or mod.common.IsPlayerCasting() or mod.common.IsPlayerReallyDead() then return end
+  -- cannot change gear while player is in combat, is casting or is under a blocking loss of control effect
+  if InCombatLockdown() or mod.common.IsPlayerCasting() or mod.common.IsPlayerReallyDead()
+    or me.IsEquipChangeBlocked() then return end
 
   -- update queue for all slot positions
   for _, gearSlot in pairs(mod.gearManager.GetGearSlots()) do

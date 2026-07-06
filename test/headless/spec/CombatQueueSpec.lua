@@ -275,6 +275,22 @@ describe("CombatQueue", function()
       assert.are.equal(0, #calls.equipped)
     end)
 
+    it("does not equip while an equipment change is blocked by loss of control", function()
+      combatQueue.AddToQueue(12345, nil, nil, 5)
+      rggm.gearManager.GetGearSlots = function() return { { slotId = 5 } } end
+      -- raise the block flag via a relevant locType, then leave it set for ProcessQueue
+      local restoreLoc = wowStubs.install({
+        C_LossOfControl = wowStubs.stubs.C_LossOfControl({ { locType = "STUN" } })
+      })
+      combatQueue.UpdateEquipChangeBlockStatus()
+      restoreLoc()
+      assert.is_true(combatQueue.IsEquipChangeBlocked())
+
+      combatQueue.ProcessQueue()
+
+      assert.are.equal(0, #calls.equipped)
+    end)
+
     it("equips the queued item for a matching gear slot when unblocked", function()
       combatQueue.AddToQueue(12345, 60, 7, 5)
       rggm.gearManager.GetGearSlots = function() return { { slotId = 5 } } end
