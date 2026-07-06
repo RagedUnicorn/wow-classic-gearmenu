@@ -147,6 +147,8 @@ if (GetLocale() == "ruRU") then
 
   -- add/remove slots
   rggm.L["gear_bar_configuration_add_gearslot"] = "Добавить слот экипировки"
+  rggm.L["gear_bar_configuration_add_gearslot_combat"] =
+    "Невозможно добавить слот экипировки в бою. Пожалуйста, повторите попытку после боя"
   rggm.L["gear_bar_configuration_remove_gearslot"] = "-"
   rggm.L["gear_bar_configuration_delete_gearbar"] = "Удалить панель экипировки"
   -- gearbar scrollmenu

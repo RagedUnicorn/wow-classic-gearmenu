@@ -150,6 +150,8 @@ if (GetLocale() == "deDE") then
     "Du hast das maximum von " .. RGGM_CONSTANTS.MAX_GEAR_BAR_SLOTS .. " GearBar Slots erreicht"
   -- add/remove slots
   rggm.L["gear_bar_configuration_add_gearslot"] = "Erstelle Gearslot"
+  rggm.L["gear_bar_configuration_add_gearslot_combat"] =
+    "Im Kampf kann kein Gearslot hinzugefügt werden. Bitte versuche es nach dem Kampf erneut"
   rggm.L["gear_bar_configuration_remove_gearslot"] = "-"
   rggm.L["gear_bar_configuration_delete_gearbar"] = "Lösche GearBar"
   -- gearbar scrollmenu

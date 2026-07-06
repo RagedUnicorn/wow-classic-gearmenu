@@ -142,6 +142,8 @@ rggm.L["gear_bar_max_amount_of_gear_slots_reached"] =
 
 -- add/remove slots
 rggm.L["gear_bar_configuration_add_gearslot"] = "Add Gearslot"
+rggm.L["gear_bar_configuration_add_gearslot_combat"] =
+  "Unable to add a Gearslot while in combat. Please try again after combat"
 rggm.L["gear_bar_configuration_remove_gearslot"] = "-"
 rggm.L["gear_bar_configuration_delete_gearbar"] = "Delete GearBar"
 -- gearbar scrollmenu

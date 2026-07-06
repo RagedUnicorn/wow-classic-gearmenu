@@ -24,6 +24,7 @@
 ]]--
 
 -- luacheck: globals STANDARD_TEXT_FONT CreateFrame FauxScrollFrame_Update FauxScrollFrame_GetOffset CloseMenus
+-- luacheck: globals InCombatLockdown
 
 --[[
   The gearBarMenu (GM_GearBarConfigurationMenu) module has some similarities to the gearBar (GM_GearBar) module.
@@ -271,6 +272,13 @@ end
   Add a new gearSlot to a gearBar based on the gearBarId on the clicked button
 ]]--
 function me.AddGearSlot()
+  if InCombatLockdown() then
+    -- Adding a slot creates a SecureActionButton (SetAttribute), which is blocked in combat.
+    mod.logger.PrintUserError(rggm.L["gear_bar_configuration_add_gearslot_combat"])
+
+    return
+  end
+
   local gearBar = mod.gearBarManager.GetGearBar(gearBarConfiguration.id)
 
   if #gearBar.slots >= RGGM_CONSTANTS.MAX_GEAR_BAR_SLOTS then

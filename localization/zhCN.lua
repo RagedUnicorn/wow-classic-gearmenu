@@ -141,6 +141,8 @@ if (GetLocale() == "zhCN") then
 
   -- add/remove slots
   rggm.L["gear_bar_configuration_add_gearslot"] = "添加装备条"
+  rggm.L["gear_bar_configuration_add_gearslot_combat"] =
+    "战斗中无法添加装备栏。请在战斗结束后重试"
   rggm.L["gear_bar_configuration_remove_gearslot"] = "-"
   rggm.L["gear_bar_configuration_delete_gearbar"] = "删除装备条"
   -- gearbar scrollmenu
