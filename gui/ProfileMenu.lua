@@ -415,7 +415,9 @@ HandleApply = function(name)
     return
   end
 
+  mod.keyBind.ClearGearBarKeyBindings(mod.gearBarManager.GetGearBars())
   mod.profile.ApplySnapshot(payload)
+  mod.keyBind.ApplyGearBarKeyBindings()
   ReloadUI()
 end
 

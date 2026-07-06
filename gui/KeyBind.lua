@@ -511,6 +511,63 @@ function me.SaveBindings()
 end
 
 --[[
+  Clear the WoW key bindings of the passed gearBars. Used before applying a profile so
+  the outgoing profile's own keyBindings do not linger in WoW's binding cache and keep
+  firing a slot that no longer exists (or a recreated slot at the same id/position).
+
+  Only bindings whose action matches GearMenus own pattern are cleared - a user key that
+  merely happens to share the keyBinding text is left untouched (see UnsetKeyBindingFromGearSlot).
+
+  @param {table} gearBars
+    a list of gearBars as returned by mod.gearBarManager.GetGearBars
+]]--
+function me.ClearGearBarKeyBindings(gearBars)
+  if type(gearBars) ~= "table" then return end
+
+  for _, gearBar in pairs(gearBars) do
+    for _, gearSlot in pairs(gearBar.slots) do
+      if gearSlot.keyBinding ~= nil and gearSlot.keyBinding ~= "" then
+        me.UnsetKeyBindingFromGearSlot(gearSlot)
+      end
+    end
+  end
+end
+
+--[[
+  Make the keyBinding labels stored on the live gearBars real WoW bindings. Used after a
+  profile is applied: the profile carries the keyBinding display text but not WoWs binding
+  cache, so without this the labels render (UpdateKeyBindingState) but do nothing.
+
+  Binds purely from configuration data (gearBar.id + slot position build the slot frame
+  name), so it does not depend on the gearSlot ui frames existing yet and can run before
+  the ReloadUI that follows a profile apply.
+]]--
+function me.ApplyGearBarKeyBindings()
+  local gearBars = mod.gearBarManager.GetGearBars()
+  local didBind = false
+
+  for i = 1, #gearBars do
+    for position, gearSlot in pairs(gearBars[i].slots) do
+      if gearSlot.keyBinding ~= nil and gearSlot.keyBinding ~= "" then
+        local action = "CLICK " .. RGGM_CONSTANTS.ELEMENT_GEAR_BAR_BASE_FRAME_NAME
+          .. gearBars[i].id .. "Slot_" .. position .. ":LeftButton"
+
+        if SetBinding(gearSlot.keyBinding, action) then
+          mod.logger.LogInfo(me.tag, "Applied keyBinding " .. gearSlot.keyBinding .. " to " .. action)
+          didBind = true
+        else
+          mod.logger.LogWarn(me.tag, "Failed to apply keyBinding " .. gearSlot.keyBinding .. " to " .. action)
+        end
+      end
+    end
+  end
+
+  if didBind then
+    me.SaveBindings()
+  end
+end
+
+--[[
   Show Keybinding dialog to record and save keyBinding to the passed gearSlot
   UI Interface entrypoint
 
