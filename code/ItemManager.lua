@@ -24,7 +24,7 @@
 ]]--
 
 -- luacheck: globals C_Item INVSLOT_MAINHAND INVSLOT_OFFHAND PutItemInBackpack GetInventoryItemID
--- luacheck: globals UnitAffectingCombat CursorHasItem SpellIsTargeting ClearCursor
+-- luacheck: globals UnitAffectingCombat CursorHasItem SpellIsTargeting ClearCursor C_Timer
 -- luacheck: globals IsInventoryItemLocked PutItemInBag PickupInventoryItem C_Container GetInventoryItemLink
 
 --[[
@@ -35,6 +35,33 @@ local me = {}
 mod.itemManager = me
 
 me.tag = "ItemManager"
+
+local bagUpdatePending = false
+
+--[[
+  Coalesce BAG_UPDATE bursts into a single rescan. BAG_UPDATE fires once per bag and bursts
+  while looting/vendoring; without debouncing each event runs a full synchronous inventory scan
+  (me.GetItemsForInventoryType over bags 0-4). The pending guard ensures only one refresh runs
+  per burst.
+]]--
+function me.RequestBagUpdate()
+  if bagUpdatePending then return end
+
+  bagUpdatePending = true
+
+  C_Timer.After(RGGM_CONSTANTS.BAG_UPDATE_DEBOUNCE_DELAY, function()
+    bagUpdatePending = false
+
+    -- refresh the change menu items after an item was equipped
+    if _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_FRAME]:IsVisible() then
+      mod.gearBarChangeMenu.UpdateChangeMenu()
+    end
+
+    if mod.configuration.IsTrinketMenuEnabled() then
+      mod.trinketMenu.UpdateTrinketMenu()
+    end
+  end)
+end
 
 --[[
   Retrieve all items from inventory bags matching any type of

@@ -121,14 +121,7 @@ function me.OnEvent(event, ...)
     me.logger.LogEvent(me.tag, "BAG_UPDATE")
 
     if initializationDone then
-      -- trigger UpdateChangeMenu again to update items after an item was equipped
-      if _G[RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CHANGE_FRAME]:IsVisible() then
-        me.gearBarChangeMenu.UpdateChangeMenu()
-      end
-
-      if me.configuration.IsTrinketMenuEnabled() then
-        me.trinketMenu.UpdateTrinketMenu()
-      end
+      me.itemManager.RequestBagUpdate()
     end
   elseif event == "PLAYER_EQUIPMENT_CHANGED" then
     me.logger.LogEvent(me.tag, "PLAYER_EQUIPMENT_CHANGED")
