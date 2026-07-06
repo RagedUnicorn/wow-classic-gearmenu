@@ -478,7 +478,8 @@ function me.CheckKeyBindingSlots(gearBarId)
       local action = GetBindingAction(gearSlot.keyBinding)
 
       if action ~= "" and action ~= nil then
-        local _, _, _, slotPosition = string.find(action, "GM_GearBarFrame_(%d+)Slot_(%d)")
+        local _, _, _, slotPosition = string.find(
+          action, RGGM_CONSTANTS.ELEMENT_GEAR_BAR_BASE_FRAME_NAME .. "(%d+)Slot_(%d+)")
 
         if tonumber(slotPosition) ~= position then
           mod.logger.LogDebug(me.tag, "Expected action to have position: " .. position
