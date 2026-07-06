@@ -413,10 +413,9 @@ function me.UpdateSpellRange()
 
   for _, uiGearBar in pairs(uiGearBars) do
     local gearBarId = uiGearBar.gearBarReference.id
+    local gearBar = mod.gearBarManager.GetGearBar(gearBarId)
 
     for _, gearSlot in pairs(uiGearBar.gearSlotReferences) do
-      local gearBar = mod.gearBarManager.GetGearBar(gearBarId)
-
       if mod.target.GetCurrentTargetGuid() == "" then
         gearSlot.keyBindingText:SetTextColor(1, 1, 1, 1)
       else
@@ -469,19 +468,26 @@ end
 ]]--
 function me.UpdateKeyBindingState(gearBar)
   local uiGearBar = mod.gearBarStorage.GetGearBar(gearBar.id)
+  local showKeyBindings = mod.gearBarManager.IsShowKeyBindingsEnabled(gearBar.id)
+  local hasVisibleKeyBinding = false
 
   for index, gearSlotMetaData in pairs(gearBar.slots) do
     local uiGearSlot = uiGearBar.gearSlotReferences[index]
 
-    if gearSlotMetaData.keyBinding and mod.gearBarManager.IsShowKeyBindingsEnabled(gearBar.id) then
-      mod.ticker.RegisterForTickerRangeCheck(gearBar.id)
+    if gearSlotMetaData.keyBinding and showKeyBindings then
+      hasVisibleKeyBinding = true
       uiGearSlot.keyBindingText:SetText(mod.keyBind.ConvertKeyBindingText(gearSlotMetaData.keyBinding))
       uiGearSlot.keyBindingText:Show()
     else
-      mod.ticker.UnregisterForTickerRangeCheck(gearBar.id)
       uiGearSlot.keyBindingText:SetText("")
       uiGearSlot.keyBindingText:Hide()
     end
+  end
+
+  if hasVisibleKeyBinding then
+    mod.ticker.RegisterForTickerRangeCheck(gearBar.id)
+  else
+    mod.ticker.UnregisterForTickerRangeCheck(gearBar.id)
   end
 end
 
