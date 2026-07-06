@@ -35,6 +35,36 @@ mod.gearBarManager = me
 me.tag = "GearBarManager"
 
 --[[
+  Generate an id for a new gearBar that does not collide with any existing gearBar.
+
+  Re-rolls a value from the random range while it already exists in the gearbar storage.
+  Iterates GearMenuConfiguration.gearBars directly instead of me.GetGearBar because a miss
+  in GetGearBar logs an error.
+
+  @return {number}
+    A gearBar id that is not currently in use
+]]--
+local function GenerateUniqueGearBarId()
+  local function idExists(candidate)
+    for _, gearBar in pairs(GearMenuConfiguration.gearBars) do
+      if gearBar.id == candidate then
+        return true
+      end
+    end
+
+    return false
+  end
+
+  local id
+
+  repeat
+    id = 100000 + math.floor(math.random() * 100000)
+  until not idExists(id)
+
+  return id
+end
+
+--[[
   Create a new entry for the passed GearBar in the gearbar storage and also create
   the initial default gearSlot
 
@@ -49,7 +79,7 @@ me.tag = "GearBarManager"
 ]]--
 function me.AddGearBar(gearBarName, addDefaultSlot)
   local gearBar = {
-    ["id"] = 100000 + math.floor(math.random() * 100000),
+    ["id"] = GenerateUniqueGearBarId(),
     ["displayName"] = gearBarName,
     ["isLocked"] = false,
     ["showKeyBindings"] = true,

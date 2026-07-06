@@ -119,6 +119,40 @@ local function IsPayloadWellTyped(payload)
 end
 
 --[[
+  Verify that the gearBars carried by a payload have mutually unique ids. A
+  well-formed export is always internally consistent (AddGearBar guarantees unique
+  ids), so a duplicate here means a corrupt or hand-crafted string. Accepting it
+  would let gearBarUiStorage[id] silently overwrite another bar's UI references and
+  produce duplicate GM_GearBarFrame_<id> frames after the reload.
+
+  A missing or non-table gearBars field is treated as unique-by-vacuity here; the
+  table-type check lives in IsPayloadWellTyped.
+
+  @param {table} payload
+  @return {boolean}
+    true if no two gearBars share an id, false otherwise
+]]--
+local function HasUniqueGearBarIds(payload)
+  if type(payload.gearBars) ~= "table" then
+    return true
+  end
+
+  local seen = {}
+
+  for _, gearBar in pairs(payload.gearBars) do
+    if type(gearBar) == "table" and gearBar.id ~= nil then
+      if seen[gearBar.id] then
+        return false
+      end
+
+      seen[gearBar.id] = true
+    end
+  end
+
+  return true
+end
+
+--[[
   Recursively copy a value so a profile and the live config never share table
   references.
 
@@ -267,6 +301,10 @@ function me.ImportString(encoded)
   end
 
   if not IsPayloadWellTyped(envelope.payload) then
+    return nil, "profile_error_invalid"
+  end
+
+  if not HasUniqueGearBarIds(envelope.payload) then
     return nil, "profile_error_invalid"
   end
 

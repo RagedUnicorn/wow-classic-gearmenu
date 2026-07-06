@@ -136,6 +136,32 @@ describe("Profile", function()
     assert.are.equal("profile_error_invalid", err)
   end)
 
+  it("rejects a payload whose gearBars carry duplicate ids", function()
+    local serialized = rggm.serializer.Serialize({
+      addon = "GearMenu",
+      schemaVersion = 1,
+      -- a corrupt / hand-crafted string can carry two bars sharing an id, which would
+      -- clobber gearBarUiStorage and create duplicate GM_GearBarFrame_<id> frames
+      payload = { gearBars = { { id = 100001 }, { id = 100001 } } }
+    })
+    local envelope, err = profile.ImportString("GearMenu1:" .. rggm.encoder.Encode(serialized))
+
+    assert.is_nil(envelope)
+    assert.are.equal("profile_error_invalid", err)
+  end)
+
+  it("accepts a payload whose gearBars carry unique ids", function()
+    local serialized = rggm.serializer.Serialize({
+      addon = "GearMenu",
+      schemaVersion = 1,
+      payload = { gearBars = { { id = 100001 }, { id = 100002 } } }
+    })
+    local envelope, err = profile.ImportString("GearMenu1:" .. rggm.encoder.Encode(serialized))
+
+    assert.is_nil(err)
+    assert.is_table(envelope)
+  end)
+
   it("accepts a partial payload that omits fields", function()
     local serialized = rggm.serializer.Serialize({
       addon = "GearMenu",
