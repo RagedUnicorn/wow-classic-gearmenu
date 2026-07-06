@@ -153,27 +153,6 @@ local function HasUniqueGearBarIds(payload)
 end
 
 --[[
-  Recursively copy a value so a profile and the live config never share table
-  references.
-
-  @param {any} value
-  @return {any}
-]]--
-local function DeepCopy(value)
-  if type(value) ~= "table" then
-    return value
-  end
-
-  local copy = {}
-
-  for itemKey, itemValue in pairs(value) do
-    copy[itemKey] = DeepCopy(itemValue)
-  end
-
-  return copy
-end
-
---[[
   Lazily access the per-character profile store.
 
   @return {table}
@@ -197,7 +176,7 @@ function me.BuildSnapshot()
   local snapshot = {}
 
   for _, field in ipairs(me.PROFILE_FIELDS) do
-    snapshot[field] = DeepCopy(GearMenuConfiguration[field])
+    snapshot[field] = mod.common.Clone(GearMenuConfiguration[field])
   end
 
   return snapshot
@@ -216,7 +195,7 @@ function me.ApplySnapshot(payload)
 
   for _, field in ipairs(me.PROFILE_FIELDS) do
     if payload[field] ~= nil then
-      GearMenuConfiguration[field] = DeepCopy(payload[field])
+      GearMenuConfiguration[field] = mod.common.Clone(payload[field])
     end
   end
 
@@ -351,7 +330,7 @@ end
   @param {table} payload
 ]]--
 function me.SaveProfile(name, payload)
-  GetStore()[name] = DeepCopy(payload)
+  GetStore()[name] = mod.common.Clone(payload)
 end
 
 --[[
