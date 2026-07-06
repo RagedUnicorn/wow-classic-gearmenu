@@ -194,7 +194,7 @@ function me.SwitchItems(itemId, enchantId, runeAbilityId, slotId)
       local itemInfo = C_Container.GetContainerItemInfo(bagNumber, bagPos)
       local isLocked = itemInfo and itemInfo.isLocked
 
-      if not isLocked and not IsInventoryItemLocked(bagPos) and not IsInventoryItemLocked(slotId) then
+      if not isLocked and not IsInventoryItemLocked(slotId) then
         -- neither container item nor inventory item locked, perform swap
         C_Container.PickupContainerItem(bagNumber, bagPos)
         PickupInventoryItem(slotId)
