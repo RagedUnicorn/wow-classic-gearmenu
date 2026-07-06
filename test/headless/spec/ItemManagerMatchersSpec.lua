@@ -115,5 +115,43 @@ describe("ItemManager matchers", function()
 
       assert.is_false(itemManager.IsDuplicateItem(items, 99999, nil, nil))
     end)
+
+    it("does not treat two different-id items sharing the same rune as duplicates", function()
+      -- regression: the condition once parsed as (id == itemId and enchant) or (rune present),
+      -- so a matching rune alone made distinct items collide and the second was silently dropped
+      local items = { { id = 12345, enchantId = nil, runeAbilityId = 7 } }
+
+      assert.is_false(itemManager.IsDuplicateItem(items, 99999, nil, 7))
+    end)
+
+    it("treats a same-id item with the same rune as a duplicate", function()
+      local items = { { id = 12345, enchantId = nil, runeAbilityId = 7 } }
+
+      assert.is_true(itemManager.IsDuplicateItem(items, 12345, nil, 7))
+    end)
+
+    it("does not treat a same-id item with a different rune as a duplicate", function()
+      local items = { { id = 12345, enchantId = nil, runeAbilityId = 7 } }
+
+      assert.is_false(itemManager.IsDuplicateItem(items, 12345, nil, 8))
+    end)
+
+    it("does not treat a same-id, same-rune item as a duplicate when only one has an enchant", function()
+      local items = { { id = 12345, enchantId = 60, runeAbilityId = 7 } }
+
+      assert.is_false(itemManager.IsDuplicateItem(items, 12345, nil, 7))
+    end)
+
+    it("does not treat a same-id, same-rune item with a different enchant as a duplicate", function()
+      local items = { { id = 12345, enchantId = 60, runeAbilityId = 7 } }
+
+      assert.is_false(itemManager.IsDuplicateItem(items, 12345, 70, 7))
+    end)
+
+    it("treats a same-id item with matching enchant and rune as a duplicate", function()
+      local items = { { id = 12345, enchantId = 60, runeAbilityId = 7 } }
+
+      assert.is_true(itemManager.IsDuplicateItem(items, 12345, 60, 7))
+    end)
   end)
 end)

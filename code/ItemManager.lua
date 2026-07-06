@@ -463,13 +463,9 @@ end
 ]]--
 function me.IsDuplicateItem(items, itemId, enchantId, runeAbilityId)
   for i = 1, #items do
-
-    if items[i].id == itemId and (enchantId ~= nil or items[i].enchantId ~= nil) or (runeAbilityId ~= nil
-      or items[i].runeAbilityId ~= nil) then
-      if items[i].enchantId == enchantId and items[i].runeAbilityId == runeAbilityId then
-        return true
-      end
-    elseif items[i].id == itemId then
+    if items[i].id == itemId
+      and items[i].enchantId == enchantId
+      and items[i].runeAbilityId == runeAbilityId then
       return true
     end
   end
