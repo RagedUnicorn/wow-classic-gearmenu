@@ -106,6 +106,7 @@ StaticPopupDialogs["RGGM_GEAR_BAR_CONFIRM_DELETE"] = {
   button2 = rggm.L["gear_bar_confirm_delete_no_button"],
   OnAccept = function()
     if deleteGearBarId then
+      mod.ticker.UnregisterForTickerRangeCheck(deleteGearBarId)
       mod.gearBarManager.RemoveGearBar(deleteGearBarId)
       mod.gearBarStorage.RemoveGearBar(deleteGearBarId)
       me.GearBarListOnUpdate(gearBarList)

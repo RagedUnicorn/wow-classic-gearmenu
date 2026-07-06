@@ -123,7 +123,7 @@ end
 function me.UnregisterForTickerRangeCheck(gearBarId)
   for i = 1, #tickerRangeCheckSubscribers do
     if tickerRangeCheckSubscribers[i] == gearBarId then
-      table.remove(tickerRangeCheckSubscribers, gearBarId)
+      table.remove(tickerRangeCheckSubscribers, i)
       break
     end
   end
