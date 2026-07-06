@@ -151,7 +151,9 @@ end
 
 --[[
   @return {table}
-    Return a clone of all gearBars
+    The live persisted GearMenuConfiguration.gearBars table. This is not a snapshot -
+    callers read from and mutate it directly and must not treat it as a disposable copy.
+    Use mod.profile.BuildSnapshot when a deep-copied snapshot is required.
 ]]--
 function me.GetGearBars()
   return GearMenuConfiguration.gearBars
