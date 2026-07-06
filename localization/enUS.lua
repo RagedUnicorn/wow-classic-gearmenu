@@ -159,6 +159,7 @@ rggm.L["gear_bar_configuration_key_binding_user_error"] = "Failed to set new Key
 -- macro bridge user errors
 rggm.L["unable_to_find_equipslot"] = "Unable to find a matching slot for itemId %s"
 rggm.L["unable_to_find_item"] = "Unable to find any itemInfo for itemId %s"
+rggm.L["macro_invalid_argument"] = "bad argument #%s to '%s' (expected number got %s)"
 
 -- profile
 rggm.L["profile_category_name"] = "Profiles"

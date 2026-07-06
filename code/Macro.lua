@@ -45,21 +45,29 @@ me.tag = "Macro"
   @param {number} slotId
 ]]--
 function GM_AddToCombatQueue(itemId, enchantId, runeAbilityId, slotId)
-  assert(type(itemId) == "number", string.format(
-    "bad argument #1 to `GM_AddToCombatQueue` (expected number got %s)", type(itemId)))
-
-  if enchantId ~= nil then
-    assert(type(enchantId) == "number", string.format(
-      "bad argument #2 to `GM_AddToCombatQueue` (expected number got %s)", type(enchantId)))
+  if type(itemId) ~= "number" then
+    mod.logger.PrintUserChatError(
+      string.format(rggm.L["macro_invalid_argument"], 1, "GM_AddToCombatQueue", type(itemId)))
+    return
   end
 
-  if runeAbilityId ~= nil then
-    assert(type(runeAbilityId) == "number", string.format(
-      "bad argument #3 to `GM_AddToCombatQueue` (expected number got %s)", type(runeAbilityId)))
+  if enchantId ~= nil and type(enchantId) ~= "number" then
+    mod.logger.PrintUserChatError(
+      string.format(rggm.L["macro_invalid_argument"], 2, "GM_AddToCombatQueue", type(enchantId)))
+    return
   end
 
-  assert(type(slotId) == "number", string.format(
-    "bad argument #4 to `GM_AddToCombatQueue` (expected number got %s)", type(slotId)))
+  if runeAbilityId ~= nil and type(runeAbilityId) ~= "number" then
+    mod.logger.PrintUserChatError(
+      string.format(rggm.L["macro_invalid_argument"], 3, "GM_AddToCombatQueue", type(runeAbilityId)))
+    return
+  end
+
+  if type(slotId) ~= "number" then
+    mod.logger.PrintUserChatError(
+      string.format(rggm.L["macro_invalid_argument"], 4, "GM_AddToCombatQueue", type(slotId)))
+    return
+  end
 
   local equipSlot = me.CheckItemIdValidity(itemId)
 
@@ -79,8 +87,11 @@ end
   @param {number} slotId
 ]]
 function GM_RemoveFromCombatQueue(slotId)
-  assert(type(slotId) == "number", string.format(
-    "bad argument #1 to `GM_RemoveFromCombatQueue` (expected number got %s)", type(slotId)))
+  if type(slotId) ~= "number" then
+    mod.logger.PrintUserChatError(
+      string.format(rggm.L["macro_invalid_argument"], 1, "GM_RemoveFromCombatQueue", type(slotId)))
+    return
+  end
 
   mod.combatQueue.RemoveFromQueue(slotId)
 end
@@ -94,9 +105,9 @@ end
   @return {string | nil}
 ]]--
 function me.CheckItemIdValidity(itemId)
-  local _, _, _, _, _, _, _, _, equipSlot = C_Item.GetItemInfo(itemId)
+  local _, _, _, equipSlot = C_Item.GetItemInfoInstant(itemId)
 
-  if equipSlot == nil then
+  if equipSlot == nil or equipSlot == "" then
     mod.logger.PrintUserChatError(string.format(rggm.L["unable_to_find_item"], itemId))
     return nil
   end

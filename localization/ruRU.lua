@@ -165,6 +165,7 @@ if (GetLocale() == "ruRU") then
   -- macro bridge user errors
   rggm.L["unable_to_find_equipslot"] = "Не удается найти подходящий слот для itemId %s"
   rggm.L["unable_to_find_item"] = "Не удается найти информацию о предмете для itemId %s"
+  rggm.L["macro_invalid_argument"] = "неверный аргумент #%s для '%s' (ожидалось число, получено %s)"
 
   -- profile
   rggm.L["profile_category_name"] = "Профили"

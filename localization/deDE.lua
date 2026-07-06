@@ -169,6 +169,7 @@ if (GetLocale() == "deDE") then
   -- macro bridge user errors
   rggm.L["unable_to_find_equipslot"] = "Konnte keinen passenden slot für itemdId %s finden"
   rggm.L["unable_to_find_item"] = "Konnte keine Iteminformationen für itemId %s finden"
+  rggm.L["macro_invalid_argument"] = "Ungültiges Argument #%s an '%s' (Zahl erwartet, %s erhalten)"
 
   -- profile
   rggm.L["profile_category_name"] = "Profile"

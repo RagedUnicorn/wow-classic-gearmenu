@@ -159,6 +159,7 @@ if (GetLocale() == "zhCN") then
   -- macro bridge user errors
   rggm.L["unable_to_find_equipslot"] = "无法为物品Id找到匹配的槽位 %s"
   rggm.L["unable_to_find_item"] = "无法为物品Id找到指定的物品信息 %s"
+  rggm.L["macro_invalid_argument"] = "参数 #%s 传递给 '%s' 无效（应为数字，实为 %s）"
 
   -- profile
   rggm.L["profile_category_name"] = "配置文件"

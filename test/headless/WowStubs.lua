@@ -133,18 +133,25 @@ function M.stubs.C_AddOns(metadata)
 end
 
 --[[
-  C_Item namespace - the namespaced GetItemInfo used across the item modules. `results` maps an
-  itemId/itemLink to a list of return values.
+  C_Item namespace - the namespaced GetItemInfo / GetItemInfoInstant used across the item modules.
+  `results` maps an itemId/itemLink to a list of return values for GetItemInfo; `instantResults`
+  does the same for the cache-free GetItemInfoInstant (whose 4th return is the equip slot).
 
   @param {table} results
+  @param {table} instantResults
   @return {table}
 ]]--
-function M.stubs.C_Item(results)
+function M.stubs.C_Item(results, instantResults)
   results = results or {}
+  instantResults = instantResults or {}
 
   return {
     GetItemInfo = function(item)
       local values = results[item] or {}
+      return unpack(values)
+    end,
+    GetItemInfoInstant = function(item)
+      local values = instantResults[item] or {}
       return unpack(values)
     end
   }
