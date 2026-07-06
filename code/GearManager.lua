@@ -312,13 +312,14 @@ end
     A slotId on the gearBar
 
   @return {table | nil}
-    table - if a gearSlot could be found
+    table - an independent deep copy of the matching gearSlot, safe to mutate and to
+            persist into GearMenuConfiguration without aliasing the static metadata
     nil - if no gearSlot could be found
 ]]--
 function me.GetGearSlotForSlotId(slotId)
   for _, slot in pairs(gearSlots) do
     if slot.slotId == slotId then
-      return slot
+      return mod.common.Clone(slot)
     end
   end
 
