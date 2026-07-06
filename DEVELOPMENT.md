@@ -102,7 +102,7 @@ This generates a JUnit XML report in `./target/luacheck-junit.xml`.
 - `.luacheckrc` - Contains Luacheck configuration, including:
   - Global variables specific to WoW addons
   - Lua 5.1 standard for compatibility
-  - Excluded directories (e.g., `target/`, `tools/`)
+  - Excluded directories (e.g., `target/`)
 
 ### Running Tests
 
