@@ -33,11 +33,17 @@ mod.debug = me
 me.tag = "Debug"
 
 _G["__GM__DEBUG__ADD_QUICK_CHANGE_RULE"] = function()
-  local changeFromItemId = 55881 -- Impetuous Query
-  local changeToItemId = 128959 -- Seal of House Wrynn
   local delay = 10
+  local quickChangeRule = {
+    ["from"] = {
+      ["itemId"] = 55881 -- Impetuous Query
+    },
+    ["to"] = {
+      ["itemId"] = 128959 -- Seal of House Wrynn
+    }
+  }
 
-  me.AddQuickChangeRule(changeFromItemId, changeToItemId, delay)
+  mod.quickChange.AddQuickChangeRule(quickChangeRule, delay)
 end
 
 
@@ -55,7 +61,7 @@ _G["__GM__DEBUG__EXECUTE_QUICK_CHANGE_RULE"] = function()
       item.enchantId = quickChangeRule.changeToItemEnchantId
       item.slotId = INVSLOT_TRINKET1
 
-      mod.itemManager.EquipItem(item)
+      mod.itemManager.EquipItemByItemAndEnchantId(item)
     end)
   end
 end
