@@ -59,6 +59,10 @@ local swapFailureMessages = {
 
 local bagUpdatePending = false
 
+-- forward declarations
+local NotifySwapFailure
+local RequiresOffhandDisplacement
+
 --[[
   Surface an aborted swap to the user with a localized chat message. The combatQueue guard
   makes sure a queued swap reports each reason only once instead of once per ProcessQueue tick
@@ -68,7 +72,7 @@ local bagUpdatePending = false
   @param {number} slotId
   @param {number} itemId
 ]]--
-local function NotifySwapFailure(reason, slotId, itemId)
+NotifySwapFailure = function(reason, slotId, itemId)
   if not mod.combatQueue.ShouldNotifySwapFailure(slotId, reason) then return end
 
   local itemName = itemId and C_Item.GetItemInfo(itemId) or nil
@@ -225,6 +229,29 @@ function me.EquipItemByItemAndEnchantId(item)
 end
 
 --[[
+  Whether equipping the item will displace the currently worn offhand into the bags. This is
+  the case when a two-handed weapon is equipped into the mainhand slot while an offhand is worn
+
+  @param {number} itemId
+  @param {number} slotId
+
+  @return {boolean}
+    true - if equipping the item displaces the worn offhand into the bags
+    false - if no offhand displacement will happen
+]]--
+RequiresOffhandDisplacement = function(itemId, slotId)
+  if slotId ~= INVSLOT_MAINHAND then return false end
+
+  if GetInventoryItemID(RGGM_CONSTANTS.UNIT_ID_PLAYER, INVSLOT_OFFHAND) == nil then
+    return false
+  end
+
+  local equipSlot = select(4, C_Item.GetItemInfoInstant(itemId))
+
+  return equipSlot == "INVTYPE_2HWEAPON"
+end
+
+--[[
   Switch to items from itemSlot and a bag position
     INVSLOT_HEAD
     INVSLOT_NECK
@@ -266,6 +293,18 @@ function me.SwitchItems(itemId, enchantId, runeAbilityId, slotId)
     NotifySwapFailure(me.failureReason.spellTargeting, slotId, itemId)
 
     return me.failureReason.spellTargeting -- keep a queued swap for a retry once targeting ended
+  end
+
+  --[[
+    Equipping a two-handed weapon while an offhand is worn displaces the offhand into the bags.
+    Verify a free bag slot exists before initiating the cursor-based swap - with full bags the
+    client would otherwise cancel the swap after the item was already picked up
+  ]]--
+  if RequiresOffhandDisplacement(itemId, slotId) and not me.FindSpace() then
+    NotifySwapFailure(me.failureReason.noBagSpace, slotId, itemId)
+    mod.combatQueue.RemoveFromQueue(slotId)
+
+    return me.failureReason.noBagSpace
   end
 
   local failureReason = me.failureReason.itemNotFound
@@ -625,9 +664,31 @@ function me.AddItemsMatchingInventoryType(inventoryType, itemId, enchantId, rune
 end
 
 --[[
-  Unequips the item from the referenced slot. Tries to unequip into the backpack first
-  and then through all bags in order. If no space can be found the action is aborted
-  and the user is notified
+  Find the first free bag slot across the backpack and all equipped bags. Bag families
+  (quiver, soul bag, ...) are not considered - the first empty slot wins, matching the
+  order in which unequipped items were placed before this precheck existed
+
+  @return {number | nil}, {number | nil}
+    number - the bagNumber of the first free bag slot
+    number - the bagPos of the first free bag slot
+    nil - if all bag slots are occupied
+]]--
+function me.FindSpace()
+  for i = 0, 4 do
+    for j = 1, C_Container.GetContainerNumSlots(i) do
+      if C_Container.GetContainerItemID(i, j) == nil then
+        return i, j
+      end
+    end
+  end
+
+  return nil, nil
+end
+
+--[[
+  Unequips the item from the referenced slot into the first free bag slot. The free slot is
+  searched before the item is picked up - with full bags the action is aborted and the user
+  is notified without the cursor ever holding the item
 
   @param {table} slot
 
@@ -638,31 +699,28 @@ end
 function me.UnequipItemToBag(slot)
   local itemId = GetInventoryItemID(RGGM_CONSTANTS.UNIT_ID_PLAYER, slot.slotId)
 
-  PickupInventoryItem(slot.slotId)
+  if itemId == nil then return end -- slot is empty, nothing to unequip
 
-  for i = 0, 4 do
-    for j = 1, C_Container.GetContainerNumSlots(i) do
-      local containerItemId = C_Container.GetContainerItemID(i, j)
+  local bagNumber, bagPos = me.FindSpace()
 
-      if containerItemId == nil then
-        if i == 0 then
-          PutItemInBackpack()
-          break
-        else
-          -- PutItemInBag(mod.gearManager.GetMappedBag(i)) seems to be broken with latest patch
-          C_Container.PickupContainerItem(i, j)
-          break
-        end
-      end
-    end
+  if bagNumber == nil then
+    NotifySwapFailure(me.failureReason.noBagSpace, slot.slotId, itemId)
+
+    return me.failureReason.noBagSpace
   end
 
-  -- if the item is still on the cursor no empty bag slot could take it
-  local noBagSpace = CursorHasItem()
+  PickupInventoryItem(slot.slotId)
 
-  ClearCursor()
+  if bagNumber == 0 then
+    PutItemInBackpack()
+  else
+    -- PutItemInBag(mod.gearManager.GetMappedBag(bagNumber)) seems to be broken with latest patch
+    C_Container.PickupContainerItem(bagNumber, bagPos)
+  end
 
-  if noBagSpace then
+  -- if the item is still on the cursor the placement was refused (e.g. a special bag slot)
+  if CursorHasItem() then
+    ClearCursor()
     NotifySwapFailure(me.failureReason.noBagSpace, slot.slotId, itemId)
 
     return me.failureReason.noBagSpace

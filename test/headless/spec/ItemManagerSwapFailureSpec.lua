@@ -24,7 +24,8 @@
 
 --[[
   Spec for the typed swap-failure paths in code/ItemManager.lua (SwitchItems, UnequipItemToBag)
-  together with the once-per-entry notification guard in code/CombatQueue.lua. Both modules are
+  together with the FindSpace bag-space precheck feeding them and the once-per-entry
+  notification guard in code/CombatQueue.lua. Both modules are
   loaded for real (per the re-dofile isolation convention documented in test/headless/Bootstrap.lua)
   so the interplay - queued swaps report each failure reason exactly once while ProcessQueue keeps
   retrying - is covered end to end. localization/enUS.lua is loaded for real as well so the emitted
@@ -37,7 +38,7 @@
 
 -- busted extends `assert` with .same / .equal / etc. at runtime; luacheck cannot verify those
 -- fields statically. Suppress warning 143 (accessing undefined field of a global variable).
--- luacheck: globals describe it before_each after_each
+-- luacheck: globals describe it before_each after_each INVSLOT_MAINHAND INVSLOT_OFFHAND
 -- luacheck: ignore 143
 
 local wowStubs = require("WowStubs")
@@ -57,12 +58,15 @@ describe("ItemManager swap failures", function()
   -- equipped[slotId] -> itemId currently worn in that slot
   local equipped
   local cursorHasItem, spellIsTargeting, inventoryLocked
+  -- slotIds passed to PickupInventoryItem, to assert an aborted action never touched the cursor
+  local pickedUpInventorySlots
 
   before_each(function()
     userChatMessages = {}
     bags = {}
     equipped = {}
     cursorHasItem, spellIsTargeting, inventoryLocked = false, false, false
+    pickedUpInventorySlots = {}
 
     previousModules = {
       L = rggm.L,
@@ -78,7 +82,11 @@ describe("ItemManager swap failures", function()
 
     restore = wowStubs.install({
       C_AddOns = wowStubs.stubs.C_AddOns({ Version = "0.0.0-test" }),
-      C_Item = wowStubs.stubs.C_Item({ [12345] = { "Test Item" } }),
+      C_Item = wowStubs.stubs.C_Item(
+        { [12345] = { "Test Item" }, [67890] = { "Test 2H" } },
+        -- GetItemInfoInstant: itemID, itemType, itemSubType, itemEquipLoc (the 2H precheck reads the 4th)
+        { [67890] = { 67890, "Weapon", "Two-Handed Swords", "INVTYPE_2HWEAPON" } }
+      ),
       C_Container = {
         GetContainerNumSlots = function(bagNumber)
           return bags[bagNumber] and #bags[bagNumber] or 0
@@ -103,6 +111,7 @@ describe("ItemManager swap failures", function()
       SpellIsTargeting = function() return spellIsTargeting end,
       IsInventoryItemLocked = function() return inventoryLocked end,
       PickupInventoryItem = function(slotId)
+        pickedUpInventorySlots[#pickedUpInventorySlots + 1] = slotId
         if equipped[slotId] then cursorHasItem = true end
       end,
       GetInventoryItemID = function(_, slotId) return equipped[slotId] end,
@@ -264,6 +273,60 @@ describe("ItemManager swap failures", function()
 
       assert.are.equal(2, #userChatMessages)
     end)
+
+    it("reports NO_BAG_SPACE before touching the cursor when a 2H would displace the "
+      .. "offhand into full bags", function()
+      equipped[INVSLOT_OFFHAND] = 22222
+      bags[0] = { { itemId = 67890 } }
+
+      local reason = itemManager.SwitchItems(67890, nil, nil, INVSLOT_MAINHAND)
+
+      assert.are.equal(itemManager.failureReason.noBagSpace, reason)
+      assert.are.equal(0, #pickedUpInventorySlots)
+      assert.are.equal(1, #userChatMessages)
+      assert.are.equal(
+        string.format(rggm.L["swap_failure_no_bag_space"], "Test 2H"), userChatMessages[1])
+    end)
+
+    it("drops the queued entry when the 2H bag-space precheck aborts the swap", function()
+      equipped[INVSLOT_OFFHAND] = 22222
+      bags[0] = { { itemId = 67890 } }
+      combatQueue.AddToQueue(67890, nil, nil, INVSLOT_MAINHAND)
+
+      itemManager.SwitchItems(67890, nil, nil, INVSLOT_MAINHAND)
+
+      assert.is_true(combatQueue.IsCombatQueueEmpty())
+      assert.are.equal(1, #userChatMessages)
+    end)
+
+    it("equips a 2H over a worn offhand when a free bag slot exists", function()
+      equipped[INVSLOT_OFFHAND] = 22222
+      bags[0] = { { itemId = 67890 }, false }
+
+      local reason = itemManager.SwitchItems(67890, nil, nil, INVSLOT_MAINHAND)
+
+      assert.is_nil(reason)
+      assert.are.equal(0, #userChatMessages)
+    end)
+
+    it("equips a 2H with full bags when no offhand is worn", function()
+      bags[0] = { { itemId = 67890 } }
+
+      local reason = itemManager.SwitchItems(67890, nil, nil, INVSLOT_MAINHAND)
+
+      assert.is_nil(reason)
+      assert.are.equal(0, #userChatMessages)
+    end)
+
+    it("equips a one-handed weapon over a worn offhand with full bags", function()
+      equipped[INVSLOT_OFFHAND] = 22222
+      bags[0] = { { itemId = 12345 } }
+
+      local reason = itemManager.SwitchItems(12345, nil, nil, INVSLOT_MAINHAND)
+
+      assert.is_nil(reason)
+      assert.are.equal(0, #userChatMessages)
+    end)
   end)
 
   describe("once-per-entry notification through ProcessQueue", function()
@@ -300,13 +363,14 @@ describe("ItemManager swap failures", function()
   end)
 
   describe("UnequipItemToBag", function()
-    it("reports NO_BAG_SPACE when no empty bag slot can take the item", function()
+    it("reports NO_BAG_SPACE without ever picking the item up when the bags are full", function()
       equipped[13] = 12345
       bags[0] = { { itemId = 11111 } }
 
       local reason = itemManager.UnequipItemToBag({ slotId = 13 })
 
       assert.are.equal(itemManager.failureReason.noBagSpace, reason)
+      assert.are.equal(0, #pickedUpInventorySlots)
       assert.are.equal(1, #userChatMessages)
       assert.are.equal(
         string.format(rggm.L["swap_failure_no_bag_space"], "Test Item"), userChatMessages[1])
@@ -322,13 +386,65 @@ describe("ItemManager swap failures", function()
       assert.are.equal(0, #userChatMessages)
     end)
 
+    it("unequips into the single free bag slot when only one is left", function()
+      equipped[13] = 12345
+      bags[0] = { { itemId = 11111 } }
+      bags[1] = { { itemId = 11111 }, false }
+
+      local reason = itemManager.UnequipItemToBag({ slotId = 13 })
+
+      assert.is_nil(reason)
+      assert.are.same({ 13 }, pickedUpInventorySlots)
+      assert.are.equal(0, #userChatMessages)
+    end)
+
     it("returns nil and reports nothing when the slot is already empty", function()
       bags[0] = { { itemId = 11111 } }
 
       local reason = itemManager.UnequipItemToBag({ slotId = 13 })
 
       assert.is_nil(reason)
+      assert.are.equal(0, #pickedUpInventorySlots)
       assert.are.equal(0, #userChatMessages)
+    end)
+  end)
+
+  describe("FindSpace", function()
+    it("returns the first free slot of the backpack", function()
+      bags[0] = { { itemId = 11111 }, false, false }
+
+      local bagNumber, bagPos = itemManager.FindSpace()
+
+      assert.are.equal(0, bagNumber)
+      assert.are.equal(2, bagPos)
+    end)
+
+    it("falls through to a later bag when the backpack is full", function()
+      bags[0] = { { itemId = 11111 } }
+      bags[1] = { { itemId = 11111 } }
+      bags[2] = { { itemId = 11111 }, false }
+
+      local bagNumber, bagPos = itemManager.FindSpace()
+
+      assert.are.equal(2, bagNumber)
+      assert.are.equal(2, bagPos)
+    end)
+
+    it("returns nil when every bag slot is occupied", function()
+      bags[0] = { { itemId = 11111 } }
+      bags[1] = { { itemId = 11111 }, { itemId = 22222 } }
+
+      local bagNumber, bagPos = itemManager.FindSpace()
+
+      assert.is_nil(bagNumber)
+      assert.is_nil(bagPos)
+    end)
+
+    it("returns nil when there are no bags at all", function()
+      local bagNumber, bagPos = itemManager.FindSpace()
+
+      assert.is_nil(bagNumber)
+      assert.is_nil(bagPos)
     end)
   end)
 end)
