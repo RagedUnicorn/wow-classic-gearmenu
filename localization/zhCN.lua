@@ -163,6 +163,13 @@ if (GetLocale() == "zhCN") then
   rggm.L["unable_to_find_item"] = "无法为物品Id找到指定的物品信息 %s"
   rggm.L["macro_invalid_argument"] = "参数 #%s 传递给 '%s' 无效（应为数字，实为 %s）"
 
+  -- swap failure user errors
+  rggm.L["swap_failure_item_not_found"] = "无法切换到物品 %s - 在背包中找不到该物品"
+  rggm.L["swap_failure_item_locked"] = "无法切换到物品 %s - 该物品当前被锁定"
+  rggm.L["swap_failure_cursor_busy"] = "无法切换到物品 %s - 光标上有其他物品"
+  rggm.L["swap_failure_spell_targeting"] = "无法切换到物品 %s - 有法术正在等待目标"
+  rggm.L["swap_failure_no_bag_space"] = "无法卸下物品 %s - 背包中没有空余空间"
+
   -- profile
   rggm.L["profile_category_name"] = "配置文件"
   rggm.L["profile_title"] = "配置文件管理"

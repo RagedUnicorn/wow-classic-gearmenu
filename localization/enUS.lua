@@ -163,6 +163,13 @@ rggm.L["unable_to_find_equipslot"] = "Unable to find a matching slot for itemId 
 rggm.L["unable_to_find_item"] = "Unable to find any itemInfo for itemId %s"
 rggm.L["macro_invalid_argument"] = "bad argument #%s to '%s' (expected number got %s)"
 
+-- swap failure user errors
+rggm.L["swap_failure_item_not_found"] = "Unable to switch to item %s - the item could not be found in your bags"
+rggm.L["swap_failure_item_locked"] = "Unable to switch to item %s - the item is currently locked"
+rggm.L["swap_failure_cursor_busy"] = "Unable to switch to item %s - another item is currently on the cursor"
+rggm.L["swap_failure_spell_targeting"] = "Unable to switch to item %s - a spell is currently requesting a target"
+rggm.L["swap_failure_no_bag_space"] = "Unable to unequip item %s - there is no free space in your bags"
+
 -- profile
 rggm.L["profile_category_name"] = "Profiles"
 rggm.L["profile_title"] = "Configuration Profiles"

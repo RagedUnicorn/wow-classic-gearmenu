@@ -173,6 +173,15 @@ if (GetLocale() == "deDE") then
   rggm.L["unable_to_find_item"] = "Konnte keine Iteminformationen für itemId %s finden"
   rggm.L["macro_invalid_argument"] = "Ungültiges Argument #%s an '%s' (Zahl erwartet, %s erhalten)"
 
+  -- swap failure user errors
+  rggm.L["swap_failure_item_not_found"] = "Konnte nicht zu Gegenstand %s wechseln - der Gegenstand wurde nicht "
+    .. "in den Taschen gefunden"
+  rggm.L["swap_failure_item_locked"] = "Konnte nicht zu Gegenstand %s wechseln - der Gegenstand ist gerade gesperrt"
+  rggm.L["swap_failure_cursor_busy"] = "Konnte nicht zu Gegenstand %s wechseln - ein anderer Gegenstand befindet "
+    .. "sich am Cursor"
+  rggm.L["swap_failure_spell_targeting"] = "Konnte nicht zu Gegenstand %s wechseln - ein Zauber wartet auf ein Ziel"
+  rggm.L["swap_failure_no_bag_space"] = "Konnte Gegenstand %s nicht ablegen - kein freier Platz in den Taschen"
+
   -- profile
   rggm.L["profile_category_name"] = "Profile"
   rggm.L["profile_title"] = "Konfigurationsprofile"

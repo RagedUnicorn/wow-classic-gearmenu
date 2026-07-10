@@ -169,6 +169,13 @@ if (GetLocale() == "ruRU") then
   rggm.L["unable_to_find_item"] = "Не удается найти информацию о предмете для itemId %s"
   rggm.L["macro_invalid_argument"] = "неверный аргумент #%s для '%s' (ожидалось число, получено %s)"
 
+  -- swap failure user errors
+  rggm.L["swap_failure_item_not_found"] = "Не удается переключиться на предмет %s - предмет не найден в сумках"
+  rggm.L["swap_failure_item_locked"] = "Не удается переключиться на предмет %s - предмет сейчас заблокирован"
+  rggm.L["swap_failure_cursor_busy"] = "Не удается переключиться на предмет %s - на курсоре другой предмет"
+  rggm.L["swap_failure_spell_targeting"] = "Не удается переключиться на предмет %s - заклинание ожидает цель"
+  rggm.L["swap_failure_no_bag_space"] = "Не удается снять предмет %s - в сумках нет свободного места"
+
   -- profile
   rggm.L["profile_category_name"] = "Профили"
   rggm.L["profile_title"] = "Профили конфигурации"

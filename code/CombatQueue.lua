@@ -116,6 +116,34 @@ function me.RemoveFromQueue(slotId)
 end
 
 --[[
+  Guard that keeps a queued swap from reporting the same failure reason on every ProcessQueue
+  tick. The first call for a queued slot marks the entry as notified for the passed reason and
+  allows the message; subsequent calls with the same reason are suppressed until the reason
+  changes or the entry is re-queued (AddToQueue creates a fresh entry). For slots without a
+  queued entry there is nothing to deduplicate on and the message is always allowed
+
+  @param {number} slotId
+  @param {string} reason
+
+  @return {boolean}
+    true - if a user message for the reason should be shown
+    false - if the queued entry was already notified for the reason
+]]--
+function me.ShouldNotifySwapFailure(slotId, reason)
+  local queueEntry = slotId and combatQueueStore[slotId] or nil
+
+  if queueEntry == nil then return true end
+
+  if queueEntry.notifiedFailureReason == reason then
+    return false
+  end
+
+  queueEntry.notifiedFailureReason = reason
+
+  return true
+end
+
+--[[
   Process through combat queue and equip item if there is one waiting in the queue
 ]]--
 function me.ProcessQueue()

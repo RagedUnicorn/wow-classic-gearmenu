@@ -36,7 +36,45 @@ mod.itemManager = me
 
 me.tag = "ItemManager"
 
+--[[
+  Typed reasons for why an item swap was aborted. SwitchItems and UnequipItemToBag return the
+  matching reason so callers (and tests) can distinguish the failure paths
+]]--
+me.failureReason = {
+  itemNotFound = "ITEM_NOT_FOUND",
+  itemLocked = "ITEM_LOCKED",
+  cursorBusy = "CURSOR_BUSY",
+  spellTargeting = "SPELL_TARGETING",
+  noBagSpace = "NO_BAG_SPACE"
+}
+
+-- maps each typed failure reason to its localized user message
+local swapFailureMessages = {
+  [me.failureReason.itemNotFound] = "swap_failure_item_not_found",
+  [me.failureReason.itemLocked] = "swap_failure_item_locked",
+  [me.failureReason.cursorBusy] = "swap_failure_cursor_busy",
+  [me.failureReason.spellTargeting] = "swap_failure_spell_targeting",
+  [me.failureReason.noBagSpace] = "swap_failure_no_bag_space"
+}
+
 local bagUpdatePending = false
+
+--[[
+  Surface an aborted swap to the user with a localized chat message. The combatQueue guard
+  makes sure a queued swap reports each reason only once instead of once per ProcessQueue tick
+
+  @param {string} reason
+    One of me.failureReason
+  @param {number} slotId
+  @param {number} itemId
+]]--
+local function NotifySwapFailure(reason, slotId, itemId)
+  if not mod.combatQueue.ShouldNotifySwapFailure(slotId, reason) then return end
+
+  local itemName = itemId and C_Item.GetItemInfo(itemId) or nil
+
+  mod.logger.PrintUserChatError(string.format(rggm.L[swapFailureMessages[reason]], itemName or itemId))
+end
 
 --[[
   Coalesce BAG_UPDATE bursts into a single rescan. BAG_UPDATE fires once per bag and bursts
@@ -212,48 +250,68 @@ end
   @param {number} runeAbilityId
     Optional runeAbilityId
   @param {number} slotId
+
+  @return {string | nil}
+    string - one of me.failureReason if the swap was aborted
+    nil - if the swap was executed
 ]]--
 function me.SwitchItems(itemId, enchantId, runeAbilityId, slotId)
-  if not CursorHasItem() and not SpellIsTargeting() then
-    local bagNumber, bagPos = me.FindItemInBag(itemId, enchantId, runeAbilityId)
+  if CursorHasItem() then
+    NotifySwapFailure(me.failureReason.cursorBusy, slotId, itemId)
 
-    if bagNumber and bagPos then
-      local itemInfo = C_Container.GetContainerItemInfo(bagNumber, bagPos)
-      local isLocked = itemInfo and itemInfo.isLocked
+    return me.failureReason.cursorBusy -- keep a queued swap for a retry once the cursor is free
+  end
 
-      if not isLocked and not IsInventoryItemLocked(slotId) then
-        -- neither container item nor inventory item locked, perform swap
-        C_Container.PickupContainerItem(bagNumber, bagPos)
-        PickupInventoryItem(slotId)
+  if SpellIsTargeting() then
+    NotifySwapFailure(me.failureReason.spellTargeting, slotId, itemId)
 
-        -- make sure to clear combatQueue
-        mod.combatQueue.RemoveFromQueue(slotId)
+    return me.failureReason.spellTargeting -- keep a queued swap for a retry once targeting ended
+  end
 
-        return -- abort
-      end
-    end
+  local failureReason = me.failureReason.itemNotFound
+  local bagNumber, bagPos = me.FindItemInBag(itemId, enchantId, runeAbilityId)
 
-    --[[
-      Special case for when an item can't be found in the bag. This can happen when the
-      user drag and drops an item that he has equipped onto another slot. This essentially
-      needs to cause a switch of those items. This is only possible for INVTYPE_TRINKET and
-      INVTYPE_FINGER
-    ]]--
-    local foundSlotId = me.FindEquipedItem(itemId)
+  if bagNumber and bagPos then
+    local itemInfo = C_Container.GetContainerItemInfo(bagNumber, bagPos)
+    local isLocked = itemInfo and itemInfo.isLocked
 
-    if foundSlotId then
-      -- the found slot with the queue slot
-      PickupInventoryItem(foundSlotId)
+    if not isLocked and not IsInventoryItemLocked(slotId) then
+      -- neither container item nor inventory item locked, perform swap
+      C_Container.PickupContainerItem(bagNumber, bagPos)
       PickupInventoryItem(slotId)
 
+      -- make sure to clear combatQueue
       mod.combatQueue.RemoveFromQueue(slotId)
 
       return -- abort
     end
 
-    mod.logger.LogDebug(me.tag, "Was unable to switch because the item to switch to could not be found")
-    mod.combatQueue.RemoveFromQueue(slotId)
+    failureReason = me.failureReason.itemLocked
   end
+
+  --[[
+    Special case for when an item can't be found in the bag. This can happen when the
+    user drag and drops an item that he has equipped onto another slot. This essentially
+    needs to cause a switch of those items. This is only possible for INVTYPE_TRINKET and
+    INVTYPE_FINGER
+  ]]--
+  local foundSlotId = me.FindEquipedItem(itemId)
+
+  if foundSlotId then
+    -- the found slot with the queue slot
+    PickupInventoryItem(foundSlotId)
+    PickupInventoryItem(slotId)
+
+    mod.combatQueue.RemoveFromQueue(slotId)
+
+    return -- abort
+  end
+
+  mod.logger.LogDebug(me.tag, "Was unable to switch because of failure reason: " .. failureReason)
+  NotifySwapFailure(failureReason, slotId, itemId)
+  mod.combatQueue.RemoveFromQueue(slotId)
+
+  return failureReason
 end
 
 --[[
@@ -569,16 +627,24 @@ end
 --[[
   Unequips the item from the referenced slot. Tries to unequip into the backpack first
   and then through all bags in order. If no space can be found the action is aborted
+  and the user is notified
 
   @param {table} slot
+
+  @return {string | nil}
+    string - me.failureReason.noBagSpace if no bag space could be found for the item
+    nil - if the item was unequipped (or the slot was empty to begin with)
 ]]--
 function me.UnequipItemToBag(slot)
+  local itemId = GetInventoryItemID(RGGM_CONSTANTS.UNIT_ID_PLAYER, slot.slotId)
+
   PickupInventoryItem(slot.slotId)
 
   for i = 0, 4 do
     for j = 1, C_Container.GetContainerNumSlots(i) do
-      local itemId = C_Container.GetContainerItemID(i, j)
-      if itemId == nil then
+      local containerItemId = C_Container.GetContainerItemID(i, j)
+
+      if containerItemId == nil then
         if i == 0 then
           PutItemInBackpack()
           break
@@ -590,7 +656,17 @@ function me.UnequipItemToBag(slot)
       end
     end
   end
+
+  -- if the item is still on the cursor no empty bag slot could take it
+  local noBagSpace = CursorHasItem()
+
   ClearCursor()
+
+  if noBagSpace then
+    NotifySwapFailure(me.failureReason.noBagSpace, slot.slotId, itemId)
+
+    return me.failureReason.noBagSpace
+  end
 end
 
 --[[

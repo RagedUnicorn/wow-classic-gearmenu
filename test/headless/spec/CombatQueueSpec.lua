@@ -306,6 +306,57 @@ describe("CombatQueue", function()
     end)
   end)
 
+  describe("ShouldNotifySwapFailure", function()
+    it("always allows the message for a slot without a queued entry", function()
+      assert.is_true(combatQueue.ShouldNotifySwapFailure(5, "ITEM_NOT_FOUND"))
+      assert.is_true(combatQueue.ShouldNotifySwapFailure(5, "ITEM_NOT_FOUND"))
+    end)
+
+    it("allows the first message for a queued entry", function()
+      combatQueue.AddToQueue(12345, nil, nil, 5)
+
+      assert.is_true(combatQueue.ShouldNotifySwapFailure(5, "CURSOR_BUSY"))
+    end)
+
+    it("suppresses a repeated reason for the same queued entry", function()
+      combatQueue.AddToQueue(12345, nil, nil, 5)
+
+      assert.is_true(combatQueue.ShouldNotifySwapFailure(5, "CURSOR_BUSY"))
+      assert.is_false(combatQueue.ShouldNotifySwapFailure(5, "CURSOR_BUSY"))
+    end)
+
+    it("allows the message again when the reason changes", function()
+      combatQueue.AddToQueue(12345, nil, nil, 5)
+
+      assert.is_true(combatQueue.ShouldNotifySwapFailure(5, "CURSOR_BUSY"))
+      assert.is_true(combatQueue.ShouldNotifySwapFailure(5, "ITEM_NOT_FOUND"))
+      assert.is_false(combatQueue.ShouldNotifySwapFailure(5, "ITEM_NOT_FOUND"))
+    end)
+
+    it("resets the guard when the entry is re-queued", function()
+      combatQueue.AddToQueue(12345, nil, nil, 5)
+      assert.is_true(combatQueue.ShouldNotifySwapFailure(5, "CURSOR_BUSY"))
+
+      combatQueue.AddToQueue(12345, nil, nil, 5)
+
+      assert.is_true(combatQueue.ShouldNotifySwapFailure(5, "CURSOR_BUSY"))
+    end)
+
+    it("tracks the guard per slot", function()
+      combatQueue.AddToQueue(12345, nil, nil, 5)
+      combatQueue.AddToQueue(54321, nil, nil, 7)
+
+      assert.is_true(combatQueue.ShouldNotifySwapFailure(5, "CURSOR_BUSY"))
+      assert.is_true(combatQueue.ShouldNotifySwapFailure(7, "CURSOR_BUSY"))
+      assert.is_false(combatQueue.ShouldNotifySwapFailure(5, "CURSOR_BUSY"))
+      assert.is_false(combatQueue.ShouldNotifySwapFailure(7, "CURSOR_BUSY"))
+    end)
+
+    it("allows the message when slotId is nil", function()
+      assert.is_true(combatQueue.ShouldNotifySwapFailure(nil, "NO_BAG_SPACE"))
+    end)
+  end)
+
   describe("UpdateEquipChangeBlockStatus / IsEquipChangeBlocked", function()
     --[[
       Installs a C_LossOfControl stub reporting `events` for the duration of `fn`, then restores it.
