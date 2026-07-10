@@ -93,6 +93,7 @@ RGGM_ENVIRONMENT = {
 
 -- load the pure modules in GearMenu.toc dependency order
 dofile("code/Constants.lua") -- defines RGGM_CONSTANTS
+dofile("code/Event.lua")     -- defines rggm.event (reaches rggm.logger only at Dispatch time)
 dofile("code/Logger.lua")    -- defines rggm.logger (reads RGGM_ENVIRONMENT at load time)
 dofile("code/Common.lua")    -- defines rggm.common (Clone; used by Configuration.SetupConfiguration)
 

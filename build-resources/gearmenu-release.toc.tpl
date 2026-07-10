@@ -20,6 +20,7 @@ localization/deDE.lua
 localization/zhCN.lua
 localization/ruRU.lua
 
+code/Event.lua
 code/Core.lua
 code/Logger.lua
 code/Cmd.lua

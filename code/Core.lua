@@ -30,9 +30,19 @@ local me = rggm
 
 me.tag = "Core"
 
-local initializationDone = false
 -- Forward declarations
-local RegisterEvents
+local OnPlayerEnteringWorld
+local OnBagUpdate
+local OnPlayerEquipmentChanged
+local OnUnitInventoryChanged
+local OnBagUpdateCooldown
+local OnUpdateBindings
+local OnLossOfControl
+local OnUnitSpellCastSucceeded
+local OnUnitSpellCastStop
+local OnPlayerAliveOrLeftCombat
+local OnPlayerRegenDisabled
+local OnPlayerTargetChanged
 local Initialize
 local ShowWelcomeMessage
 
@@ -49,178 +59,198 @@ end
 ]]--
 
 --[[
+  Run the bootstrap sequence on initial login or ui reload, then mark the event
+  bus ready so gated handlers begin firing.
+
+  @param {boolean} isInitialLogin
+  @param {boolean} isReloadingUi
+]]--
+OnPlayerEnteringWorld = function(isInitialLogin, isReloadingUi)
+  if isInitialLogin or isReloadingUi then
+    Initialize()
+    me.event.SetReady()
+  end
+end
+
+--[[
+  Request a bag update when a bags inventory changes.
+]]--
+OnBagUpdate = function()
+  me.itemManager.RequestBagUpdate()
+end
+
+--[[
+  Update the gearBar visuals when the player equips or unequips an item.
+]]--
+OnPlayerEquipmentChanged = function()
+  me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarVisual)
+end
+
+--[[
+  Update the gearBar visuals when the player's inventory changes.
+
+  @param {string} unit
+]]--
+OnUnitInventoryChanged = function(unit)
+  if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER then
+    me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarVisual)
+  end
+end
+
+--[[
+  Update gearSlot and trinketMenu cooldowns when a cooldown update call is sent to a bag.
+]]--
+OnBagUpdateCooldown = function()
+  me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarGearSlotCooldowns)
+
+  if me.configuration.IsTrinketMenuEnabled() then
+    me.trinketMenu.UpdateTrinketMenuSlotCooldowns()
+  end
+end
+
+--[[
+  Update the displayed keybindings when the keybindings are changed.
+]]--
+OnUpdateBindings = function()
+  --[[
+    On starting up the addon often times GetBindingAction will not return the correct keybinding set but rather an
+    empty string. To prevent this a slight delay is required.
+  ]]--
+  C_Timer.After(RGGM_CONSTANTS.KEYBIND_UPDATE_DELAY, me.keyBind.OnUpdateKeyBindings)
+end
+
+--[[
+  Update the equip change block status when a loss of control is added, updated or removed.
+]]--
+OnLossOfControl = function()
+  me.combatQueue.UpdateEquipChangeBlockStatus()
+end
+
+--[[
+  Process quickChange rules and the combat queue after a successful spellcast of the
+  player. Channelled spells are skipped - the queue is processed once the channel stops.
+
+  @param {vararg} ...
+]]--
+OnUnitSpellCastSucceeded = function(...)
+  local unit = ...
+
+  if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER then
+    local channelledSpell = UnitChannelInfo(RGGM_CONSTANTS.UNIT_ID_PLAYER)
+
+    if not channelledSpell then
+      me.quickChange.OnUnitSpellCastSucceeded(...)
+      me.combatQueue.ProcessQueue()
+    end
+  end
+end
+
+--[[
+  Process the combat queue when the player's spellcast is interrupted or the
+  player stops channeling.
+
+  @param {string} unit
+]]--
+OnUnitSpellCastStop = function(unit)
+  if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER then
+    me.combatQueue.ProcessQueue()
+  end
+end
+
+--[[
+  Player is alive again or left combat - work through all combat queues.
+]]--
+OnPlayerAliveOrLeftCombat = function()
+  if not me.common.IsPlayerReallyDead() then
+    me.ticker.StartTickerCombatQueue()
+  end
+end
+
+--[[
+  Stop the combat queue ticker when the player enters combat status.
+]]--
+OnPlayerRegenDisabled = function()
+  me.ticker.StopTickerCombatQueue()
+end
+
+--[[
+  Update the tracked target when the player's target changes.
+]]--
+OnPlayerTargetChanged = function()
+  me.target.UpdateCurrentTarget()
+end
+
+--[[
   Addon load
 
   @param {table} self
 ]]--
 function me.OnLoad(self)
-  RegisterEvents(self)
-end
-
---[[
-  Register addon events
-
-  @param {table} self
-]]--
-RegisterEvents = function(self)
   -- Fired when the player logs in, /reloads the UI, or zones between map instances
-  self:RegisterEvent("PLAYER_ENTERING_WORLD")
+  me.event.Register("PLAYER_ENTERING_WORLD", OnPlayerEnteringWorld)
   -- Fires when a bags inventory changes
-  self:RegisterEvent("BAG_UPDATE")
+  me.event.Register("BAG_UPDATE", OnBagUpdate, { gated = true })
   --[[
     Fires when the player equips or unequips an item
     This is already filtered for the player only and seems to work better than UNIT_INVENTORY_CHANGED
     UNIT_INVENTORY_CHANGED does not fire when equipping between items that have the same id but might
     have different enchantments or rune engravings
   ]]--
-  self:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
+  me.event.Register("PLAYER_EQUIPMENT_CHANGED", OnPlayerEquipmentChanged, { gated = true })
   -- Fires when the player equips or unequips an item this is used as fallback during initial login of the player
-  self:RegisterUnitEvent("UNIT_INVENTORY_CHANGED", "player")
-  -- Fires when the player leaves combat status
-  self:RegisterEvent("PLAYER_REGEN_ENABLED")
-  -- Fires when the player enters combat status
-  self:RegisterEvent("PLAYER_REGEN_DISABLED")
-  -- Fires when a player resurrects after being in spirit form
-  self:RegisterEvent("PLAYER_UNGHOST")
-  -- Fires when the player's spirit is released after death or when the player accepts a resurrection without releasing
-  self:RegisterEvent("PLAYER_ALIVE")
+  me.event.Register(
+    "UNIT_INVENTORY_CHANGED",
+    OnUnitInventoryChanged,
+    { gated = true, unit = RGGM_CONSTANTS.UNIT_ID_PLAYER }
+  )
   -- Fires when a cooldown update call is sent to a bag
-  self:RegisterEvent("BAG_UPDATE_COOLDOWN")
+  me.event.Register("BAG_UPDATE_COOLDOWN", OnBagUpdateCooldown, { gated = true })
   -- Fires when the keybindings are changed.
-  self:RegisterEvent("UPDATE_BINDINGS")
+  me.event.Register("UPDATE_BINDINGS", OnUpdateBindings)
+  -- Fires when the player is affected by some sort of control loss and when it is updated (or removed)
+  me.event.Register(
+    { "LOSS_OF_CONTROL_ADDED", "LOSS_OF_CONTROL_UPDATE" },
+    OnLossOfControl,
+    { gated = true }
+  )
   -- Fires when a spell is cast successfully. Event is received even if spell is resisted.
-  self:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
-  -- Fires when a unit's spellcast is interrupted
-  self:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", "player")
-  -- Fires when the player is affected by some sort of control loss
-  self:RegisterEvent("LOSS_OF_CONTROL_ADDED")
-  -- Fires when the a loss of control is updated (or removed)
-  self:RegisterEvent("LOSS_OF_CONTROL_UPDATE")
+  me.event.Register(
+    "UNIT_SPELLCAST_SUCCEEDED",
+    OnUnitSpellCastSucceeded,
+    { gated = true, unit = RGGM_CONSTANTS.UNIT_ID_PLAYER }
+  )
+  -- Fires when a unit's spellcast is interrupted and when a unit stops channeling
+  me.event.Register(
+    { "UNIT_SPELLCAST_INTERRUPTED", "UNIT_SPELLCAST_CHANNEL_STOP" },
+    OnUnitSpellCastStop,
+    { gated = true, unit = RGGM_CONSTANTS.UNIT_ID_PLAYER }
+  )
+  --[[
+    Fires when the player leaves combat status, when a player resurrects after being in spirit form
+    and when the player's spirit is released after death or when the player accepts a resurrection
+    without releasing
+  ]]--
+  me.event.Register(
+    { "PLAYER_REGEN_ENABLED", "PLAYER_UNGHOST", "PLAYER_ALIVE" },
+    OnPlayerAliveOrLeftCombat,
+    { gated = true }
+  )
+  -- Fires when the player enters combat status
+  me.event.Register("PLAYER_REGEN_DISABLED", OnPlayerRegenDisabled, { gated = true })
   -- Register to the event that fires when the players target changes
-  self:RegisterEvent("PLAYER_TARGET_CHANGED")
-  -- Fired when a unit stops channeling
-  self:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_STOP", "player")
+  me.event.Register("PLAYER_TARGET_CHANGED", OnPlayerTargetChanged, { gated = true })
+
+  me.event.Setup(self)
 end
 
 --[[
-  MainFrame OnEvent handler
+  MainFrame OnEvent handler. Delegates to the event bus for dispatch.
 
   @param {string} event
-  @param {table} vararg
+  @param {vararg} ...
 ]]--
 function me.OnEvent(event, ...)
-  if event == "PLAYER_ENTERING_WORLD" then
-    me.logger.LogEvent(me.tag, "PLAYER_ENTERING_WORLD")
-
-    local isInitialLogin, isReloadingUi = ...
-
-    if isInitialLogin or isReloadingUi then
-      Initialize()
-    end
-  elseif event == "BAG_UPDATE" then
-    me.logger.LogEvent(me.tag, "BAG_UPDATE")
-
-    if initializationDone then
-      me.itemManager.RequestBagUpdate()
-    end
-  elseif event == "PLAYER_EQUIPMENT_CHANGED" then
-    me.logger.LogEvent(me.tag, "PLAYER_EQUIPMENT_CHANGED")
-
-    if initializationDone then
-      me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarVisual)
-    end
-  elseif event == "UNIT_INVENTORY_CHANGED" then
-    me.logger.LogEvent(me.tag, "UNIT_INVENTORY_CHANGED")
-
-    local unit = ...
-
-    if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER and initializationDone then
-      me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarVisual)
-    end
-  elseif event == "BAG_UPDATE_COOLDOWN" then
-    me.logger.LogEvent(me.tag, "BAG_UPDATE_COOLDOWN")
-
-    if initializationDone then
-      me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarGearSlotCooldowns)
-      if me.configuration.IsTrinketMenuEnabled() then
-        me.trinketMenu.UpdateTrinketMenuSlotCooldowns()
-      end
-    end
-  elseif event == "UPDATE_BINDINGS" then
-    me.logger.LogEvent(me.tag, "UPDATE_BINDINGS")
-
-    --[[
-      On starting up the addon often times GetBindingAction will not return the correct keybinding set but rather an
-      empty string. To prevent this a slight delay is required.
-    ]]--
-    C_Timer.After(RGGM_CONSTANTS.KEYBIND_UPDATE_DELAY, me.keyBind.OnUpdateKeyBindings)
-  elseif event == "LOSS_OF_CONTROL_ADDED" then
-    me.logger.LogEvent(me.tag, "LOSS_OF_CONTROL_ADDED")
-
-    if initializationDone then
-      me.combatQueue.UpdateEquipChangeBlockStatus()
-    end
-  elseif event == "LOSS_OF_CONTROL_UPDATE" then
-    me.logger.LogEvent(me.tag, "LOSS_OF_CONTROL_UPDATE")
-
-    if initializationDone then
-      me.combatQueue.UpdateEquipChangeBlockStatus()
-    end
-  elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
-    me.logger.LogEvent(me.tag, "UNIT_SPELLCAST_SUCCEEDED")
-    local unit = ...
-
-    if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER and initializationDone then
-      local channelledSpell = UnitChannelInfo(RGGM_CONSTANTS.UNIT_ID_PLAYER)
-
-      if not channelledSpell then
-        me.quickChange.OnUnitSpellCastSucceeded(...)
-        me.combatQueue.ProcessQueue()
-      end
-    end
-  elseif event == "UNIT_SPELLCAST_INTERRUPTED" then
-    me.logger.LogEvent(me.tag, "UNIT_SPELLCAST_INTERRUPTED")
-
-    local unit = ...
-
-    if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER and initializationDone then
-      me.combatQueue.ProcessQueue()
-    end
-  elseif event == "UNIT_SPELLCAST_CHANNEL_STOP" then
-    me.logger.LogEvent(me.tag, "UNIT_SPELLCAST_CHANNEL_STOP")
-
-    local unit = ...
-
-    if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER and initializationDone then
-      me.combatQueue.ProcessQueue()
-    end
-  elseif (event == "PLAYER_REGEN_ENABLED" or event == "PLAYER_UNGHOST" or event == "PLAYER_ALIVE")
-    and not me.common.IsPlayerReallyDead() then
-      if event == "PLAYER_REGEN_ENABLED" then
-        me.logger.LogEvent(me.tag, "PLAYER_REGEN_ENABLED")
-      elseif event == "PLAYER_UNGHOST" then
-        me.logger.LogEvent(me.tag, "PLAYER_UNGHOST")
-      elseif event == "PLAYER_ALIVE" then
-        me.logger.LogEvent(me.tag, "PLAYER_ALIVE")
-      end
-
-      if initializationDone then
-        -- player is alive again or left combat - work through all combat queues
-        me.ticker.StartTickerCombatQueue()
-      end
-  elseif event == "PLAYER_REGEN_DISABLED" then
-    me.logger.LogEvent(me.tag, "PLAYER_REGEN_DISABLED")
-
-    if initializationDone then
-      me.ticker.StopTickerCombatQueue()
-    end
-  elseif event == "PLAYER_TARGET_CHANGED" then
-    me.logger.LogEvent(me.tag, "PLAYER_TARGET_CHANGED")
-
-    if initializationDone then
-      me.target.UpdateCurrentTarget()
-    end
-  end
+  me.event.Dispatch(event, ...)
 end
 
 --[[
@@ -251,9 +281,6 @@ Initialize = function()
     -- update initial view of trinketMenu
     me.trinketMenu.UpdateTrinketMenu()
   end
-
-  -- initialization is done
-  initializationDone = true
 
   me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarVisual)
   me.keyBind.OnUpdateKeyBindings()
