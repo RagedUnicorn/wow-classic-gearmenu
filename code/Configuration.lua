@@ -42,7 +42,10 @@ me.tag = "Configuration"
 
   Each entry is a { ["name"], ["default"] } record, matching the metadata-record idiom
   used elsewhere (see gearSlots in code/GearManager.lua and PROFILE_FIELD_SPEC in
-  code/Profile.lua).
+  code/Profile.lua). Table defaults are merged recursively -- a saved table gains any
+  key it lacks but keeps every value it holds. Entries marked ["userOwned"] = true are
+  collections whose content is created by the player (or by migration paths); for those
+  the merge only guarantees the container exists and never descends into it.
 ]]--
 local CONFIGURATION_DEFAULTS = {
   --[[
@@ -118,7 +121,7 @@ local CONFIGURATION_DEFAULTS = {
         e.g. {"LEFT", 150, 0}
     }
   ]]--
-  { ["name"] = "gearBars", ["default"] = {} },
+  { ["name"] = "gearBars", ["default"] = {}, ["userOwned"] = true },
   --[[
     example
     {
@@ -137,7 +140,7 @@ local CONFIGURATION_DEFAULTS = {
       ["delay"] = {number} -- delay in seconds
     }
   ]]--
-  { ["name"] = "quickChangeRules", ["default"] = {} },
+  { ["name"] = "quickChangeRules", ["default"] = {}, ["userOwned"] = true },
   --[[
     Framepositions for user draggable Frames
     frames = {
@@ -150,7 +153,7 @@ local CONFIGURATION_DEFAULTS = {
       ...
     }
   ]]--
-  { ["name"] = "frames", ["default"] = {} },
+  { ["name"] = "frames", ["default"] = {}, ["userOwned"] = true },
   --[[
     Whether the trinketMenu is enabled or not
   ]]--
@@ -183,7 +186,7 @@ local CONFIGURATION_DEFAULTS = {
     Named configuration profiles keyed by the user given name. Each entry is a
     snapshot of the configurable fields (see code/Profile.lua me.PROFILE_FIELDS)
   ]]--
-  { ["name"] = "profiles", ["default"] = {} }
+  { ["name"] = "profiles", ["default"] = {}, ["userOwned"] = true }
 }
 
 --[[
@@ -192,15 +195,42 @@ local CONFIGURATION_DEFAULTS = {
 ]]--
 GearMenuConfiguration = GearMenuConfiguration or {}
 
+-- forward declarations
+local ApplyConfigurationDefaults
+
+--[[
+  Recursively backfill missing keys of target with a fresh deep copy of the matching
+  defaults value. A key is missing only when its value is nil -- false is a real value
+  and is never overwritten. When both sides hold a table the merge descends instead of
+  replacing, so a saved subtable keeps the player's values and only gains keys it lacks.
+
+  @param {table} target
+  @param {table} defaults
+]]--
+function me.MergeDefaults(target, defaults)
+  for key, value in pairs(defaults) do
+    if target[key] == nil then
+      target[key] = mod.common.Clone(value)
+    elseif type(target[key]) == "table" and type(value) == "table" then
+      me.MergeDefaults(target[key], value)
+    end
+  end
+end
+
 --[[
   Fill any missing field of the live GearMenuConfiguration with a fresh deep copy of
   its default. Seeds a brand-new config and backfills fields a saved config from an
-  older addon version is missing.
+  older addon version is missing. Table fields merge recursively so a newly added
+  nested default reaches upgrading players -- except userOwned collections, whose
+  content belongs to the player and is never touched beyond creating the container.
 ]]--
-local function ApplyConfigurationDefaults()
+ApplyConfigurationDefaults = function()
   for _, entry in ipairs(CONFIGURATION_DEFAULTS) do
     if GearMenuConfiguration[entry.name] == nil then
       GearMenuConfiguration[entry.name] = mod.common.Clone(entry.default)
+    elseif not entry.userOwned and type(entry.default) == "table"
+      and type(GearMenuConfiguration[entry.name]) == "table" then
+      me.MergeDefaults(GearMenuConfiguration[entry.name], entry.default)
     end
   end
 end

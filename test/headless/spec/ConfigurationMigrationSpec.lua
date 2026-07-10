@@ -403,6 +403,67 @@ describe("Configuration migration", function()
         RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_LEFT, config.gearBars[1].changeMenuDirection)
     end)
 
+    -- the defaults-backfill fixtures set firstTimeInitializationDone so SetAddonVersion does not
+    -- run FirstTimeInitialization (its AddGearSlot/UpdateGearSlot collaborators are not stubbed)
+    it("backfills a missing scalar field with its declared default", function()
+      local config = useConfig({ firstTimeInitializationDone = true })
+
+      configuration.SetupConfiguration()
+
+      assert.is_true(config.enableTooltips)
+      assert.are.equal(2, config.filterItemQuality)
+      assert.are.same({}, config.gearBars)
+    end)
+
+    it("backfills a missing boolean false default as false, not merely truthy", function()
+      local config = useConfig({ firstTimeInitializationDone = true })
+
+      configuration.SetupConfiguration()
+
+      assert.is_false(config.enableSimpleTooltips)
+      assert.is_false(config.enableFastPress)
+      assert.is_false(config.lockTrinketMenuFrame)
+    end)
+
+    it("preserves a saved false value for a field whose default is true", function()
+      local config = useConfig({ firstTimeInitializationDone = true, enableTooltips = false })
+
+      configuration.SetupConfiguration()
+
+      assert.is_false(config.enableTooltips)
+    end)
+
+    it("leaves user-owned collection content untouched", function()
+      local config = useConfig({
+        firstTimeInitializationDone = true,
+        profiles = { raid = { enableTooltips = false, filterItemQuality = 4 } },
+        quickChangeRules = { { changeFromItemId = 1, changeToItemId = 2, delay = 0 } },
+        frames = { GM_TrinketMenu = { point = "CENTER", posX = 5, posY = 10 } }
+      })
+
+      configuration.SetupConfiguration()
+
+      assert.are.same({ raid = { enableTooltips = false, filterItemQuality = 4 } }, config.profiles)
+      assert.are.same({ { changeFromItemId = 1, changeToItemId = 2, delay = 0 } }, config.quickChangeRules)
+      assert.are.same({ GM_TrinketMenu = { point = "CENTER", posX = 5, posY = 10 } }, config.frames)
+    end)
+
+    it("produces the same effective configuration for a fresh install and an upgrade", function()
+      local freshConfig = useConfig({ firstTimeInitializationDone = true })
+      configuration.SetupConfiguration()
+
+      -- an upgraded player carries some fields from the previous version; the rest are missing
+      local upgradedConfig = useConfig({
+        firstTimeInitializationDone = true,
+        addonVersion = "v2.0.0",
+        enableTooltips = true,
+        filterItemQuality = 2
+      })
+      configuration.SetupConfiguration()
+
+      assert.are.same(freshConfig, upgradedConfig)
+    end)
+
     it("backfills each bar independently", function()
       local config = useConfig({
         gearBars = {
@@ -424,6 +485,37 @@ describe("Configuration migration", function()
       assert.are.equal(RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL, config.gearBars[2].orientation)
       assert.are.equal(
         RGGM_CONSTANTS.GEAR_BAR_CHANGE_MENU_DIRECTION_RIGHT, config.gearBars[2].changeMenuDirection)
+    end)
+  end)
+
+  describe("MergeDefaults", function()
+    it("fills a missing nested key while preserving present sibling values", function()
+      local target = { window = { posX = 10 } }
+      local defaults = { window = { posX = 0, posY = 0 }, scale = 1 }
+
+      configuration.MergeDefaults(target, defaults)
+
+      assert.are.equal(10, target.window.posX)
+      assert.are.equal(0, target.window.posY)
+      assert.are.equal(1, target.scale)
+    end)
+
+    it("treats false as a present value and never overwrites it", function()
+      local target = { enabled = false }
+
+      configuration.MergeDefaults(target, { enabled = true })
+
+      assert.is_false(target.enabled)
+    end)
+
+    it("deep-copies a backfilled table so the defaults are never aliased", function()
+      local target = {}
+      local defaults = { window = { posX = 0 } }
+
+      configuration.MergeDefaults(target, defaults)
+      target.window.posX = 42
+
+      assert.are.equal(0, defaults.window.posX)
     end)
   end)
 
