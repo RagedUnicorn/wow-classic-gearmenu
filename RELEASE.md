@@ -16,6 +16,6 @@ Push all commits before proceeding
     * https://github.com/RagedUnicorn/wow-classic-gearmenu/actions/workflows/release_wago.yaml
 
 > Note: When updating the addon for a new WoW release the following properties have to be updated in `pom.xml`
-> * addon.curseforge.gameVersion
-> * addon.interface
-> * addon.supported.patch
+> * addon.curseforge.gameVersionClassic / addon.curseforge.gameVersionTbcc / addon.curseforge.gameVersionMop
+> * addon.interface.classic / addon.interface.tbcc / addon.interface.mop
+> * addon.supported.patch.classic / addon.supported.patch.tbcc / addon.supported.patch.mop
