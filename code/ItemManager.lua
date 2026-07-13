@@ -146,38 +146,32 @@ function me.GetItemsForInventoryType(inventoryType)
     return items
   end
 
-  for i = 0, 4 do
-    for j = 1, C_Container.GetContainerNumSlots(i) do
-      local itemLink = C_Container.GetContainerItemLink(i, j)
-      local itemInfo = mod.common.GetItemInfo(itemLink)
-      local rune = mod.engrave.GetRuneForInventorySlot(i, j)
+  for _, entry in ipairs(mod.itemLocationCache.GetBagEntries()) do
+    -- runes are not cached (engraving fires no bag event) - read live per occupied slot
+    local rune = mod.engrave.GetRuneForInventorySlot(entry.bagNumber, entry.bagPos)
+    local itemName, _, itemRarity, _, _, _, _, _, equipSlot, itemIcon = C_Item.GetItemInfo(entry.itemId)
 
-      if itemInfo.itemId then
-        local itemName, _, itemRarity, _, _, _, _, _, equipSlot, itemIcon = C_Item.GetItemInfo(itemInfo.itemId)
-
-        for it = 1, #inventoryType do
-          if equipSlot == inventoryType[it] then
-            if itemRarity >= mod.configuration.GetFilterItemQuality() then
-              if not items[idx] then
-                items[idx] = {}
-              end
-
-              items[idx].bag = i
-              items[idx].slot = j
-              items[idx].name = itemName
-              items[idx].icon = itemIcon
-              items[idx].id = itemInfo.itemId
-              items[idx].equipSlot = equipSlot
-              items[idx].quality = itemRarity
-              items[idx].enchantId = itemInfo.enchantId
-              items[idx].rune = rune or nil
-
-              idx = idx + 1
-            else
-              mod.logger.LogDebug(me.tag, "Ignoring item because its quality is lower than setting "
-                .. mod.configuration.GetFilterItemQuality())
-            end
+    for it = 1, #inventoryType do
+      if equipSlot == inventoryType[it] then
+        if itemRarity >= mod.configuration.GetFilterItemQuality() then
+          if not items[idx] then
+            items[idx] = {}
           end
+
+          items[idx].bag = entry.bagNumber
+          items[idx].slot = entry.bagPos
+          items[idx].name = itemName
+          items[idx].icon = itemIcon
+          items[idx].id = entry.itemId
+          items[idx].equipSlot = equipSlot
+          items[idx].quality = itemRarity
+          items[idx].enchantId = entry.enchantId
+          items[idx].rune = rune or nil
+
+          idx = idx + 1
+        else
+          mod.logger.LogDebug(me.tag, "Ignoring item because its quality is lower than setting "
+            .. mod.configuration.GetFilterItemQuality())
         end
       end
     end
@@ -386,34 +380,51 @@ function me.FindEquipedItem(itemId)
 end
 
 --[[
-  Scan all bags for an item matching the passed itemId, enchantId and runeAbilityId
+  Find a bag location holding an item matching the passed itemId, enchantId and runeAbilityId.
+  Candidate locations come from the item location cache; each candidate is re-verified against
+  the live container link so a stale cache entry can never equip the wrong item. If the live
+  contents diverged from the cache the scan retries once against a rebuilt cache
 
   @param {number} itemId
   @param {number} enchantId
     Optional enchantId to match
   @param {number} runeAbilityId
     Optional runeAbilityId to match
+  @param {boolean} isRetry
+    Internal; true when re-scanning after a stale cache was detected and invalidated
 
   @return {number | nil}, {number | nil}
     number - the bagNumber where the item was found
     number - the bagPos where the item was found
     nil - if the item could not be found
 ]]--
-ScanBagsForItem = function(itemId, enchantId, runeAbilityId)
-  for i = 0, 4 do
-    for j = 1, C_Container.GetContainerNumSlots(i) do
-      local itemLink = C_Container.GetContainerItemLink(i, j)
-      local itemInfo = mod.common.GetItemInfo(itemLink)
-      local rune = mod.engrave.GetRuneForInventorySlot(i, j)
+ScanBagsForItem = function(itemId, enchantId, runeAbilityId, isRetry)
+  local locations = mod.itemLocationCache.GetItemLocations(itemId)
+  local staleEntryDetected = false
 
-      if itemInfo.itemId == itemId then
-        if me.IsEnchantIdMatching(itemInfo, enchantId) and me.IsRuneAbilityIdMatching(rune, runeAbilityId) then
-          mod.logger.LogDebug(me.tag, "Found item in bag: " .. i .. " at position: " .. j)
+  for i = 1, #locations do
+    local entry = locations[i]
+    local itemLink = C_Container.GetContainerItemLink(entry.bagNumber, entry.bagPos)
+    local itemInfo = mod.common.GetItemInfo(itemLink)
+    -- runes are not cached (engraving fires no bag event) - read live per candidate
+    local rune = mod.engrave.GetRuneForInventorySlot(entry.bagNumber, entry.bagPos)
 
-          return i, j
-        end
+    if itemInfo.itemId == itemId then
+      if me.IsEnchantIdMatching(itemInfo, enchantId) and me.IsRuneAbilityIdMatching(rune, runeAbilityId) then
+        mod.logger.LogDebug(me.tag, "Found item in bag: " .. entry.bagNumber .. " at position: " .. entry.bagPos)
+
+        return entry.bagNumber, entry.bagPos
       end
+    else
+      staleEntryDetected = true
     end
+  end
+
+  if staleEntryDetected and not isRetry then
+    mod.logger.LogDebug(me.tag, "Item location cache diverged from live bag contents - rescanning")
+    mod.itemLocationCache.Invalidate()
+
+    return ScanBagsForItem(itemId, enchantId, runeAbilityId, true)
   end
 
   return nil, nil

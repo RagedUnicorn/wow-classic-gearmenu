@@ -33,6 +33,7 @@ me.tag = "Core"
 -- Forward declarations
 local OnPlayerEnteringWorld
 local OnBagUpdate
+local OnItemLockChanged
 local OnPlayerEquipmentChanged
 local OnUnitInventoryChanged
 local OnBagUpdateCooldown
@@ -73,10 +74,20 @@ OnPlayerEnteringWorld = function(isInitialLogin, isReloadingUi)
 end
 
 --[[
-  Request a bag update when a bags inventory changes.
+  Invalidate the item location cache and request a debounced bag update when a bags
+  inventory changes.
 ]]--
 OnBagUpdate = function()
+  me.itemLocationCache.Invalidate()
   me.itemManager.RequestBagUpdate()
+end
+
+--[[
+  Invalidate the item location cache when an item is locked or unlocked. The event fires
+  while items are picked up and placed, i.e. whenever bag contents are about to change.
+]]--
+OnItemLockChanged = function()
+  me.itemLocationCache.Invalidate()
 end
 
 --[[
@@ -190,6 +201,8 @@ function me.OnLoad(self)
   me.event.Register("PLAYER_ENTERING_WORLD", OnPlayerEnteringWorld)
   -- Fires when a bags inventory changes
   me.event.Register("BAG_UPDATE", OnBagUpdate, { gated = true })
+  -- Fires when an item gets locked or unlocked while items are moved around
+  me.event.Register("ITEM_LOCK_CHANGED", OnItemLockChanged, { gated = true })
   --[[
     Fires when the player equips or unequips an item
     This is already filtered for the player only and seems to work better than UNIT_INVENTORY_CHANGED

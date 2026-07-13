@@ -29,6 +29,7 @@ code/Tooltip.lua
 code/Target.lua
 code/GearManager.lua
 code/GearBarManager.lua
+code/ItemLocationCache.lua
 code/ItemManager.lua
 code/CombatQueue.lua
 code/QuickChange.lua

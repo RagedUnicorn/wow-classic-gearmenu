@@ -85,6 +85,7 @@ describe("ItemManager swap failures", function()
       gearBar = rggm.gearBar,
       ticker = rggm.ticker,
       combatQueue = rggm.combatQueue,
+      itemLocationCache = rggm.itemLocationCache,
       itemManager = rggm.itemManager
     }
 
@@ -173,6 +174,7 @@ describe("ItemManager swap failures", function()
 
     -- fresh module tables with empty file-local state (see test/headless/Bootstrap.lua)
     dofile("code/CombatQueue.lua")
+    dofile("code/ItemLocationCache.lua")
     dofile("code/ItemManager.lua")
     combatQueue = rggm.combatQueue
     itemManager = rggm.itemManager
@@ -190,6 +192,7 @@ describe("ItemManager swap failures", function()
     rggm.gearBar = previousModules.gearBar
     rggm.ticker = previousModules.ticker
     rggm.combatQueue = previousModules.combatQueue
+    rggm.itemLocationCache = previousModules.itemLocationCache
     rggm.itemManager = previousModules.itemManager
   end)
 
