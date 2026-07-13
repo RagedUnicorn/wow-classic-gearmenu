@@ -36,7 +36,7 @@ me.tag = "TrinketMenu"
   Local references to heavily accessed targetcastbar ui elements
 ]]--
 local trinketMenuFrame
-local trinketMenuSlots = {}
+local trinketMenuSlotPool
 
 function me.BuildTrinketMenu()
   if trinketMenuFrame ~= nil then return end -- ui already built
@@ -70,6 +70,10 @@ function me.BuildTrinketMenu()
   -- prevent dragging the frame outside the actual 3d-window
   trinketMenuFrame:SetClampedToScreen(true)
 
+  trinketMenuSlotPool = mod.uiHelper.CreateFramePool(function(position)
+    return mod.themeCoordinator.CreateTrinketSlot(trinketMenuFrame, position)
+  end)
+
   me.SetupDragFrame(trinketMenuFrame)
   me.CreateTrinketMenuSlots()
   me.UpdateTrinketMenuLockedState()
@@ -81,9 +85,7 @@ end
 ]]--
 function me.CreateTrinketMenuSlots()
   for position = 1, RGGM_CONSTANTS.TRINKET_MENU_DEFAULT_SLOT_AMOUNT do
-    local trinketSlot = mod.themeCoordinator.CreateTrinketSlot(trinketMenuFrame, position)
-    table.insert(trinketMenuSlots, trinketSlot) -- store trinketSlot
-    trinketSlot:Hide()
+    trinketMenuSlotPool.Acquire(position):Hide()
   end
 end
 
@@ -138,41 +140,27 @@ end
 ]]--
 function me.UpdateTrinketMenuSlotSize()
   local trinketMenuSlotSize = mod.configuration.GetTrinketMenuSlotSize()
+  local trinketMenuColumnAmount = mod.configuration.GetTrinketMenuColumnAmount()
 
-  for index = 1, RGGM_CONSTANTS.TRINKET_MENU_DEFAULT_SLOT_AMOUNT, mod.configuration.GetTrinketMenuColumnAmount() do
-    local row = math.floor(index / mod.configuration.GetTrinketMenuColumnAmount())
+  for index = 1, RGGM_CONSTANTS.TRINKET_MENU_DEFAULT_SLOT_AMOUNT do
+    local trinketMenuSlot = trinketMenuSlotPool.Acquire(index)
+    local xPos, yPos = mod.uiHelper.CalculateGridPosition(index, trinketMenuColumnAmount, trinketMenuSlotSize)
 
-    --[[
-      special case for single row config
-    ]]--
-    if mod.configuration.GetTrinketMenuColumnAmount() == 1 then
-      row = row -1
-    end
+    trinketMenuSlot:SetSize(
+      trinketMenuSlotSize,
+      trinketMenuSlotSize
+    )
 
-    for column = 1, mod.configuration.GetTrinketMenuColumnAmount() do
-      if index + column - 1 > RGGM_CONSTANTS.TRINKET_MENU_DEFAULT_SLOT_AMOUNT then break end
+    trinketMenuSlot:ClearAllPoints()
+    trinketMenuSlot:SetPoint(
+      "BOTTOMLEFT",
+      trinketMenuFrame,
+      "BOTTOMLEFT",
+      xPos,
+      yPos
+    )
 
-      local trinketMenuSlot = trinketMenuSlots[index + column -1]
-
-      trinketMenuSlot:SetSize(
-        trinketMenuSlotSize,
-        trinketMenuSlotSize
-      )
-
-      local yPos = row * trinketMenuSlotSize
-      local xPos = (column - 1) * trinketMenuSlotSize
-
-      trinketMenuSlot:ClearAllPoints()
-      trinketMenuSlot:SetPoint(
-        "BOTTOMLEFT",
-        trinketMenuFrame,
-        "BOTTOMLEFT",
-        xPos,
-        yPos
-      )
-
-      mod.themeCoordinator.UpdateSlotTextureAttributes(trinketMenuSlot, trinketMenuSlotSize)
-    end
+    mod.themeCoordinator.UpdateSlotTextureAttributes(trinketMenuSlot, trinketMenuSlotSize)
   end
 end
 
@@ -188,9 +176,9 @@ function me.UpdateTrinketMenuSlots(items)
 
   for index = 1, RGGM_CONSTANTS.TRINKET_MENU_DEFAULT_SLOT_AMOUNT do
     if items[index] ~= nil then
-      me.UpdateTrinketMenuSlot(trinketMenuSlots[index], items[index], trinketMenuSlotSize)
+      me.UpdateTrinketMenuSlot(trinketMenuSlotPool.Acquire(index), items[index], trinketMenuSlotSize)
     else
-      me.ResetTrinketMenuSlot(trinketMenuSlots[index])
+      me.ResetTrinketMenuSlot(trinketMenuSlotPool.Acquire(index))
     end
   end
 end
@@ -217,7 +205,7 @@ end
 function me.UpdateTrinketMenuSlotCooldowns()
   local showCooldowns = mod.configuration.IsShowCooldownsEnabled()
 
-  for _, slot in pairs(trinketMenuSlots) do
+  trinketMenuSlotPool.ForEach(function(slot)
     local itemId = slot.itemId
     local cooldownOverlay = slot.cooldownOverlay
 
@@ -232,7 +220,7 @@ function me.UpdateTrinketMenuSlotCooldowns()
     else
       CooldownFrame_Clear(cooldownOverlay)
     end
-  end
+  end)
 end
 
 --[[
