@@ -1,4 +1,4 @@
-## Interface: 11508, 20506, 50504
+## Interface: 11509, 20506, 50504
 ## Title: GearMenu
 ## Author: Michael Wiesendanger <michael.wiesendanger@gmail.com>
 ## Notes: Addon to manage and keybind usable gear
