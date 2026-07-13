@@ -35,6 +35,8 @@ if (GetLocale() == "zhCN") then
   rggm.L["enable_unequip_slot_tooltip"] = "允许将一个空插槽添加到changeMenu。这样可以更轻松地取消装备"
   rggm.L["enable_rune_slots"] = "启用符文插槽"
   rggm.L["enable_rune_slots_tooltip"] = "在GearBar中启用符文插槽的显示"
+  rggm.L["enable_fallback_to_base_item"] = "回退到基础物品"
+  rggm.L["enable_fallback_to_base_item_tooltip"] = "当背包中找不到附魔/铭刻完全一致的物品时，改为装备同一物品的普通副本。装备替代副本时会在聊天框中显示警告"
   rggm.L["filter_item_quality"] = "过滤物品品质:"
   rggm.L["item_quality_poor"] = "灰色"
   rggm.L["item_quality_common"] = "白色"
@@ -169,6 +171,7 @@ if (GetLocale() == "zhCN") then
   rggm.L["swap_failure_cursor_busy"] = "无法切换到物品 %s - 光标上有其他物品"
   rggm.L["swap_failure_spell_targeting"] = "无法切换到物品 %s - 有法术正在等待目标"
   rggm.L["swap_failure_no_bag_space"] = "无法卸下物品 %s - 背包中没有空余空间"
+  rggm.L["swap_fallback_to_base_item"] = "已装备 %s 的替代副本 - 背包中找不到附魔/符文完全一致的副本"
 
   -- profile
   rggm.L["profile_category_name"] = "配置文件"

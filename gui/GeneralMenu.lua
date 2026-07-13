@@ -69,6 +69,12 @@ local enableRuneSlotsMetaData = {
   rggm.L["enable_rune_slots_tooltip"]
 }
 
+local enableFallbackToBaseItemMetaData = {
+  "EnableFallbackToBaseItem",
+  rggm.L["enable_fallback_to_base_item"],
+  rggm.L["enable_fallback_to_base_item_tooltip"]
+}
+
 -- track whether the menu was already built
 local builtMenu = false
 
@@ -153,6 +159,15 @@ function me.BuildUi(parentFrame)
     me.EnableUnequipSlotOnShow,
     me.EnableUnequipSlotOnClick,
     enableUnequipSlotMetaData
+  )
+
+  mod.uiHelper.BuildCheckButtonOption(
+    generalMenuContentFrame,
+    RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_FALLBACK_TO_BASE_ITEM,
+    {"TOPLEFT", 280, -140},
+    me.EnableFallbackToBaseItemOnShow,
+    me.EnableFallbackToBaseItemOnClick,
+    enableFallbackToBaseItemMetaData
   )
 
   me.CreateEnableRunesCheckBox(generalMenuContentFrame)
@@ -499,5 +514,33 @@ function me.EnableRuneSlotsOnClick(self)
     mod.configuration.EnableRuneSlots()
   else
     mod.configuration.DisableRuneSlots()
+  end
+end
+
+--[[
+  OnShow callback for checkbuttons - enable fallback to base item
+
+  @param {table} self
+]]--
+function me.EnableFallbackToBaseItemOnShow(self)
+  if mod.configuration.IsFallbackToBaseItemEnabled() then
+    self:SetChecked(true)
+  else
+    self:SetChecked(false)
+  end
+end
+
+--[[
+  OnClick callback for checkbuttons - enable fallback to base item
+
+  @param {table} self
+]]--
+function me.EnableFallbackToBaseItemOnClick(self)
+  local enabled = self:GetChecked()
+
+  if enabled then
+    mod.configuration.EnableFallbackToBaseItem()
+  else
+    mod.configuration.DisableFallbackToBaseItem()
   end
 end

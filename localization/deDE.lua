@@ -37,6 +37,10 @@ if (GetLocale() == "deDE") then
     .. " Dies erlaubt es einfacher items auszuziehen"
   rggm.L["enable_rune_slots"] = "Aktiviere Runenslots"
   rggm.L["enable_rune_slots_tooltip"] = "Aktiviert die Anzeige von Runenslots im GearBar"
+  rggm.L["enable_fallback_to_base_item"] = "Ersatzkopie ausrüsten"
+  rggm.L["enable_fallback_to_base_item_tooltip"] = "Wenn die exakt verzauberte/gravierte Kopie eines"
+    .. " Gegenstands nicht in den Taschen gefunden werden kann, wird stattdessen eine einfache Kopie"
+    .. " desselben Gegenstands ausgerüstet. Beim Ausrüsten einer Ersatzkopie wird eine Warnung im Chat angezeigt"
   rggm.L["filter_item_quality"] = "Filtere Gegenstandsqualität:"
   rggm.L["item_quality_poor"] = "Arm (Grau)"
   rggm.L["item_quality_common"] = "Gewöhnlich (Weiss)"
@@ -181,6 +185,8 @@ if (GetLocale() == "deDE") then
     .. "sich am Cursor"
   rggm.L["swap_failure_spell_targeting"] = "Konnte nicht zu Gegenstand %s wechseln - ein Zauber wartet auf ein Ziel"
   rggm.L["swap_failure_no_bag_space"] = "Konnte Gegenstand %s nicht ablegen - kein freier Platz in den Taschen"
+  rggm.L["swap_fallback_to_base_item"] = "Ersatzkopie von %s ausgerüstet - keine Kopie mit der exakten"
+    .. " Verzauberung/Rune in den Taschen gefunden"
 
   -- profile
   rggm.L["profile_category_name"] = "Profile"

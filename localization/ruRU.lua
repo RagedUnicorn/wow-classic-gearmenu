@@ -38,6 +38,10 @@ if (GetLocale() == "ruRU") then
     .. " для быстрого снятия предметов"
   rggm.L["enable_rune_slots"] = "Включить слоты рун"
   rggm.L["enable_rune_slots_tooltip"] = "Показывать слоты рун в панели экипировки"
+  rggm.L["enable_fallback_to_base_item"] = "Заменять базовым предметом"
+  rggm.L["enable_fallback_to_base_item_tooltip"] = "Если в сумках нет копии предмета с точно совпадающими"
+    .. " чарами/рунами, будет надета обычная копия того же предмета."
+    .. " При надевании замены в чат выводится предупреждение"
   rggm.L["filter_item_quality"] = "Фильтр качества предметов:"
   rggm.L["item_quality_poor"] = "Хлам (Серый)"
   rggm.L["item_quality_common"] = "Обычное (Белое)"
@@ -175,6 +179,8 @@ if (GetLocale() == "ruRU") then
   rggm.L["swap_failure_cursor_busy"] = "Не удается переключиться на предмет %s - на курсоре другой предмет"
   rggm.L["swap_failure_spell_targeting"] = "Не удается переключиться на предмет %s - заклинание ожидает цель"
   rggm.L["swap_failure_no_bag_space"] = "Не удается снять предмет %s - в сумках нет свободного места"
+  rggm.L["swap_fallback_to_base_item"] = "Надета замена предмета %s - в сумках не найдена копия с точно"
+    .. " совпадающими чарами/рунами"
 
   -- profile
   rggm.L["profile_category_name"] = "Профили"

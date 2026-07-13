@@ -50,22 +50,29 @@ describe("ItemManager swap failures", function()
   local previousModules
   -- user-facing chat error messages recorded from mod.logger.PrintUserChatError
   local userChatMessages
+  -- user-facing chat warning messages recorded from mod.logger.PrintUserChatWarn
+  local userChatWarnMessages
   --[[
     bag fixture: bags[bagNumber] is a list where each entry is either an item table
-    ({ itemId, enchantId, locked }) or false for an empty bag slot. Unlisted bags have zero slots.
+    ({ itemId, enchantId, rune, locked }) or false for an empty bag slot. Unlisted bags have
+    zero slots.
   ]]--
   local bags
   -- equipped[slotId] -> itemId currently worn in that slot
   local equipped
   local cursorHasItem, spellIsTargeting, inventoryLocked
+  -- backs the mod.configuration.IsFallbackToBaseItemEnabled stub
+  local fallbackEnabled
   -- slotIds passed to PickupInventoryItem, to assert an aborted action never touched the cursor
   local pickedUpInventorySlots
 
   before_each(function()
     userChatMessages = {}
+    userChatWarnMessages = {}
     bags = {}
     equipped = {}
     cursorHasItem, spellIsTargeting, inventoryLocked = false, false, false
+    fallbackEnabled = false
     pickedUpInventorySlots = {}
 
     previousModules = {
@@ -73,6 +80,7 @@ describe("ItemManager swap failures", function()
       logger = rggm.logger,
       common = rggm.common,
       engrave = rggm.engrave,
+      configuration = rggm.configuration,
       gearManager = rggm.gearManager,
       gearBar = rggm.gearBar,
       ticker = rggm.ticker,
@@ -130,6 +138,9 @@ describe("ItemManager swap failures", function()
       LogError = function() end,
       PrintUserChatError = function(message)
         userChatMessages[#userChatMessages + 1] = message
+      end,
+      PrintUserChatWarn = function(message)
+        userChatWarnMessages[#userChatWarnMessages + 1] = message
       end
     }
     rggm.common = {
@@ -141,7 +152,13 @@ describe("ItemManager swap failures", function()
       IsPlayerReallyDead = function() return false end
     }
     rggm.engrave = {
-      GetRuneForInventorySlot = function() return nil end
+      GetRuneForInventorySlot = function(bagNumber, bagPos)
+        local item = bags[bagNumber] and bags[bagNumber][bagPos]
+        return item and item.rune or nil
+      end
+    }
+    rggm.configuration = {
+      IsFallbackToBaseItemEnabled = function() return fallbackEnabled end
     }
     rggm.gearManager = {
       GetGearSlots = function() return { { slotId = 13 } } end
@@ -168,6 +185,7 @@ describe("ItemManager swap failures", function()
     rggm.logger = previousModules.logger
     rggm.common = previousModules.common
     rggm.engrave = previousModules.engrave
+    rggm.configuration = previousModules.configuration
     rggm.gearManager = previousModules.gearManager
     rggm.gearBar = previousModules.gearBar
     rggm.ticker = previousModules.ticker
@@ -326,6 +344,101 @@ describe("ItemManager swap failures", function()
 
       assert.is_nil(reason)
       assert.are.equal(0, #userChatMessages)
+    end)
+  end)
+
+  describe("fallback to base item", function()
+    it("keeps strict matching when the toggle is off and only an inexact copy exists", function()
+      bags[0] = { { itemId = 12345, enchantId = 70 } }
+
+      local reason = itemManager.SwitchItems(12345, 60, nil, 13)
+
+      assert.are.equal(itemManager.failureReason.itemNotFound, reason)
+      assert.are.equal(0, #userChatWarnMessages)
+      assert.are.equal(1, #userChatMessages)
+      assert.are.equal(
+        string.format(rggm.L["swap_failure_item_not_found"], "Test Item"), userChatMessages[1])
+    end)
+
+    it("equips the plain copy and warns when the requested enchant copy is missing", function()
+      fallbackEnabled = true
+      bags[0] = { { itemId = 12345 } }
+
+      local reason = itemManager.SwitchItems(12345, 60, nil, 13)
+
+      assert.is_nil(reason)
+      assert.are.equal(0, #userChatMessages)
+      assert.are.equal(1, #userChatWarnMessages)
+      assert.are.equal(
+        string.format(rggm.L["swap_fallback_to_base_item"], "Test Item"), userChatWarnMessages[1])
+    end)
+
+    it("prefers the exact copy and does not warn when it exists", function()
+      fallbackEnabled = true
+      bags[0] = { { itemId = 12345, enchantId = 60 } }
+
+      local reason = itemManager.SwitchItems(12345, 60, nil, 13)
+
+      assert.is_nil(reason)
+      assert.are.equal(0, #userChatWarnMessages)
+      assert.are.equal(0, #userChatMessages)
+    end)
+
+    it("still reports ITEM_NOT_FOUND when no copy of the itemId exists at all", function()
+      fallbackEnabled = true
+
+      local reason = itemManager.SwitchItems(12345, 60, nil, 13)
+
+      assert.are.equal(itemManager.failureReason.itemNotFound, reason)
+      assert.are.equal(0, #userChatWarnMessages)
+      assert.are.equal(1, #userChatMessages)
+    end)
+
+    it("reports ITEM_LOCKED without warning when the substitute copy is locked", function()
+      fallbackEnabled = true
+      bags[0] = { { itemId = 12345, locked = true } }
+
+      local reason = itemManager.SwitchItems(12345, 60, nil, 13)
+
+      assert.are.equal(itemManager.failureReason.itemLocked, reason)
+      assert.are.equal(0, #userChatWarnMessages)
+      assert.are.equal(1, #userChatMessages)
+      assert.are.equal(
+        string.format(rggm.L["swap_failure_item_locked"], "Test Item"), userChatMessages[1])
+    end)
+
+    it("equips the un-engraved copy and warns when the requested rune copy is missing", function()
+      fallbackEnabled = true
+      bags[0] = { { itemId = 12345 } }
+
+      local reason = itemManager.SwitchItems(12345, nil, 7, 13)
+
+      assert.is_nil(reason)
+      assert.are.equal(0, #userChatMessages)
+      assert.are.equal(1, #userChatWarnMessages)
+      assert.are.equal(
+        string.format(rggm.L["swap_fallback_to_base_item"], "Test Item"), userChatWarnMessages[1])
+    end)
+
+    it("keeps strict rune matching when the toggle is off", function()
+      bags[0] = { { itemId = 12345, rune = { skillLineAbilityID = 8 } } }
+
+      local reason = itemManager.SwitchItems(12345, nil, 7, 13)
+
+      assert.are.equal(itemManager.failureReason.itemNotFound, reason)
+      assert.are.equal(0, #userChatWarnMessages)
+    end)
+
+    it("drops the queued entry and warns once when a queued swap falls back", function()
+      fallbackEnabled = true
+      combatQueue.AddToQueue(12345, 60, nil, 13)
+      bags[0] = { { itemId = 12345 } }
+
+      combatQueue.ProcessQueue()
+
+      assert.is_true(combatQueue.IsCombatQueueEmpty())
+      assert.are.equal(0, #userChatMessages)
+      assert.are.equal(1, #userChatWarnMessages)
     end)
   end)
 

@@ -183,6 +183,12 @@ local CONFIGURATION_DEFAULTS = {
   ]]--
   { ["name"] = "enableRuneSlots", ["default"] = true },
   --[[
+    Whether a swap may fall back to any bag copy of the requested itemId when no copy
+    with the exact enchantId/runeAbilityId can be found. Off by default to preserve
+    strict matching
+  ]]--
+  { ["name"] = "enableFallbackToBaseItem", ["default"] = false },
+  --[[
     Named configuration profiles keyed by the user given name. Each entry is a
     snapshot of the configurable fields (see code/Profile.lua me.PROFILE_FIELDS)
   ]]--
@@ -780,6 +786,29 @@ end
 ]]--
 function me.IsRuneSlotsEnabled()
   return GearMenuConfiguration.enableRuneSlots
+end
+
+--[[
+  Enable falling back to the base itemId when the exact enchant/rune copy is missing
+]]--
+function me.EnableFallbackToBaseItem()
+  GearMenuConfiguration.enableFallbackToBaseItem = true
+end
+
+--[[
+  Disable falling back to the base itemId when the exact enchant/rune copy is missing
+]]--
+function me.DisableFallbackToBaseItem()
+  GearMenuConfiguration.enableFallbackToBaseItem = false
+end
+
+--[[
+  @return {boolean}
+    true - if falling back to the base itemId is enabled
+    false - if falling back to the base itemId is disabled
+]]--
+function me.IsFallbackToBaseItemEnabled()
+  return GearMenuConfiguration.enableFallbackToBaseItem
 end
 
 

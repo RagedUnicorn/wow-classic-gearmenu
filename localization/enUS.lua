@@ -36,6 +36,10 @@ rggm.L["enable_unequip_slot_tooltip"] = "Enables an empty slot to be added to th
   .. " This allows for easier unequipping of items"
 rggm.L["enable_rune_slots"] = "Enable Rune Slots"
 rggm.L["enable_rune_slots_tooltip"] = "Enables the display of rune slots in the gearBar"
+rggm.L["enable_fallback_to_base_item"] = "Fallback to Base Item"
+rggm.L["enable_fallback_to_base_item_tooltip"] = "When the exact enchanted/engraved copy of an item cannot be"
+  .. " found in your bags, equip a plain copy of the same item instead."
+  .. " A warning is shown in chat whenever a substitute copy is equipped"
 rggm.L["filter_item_quality"] = "Filter Item Quality:"
 rggm.L["item_quality_poor"] = "Poor (Grey)"
 rggm.L["item_quality_common"] = "Common (White)"
@@ -169,6 +173,8 @@ rggm.L["swap_failure_item_locked"] = "Unable to switch to item %s - the item is 
 rggm.L["swap_failure_cursor_busy"] = "Unable to switch to item %s - another item is currently on the cursor"
 rggm.L["swap_failure_spell_targeting"] = "Unable to switch to item %s - a spell is currently requesting a target"
 rggm.L["swap_failure_no_bag_space"] = "Unable to unequip item %s - there is no free space in your bags"
+rggm.L["swap_fallback_to_base_item"] = "Equipped a substitute copy of %s - no copy matching the exact"
+  .. " enchant/rune was found in your bags"
 
 -- profile
 rggm.L["profile_category_name"] = "Profiles"

@@ -62,6 +62,7 @@ local bagUpdatePending = false
 -- forward declarations
 local NotifySwapFailure
 local RequiresOffhandDisplacement
+local ScanBagsForItem
 
 --[[
   Surface an aborted swap to the user with a localized chat message. The combatQueue guard
@@ -308,7 +309,7 @@ function me.SwitchItems(itemId, enchantId, runeAbilityId, slotId)
   end
 
   local failureReason = me.failureReason.itemNotFound
-  local bagNumber, bagPos = me.FindItemInBag(itemId, enchantId, runeAbilityId)
+  local bagNumber, bagPos, usedFallback = me.FindItemInBag(itemId, enchantId, runeAbilityId)
 
   if bagNumber and bagPos then
     local itemInfo = C_Container.GetContainerItemInfo(bagNumber, bagPos)
@@ -321,6 +322,13 @@ function me.SwitchItems(itemId, enchantId, runeAbilityId, slotId)
 
       -- make sure to clear combatQueue
       mod.combatQueue.RemoveFromQueue(slotId)
+
+      if usedFallback then
+        local itemName = C_Item.GetItemInfo(itemId)
+
+        mod.logger.PrintUserChatWarn(
+          string.format(rggm.L["swap_fallback_to_base_item"], itemName or itemId))
+      end
 
       return -- abort
     end
@@ -378,10 +386,7 @@ function me.FindEquipedItem(itemId)
 end
 
 --[[
-  Search for an item in all bags
-
-  If we have an enchantId set we have to consider it as well. This prevents GearMenu from equipping an item that
-  has a matching itemId but a different enchantId (or no enchant at all)
+  Scan all bags for an item matching the passed itemId, enchantId and runeAbilityId
 
   @param {number} itemId
   @param {number} enchantId
@@ -394,10 +399,7 @@ end
     number - the bagPos where the item was found
     nil - if the item could not be found
 ]]--
-function me.FindItemInBag(itemId, enchantId, runeAbilityId)
-  mod.logger.LogDebug(me.tag, "Searching for item: " .. itemId .. " with enchant: "
-      .. (enchantId or "nil") ..  " in bags")
-
+ScanBagsForItem = function(itemId, enchantId, runeAbilityId)
   for i = 0, 4 do
     for j = 1, C_Container.GetContainerNumSlots(i) do
       local itemLink = C_Container.GetContainerItemLink(i, j)
@@ -414,9 +416,54 @@ function me.FindItemInBag(itemId, enchantId, runeAbilityId)
     end
   end
 
+  return nil, nil
+end
+
+--[[
+  Search for an item in all bags
+
+  If we have an enchantId set we have to consider it as well. This prevents GearMenu from equipping an item that
+  has a matching itemId but a different enchantId (or no enchant at all)
+
+  If no exact copy can be found and fallbackToBaseItem is enabled a second pass matching the
+  itemId only is made (enchantId and runeAbilityId 0 act as wildcards for the matchers)
+
+  @param {number} itemId
+  @param {number} enchantId
+    Optional enchantId to match
+  @param {number} runeAbilityId
+    Optional runeAbilityId to match
+
+  @return {number | nil}, {number | nil}, {boolean}
+    number - the bagNumber where the item was found
+    number - the bagPos where the item was found
+    nil - if the item could not be found
+    boolean - whether the hit was found by the itemId-only fallback pass
+]]--
+function me.FindItemInBag(itemId, enchantId, runeAbilityId)
+  mod.logger.LogDebug(me.tag, "Searching for item: " .. itemId .. " with enchant: "
+      .. (enchantId or "nil") ..  " in bags")
+
+  local bagNumber, bagPos = ScanBagsForItem(itemId, enchantId, runeAbilityId)
+
+  if bagNumber ~= nil then
+    return bagNumber, bagPos, false
+  end
+
+  -- skip the fallback pass when the strict pass was already an itemId-only wildcard scan
+  if mod.configuration.IsFallbackToBaseItemEnabled() and not (enchantId == 0 and runeAbilityId == 0) then
+    bagNumber, bagPos = ScanBagsForItem(itemId, 0, 0)
+
+    if bagNumber ~= nil then
+      mod.logger.LogDebug(me.tag, "Found substitute copy of item: " .. itemId .. " through fallback pass")
+
+      return bagNumber, bagPos, true
+    end
+  end
+
   mod.logger.LogError(me.tag, "Item not found in bags")
 
-  return nil, nil
+  return nil, nil, false
 end
 
 --[[
