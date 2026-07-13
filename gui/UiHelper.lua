@@ -256,3 +256,98 @@ function me.CreateMouseOverEventContainer(frameName, parentFrame, position)
 
   return containerFrame
 end
+
+--[[
+  Create a pool of lazily created, index-addressed frames. The pool only manages
+  creation, lookup, iteration and hiding - anchoring and per-frame content stay
+  with the consumer.
+
+  @param {function} createFrame
+    Invoked as createFrame(index) the first time an index is acquired; must return the frame
+
+  @return {table} pool
+]]--
+function me.CreateFramePool(createFrame)
+  local pool = {}
+  local frames = {}
+
+  --[[
+    Get the frame at the passed index, creating it on first access
+
+    @param {number} index
+    @return {table}
+  ]]--
+  function pool.Acquire(index)
+    if frames[index] == nil then
+      frames[index] = createFrame(index)
+    end
+
+    return frames[index]
+  end
+
+  --[[
+    @return {number} the amount of created frames
+  ]]--
+  function pool.GetSize()
+    return #frames
+  end
+
+  --[[
+    Iterate all created frames in index order
+
+    @param {function} callback
+      Invoked as callback(frame, index)
+  ]]--
+  function pool.ForEach(callback)
+    for index = 1, #frames do
+      callback(frames[index], index)
+    end
+  end
+
+  --[[
+    Hide all created frames from the passed index onwards
+
+    @param {number} startIndex
+    @param {function} resetFrame
+      Optional; invoked as resetFrame(frame) after the frame was hidden
+  ]]--
+  function pool.ReleaseFrom(startIndex, resetFrame)
+    for index = startIndex, #frames do
+      frames[index]:Hide()
+
+      if resetFrame then
+        resetFrame(frames[index])
+      end
+    end
+  end
+
+  --[[
+    Hide all created frames
+
+    @param {function} resetFrame
+      Optional; invoked as resetFrame(frame) after the frame was hidden
+  ]]--
+  function pool.ReleaseAll(resetFrame)
+    pool.ReleaseFrom(1, resetFrame)
+  end
+
+  return pool
+end
+
+--[[
+  Calculate the x/y offset of a 1-based index in a grid that is columnAmount wide
+  and grows row by row
+
+  @param {number} index
+  @param {number} columnAmount
+  @param {number} slotSize
+
+  @return {number} xPos
+  @return {number} yPos
+]]--
+function me.CalculateGridPosition(index, columnAmount, slotSize)
+  local row = math.floor((index - 1) / columnAmount)
+  local column = (index - 1) % columnAmount
+
+  return column * slotSize, row * slotSize
+end
