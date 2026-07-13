@@ -37,7 +37,7 @@ me.tag = "GearBarChangeMenu"
   Local references to heavily accessed targetcastbar ui elements
 ]]--
 local changeMenuFrame
-local changeMenuSlots = {}
+local changeMenuSlotPool
 
 --[[
   ELEMENTS
@@ -55,6 +55,10 @@ function me.BuildChangeMenu()
   changeMenuFrame:SetBackdropColor(0, 0, 0, .5)
   changeMenuFrame:SetBackdropBorderColor(0, 0, 0, .8)
 
+  changeMenuSlotPool = mod.uiHelper.CreateFramePool(function(position)
+    return mod.themeCoordinator.CreateChangeSlot(changeMenuFrame, position)
+  end)
+
   me.CreateChangeSlots()
 
   changeMenuFrame:Hide() -- hide menu initially
@@ -64,14 +68,8 @@ end
   Create all changeslots initial representation
 ]]--
 function me.CreateChangeSlots()
-  for index = 1, RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT, RGGM_CONSTANTS.GEAR_BAR_CHANGE_COLUMN_AMOUNT do
-    for column = 1, RGGM_CONSTANTS.GEAR_BAR_CHANGE_COLUMN_AMOUNT do
-      if index + column - 1 > RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT then break end
-
-      local changeSlot = mod.themeCoordinator.CreateChangeSlot(changeMenuFrame, index + column - 1)
-      table.insert(changeMenuSlots, changeSlot) -- store changeSlot
-      changeSlot:Hide()
-    end
+  for index = 1, RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT do
+    changeMenuSlotPool.Acquire(index):Hide()
   end
 end
 
@@ -125,45 +123,33 @@ end
   @param {table} item
 ]]--
 function me.UpdateChangeSlots(changeSlotSize, gearSlotMetaData, items)
-  local emptySlotPosition = {row = 0, xPos = 0, yPos = 0}
+  local columnAmount = RGGM_CONSTANTS.GEAR_BAR_CHANGE_COLUMN_AMOUNT
+  local displayedItems = #items
 
-  for index = 1, #items, RGGM_CONSTANTS.GEAR_BAR_CHANGE_COLUMN_AMOUNT do
-    if index > RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT_ITEMS then
-      mod.logger.LogInfo(me.tag, "All changeMenuSlots are in use skipping rest of items...")
-      break
-    end
-
-    local row = math.floor(index/RGGM_CONSTANTS.GEAR_BAR_CHANGE_COLUMN_AMOUNT)
-    local lastColumn
-
-    for column = 1, RGGM_CONSTANTS.GEAR_BAR_CHANGE_COLUMN_AMOUNT do
-      local actualIndex = index + column - 1
-      local yPos = row * changeSlotSize
-      local xPos = (column - 1) * changeSlotSize
-
-      if actualIndex > #items or actualIndex > RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT_ITEMS then
-        break
-      end
-
-      me.UpdateChangeSlot(changeMenuSlots[actualIndex], gearSlotMetaData, items[actualIndex], changeSlotSize)
-      me.UpdateChangeSlotSize(changeSlotSize, changeMenuFrame, changeMenuSlots[actualIndex], xPos, yPos)
-
-      mod.logger.LogDebug(me.tag, "Updating ChangeSlot Row{" .. row .. "} xPos{" .. xPos .. "} yPos{" .. yPos .. "}")
-      lastColumn = column
-    end
-
-    if lastColumn == RGGM_CONSTANTS.GEAR_BAR_CHANGE_COLUMN_AMOUNT then
-      -- last spot on column was used put empty slot on new row
-      emptySlotPosition.row = row + 1
-      emptySlotPosition.xPos = 0
-      emptySlotPosition.yPos = (row + 1) * changeSlotSize
-    else
-      -- place on same row as last one
-      emptySlotPosition.row = row
-      emptySlotPosition.xPos = lastColumn * changeSlotSize
-      emptySlotPosition.yPos = row * changeSlotSize
-    end
+  if displayedItems > RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT_ITEMS then
+    mod.logger.LogInfo(me.tag, "All changeMenuSlots are in use skipping rest of items...")
+    displayedItems = RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT_ITEMS
   end
+
+  for index = 1, displayedItems do
+    local xPos, yPos = mod.uiHelper.CalculateGridPosition(index, columnAmount, changeSlotSize)
+    local row = math.floor((index - 1) / columnAmount)
+    local changeSlot = changeMenuSlotPool.Acquire(index)
+
+    me.UpdateChangeSlot(changeSlot, gearSlotMetaData, items[index], changeSlotSize)
+    me.UpdateChangeSlotSize(changeSlotSize, changeMenuFrame, changeSlot, xPos, yPos)
+
+    mod.logger.LogDebug(me.tag, "Updating ChangeSlot Row{" .. row .. "} xPos{" .. xPos .. "} yPos{" .. yPos .. "}")
+  end
+
+  -- the empty (unequip) slot takes the next free grid position after the last item
+  local emptySlotXPos, emptySlotYPos =
+    mod.uiHelper.CalculateGridPosition(displayedItems + 1, columnAmount, changeSlotSize)
+  local emptySlotPosition = {
+    row = math.floor(displayedItems / columnAmount),
+    xPos = emptySlotXPos,
+    yPos = emptySlotYPos
+  }
 
   me.UpdateEmptyChangeSlot(changeMenuFrame, #items, gearSlotMetaData, emptySlotPosition, changeSlotSize)
   me.UpdateChangeMenuGearSlotCooldown()
@@ -261,12 +247,12 @@ function me.UpdateEmptyChangeSlot(changeMenu, itemCount, gearSlotMetaData, empty
     or not mod.itemManager.HasItemEquipedInSlot(gearSlotMetaData.slotId) then return end
 
   if itemCount > RGGM_CONSTANTS.GEAR_BAR_CHANGE_SLOT_AMOUNT_ITEMS then
-    itemCount = #changeMenuSlots -- last slot is reserved for the empty slot
+    itemCount = changeMenuSlotPool.GetSize() -- last slot is reserved for the empty slot
   else
     itemCount = itemCount + 1 -- +1 for the empty "item"
   end
 
-  local emptyChangeMenuSlot = changeMenuSlots[itemCount]
+  local emptyChangeMenuSlot = changeMenuSlotPool.Acquire(itemCount)
 
   mod.logger.LogDebug(me.tag,
     "Updating EmptyChangeSlot Row{" .. emptySlotPosition.row ..
@@ -362,7 +348,7 @@ end
     The id of the hovered gearBar
 ]]--
 function me.UpdateChangeMenuGearSlotCooldown()
-  for _, changeMenuSlot in pairs(changeMenuSlots) do
+  changeMenuSlotPool.ForEach(function(changeMenuSlot)
     if changeMenuSlot.itemId ~= nil then
       if changeMenuFrame.showCooldowns then
         local startTime, duration = C_Container.GetItemCooldown(changeMenuSlot.itemId)
@@ -376,17 +362,16 @@ function me.UpdateChangeMenuGearSlotCooldown()
     else
       CooldownFrame_Clear(changeMenuSlot.cooldownOverlay)
     end
-  end
+  end)
 end
 
 --[[
   Reset all changeMenuSlots into their initial state
 ]]--
 function me.ResetChangeMenu()
-  for i = 1, #changeMenuSlots do
-    changeMenuSlots[i]:Hide()
-    mod.themeCoordinator.ChangeMenuSlotReset(changeMenuSlots[i])
-  end
+  changeMenuSlotPool.ReleaseAll(function(changeMenuSlot)
+    mod.themeCoordinator.ChangeMenuSlotReset(changeMenuSlot)
+  end)
 
   changeMenuFrame:Hide()
 end
