@@ -31,7 +31,7 @@
     <addon.name.short>GM</addon.name.short>
     <addon.tag.version>v${project.version}</addon.tag.version>
     <!-- renovate: datasource=custom.wow-versions-classic depName=wow-interface-classic versioning=loose -->
-    <addon.interface.classic>11508</addon.interface.classic>
+    <addon.interface.classic>11509</addon.interface.classic>
     <!-- renovate: datasource=custom.wow-versions-tbcc depName=wow-interface-tbcc versioning=loose -->
     <addon.interface.tbcc>20506</addon.interface.tbcc>
     <!-- renovate: datasource=custom.wow-versions-mop depName=wow-interface-mop versioning=loose -->
