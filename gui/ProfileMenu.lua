@@ -43,7 +43,7 @@ local builtMenu = false
   Scroll child holding the profile rows and the reusable row button pool
 ]]--
 local profileListContent
-local rows = {}
+local rowPool
 
 --[[
   The multiline edit box used for export/import strings
@@ -142,6 +142,8 @@ function me.BuildProfileList(frame)
   profileListContent = CreateFrame("Frame", RGGM_CONSTANTS.ELEMENT_PROFILE_LIST_CONTENT_FRAME, scrollFrame)
   profileListContent:SetSize(listWidth - 34, listHeight)
   scrollFrame:SetScrollChild(profileListContent)
+
+  rowPool = mod.uiHelper.CreateFramePool(CreateProfileRow)
 end
 
 --[[
@@ -265,28 +267,32 @@ end
 function me.SelectProfile(name)
   me.selectedProfile = name
 
-  for _, row in ipairs(rows) do
+  if not rowPool then return end
+
+  rowPool.ForEach(function(row)
     if row:IsShown() and row.profileName == name then
       row.selectedTexture:Show()
     else
       row.selectedTexture:Hide()
     end
-  end
+  end)
 end
 
 --[[
-  Create (or reuse) a row button at the given index in the list.
+  Create a row button at the given index in the list. Used as the createFrame
+  factory of the row pool.
 
   @param {number} index
   @return {table}
 ]]--
 CreateProfileRow = function(index)
   local rowHeight = RGGM_CONSTANTS.ELEMENT_PROFILE_LIST_ROW_HEIGHT
+  local _, yPos = mod.uiHelper.CalculateGridPosition(index, 1, rowHeight)
 
   local row = CreateFrame("Button", RGGM_CONSTANTS.ELEMENT_PROFILE_LIST_ROW .. index, profileListContent)
   row:SetHeight(rowHeight)
-  row:SetPoint("TOPLEFT", profileListContent, "TOPLEFT", 0, -(index - 1) * rowHeight)
-  row:SetPoint("TOPRIGHT", profileListContent, "TOPRIGHT", 0, -(index - 1) * rowHeight)
+  row:SetPoint("TOPLEFT", profileListContent, "TOPLEFT", 0, -yPos)
+  row:SetPoint("TOPRIGHT", profileListContent, "TOPRIGHT", 0, -yPos)
 
   local selectedTexture = row:CreateTexture(nil, "BACKGROUND")
   selectedTexture:SetAllPoints()
@@ -327,12 +333,7 @@ RefreshList = function()
   profileListContent:SetHeight(math.max(#names * rowHeight, 1))
 
   for index, name in ipairs(names) do
-    local row = rows[index]
-
-    if not row then
-      row = CreateProfileRow(index)
-      rows[index] = row
-    end
+    local row = rowPool.Acquire(index)
 
     row.profileName = name
     row.label:SetText(name)
@@ -346,9 +347,7 @@ RefreshList = function()
     row:Show()
   end
 
-  for index = #names + 1, #rows do
-    rows[index]:Hide()
-  end
+  rowPool.ReleaseFrom(#names + 1)
 end
 
 --[[
