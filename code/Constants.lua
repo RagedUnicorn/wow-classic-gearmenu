@@ -28,6 +28,10 @@
 RGGM_CONSTANTS = {
   ADDON_NAME = "GearMenu",
   --[[
+    Addon message prefix for the version broadcast (max 16 characters)
+  ]]--
+  ADDON_MESSAGE_PREFIX = "RGGM_VER",
+  --[[
     Unit ids
   ]]--
   UNIT_ID_PLAYER = "player",

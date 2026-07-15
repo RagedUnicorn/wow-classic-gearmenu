@@ -13,6 +13,7 @@ if (GetLocale() == "zhCN") then
   rggm.L["reload"] = "|cFFFFC300reload|r - 重置UI"
   rggm.L["info_title"] = "|cFF00FFB0GearMenu:|r"
   rggm.L["invalid_argument"] = "参数无效"
+  rggm.L["update_available"] = "新版本 |cFFFFC300%s|r 已发布 - |cFF00FFB0建议更新！|r"
 
   -- about
   rggm.L["author"] = "Author: Michael Wiesendanger"

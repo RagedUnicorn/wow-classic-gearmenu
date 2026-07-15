@@ -14,6 +14,7 @@ if (GetLocale() == "ruRU") then
   rggm.L["reload"] = "|cFFFFC300reload|r - перезагрузить интерфейс"
   rggm.L["info_title"] = "|cFF00FFB0GearMenu:|r"
   rggm.L["invalid_argument"] = "Передан неверный аргумент"
+  rggm.L["update_available"] = "Доступна новая версия |cFFFFC300%s|r — |cFF00FFB0рекомендуется обновление!|r"
 
   -- about
   rggm.L["author"] = "Автор: Michael Wiesendanger"

@@ -71,6 +71,8 @@ OnPlayerEnteringWorld = function(isInitialLogin, isReloadingUi)
     Initialize()
     me.event.SetReady()
   end
+
+  me.comm.BroadcastVersion()
 end
 
 --[[
@@ -252,6 +254,10 @@ function me.OnLoad(self)
   me.event.Register("PLAYER_REGEN_DISABLED", OnPlayerRegenDisabled, { gated = true })
   -- Register to the event that fires when the players target changes
   me.event.Register("PLAYER_TARGET_CHANGED", OnPlayerTargetChanged, { gated = true })
+  -- Fires when another addon client sends a message over the addon message channel
+  me.event.Register("CHAT_MSG_ADDON", me.comm.OnChatMsgAddon, { gated = true })
+  -- Fires when the group or raid composition changes
+  me.event.Register("GROUP_ROSTER_UPDATE", me.comm.BroadcastVersion, { gated = true })
 
   me.event.Setup(self)
 end
@@ -297,6 +303,8 @@ Initialize = function()
 
   me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarVisual)
   me.keyBind.OnUpdateKeyBindings()
+  -- register addon message prefix for the version broadcast
+  me.comm.Initialize()
   ShowWelcomeMessage()
 end
 

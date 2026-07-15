@@ -192,7 +192,13 @@ local CONFIGURATION_DEFAULTS = {
     Named configuration profiles keyed by the user given name. Each entry is a
     snapshot of the configurable fields (see code/Profile.lua me.PROFILE_FIELDS)
   ]]--
-  { ["name"] = "profiles", ["default"] = {}, ["userOwned"] = true }
+  { ["name"] = "profiles", ["default"] = {}, ["userOwned"] = true },
+  --[[
+    Highest version the update notifier (code/Comm.lua) already announced to the
+    user - bookkeeping like addonVersion, deliberately not part of profiles.
+    Empty string means no version was announced yet
+  ]]--
+  { ["name"] = "lastNotifiedVersion", ["default"] = "" }
 }
 
 --[[
@@ -294,6 +300,33 @@ function me.MigrationPath()
   me.UpgradeToV1_3_0()
   me.UpgradeToV1_4_0()
   me.UpgradeToV2_0_0()
+end
+
+--[[
+  Whether version is strictly older than otherVersion. Versions are SemVer strings
+  with an optional leading "v" (e.g. "v2.7.0"). An unparseable version on either
+  side compares as "not before".
+
+  @param {string} version
+  @param {string} otherVersion
+
+  @return {boolean}
+    true - if version is older than otherVersion
+    false - otherwise
+]]--
+function me.IsVersionBefore(version, otherVersion)
+  local major, minor, patch = string.match(version or "", "^v?(%d+)%.(%d+)%.(%d+)")
+  local otherMajor, otherMinor, otherPatch = string.match(otherVersion or "", "^v?(%d+)%.(%d+)%.(%d+)")
+
+  if major == nil or otherMajor == nil then return false end
+
+  major, minor, patch = tonumber(major), tonumber(minor), tonumber(patch)
+  otherMajor, otherMinor, otherPatch = tonumber(otherMajor), tonumber(otherMinor), tonumber(otherPatch)
+
+  if major ~= otherMajor then return major < otherMajor end
+  if minor ~= otherMinor then return minor < otherMinor end
+
+  return patch < otherPatch
 end
 
 --[[

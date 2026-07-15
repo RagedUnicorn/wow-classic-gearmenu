@@ -14,6 +14,7 @@ if (GetLocale() == "deDE") then
   rggm.L["reload"] = "|cFFFFC300reload|r - UI neu laden"
   rggm.L["info_title"] = "|cFF00FFB0GearMenu:|r"
   rggm.L["invalid_argument"] = "Ungültiges Argument übergeben"
+  rggm.L["update_available"] = "Neue Version |cFFFFC300%s|r ist verfügbar - |cFF00FFB0Update empfohlen!|r"
 
   -- about tab
   rggm.L["author"] = "Autor: Michael Wiesendanger"

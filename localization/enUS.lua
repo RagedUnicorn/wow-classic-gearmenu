@@ -12,6 +12,7 @@ rggm.L["opt"] = "|cFFFFC300opt|r - display Optionsmenu"
 rggm.L["reload"] = "|cFFFFC300reload|r - reload UI"
 rggm.L["info_title"] = "|cFF00FFB0GearMenu:|r"
 rggm.L["invalid_argument"] = "Invalid argument passed"
+rggm.L["update_available"] = "New version |cFFFFC300%s|r is available - |cFF00FFB0consider updating!|r"
 
 -- about
 rggm.L["author"] = "Author: Michael Wiesendanger"

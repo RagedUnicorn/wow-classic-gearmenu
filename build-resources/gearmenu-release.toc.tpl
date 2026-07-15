@@ -40,6 +40,7 @@ code/Configuration.lua
 code/Serializer.lua
 code/Encoder.lua
 code/Profile.lua
+code/Comm.lua
 code/Macro.lua
 code/Engrave.lua
 
