@@ -19,9 +19,9 @@ localization/ruRU.lua
 
 code/Event.lua
 code/Core.lua
+code/Filter.lua
 code/Logger.lua
 code/Cmd.lua
-code/Filter.lua
 code/Ticker.lua
 code/Common.lua
 code/Season.lua
