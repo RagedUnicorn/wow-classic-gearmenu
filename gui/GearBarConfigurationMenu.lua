@@ -73,6 +73,7 @@ StaticPopupDialogs["RGGM_CHOOSE_GEAR_BAR_NAME"] = {
     if editBox ~= nil and button1 ~= nil then
       button1:Disable()
       editBox:SetText("") -- reset text to empty
+      editBox:SetFocus()
     end
   end,
   OnAccept = function(dialog)

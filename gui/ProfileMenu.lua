@@ -534,6 +534,10 @@ SetupStaticPopups = function()
     button2 = CANCEL,
     hasEditBox = true,
     maxLetters = 64,
+    OnShow = function(self)
+      self.EditBox:SetText("")
+      self.EditBox:SetFocus()
+    end,
     OnAccept = function(self)
       HandleSave(self.EditBox:GetText())
     end,
@@ -555,6 +559,7 @@ SetupStaticPopups = function()
     maxLetters = 64,
     OnShow = function(self)
       self.EditBox:SetText(self.data or "")
+      self.EditBox:SetFocus()
       self.EditBox:HighlightText()
     end,
     OnAccept = function(self)
@@ -579,6 +584,7 @@ SetupStaticPopups = function()
     maxLetters = 64,
     OnShow = function(self)
       self.EditBox:SetText((self.data and self.data.name) or "")
+      self.EditBox:SetFocus()
       self.EditBox:HighlightText()
     end,
     OnAccept = function(self)
