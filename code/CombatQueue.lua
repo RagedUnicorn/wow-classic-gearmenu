@@ -86,6 +86,7 @@ function me.AddToQueue(itemId, enchantId, runeAbilityId, slotId)
 
   mod.gearBar.UpdateCombatQueue(itemId, enchantId, runeAbilityId, slotId)
   mod.ticker.StartTickerCombatQueue()
+  mod.macro.FireSwapEvent(RGGM_CONSTANTS.SWAP_EVENT_QUEUED, slotId, itemId)
 end
 
 --[[
@@ -113,6 +114,7 @@ function me.RemoveFromQueue(slotId)
   mod.logger.LogDebug(me.tag, "Removed item with id " .. itemId .. " in slotId "
     .. slotId .. " from combatQueueStore")
   mod.gearBar.UpdateCombatQueue(nil, nil, nil, slotId)
+  mod.macro.FireSwapEvent(RGGM_CONSTANTS.SWAP_EVENT_UNQUEUED, slotId, itemId)
 end
 
 --[[

@@ -167,6 +167,7 @@ rggm.L["gear_bar_configuration_key_binding_user_error"] = "Failed to set new Key
 rggm.L["unable_to_find_equipslot"] = "Unable to find a matching slot for itemId %s"
 rggm.L["unable_to_find_item"] = "Unable to find any itemInfo for itemId %s"
 rggm.L["macro_invalid_argument"] = "bad argument #%s to '%s' (expected number got %s)"
+rggm.L["macro_invalid_listener"] = "bad argument #1 to '%s' (expected function got %s)"
 
 -- swap failure user errors
 rggm.L["swap_failure_item_not_found"] = "Unable to switch to item %s - the item could not be found in your bags"

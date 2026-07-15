@@ -33,6 +33,10 @@
     - The public macro globals GM_AddToCombatQueue / GM_RemoveFromCombatQueue: graceful type guards
       that print a localized chat error (rggm.L["macro_invalid_argument"]) and return instead of
       raising a raw Lua assert error, and otherwise forward to mod.combatQueue.
+    - The public swap-listener surface GM_RegisterSwapListener / GM_UnregisterSwapListener and the
+      FireSwapEvent dispatcher: registration type guard, dispatch order and payload, duplicate
+      registration as a no-op, deregistration, and pcall isolation of a throwing listener (the
+      error is routed to mod.logger.LogError and remaining listeners still run).
 
   The collaborators (logger, gearManager, combatQueue) are replaced with recorder stubs on the shared
   rggm namespace and restored in after_each so they do not leak into other specs (the pattern used by
@@ -48,6 +52,7 @@
 -- fields statically. Suppress warning 143 (accessing undefined field of a global variable).
 -- luacheck: globals describe it before_each after_each
 -- luacheck: globals GM_AddToCombatQueue GM_RemoveFromCombatQueue
+-- luacheck: globals GM_RegisterSwapListener GM_UnregisterSwapListener
 -- luacheck: ignore 143
 
 local wowStubs = require("WowStubs")
@@ -61,6 +66,7 @@ describe("Macro", function()
   local chatErrors
   local queueAdds
   local queueRemoves
+  local loggedErrors
   -- snapshot of the rggm.* collaborators we overwrite, restored in after_each so the shared namespace
   -- (notably the real rggm.logger from Bootstrap) does not leak into other specs
   local previousModules
@@ -73,6 +79,7 @@ describe("Macro", function()
     chatErrors = {}
     queueAdds = {}
     queueRemoves = {}
+    loggedErrors = {}
 
     previousModules = {
       logger = rggm.logger,
@@ -83,6 +90,9 @@ describe("Macro", function()
 
     rggm.logger = {
       LogDebug = function() end,
+      LogError = function(_, message)
+        loggedErrors[#loggedErrors + 1] = message
+      end,
       PrintUserChatError = function(message)
         chatErrors[#chatErrors + 1] = message
       end
@@ -104,7 +114,8 @@ describe("Macro", function()
     rggm.L = {
       unable_to_find_item = "unable_to_find_item %s",
       unable_to_find_equipslot = "unable_to_find_equipslot %s",
-      macro_invalid_argument = "bad argument #%s to '%s' (expected number got %s)"
+      macro_invalid_argument = "bad argument #%s to '%s' (expected number got %s)",
+      macro_invalid_listener = "bad argument #1 to '%s' (expected function got %s)"
     }
 
     -- GetItemInfoInstant shape: itemID, itemType, itemSubType, itemEquipLoc (4th = equip slot).
@@ -240,6 +251,95 @@ describe("Macro", function()
       assert.are.equal(0, #queueRemoves)
       assert.are.equal(1, #chatErrors)
       assert.is_truthy(chatErrors[1]:find("GM_RemoveFromCombatQueue", 1, true))
+    end)
+  end)
+
+  describe("GM_RegisterSwapListener", function()
+    it("delivers fired swap events to a registered listener", function()
+      local received = {}
+
+      GM_RegisterSwapListener(function(eventName, slotId, itemId)
+        received[#received + 1] = { eventName = eventName, slotId = slotId, itemId = itemId }
+      end)
+
+      macro.FireSwapEvent(RGGM_CONSTANTS.SWAP_EVENT_QUEUED, 13, 1000)
+
+      assert.are.equal(1, #received)
+      assert.are.same({
+        eventName = RGGM_CONSTANTS.SWAP_EVENT_QUEUED,
+        slotId = 13,
+        itemId = 1000
+      }, received[1])
+    end)
+
+    it("rejects a non-function callback with a chat error", function()
+      GM_RegisterSwapListener("not a function")
+
+      assert.are.equal(1, #chatErrors)
+      assert.is_truthy(chatErrors[1]:find("GM_RegisterSwapListener", 1, true))
+
+      macro.FireSwapEvent(RGGM_CONSTANTS.SWAP_EVENT_QUEUED, 13, 1000)
+      assert.are.equal(0, #loggedErrors) -- nothing was registered, nothing can fail
+    end)
+
+    it("registers the same callback only once", function()
+      local callCount = 0
+      local listener = function() callCount = callCount + 1 end
+
+      GM_RegisterSwapListener(listener)
+      GM_RegisterSwapListener(listener)
+
+      macro.FireSwapEvent(RGGM_CONSTANTS.SWAP_EVENT_QUEUED, 13, 1000)
+
+      assert.are.equal(1, callCount)
+    end)
+
+    it("notifies listeners in registration order", function()
+      local callOrder = {}
+
+      GM_RegisterSwapListener(function() callOrder[#callOrder + 1] = "first" end)
+      GM_RegisterSwapListener(function() callOrder[#callOrder + 1] = "second" end)
+
+      macro.FireSwapEvent(RGGM_CONSTANTS.SWAP_EVENT_COMPLETED, 13, 1000)
+
+      assert.are.same({ "first", "second" }, callOrder)
+    end)
+  end)
+
+  describe("GM_UnregisterSwapListener", function()
+    it("stops delivering events to an unregistered listener", function()
+      local callCount = 0
+      local listener = function() callCount = callCount + 1 end
+
+      GM_RegisterSwapListener(listener)
+      GM_UnregisterSwapListener(listener)
+
+      macro.FireSwapEvent(RGGM_CONSTANTS.SWAP_EVENT_QUEUED, 13, 1000)
+
+      assert.are.equal(0, callCount)
+    end)
+
+    it("is a no-op for a callback that was never registered", function()
+      GM_UnregisterSwapListener(function() end)
+
+      assert.are.equal(0, #chatErrors)
+    end)
+  end)
+
+  describe("FireSwapEvent", function()
+    it("isolates a throwing listener and still notifies the remaining listeners", function()
+      local received = {}
+
+      GM_RegisterSwapListener(function() error("broken listener") end)
+      GM_RegisterSwapListener(function(eventName)
+        received[#received + 1] = eventName
+      end)
+
+      macro.FireSwapEvent(RGGM_CONSTANTS.SWAP_EVENT_UNQUEUED, 13, 1000)
+
+      assert.are.same({ RGGM_CONSTANTS.SWAP_EVENT_UNQUEUED }, received)
+      assert.are.equal(1, #loggedErrors)
+      assert.is_truthy(loggedErrors[1]:find("broken listener", 1, true))
     end)
   end)
 end)

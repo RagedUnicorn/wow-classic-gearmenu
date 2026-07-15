@@ -78,6 +78,14 @@ RGGM_CONSTANTS = {
   KEYBIND_UPDATE_DELAY = 1.0,
   BAG_UPDATE_DEBOUNCE_DELAY = 0.1,
   --[[
+    Public swap-lifecycle event names passed to third-party listeners registered through
+    GM_RegisterSwapListener. Part of the public API contract (see README) - renaming
+    silently breaks consumers
+  ]]--
+  SWAP_EVENT_QUEUED = "queued",
+  SWAP_EVENT_UNQUEUED = "unqueued",
+  SWAP_EVENT_COMPLETED = "completed",
+  --[[
     Addon configuration
   ]]--
   ELEMENT_ADDON_PANEL = "GM_AddonPanel",

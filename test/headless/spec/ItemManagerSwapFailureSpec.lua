@@ -65,6 +65,8 @@ describe("ItemManager swap failures", function()
   local fallbackEnabled
   -- slotIds passed to PickupInventoryItem, to assert an aborted action never touched the cursor
   local pickedUpInventorySlots
+  -- swap-lifecycle events recorded from mod.macro.FireSwapEvent
+  local swapEvents
 
   before_each(function()
     userChatMessages = {}
@@ -74,6 +76,7 @@ describe("ItemManager swap failures", function()
     cursorHasItem, spellIsTargeting, inventoryLocked = false, false, false
     fallbackEnabled = false
     pickedUpInventorySlots = {}
+    swapEvents = {}
 
     previousModules = {
       L = rggm.L,
@@ -86,7 +89,8 @@ describe("ItemManager swap failures", function()
       ticker = rggm.ticker,
       combatQueue = rggm.combatQueue,
       itemLocationCache = rggm.itemLocationCache,
-      itemManager = rggm.itemManager
+      itemManager = rggm.itemManager,
+      macro = rggm.macro
     }
 
     restore = wowStubs.install({
@@ -171,6 +175,11 @@ describe("ItemManager swap failures", function()
       StartTickerCombatQueue = function() end,
       StopTickerCombatQueue = function() end
     }
+    rggm.macro = {
+      FireSwapEvent = function(eventName, slotId, itemId)
+        swapEvents[#swapEvents + 1] = { eventName = eventName, slotId = slotId, itemId = itemId }
+      end
+    }
 
     -- fresh module tables with empty file-local state (see test/headless/Bootstrap.lua)
     dofile("code/CombatQueue.lua")
@@ -194,6 +203,7 @@ describe("ItemManager swap failures", function()
     rggm.combatQueue = previousModules.combatQueue
     rggm.itemLocationCache = previousModules.itemLocationCache
     rggm.itemManager = previousModules.itemManager
+    rggm.macro = previousModules.macro
   end)
 
   describe("SwitchItems", function()
@@ -204,6 +214,53 @@ describe("ItemManager swap failures", function()
 
       assert.is_nil(reason)
       assert.are.equal(0, #userChatMessages)
+    end)
+
+    it("fires the completed swap event when the bag swap succeeds", function()
+      bags[0] = { { itemId = 12345 } }
+
+      itemManager.SwitchItems(12345, nil, nil, 13)
+
+      assert.are.equal(1, #swapEvents)
+      assert.are.same({
+        eventName = RGGM_CONSTANTS.SWAP_EVENT_COMPLETED,
+        slotId = 13,
+        itemId = 12345
+      }, swapEvents[1])
+    end)
+
+    it("fires unqueued then completed when a queued swap succeeds", function()
+      bags[0] = { { itemId = 12345 } }
+      combatQueue.AddToQueue(12345, nil, nil, 13)
+
+      itemManager.SwitchItems(12345, nil, nil, 13)
+
+      assert.are.equal(3, #swapEvents)
+      assert.are.equal(RGGM_CONSTANTS.SWAP_EVENT_QUEUED, swapEvents[1].eventName)
+      assert.are.equal(RGGM_CONSTANTS.SWAP_EVENT_UNQUEUED, swapEvents[2].eventName)
+      assert.are.equal(RGGM_CONSTANTS.SWAP_EVENT_COMPLETED, swapEvents[3].eventName)
+    end)
+
+    it("fires the completed swap event when an already equipped item is switched", function()
+      -- the item sits in gear slot 13 (the only slot the gearManager stub exposes) and is
+      -- switched into slot 14, exercising the equipped-item switch path
+      equipped[13] = 12345
+
+      itemManager.SwitchItems(12345, nil, nil, 14)
+
+      assert.are.equal(1, #swapEvents)
+      assert.are.same({
+        eventName = RGGM_CONSTANTS.SWAP_EVENT_COMPLETED,
+        slotId = 14,
+        itemId = 12345
+      }, swapEvents[1])
+    end)
+
+    it("fires no completed swap event when the swap fails", function()
+      local reason = itemManager.SwitchItems(12345, nil, nil, 13)
+
+      assert.are.equal(itemManager.failureReason.itemNotFound, reason)
+      assert.are.equal(0, #swapEvents)
     end)
 
     it("reports CURSOR_BUSY when another item is on the cursor", function()

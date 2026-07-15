@@ -24,6 +24,7 @@
 ]]--
 
 -- luacheck: globals C_Item GM_AddToCombatQueue GM_RemoveFromCombatQueue
+-- luacheck: globals GM_RegisterSwapListener GM_UnregisterSwapListener
 
 --[[
   Macro bridge for using certain functions from gearmenu directly in a macro
@@ -33,6 +34,12 @@ local me = {}
 mod.macro = me
 
 me.tag = "Macro"
+
+--[[
+  Third-party callbacks registered through GM_RegisterSwapListener. Notified by
+  me.FireSwapEvent whenever a swap is queued, unqueued or completed
+]]--
+local swapListeners = {}
 
 --[[
   Global macrobridge for switching an item into a specific slot
@@ -94,6 +101,65 @@ function GM_RemoveFromCombatQueue(slotId)
   end
 
   mod.combatQueue.RemoveFromQueue(slotId)
+end
+
+--[[
+  Public registration for third-party addons that want to be notified about swap-lifecycle
+  events. The callback is invoked as callback(eventName, slotId, itemId) where eventName is one
+  of RGGM_CONSTANTS.SWAP_EVENT_QUEUED, SWAP_EVENT_UNQUEUED or SWAP_EVENT_COMPLETED. Registering
+  the same callback twice is a no-op
+
+  @param {function} callback
+]]--
+function GM_RegisterSwapListener(callback)
+  if type(callback) ~= "function" then
+    mod.logger.PrintUserChatError(
+      string.format(rggm.L["macro_invalid_listener"], "GM_RegisterSwapListener", type(callback)))
+    return
+  end
+
+  for i = 1, #swapListeners do
+    if swapListeners[i] == callback then return end -- already registered
+  end
+
+  table.insert(swapListeners, callback)
+  mod.logger.LogDebug(me.tag, "Registered new swap listener")
+end
+
+--[[
+  Public deregistration counterpart to GM_RegisterSwapListener. Unknown callbacks are ignored
+
+  @param {function} callback
+]]--
+function GM_UnregisterSwapListener(callback)
+  for i = 1, #swapListeners do
+    if swapListeners[i] == callback then
+      table.remove(swapListeners, i)
+      mod.logger.LogDebug(me.tag, "Unregistered swap listener")
+
+      return
+    end
+  end
+end
+
+--[[
+  Notify all registered swap listeners about a swap-lifecycle event. Each listener is isolated
+  with pcall so a broken third-party callback can never break the swap path itself; errors are
+  routed to the logger
+
+  @param {string} eventName
+    One of RGGM_CONSTANTS.SWAP_EVENT_QUEUED, SWAP_EVENT_UNQUEUED or SWAP_EVENT_COMPLETED
+  @param {number} slotId
+  @param {number} itemId
+]]--
+function me.FireSwapEvent(eventName, slotId, itemId)
+  for i = 1, #swapListeners do
+    local status, err = pcall(swapListeners[i], eventName, slotId, itemId)
+
+    if not status then
+      mod.logger.LogError(me.tag, "Swap listener failed for event '" .. eventName .. "': " .. tostring(err))
+    end
+  end
 end
 
 --[[

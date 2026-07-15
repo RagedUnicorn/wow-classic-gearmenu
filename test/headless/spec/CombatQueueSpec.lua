@@ -54,7 +54,8 @@ describe("CombatQueue", function()
       updateCombatQueue = { count = 0, last = nil },
       startTicker = 0,
       stopTicker = 0,
-      equipped = {}
+      equipped = {},
+      swapEvents = {}
     }
     inCombat, isCasting, isDead = false, false, false
 
@@ -64,7 +65,8 @@ describe("CombatQueue", function()
       ticker = rggm.ticker,
       common = rggm.common,
       gearManager = rggm.gearManager,
-      itemManager = rggm.itemManager
+      itemManager = rggm.itemManager,
+      macro = rggm.macro
     }
 
     -- collaborators reached via mod.* -> recorder stubs on the shared rggm namespace
@@ -96,6 +98,11 @@ describe("CombatQueue", function()
         calls.equipped[#calls.equipped + 1] = item
       end
     }
+    rggm.macro = {
+      FireSwapEvent = function(eventName, slotId, itemId)
+        calls.swapEvents[#calls.swapEvents + 1] = { eventName = eventName, slotId = slotId, itemId = itemId }
+      end
+    }
 
     -- WoW globals; InCombatLockdown reads the local `inCombat` switch at call time
     restore = wowStubs.install({
@@ -117,6 +124,7 @@ describe("CombatQueue", function()
     rggm.common = previousModules.common
     rggm.gearManager = previousModules.gearManager
     rggm.itemManager = previousModules.itemManager
+    rggm.macro = previousModules.macro
   end)
 
   describe("GetCombatQueueStore", function()
@@ -180,6 +188,17 @@ describe("CombatQueue", function()
       assert.are.equal(5, calls.updateCombatQueue.last.slotId)
       assert.are.equal(1, calls.startTicker)
     end)
+
+    it("fires the queued swap event with slotId and itemId", function()
+      combatQueue.AddToQueue(12345, nil, nil, 5)
+
+      assert.are.equal(1, #calls.swapEvents)
+      assert.are.same({
+        eventName = RGGM_CONSTANTS.SWAP_EVENT_QUEUED,
+        slotId = 5,
+        itemId = 12345
+      }, calls.swapEvents[1])
+    end)
   end)
 
   describe("RemoveFromQueue", function()
@@ -203,6 +222,24 @@ describe("CombatQueue", function()
       combatQueue.RemoveFromQueue(7)
 
       assert.are.equal(0, calls.updateCombatQueue.count)
+    end)
+
+    it("fires the unqueued swap event with the removed item's slotId and itemId", function()
+      combatQueue.AddToQueue(12345, nil, nil, 5)
+      combatQueue.RemoveFromQueue(5)
+
+      assert.are.equal(2, #calls.swapEvents)
+      assert.are.same({
+        eventName = RGGM_CONSTANTS.SWAP_EVENT_UNQUEUED,
+        slotId = 5,
+        itemId = 12345
+      }, calls.swapEvents[2])
+    end)
+
+    it("fires no swap event when the slot has no queued item", function()
+      combatQueue.RemoveFromQueue(7)
+
+      assert.are.equal(0, #calls.swapEvents)
     end)
 
     it("is a no-op when slotId is nil", function()

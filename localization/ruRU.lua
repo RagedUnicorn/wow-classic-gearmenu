@@ -173,6 +173,7 @@ if (GetLocale() == "ruRU") then
   rggm.L["unable_to_find_equipslot"] = "Не удается найти подходящий слот для itemId %s"
   rggm.L["unable_to_find_item"] = "Не удается найти информацию о предмете для itemId %s"
   rggm.L["macro_invalid_argument"] = "неверный аргумент #%s для '%s' (ожидалось число, получено %s)"
+  rggm.L["macro_invalid_listener"] = "неверный аргумент #1 для '%s' (ожидалась функция, получено %s)"
 
   -- swap failure user errors
   rggm.L["swap_failure_item_not_found"] = "Не удается переключиться на предмет %s - предмет не найден в сумках"

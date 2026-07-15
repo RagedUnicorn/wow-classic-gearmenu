@@ -324,6 +324,8 @@ function me.SwitchItems(itemId, enchantId, runeAbilityId, slotId)
           string.format(rggm.L["swap_fallback_to_base_item"], itemName or itemId))
       end
 
+      mod.macro.FireSwapEvent(RGGM_CONSTANTS.SWAP_EVENT_COMPLETED, slotId, itemId)
+
       return -- abort
     end
 
@@ -344,6 +346,7 @@ function me.SwitchItems(itemId, enchantId, runeAbilityId, slotId)
     PickupInventoryItem(slotId)
 
     mod.combatQueue.RemoveFromQueue(slotId)
+    mod.macro.FireSwapEvent(RGGM_CONSTANTS.SWAP_EVENT_COMPLETED, slotId, itemId)
 
     return -- abort
   end

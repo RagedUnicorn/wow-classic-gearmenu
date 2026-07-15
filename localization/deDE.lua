@@ -177,6 +177,7 @@ if (GetLocale() == "deDE") then
   rggm.L["unable_to_find_equipslot"] = "Konnte keinen passenden slot für itemdId %s finden"
   rggm.L["unable_to_find_item"] = "Konnte keine Iteminformationen für itemId %s finden"
   rggm.L["macro_invalid_argument"] = "Ungültiges Argument #%s an '%s' (Zahl erwartet, %s erhalten)"
+  rggm.L["macro_invalid_listener"] = "Ungültiges Argument #1 an '%s' (Funktion erwartet, %s erhalten)"
 
   -- swap failure user errors
   rggm.L["swap_failure_item_not_found"] = "Konnte nicht zu Gegenstand %s wechseln - der Gegenstand wurde nicht "

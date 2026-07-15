@@ -184,6 +184,33 @@ For finding the correct slotId refer to the image below. Only InventorySlotIds a
 
 ![](docs/gm_interface_slots.png)
 
+### Swap Event Notifications for AddOn Authors
+
+Third-party addons (or WeakAuras) can be notified about GearMenu's swap lifecycle. Like the macro-bridge globals above, this surface is part of GearMenu's public API contract.
+
+```lua
+local function MySwapListener(eventName, slotId, itemId)
+  -- eventName is one of "queued", "unqueued" or "completed"
+  print("GearMenu " .. eventName .. " item " .. itemId .. " in slot " .. slotId)
+end
+
+GM_RegisterSwapListener(MySwapListener)
+-- and later, if no longer interested
+GM_UnregisterSwapListener(MySwapListener)
+```
+
+The listener is invoked as `callback(eventName, slotId, itemId)`:
+
+| eventName   | Fired when                                                                          |
+|-------------|-------------------------------------------------------------------------------------|
+| `queued`    | A swap was added to the combatQueue (combat, casting or loss of control)            |
+| `unqueued`  | A queued swap was removed from the combatQueue - cleared by the user, aborted, or because the swap is about to execute |
+| `completed` | A gear swap was executed                                                            |
+
+**Note:** When a queued swap executes, `unqueued` fires directly before `completed`. A swap that never had to queue (executed immediately) fires `completed` only.
+
+**Note:** Listener errors are isolated - a failing listener never breaks the swap itself. The error is logged instead.
+
 ## Configurability
 
 GearMenu is configurable. Don't need a certain slot? You can hide it.
