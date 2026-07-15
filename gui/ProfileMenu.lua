@@ -520,6 +520,7 @@ FinishImport = function(name, envelope)
 
   mod.profile.SaveProfile(name, envelope.payload)
   me.selectedProfile = name
+  profileEditBox:SetText("")
   RefreshList()
   mod.logger.PrintUserMessage(string.format(rggm.L["profile_import_success"], name))
 end
