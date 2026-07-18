@@ -147,10 +147,9 @@ end
 ]]--
 function me.CreateQuickChangeMenuTitle(contentFrame)
   local titleFontString = contentFrame:CreateFontString(
-    RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MENU_TITLE, "OVERLAY")
-  titleFontString:SetFont(STANDARD_TEXT_FONT, 20)
-  titleFontString:SetPoint("TOP", 0, -20)
-  titleFontString:SetSize(contentFrame:GetWidth(), 20)
+    RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MENU_TITLE, "OVERLAY", "GameFontNormalLarge")
+  titleFontString:SetPoint("TOPLEFT", 16, -16)
+  mod.uiHelper.SetColor(titleFontString, RGGM_CONSTANTS.COLOR.TITLE_GOLD)
   titleFontString:SetText(rggm.L["quick_change_title"])
 end
 
@@ -187,7 +186,7 @@ function me.CreateDelaySlider(frame)
     "MinimalSliderWithSteppersTemplate"
   )
   delaySlider:SetWidth(RGGM_CONSTANTS.QUICK_CHANGE_DELAY_SLIDER_WIDTH)
-  delaySlider:SetPoint("TOPLEFT", 15, -450)
+  delaySlider:SetPoint("TOPLEFT", 15, -440)
   delaySlider:Init(
     sliderMin,
     sliderOptions.minValue,
@@ -196,35 +195,7 @@ function me.CreateDelaySlider(frame)
     sliderOptions.formatters
   )
 
-  -- Setup tooltips on the frame and all interactive sub-elements
-  local sliderTitle = rggm.L["quick_change_slider_title"]
-  local sliderTooltip = rggm.L["quick_change_slider_tooltip"]
-
-  local function ShowTooltip()
-    mod.tooltip.BuildTooltipForOption(sliderTitle, sliderTooltip)
-  end
-
-  local function HideTooltip()
-    _G[RGGM_CONSTANTS.ELEMENT_TOOLTIP]:Hide()
-  end
-
-  delaySlider:SetScript("OnEnter", ShowTooltip)
-  delaySlider:SetScript("OnLeave", HideTooltip)
-
-  if delaySlider.Slider then
-    delaySlider.Slider:SetScript("OnEnter", ShowTooltip)
-    delaySlider.Slider:SetScript("OnLeave", HideTooltip)
-  end
-
-  if delaySlider.Back then
-    delaySlider.Back:SetScript("OnEnter", ShowTooltip)
-    delaySlider.Back:SetScript("OnLeave", HideTooltip)
-  end
-
-  if delaySlider.Forward then
-    delaySlider.Forward:SetScript("OnEnter", ShowTooltip)
-    delaySlider.Forward:SetScript("OnLeave", HideTooltip)
-  end
+  mod.uiHelper.CreateSliderDescription(delaySlider, rggm.L["quick_change_slider_tooltip"])
 
   return delaySlider
 end
@@ -360,23 +331,26 @@ end
   @param {table} frame
 ]]--
 function me.CreateInventoryTypeDropdown(frame)
-  local chooseCategoryDropdownMenu = mod.libUiDropDownMenu.CreateUiDropDownMenu(
+  local chooseCategoryDropdownMenu = mod.uiHelper.CreateSettingsDropdown(
     RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MENU_INVENTORY_TYPE_DROPDOWN,
-    frame
+    frame,
+    {"TOPLEFT", 10, -250},
+    120,
+    me.InitializeInventoryTypeDropdownMenu
   )
-
-  chooseCategoryDropdownMenu:SetPoint("TOPLEFT", 0, -250)
-
-  mod.libUiDropDownMenu.UiDropDownMenu_SetWidth(chooseCategoryDropdownMenu, 100)
-  mod.libUiDropDownMenu.UiDropDownMenu_Initialize(chooseCategoryDropdownMenu, me.InitializeInventoryTypeDropdownMenu)
+  -- generate once so the button shows the current selection before the menu was ever opened
+  chooseCategoryDropdownMenu:GenerateMenu()
 end
 
 --[[
-  Initialize dropdownmenu for inventory types
+  Menu generator for the inventory type dropdown - fills the root description with a radio
+  entry per distinct inventory type
 
-  @param {table} self
+  @param {table} _
+    The dropdown the menu is generated for (unused)
+  @param {table} rootDescription
 ]]--
-function me.InitializeInventoryTypeDropdownMenu(self)
+function me.InitializeInventoryTypeDropdownMenu(_, rootDescription)
   local gearSlots = mod.gearManager.GetGearSlots()
   local registeredInventoryTypes = {}
 
@@ -386,46 +360,43 @@ function me.InitializeInventoryTypeDropdownMenu(self)
       as upper and lower trinket have the same texture and are thus only added once
     ]]--
     if registeredInventoryTypes[gearSlot.inventoryTypeId] == nil then
-      local button
+      local slotName = gearSlot.simplifiedName or gearSlot.name
 
-      if gearSlot.simplifiedName ~= nil then
-        button = mod.uiHelper.CreateDropdownButton(
-          rggm.L[gearSlot.simplifiedName],
-          gearSlot.slotId,
-          me.InventoryTypeDropDownMenuCallback
-        )
-      else
-        button = mod.uiHelper.CreateDropdownButton(
-          rggm.L[gearSlot.name],
-          gearSlot.slotId,
-          me.InventoryTypeDropDownMenuCallback
-        )
-      end
-
-      mod.libUiDropDownMenu.UiDropDownMenu_AddButton(button)
+      rootDescription:CreateRadio(
+        rggm.L[slotName],
+        me.IsInventoryTypeSelected,
+        me.OnInventoryTypeSelect,
+        gearSlot.slotId
+      )
       registeredInventoryTypes[gearSlot.inventoryTypeId] = true
     end
-  end
-
-  if mod.libUiDropDownMenu.UiDropDownMenu_GetSelectedValue(self) == nil then
-    mod.libUiDropDownMenu.UiDropDownMenu_SetSelectedValue(self, RGGM_CONSTANTS.CATEGORY_DROPDOWN_DEFAULT_VALUE)
   end
 end
 
 --[[
-  Callback for optionsmenu dropdowns
+  Whether the passed slotId is the currently selected inventory type
 
-  @param {table} self
-]]
-function me.InventoryTypeDropDownMenuCallback(self)
-  mod.libUiDropDownMenu.UiDropDownMenu_SetSelectedValue(self:GetParent().dropdown, self.value)
+  @param {number} slotId
 
+  @return {boolean}
+]]--
+function me.IsInventoryTypeSelected(slotId)
+  return currentSelectedSlotId == slotId
+end
+
+--[[
+  Callback for when an inventory type is selected
+
+  @param {number} slotId
+    The slotId of the selected inventory type
+]]--
+function me.OnInventoryTypeSelect(slotId)
   me.ResetSelectedItems()
 
   -- update items in both 'from' and 'to' list
-  me.FromFauxScrollFrameOnUpdate(fromScrollFrame, self.value)
-  me.ToFauxScrollFrameOnUpdate(toScrollFrame, self.value)
-  currentSelectedSlotId = self.value -- update currently selected slot after both scrollframes where updated
+  me.FromFauxScrollFrameOnUpdate(fromScrollFrame, slotId)
+  me.ToFauxScrollFrameOnUpdate(toScrollFrame, slotId)
+  currentSelectedSlotId = slotId -- update currently selected slot after both scrollframes where updated
 end
 
 --[[

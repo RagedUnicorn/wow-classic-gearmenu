@@ -86,9 +86,8 @@ StaticPopupDialogs["RGGM_RELOAD_INTERFACE"] = {
   text = rggm.L["theme_change_confirmation"],
   button1 = rggm.L["theme_change_confirmation_yes"],
   button2 = rggm.L["theme_change_confirmation_no"],
-  OnAccept = function(_, data, data2)
+  OnAccept = function(_, data)
     mod.configuration.SetUiTheme(tonumber(data))
-    mod.libUiDropDownMenu.UiDropDownMenu_SetSelectedValue(data2, data)
     ReloadUI()
   end,
   timeout = 0,
@@ -116,7 +115,7 @@ function me.BuildUi(parentFrame)
   mod.uiHelper.BuildCheckButtonOption(
     generalMenuContentFrame,
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_TOOLTIPS,
-    {"TOPLEFT", 20, -80},
+    {"TOPLEFT", 20, -60},
     me.EnableTooltipsOnShow,
     me.EnableTooltipsOnClick,
     enableTooltipsMetaData
@@ -125,7 +124,7 @@ function me.BuildUi(parentFrame)
   mod.uiHelper.BuildCheckButtonOption(
     generalMenuContentFrame,
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_SIMPLE_TOOLTIPS,
-    {"TOPLEFT", 20, -110},
+    {"TOPLEFT", 20, -135},
     me.EnableSimpleTooltipsOnShow,
     me.EnableSimpleTooltipsOnClick,
     enableSimpleTooltipsMetaData
@@ -134,7 +133,7 @@ function me.BuildUi(parentFrame)
   mod.uiHelper.BuildCheckButtonOption(
     generalMenuContentFrame,
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_DRAG_AND_DROP,
-    {"TOPLEFT", 20, -140},
+    {"TOPLEFT", 20, -210},
     me.EnableDragAndDropOnShow,
     me.EnableDragAndDropOnClick,
     enableDragAndDropMetaData
@@ -143,7 +142,7 @@ function me.BuildUi(parentFrame)
   mod.uiHelper.BuildCheckButtonOption(
     generalMenuContentFrame,
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_FASTPRESS,
-    {"TOPLEFT", 20, -170},
+    {"TOPLEFT", 20, -285},
     me.EnableFastPressOnShow,
     me.EnableFastPressOnClick,
     enableFastPressMetaData
@@ -155,7 +154,7 @@ function me.BuildUi(parentFrame)
   mod.uiHelper.BuildCheckButtonOption(
     generalMenuContentFrame,
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_UNEQUIP_SLOT,
-    {"TOPLEFT", 280, -80},
+    {"TOPLEFT", 280, -60},
     me.EnableUnequipSlotOnShow,
     me.EnableUnequipSlotOnClick,
     enableUnequipSlotMetaData
@@ -164,7 +163,7 @@ function me.BuildUi(parentFrame)
   mod.uiHelper.BuildCheckButtonOption(
     generalMenuContentFrame,
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_FALLBACK_TO_BASE_ITEM,
-    {"TOPLEFT", 280, -140},
+    {"TOPLEFT", 280, -210},
     me.EnableFallbackToBaseItemOnShow,
     me.EnableFallbackToBaseItemOnClick,
     enableFallbackToBaseItemMetaData
@@ -183,10 +182,10 @@ end
   @param {table} contentFrame
 ]]--
 function me.CreateGeneralMenuTitle(contentFrame)
-  local titleFontString = contentFrame:CreateFontString(RGGM_CONSTANTS.ELEMENT_GENERAL_MENU_TITLE, "OVERLAY")
-  titleFontString:SetFont(STANDARD_TEXT_FONT, 20)
-  titleFontString:SetPoint("TOP", 0, -20)
-  titleFontString:SetSize(contentFrame:GetWidth(), 20)
+  local titleFontString = contentFrame:CreateFontString(
+    RGGM_CONSTANTS.ELEMENT_GENERAL_MENU_TITLE, "OVERLAY", "GameFontNormalLarge")
+  titleFontString:SetPoint("TOPLEFT", 16, -16)
+  mod.uiHelper.SetColor(titleFontString, RGGM_CONSTANTS.COLOR.TITLE_GOLD)
   titleFontString:SetText(rggm.L["general_title"])
 end
 
@@ -199,7 +198,7 @@ function me.CreateEnableRunesCheckBox(parentFrame)
   mod.uiHelper.BuildCheckButtonOption(
     parentFrame,
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_RUNE_SLOTS,
-    {"TOPLEFT", 280, -110},
+    {"TOPLEFT", 280, -135},
     me.EnableRuneSlotsOnShow,
     me.EnableRuneSlotsOnClick,
     enableRuneSlotsMetaData
@@ -214,9 +213,9 @@ function me.CreateItemQualityLabel(frame)
     RGGM_CONSTANTS.ELEMENT_GENERAL_LABEL_FILTER_ITEM_QUALITY,
     "OVERLAY"
   )
-  filterItemQualityLabel:SetPoint("TOPLEFT", 20, -220)
-  filterItemQualityLabel:SetFont(STANDARD_TEXT_FONT, 12)
-  filterItemQualityLabel:SetTextColor(1, 1, 1)
+  filterItemQualityLabel:SetPoint("TOPLEFT", 20, -360)
+  filterItemQualityLabel:SetFont(STANDARD_TEXT_FONT, 15)
+  mod.uiHelper.SetColor(filterItemQualityLabel, RGGM_CONSTANTS.COLOR.BODY)
   filterItemQualityLabel:SetText(rggm.L["filter_item_quality"])
 end
 
@@ -224,63 +223,59 @@ end
   @param {table} frame
 ]]--
 function me.CreateItemQualityDropdown(frame)
-  local itemQualityDropdownMenu = mod.libUiDropDownMenu.CreateUiDropDownMenu(
+  local itemQualityDropdownMenu = mod.uiHelper.CreateSettingsDropdown(
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_FILTER_ITEM_QUALITY,
-    frame
+    frame,
+    {"TOPLEFT", 20, -380},
+    170,
+    me.InitializeItemQualityDropdownMenu
   )
-  itemQualityDropdownMenu:SetPoint("TOPLEFT", 0, -240)
-
-  mod.libUiDropDownMenu.UiDropDownMenu_SetWidth(itemQualityDropdownMenu, 150)
-  mod.libUiDropDownMenu.UiDropDownMenu_Initialize(itemQualityDropdownMenu, me.InitializeItemQualityDropdownMenu)
+  -- generate once so the button shows the current selection before the menu was ever opened
+  itemQualityDropdownMenu:GenerateMenu()
 end
 
 --[[
-  Initialize dropdown menu for item quality filter
+  Menu generator for the item quality dropdown - fills the root description with a radio
+  entry per filterable item quality
 
-  @param {table} self
+  @param {table} _
+    The dropdown the menu is generated for (unused)
+  @param {table} rootDescription
 ]]--
-function me.InitializeItemQualityDropdownMenu(self)
-  local button
-  local itemQualityFilter = mod.configuration.GetFilterItemQuality()
+function me.InitializeItemQualityDropdownMenu(_, rootDescription)
+  local itemQualities = {
+    { value = RGGM_CONSTANTS.ITEMQUALITY.poor, text = rggm.L["item_quality_poor"] },
+    { value = RGGM_CONSTANTS.ITEMQUALITY.common, text = rggm.L["item_quality_common"] },
+    { value = RGGM_CONSTANTS.ITEMQUALITY.uncommon, text = rggm.L["item_quality_uncommon"] },
+    { value = RGGM_CONSTANTS.ITEMQUALITY.rare, text = rggm.L["item_quality_rare"] },
+    { value = RGGM_CONSTANTS.ITEMQUALITY.epic, text = rggm.L["item_quality_epic"] },
+    { value = RGGM_CONSTANTS.ITEMQUALITY.legendary, text = rggm.L["item_quality_legendary"] }
+  }
 
-  button = mod.uiHelper.CreateDropdownButton(rggm.L["item_quality_poor"],
-    RGGM_CONSTANTS.ITEMQUALITY.poor, me.ItemQualityDropdownMenuCallback)
-  mod.libUiDropDownMenu.UiDropDownMenu_AddButton(button)
-
-  button = mod.uiHelper.CreateDropdownButton(rggm.L["item_quality_common"],
-    RGGM_CONSTANTS.ITEMQUALITY.common, me.ItemQualityDropdownMenuCallback)
-  mod.libUiDropDownMenu.UiDropDownMenu_AddButton(button)
-
-  button = mod.uiHelper.CreateDropdownButton(rggm.L["item_quality_uncommon"],
-    RGGM_CONSTANTS.ITEMQUALITY.uncommon, me.ItemQualityDropdownMenuCallback)
-  mod.libUiDropDownMenu.UiDropDownMenu_AddButton(button)
-
-  button = mod.uiHelper.CreateDropdownButton(rggm.L["item_quality_rare"],
-    RGGM_CONSTANTS.ITEMQUALITY.rare, me.ItemQualityDropdownMenuCallback)
-  mod.libUiDropDownMenu.UiDropDownMenu_AddButton(button)
-
-  button = mod.uiHelper.CreateDropdownButton(rggm.L["item_quality_epic"],
-    RGGM_CONSTANTS.ITEMQUALITY.epic, me.ItemQualityDropdownMenuCallback)
-  mod.libUiDropDownMenu.UiDropDownMenu_AddButton(button)
-
-  button = mod.uiHelper.CreateDropdownButton(rggm.L["item_quality_legendary"],
-    RGGM_CONSTANTS.ITEMQUALITY.legendary, me.ItemQualityDropdownMenuCallback)
-  mod.libUiDropDownMenu.UiDropDownMenu_AddButton(button)
-
-  if mod.libUiDropDownMenu.UiDropDownMenu_GetSelectedValue(self) == nil then
-    mod.libUiDropDownMenu.UiDropDownMenu_SetSelectedValue(self, itemQualityFilter)
+  for _, itemQuality in ipairs(itemQualities) do
+    rootDescription:CreateRadio(itemQuality.text, me.IsItemQualitySelected, me.OnItemQualitySelect, itemQuality.value)
   end
 end
 
 --[[
-  Callback for item quality dropdown
+  Whether the passed item quality is the currently configured filter
 
-  @param {table} self
-]]
-function me.ItemQualityDropdownMenuCallback(self)
-  -- update addon setting
-  mod.configuration.SetFilterItemQuality(tonumber(self.value))
-  mod.libUiDropDownMenu.UiDropDownMenu_SetSelectedValue(self:GetParent().dropdown, self.value)
+  @param {number} itemQuality
+
+  @return {boolean}
+]]--
+function me.IsItemQualitySelected(itemQuality)
+  return mod.configuration.GetFilterItemQuality() == itemQuality
+end
+
+--[[
+  Callback for when an item quality is selected
+
+  @param {number} itemQuality
+    The selected item quality filter
+]]--
+function me.OnItemQualitySelect(itemQuality)
+  mod.configuration.SetFilterItemQuality(itemQuality)
 end
 
 --[[
@@ -291,9 +286,9 @@ function me.CreateThemeLabel(frame)
     RGGM_CONSTANTS.ELEMENT_GENERAL_LABEL_CHOOSE_THEME,
     "OVERLAY"
   )
-  chooseThemeLabel:SetPoint("TOPLEFT", 250, -220)
-  chooseThemeLabel:SetFont(STANDARD_TEXT_FONT, 12)
-  chooseThemeLabel:SetTextColor(1, 1, 1)
+  chooseThemeLabel:SetPoint("TOPLEFT", 250, -360)
+  chooseThemeLabel:SetFont(STANDARD_TEXT_FONT, 15)
+  mod.uiHelper.SetColor(chooseThemeLabel, RGGM_CONSTANTS.COLOR.BODY)
   chooseThemeLabel:SetText(rggm.L["choose_theme"])
 end
 
@@ -301,51 +296,62 @@ end
   @param {table} frame
 ]]--
 function me.CreateChooseThemeDropdown(frame)
-  local chooseThemeDropdownMenu = mod.libUiDropDownMenu.CreateUiDropDownMenu(
+  local chooseThemeDropdownMenu = mod.uiHelper.CreateSettingsDropdown(
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_CHOOSE_THEME,
-    frame
+    frame,
+    {"TOPLEFT", 250, -380},
+    170,
+    me.InitializeChooseThemeDropdownMenu
   )
-  chooseThemeDropdownMenu:SetPoint("TOPLEFT", 230, -240)
-
-  mod.libUiDropDownMenu.UiDropDownMenu_SetWidth(chooseThemeDropdownMenu, 150)
-  mod.libUiDropDownMenu.UiDropDownMenu_Initialize(chooseThemeDropdownMenu, me.InitializeChooseThemeDropdownMenu)
+  -- generate once so the button shows the current selection before the menu was ever opened
+  chooseThemeDropdownMenu:GenerateMenu()
 end
 
 --[[
-  Initialize dropdown menu for choose theme
+  Menu generator for the choose theme dropdown - fills the root description with a radio
+  entry per available ui theme
 
-  @param {table} self
+  @param {table} _
+    The dropdown the menu is generated for (unused)
+  @param {table} rootDescription
 ]]--
-function me.InitializeChooseThemeDropdownMenu(self)
-  local button
-  local configuredTheme = mod.configuration.GetUiTheme()
+function me.InitializeChooseThemeDropdownMenu(_, rootDescription)
+  local themes = {
+    { value = RGGM_CONSTANTS.UI_THEME_CUSTOM, text = rggm.L["theme_custom"] },
+    { value = RGGM_CONSTANTS.UI_THEME_CLASSIC, text = rggm.L["theme_classic"] }
+  }
 
-  button = mod.uiHelper.CreateDropdownButton(rggm.L["theme_custom"],
-    RGGM_CONSTANTS.UI_THEME_CUSTOM, me.ChooseThemeDropdownMenuCallback)
-  mod.libUiDropDownMenu.UiDropDownMenu_AddButton(button)
-
-  button = mod.uiHelper.CreateDropdownButton(rggm.L["theme_classic"],
-    RGGM_CONSTANTS.UI_THEME_CLASSIC, me.ChooseThemeDropdownMenuCallback)
-  mod.libUiDropDownMenu.UiDropDownMenu_AddButton(button)
-
-  if mod.libUiDropDownMenu.UiDropDownMenu_GetSelectedValue(self) == nil then
-    mod.libUiDropDownMenu.UiDropDownMenu_SetSelectedValue(self, configuredTheme)
+  for _, theme in ipairs(themes) do
+    rootDescription:CreateRadio(theme.text, me.IsThemeSelected, me.OnThemeSelect, theme.value)
   end
 end
 
 --[[
-  Callback for choose theme dropdown
+  Whether the passed theme is the currently configured one
 
-  @param {table} self
-]]
-function me.ChooseThemeDropdownMenuCallback(self)
-  if self.value == mod.configuration.GetUiTheme() then return end
+  @param {number} theme
+
+  @return {boolean}
+]]--
+function me.IsThemeSelected(theme)
+  return mod.configuration.GetUiTheme() == theme
+end
+
+--[[
+  Callback for when a theme is selected. The theme is only applied once the player confirms
+  the ui reload - a declined dialog leaves the configuration and thus the shown selection
+  untouched
+
+  @param {number} theme
+    The selected ui theme
+]]--
+function me.OnThemeSelect(theme)
+  if theme == mod.configuration.GetUiTheme() then return end
 
   -- force reload ui
   local dialog = StaticPopup_Show("RGGM_RELOAD_INTERFACE")
   if dialog then
-    dialog.data = self.value
-    dialog.data2 = self:GetParent().dropdown
+    dialog.data = theme
   end
 end
 

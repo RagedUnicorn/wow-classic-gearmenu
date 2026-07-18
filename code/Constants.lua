@@ -149,7 +149,22 @@ RGGM_CONSTANTS = {
   --[[
     Addon Configuration General Elements
   ]]--
-  CHECK_OPTION_SIZE = 32,
+  --[[
+    Design colour tokens as { r, g, b } in the 0-1 range. Mirrors Pulse's COLOR table
+    (derived from Quartermaster, with BODY / SUBNOTE brightened for the lighter stock
+    settings canvas these panels render on).
+  ]]--
+  COLOR = {
+    TITLE_GOLD = { 1.0, 0.819, 0.0 },       -- #ffd100 panel titles
+    SECTION_GOLD = { 0.851, 0.647, 0.129 }, -- #d9a521 section headers
+    BODY = { 0.91, 0.87, 0.80 },            -- #e8decc body text / option labels (warm near-white)
+    MUTED = { 0.541, 0.486, 0.392 },        -- #8a7c64 idle / dim text
+    DISABLED = { 0.45, 0.41, 0.35 },        -- disabled control labels
+    SUBNOTE = { 0.66, 0.60, 0.50 }          -- #a89980 option descriptions (warm mid gray)
+  },
+  CHECK_OPTION_SIZE = 24,
+  -- keeps two-column option layouts from bleeding into the neighboring column
+  CHECK_OPTION_DESCRIPTION_WIDTH = 230,
   BUTTON_DEFAULT_PADDING = 20,
   BUTTON_DEFAULT_HEIGHT = 25,
   INTERFACE_PANEL_CONTENT_FRAME_WIDTH = 580,
@@ -274,7 +289,7 @@ RGGM_CONSTANTS = {
   ELEMENT_GEAR_BAR_CONFIGURATION_ORIENTATION_DROPDOWN = "GM_GearBarOrientationDropdown_",
   ELEMENT_GEAR_BAR_CONFIGURATION_CHANGE_MENU_DIRECTION_DROPDOWN = "GM_GearBarChangeMenuDirectionDropdown_",
   GEAR_BAR_CONFIGURATION_SLOTS_KEY_BINDING_TEXT_WIDTH = 150,
-  GEAR_BAR_CONFIGURATION_SIZE_SLIDER_WIDTH = 450,
+  GEAR_BAR_CONFIGURATION_SIZE_SLIDER_WIDTH = 260,
   GEAR_BAR_CONFIGURATION_SIZE_SLIDER_MIN = 24,
   GEAR_BAR_CONFIGURATION_SIZE_SLIDER_MAX = 64,
   GEAR_BAR_CONFIGURATION_SIZE_SLIDER_STEP = 1,

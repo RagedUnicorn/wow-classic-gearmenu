@@ -33,25 +33,39 @@ mod.uiHelper = me
 me.tag = "UiHelper"
 
 local CreateSliderOptions
-local SetupSliderTooltips
 
 --[[
-  Create a dropdown button for a dropdown menu
+  Apply one of the RGGM_CONSTANTS.COLOR { r, g, b } tokens to a font string.
 
-  @param {string} text
-  @param {string} value
-  @param {function} callback
-
-  @return {table} button
+  @param {table} fontString
+  @param {table} color
 ]]--
-function me.CreateDropdownButton(text, value, callback)
-  local button = mod.libUiDropDownMenu.UiDropDownMenu_CreateInfo()
+function me.SetColor(fontString, color)
+  fontString:SetTextColor(color[1], color[2], color[3])
+end
 
-  button.text = text
-  button.value = value
-  button.func = callback
+--[[
+  Create a dropdown in the dark style of the stock configuration menus (WowStyle2, without
+  the stepper buttons the settings panel adds around some of its dropdowns)
 
-  return button
+  @param {string} frameName
+  @param {table} parent
+  @param {table} position
+    An object containing configuration parameters for a SetPoint function call
+  @param {number} width
+  @param {function} menuGenerator
+    Menu generator passed to SetupMenu - receives (dropdown, rootDescription)
+
+  @return {table}
+    The created dropdown
+]]--
+function me.CreateSettingsDropdown(frameName, parent, position, width, menuGenerator)
+  local dropdown = CreateFrame("DropdownButton", frameName, parent, "WowStyle2DropdownTemplate")
+  dropdown:SetPoint(unpack(position))
+  dropdown:SetWidth(width)
+  dropdown:SetupMenu(menuGenerator)
+
+  return dropdown
 end
 
 --[[
@@ -63,57 +77,44 @@ end
   @param {function} onShowCallback
   @param {function} onClickCallback
   @param {table} checkBoxMetadata
-    A table of {elementName, checkBoxTextLabel, tooltipText}
+    A table of {elementName, checkBoxTextLabel, description}
 ]]--
 function me.BuildCheckButtonOption(
     parentFrame, optionFrameName, position, onShowCallback, onClickCallback, checkBoxMetadata)
 
-  local checkButtonOptionFrame = CreateFrame("CheckButton", optionFrameName, parentFrame, "UICheckButtonTemplate")
+  local checkButtonOptionFrame = CreateFrame("CheckButton", optionFrameName, parentFrame, "SettingsCheckboxTemplate")
   checkButtonOptionFrame:SetSize(
     RGGM_CONSTANTS.CHECK_OPTION_SIZE,
     RGGM_CONSTANTS.CHECK_OPTION_SIZE
   )
   checkButtonOptionFrame:SetPoint(unpack(position))
 
-  for _, region in ipairs({checkButtonOptionFrame:GetRegions()}) do
-    if string.find(region:GetName() or "", "Text$") and region:IsObjectType("FontString") then
-      region:SetFont(STANDARD_TEXT_FONT, 15)
-      region:SetTextColor(.95, .95, .95)
-      region:SetText(checkBoxMetadata[2])
-      break
-    end
-  end
+  --[[ the template's inherited hover scripts drive the settings-list row highlight and
+       misbehave outside that list - remove them ]]--
+  checkButtonOptionFrame:SetScript("OnEnter", nil)
+  checkButtonOptionFrame:SetScript("OnLeave", nil)
 
-  checkButtonOptionFrame:SetScript("OnEnter", function(self)
-    me.OptTooltipOnEnter(self, checkBoxMetadata)
-  end)
-  checkButtonOptionFrame:SetScript("OnLeave", function(self)
-    me.OptTooltipOnLeave(self)
-  end)
+  --[[ the template ships no label - the settings list rows normally provide it ]]--
+  local labelFontString = checkButtonOptionFrame:CreateFontString(nil, "OVERLAY")
+  labelFontString:SetFont(STANDARD_TEXT_FONT, 15)
+  me.SetColor(labelFontString, RGGM_CONSTANTS.COLOR.BODY)
+  labelFontString:SetPoint("LEFT", checkButtonOptionFrame, "RIGHT", 5, 0)
+  labelFontString:SetText(checkBoxMetadata[2])
+  checkButtonOptionFrame.text = labelFontString
+
+  local descriptionFontString = checkButtonOptionFrame:CreateFontString(nil, "OVERLAY")
+  descriptionFontString:SetFont(STANDARD_TEXT_FONT, 12)
+  me.SetColor(descriptionFontString, RGGM_CONSTANTS.COLOR.SUBNOTE)
+  descriptionFontString:SetPoint("TOPLEFT", checkButtonOptionFrame, "BOTTOMLEFT", 4, -2)
+  descriptionFontString:SetWidth(RGGM_CONSTANTS.CHECK_OPTION_DESCRIPTION_WIDTH)
+  descriptionFontString:SetJustifyH("LEFT")
+  descriptionFontString:SetText(checkBoxMetadata[3])
+  checkButtonOptionFrame.description = descriptionFontString
+
   checkButtonOptionFrame:SetScript("OnShow", onShowCallback)
   checkButtonOptionFrame:SetScript("OnClick", onClickCallback)
   -- load initial state
   onShowCallback(checkButtonOptionFrame)
-end
-
---[[
-  OnEnter callback for checkbuttons - show tooltip
-
-  @param {table} self
-]]--
-function me.OptTooltipOnEnter(self, checkBoxMetadata)
-  local name = self:GetName()
-
-  if not name then return end
-
-  mod.tooltip.BuildTooltipForOption(checkBoxMetadata[2], checkBoxMetadata[3])
-end
-
---[[
-  OnEnter callback for checkbuttons - hide tooltip
-]]--
-function me.OptTooltipOnLeave()
-  _G[RGGM_CONSTANTS.ELEMENT_TOOLTIP]:Hide()
 end
 
 --[[
@@ -140,38 +141,21 @@ CreateSliderOptions = function(minValue, maxValue, title)
 end
 
 --[[
-  Setup tooltips for a MinimalSliderWithSteppersTemplate slider frame and its sub-elements
+  Create an always visible description below a slider
 
   @param {table} sliderFrame
-  @param {string} title
-  @param {string} tooltip
+  @param {string} description
 ]]--
-SetupSliderTooltips = function(sliderFrame, title, tooltip)
-  local function ShowTooltip()
-    mod.tooltip.BuildTooltipForOption(title, tooltip)
-  end
-
-  local function HideTooltip()
-    _G[RGGM_CONSTANTS.ELEMENT_TOOLTIP]:Hide()
-  end
-
-  sliderFrame:SetScript("OnEnter", ShowTooltip)
-  sliderFrame:SetScript("OnLeave", HideTooltip)
-
-  if sliderFrame.Slider then
-    sliderFrame.Slider:SetScript("OnEnter", ShowTooltip)
-    sliderFrame.Slider:SetScript("OnLeave", HideTooltip)
-  end
-
-  if sliderFrame.Back then
-    sliderFrame.Back:SetScript("OnEnter", ShowTooltip)
-    sliderFrame.Back:SetScript("OnLeave", HideTooltip)
-  end
-
-  if sliderFrame.Forward then
-    sliderFrame.Forward:SetScript("OnEnter", ShowTooltip)
-    sliderFrame.Forward:SetScript("OnLeave", HideTooltip)
-  end
+function me.CreateSliderDescription(sliderFrame, description)
+  local descriptionFontString = sliderFrame:CreateFontString(nil, "OVERLAY")
+  descriptionFontString:SetFont(STANDARD_TEXT_FONT, 12)
+  me.SetColor(descriptionFontString, RGGM_CONSTANTS.COLOR.SUBNOTE)
+  -- the template renders its min/max value labels below the frame - clear them
+  descriptionFontString:SetPoint("TOPLEFT", sliderFrame, "BOTTOMLEFT", 4, -16)
+  descriptionFontString:SetWidth(sliderFrame:GetWidth())
+  descriptionFontString:SetJustifyH("LEFT")
+  descriptionFontString:SetText(description)
+  sliderFrame.description = descriptionFontString
 end
 
 --[[
@@ -185,11 +169,11 @@ end
   @param {number} sliderMaxValue
   @param {number} defaultValue
   @param {string} sliderTitle
-  @param {string} sliderTooltip
+  @param {string} sliderDescription
   @param {function} onValueChangedCallback
 ]]--
 function me.CreateSizeSlider(parentFrame, sliderName, position, sliderMinValue, sliderMaxValue, defaultValue,
-    sliderTitle, sliderTooltip, onValueChangedCallback)
+    sliderTitle, sliderDescription, onValueChangedCallback)
 
   local sliderOptions = CreateSliderOptions(sliderMinValue, sliderMaxValue, sliderTitle)
 
@@ -213,7 +197,7 @@ function me.CreateSizeSlider(parentFrame, sliderName, position, sliderMinValue, 
     sliderFrame:RegisterCallback("OnValueChanged", onValueChangedCallback, sliderFrame)
   end
 
-  SetupSliderTooltips(sliderFrame, sliderTitle, sliderTooltip)
+  me.CreateSliderDescription(sliderFrame, sliderDescription)
 
   return sliderFrame
 end

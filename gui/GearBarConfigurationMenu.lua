@@ -150,10 +150,9 @@ end
 ]]--
 function me.CreateConfigurationMenuTitle(contentFrame)
   local titleFontString = contentFrame:CreateFontString(
-    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_MENU_TITLE, "OVERLAY")
-  titleFontString:SetFont(STANDARD_TEXT_FONT, 20)
-  titleFontString:SetPoint("TOP", 0, -20)
-  titleFontString:SetSize(contentFrame:GetWidth(), 20)
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_MENU_TITLE, "OVERLAY", "GameFontNormalLarge")
+  titleFontString:SetPoint("TOPLEFT", 16, -16)
+  mod.uiHelper.SetColor(titleFontString, RGGM_CONSTANTS.COLOR.TITLE_GOLD)
   titleFontString:SetText(rggm.L["gear_bar_configuration_category_name"])
 end
 

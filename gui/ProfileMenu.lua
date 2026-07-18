@@ -80,10 +80,10 @@ function me.BuildUi(parentFrame)
     contentFrame:SetHeight(RGGM_CONSTANTS.INTERFACE_PANEL_CONTENT_FRAME_HEIGHT)
     contentFrame:SetPoint("TOPLEFT", parentFrame, 5, -7)
 
-    local titleFontString = contentFrame:CreateFontString(RGGM_CONSTANTS.ELEMENT_PROFILE_TITLE, "OVERLAY")
-    titleFontString:SetFont(STANDARD_TEXT_FONT, 20)
-    titleFontString:SetPoint("TOP", 0, -20)
-    titleFontString:SetSize(contentFrame:GetWidth(), 20)
+    local titleFontString = contentFrame:CreateFontString(
+      RGGM_CONSTANTS.ELEMENT_PROFILE_TITLE, "OVERLAY", "GameFontNormalLarge")
+    titleFontString:SetPoint("TOPLEFT", 16, -16)
+    mod.uiHelper.SetColor(titleFontString, RGGM_CONSTANTS.COLOR.TITLE_GOLD)
     titleFontString:SetText(rggm.L["profile_title"])
 
     local listLabel = contentFrame:CreateFontString(nil, "OVERLAY")

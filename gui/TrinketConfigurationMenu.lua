@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals CreateFrame STANDARD_TEXT_FONT
+-- luacheck: globals CreateFrame
 
 local mod = rggm
 local me = {}
@@ -75,7 +75,7 @@ function me.BuildUi(parentFrame)
   mod.uiHelper.BuildCheckButtonOption(
     trinketMenuContentFrame,
     RGGM_CONSTANTS.ELEMENT_TRINKET_MENU_OPT_ENABLE_MENU,
-    {"TOPLEFT", 20, -80},
+    {"TOPLEFT", 20, -60},
     me.EnableTrinketMenuOnShow,
     me.EnableTrinketMenuOnClick,
     enableTrinketMenuMetaData
@@ -84,7 +84,7 @@ function me.BuildUi(parentFrame)
   mod.uiHelper.BuildCheckButtonOption(
     trinketMenuContentFrame,
     RGGM_CONSTANTS.ELEMENT_TRINKET_MENU_OPT_LOCK_MENU,
-    {"TOPLEFT", 20, -110},
+    {"TOPLEFT", 20, -120},
     me.LockTrinketMenuOnShow,
     me.LockTrinketMenuOnClick,
     lockWindowTrinketMenuMetaData
@@ -93,7 +93,7 @@ function me.BuildUi(parentFrame)
   mod.uiHelper.BuildCheckButtonOption(
     trinketMenuContentFrame,
     RGGM_CONSTANTS.ELEMENT_TRINKET_MENU_SHOW_COOLDOWNS,
-    {"TOPLEFT", 20, -140},
+    {"TOPLEFT", 20, -180},
     me.ShowCooldownsOnShow,
     me.ShowCooldownsOnClick,
     enableShowCooldownsMetaData
@@ -102,7 +102,7 @@ function me.BuildUi(parentFrame)
   mod.uiHelper.CreateSizeSlider(
     trinketMenuContentFrame,
     RGGM_CONSTANTS.ELEMENT_TRINKET_MENU_COLUMN_AMOUNT_SLIDER,
-    {"TOPLEFT", 20, -190},
+    {"TOPLEFT", 20, -250},
     RGGM_CONSTANTS.TRINKET_MENU_COLUMN_AMOUNT_SLIDER_MIN,
     RGGM_CONSTANTS.TRINKET_MENU_COLUMN_AMOUNT_SLIDER_MAX,
     mod.configuration.GetTrinketMenuColumnAmount(),
@@ -114,7 +114,7 @@ function me.BuildUi(parentFrame)
   mod.uiHelper.CreateSizeSlider(
     trinketMenuContentFrame,
     RGGM_CONSTANTS.ELEMENT_TRINKET_MENU_SLOT_SIZE_SLIDER,
-    {"TOPLEFT", 20, -250},
+    {"TOPLEFT", 20, -330},
     RGGM_CONSTANTS.TRINKET_MENU_SLOT_SIZE_SLIDER_MIN,
     RGGM_CONSTANTS.TRINKET_MENU_SLOT_SIZE_SLIDER_MAX,
     mod.configuration.GetTrinketMenuSlotSize(),
@@ -130,10 +130,10 @@ end
   @param {table} contentFrame
 ]]--
 function me.CreateTrinketMenuTitle(contentFrame)
-  local titleFontString = contentFrame:CreateFontString(RGGM_CONSTANTS.ELEMENT_TRINKET_MENU_TITLE, "OVERLAY")
-  titleFontString:SetFont(STANDARD_TEXT_FONT, 20)
-  titleFontString:SetPoint("TOP", 0, -20)
-  titleFontString:SetSize(contentFrame:GetWidth(), 20)
+  local titleFontString = contentFrame:CreateFontString(
+    RGGM_CONSTANTS.ELEMENT_TRINKET_MENU_TITLE, "OVERLAY", "GameFontNormalLarge")
+  titleFontString:SetPoint("TOPLEFT", 16, -16)
+  mod.uiHelper.SetColor(titleFontString, RGGM_CONSTANTS.COLOR.TITLE_GOLD)
   titleFontString:SetText(rggm.L["trinket_menu_title"])
 end
 
