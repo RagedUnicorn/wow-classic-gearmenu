@@ -22,8 +22,8 @@ if (GetLocale() == "zhCN") then
   rggm.L["issues"] = "Issues: https://github.com/RagedUnicorn/wow-classic-gearmenu/issues"
 
   -- general
-  rggm.L["general_category_name"] = "一般"
-  rggm.L["general_title"] = "一般配置"
+  rggm.L["general_category_name"] = "选项"
+  rggm.L["general_title"] = "选项"
   rggm.L["enable_tooltips"] = "鼠标提示"
   rggm.L["enable_tooltips_tooltip"] = "悬停物品时是否显示工具提示"
   rggm.L["enable_simple_tooltips"] = "简单鼠标提示"

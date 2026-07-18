@@ -21,8 +21,8 @@ rggm.L["version"] = "Version: " .. C_AddOns.GetAddOnMetadata(RGGM_CONSTANTS.ADDO
 rggm.L["issues"] = "Issues: https://github.com/RagedUnicorn/wow-classic-gearmenu/issues"
 
 -- general
-rggm.L["general_category_name"] = "General"
-rggm.L["general_title"] = "General Configuration"
+rggm.L["general_category_name"] = "Options"
+rggm.L["general_title"] = "Options"
 rggm.L["enable_tooltips"] = "Enable Tooltips"
 rggm.L["enable_tooltips_tooltip"] = "Whether to show a tooltip when hovering an item or not"
 rggm.L["enable_simple_tooltips"] = "Display Simple Tooltips"

@@ -23,8 +23,8 @@ if (GetLocale() == "ruRU") then
   rggm.L["issues"] = "Баги: https://github.com/RagedUnicorn/wow-classic-gearmenu/issues"
 
   -- general
-  rggm.L["general_category_name"] = "Общие"
-  rggm.L["general_title"] = "Общие настройки"
+  rggm.L["general_category_name"] = "Настройки"
+  rggm.L["general_title"] = "Настройки"
   rggm.L["enable_tooltips"] = "Включить подсказки"
   rggm.L["enable_tooltips_tooltip"] = "Показывать подсказку при наведении на предмет"
   rggm.L["enable_simple_tooltips"] = "Простые подсказки"

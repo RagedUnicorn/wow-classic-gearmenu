@@ -23,8 +23,8 @@ if (GetLocale() == "deDE") then
   rggm.L["issues"] = "Probleme: https://github.com/RagedUnicorn/wow-classic-gearmenu/issues"
 
   -- general
-  rggm.L["general_category_name"] = "Allgemein"
-  rggm.L["general_title"] = "Allgemeine Konfiguration"
+  rggm.L["general_category_name"] = "Optionen"
+  rggm.L["general_title"] = "Optionen"
   rggm.L["enable_tooltips"] = "Aktiviere KurzInfo"
   rggm.L["enable_tooltips_tooltip"] = "Aktiviere Kurzinfo für markierte Items"
   rggm.L["enable_simple_tooltips"] = "Zeige Simple Kurzinfo"
