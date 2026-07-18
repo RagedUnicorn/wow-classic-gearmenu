@@ -113,35 +113,15 @@ end
   @param {table} frame
 ]]--
 function me.BuildProfileList(frame)
-  local listWidth = RGGM_CONSTANTS.ELEMENT_PROFILE_LIST_WIDTH
-  local listHeight = RGGM_CONSTANTS.ELEMENT_PROFILE_LIST_HEIGHT
-
-  local listContainer = CreateFrame("Frame", nil, frame, "BackdropTemplate")
-  listContainer:SetSize(listWidth, listHeight)
-  listContainer:SetPoint("TOPLEFT", 20, -80)
-  listContainer:SetBackdrop({
-    bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
-    edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-    tile = true,
-    tileSize = 16,
-    edgeSize = 12,
-    insets = { left = 3, right = 3, top = 3, bottom = 3 }
-  })
-  listContainer:SetBackdropColor(0, 0, 0, 0.4)
-  listContainer:SetBackdropBorderColor(0.6, 0.6, 0.6, 1)
-
-  local scrollFrame = CreateFrame(
-    "ScrollFrame",
+  local listContainer = mod.uiHelper.CreateScrollList(
     RGGM_CONSTANTS.ELEMENT_PROFILE_LIST_SCROLL_FRAME,
-    listContainer,
-    "UIPanelScrollFrameTemplate"
+    frame,
+    {"TOPLEFT", 20, -80},
+    RGGM_CONSTANTS.ELEMENT_PROFILE_LIST_WIDTH,
+    RGGM_CONSTANTS.ELEMENT_PROFILE_LIST_HEIGHT
   )
-  scrollFrame:SetPoint("TOPLEFT", 6, -6)
-  scrollFrame:SetPoint("BOTTOMRIGHT", -28, 6)
 
-  profileListContent = CreateFrame("Frame", RGGM_CONSTANTS.ELEMENT_PROFILE_LIST_CONTENT_FRAME, scrollFrame)
-  profileListContent:SetSize(listWidth - 34, listHeight)
-  scrollFrame:SetScrollChild(profileListContent)
+  profileListContent = listContainer.content
 
   rowPool = mod.uiHelper.CreateFramePool(CreateProfileRow)
 end

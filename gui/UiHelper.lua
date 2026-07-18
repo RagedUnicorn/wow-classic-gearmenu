@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals CreateFrame STANDARD_TEXT_FONT Settings MinimalSliderWithSteppersMixin
+-- luacheck: globals CreateFrame STANDARD_TEXT_FONT Settings MinimalSliderWithSteppersMixin ScrollUtil
 
 local mod = rggm
 local me = {}
@@ -42,6 +42,68 @@ local CreateSliderOptions
 ]]--
 function me.SetColor(fontString, color)
   fontString:SetTextColor(color[1], color[2], color[3])
+end
+
+--[[
+  Apply the shared bordered box backdrop used by panel content containers. The frame
+  must have been created with the "BackdropTemplate" mixin.
+
+  @param {table} frame
+]]--
+function me.ApplyBorderBackdrop(frame)
+  frame:SetBackdrop({
+    bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
+    edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+    tile = true,
+    tileSize = 16,
+    edgeSize = 12,
+    insets = { left = 3, right = 3, top = 3, bottom = 3 }
+  })
+  frame:SetBackdropColor(0, 0, 0, 0.4)
+  frame:SetBackdropBorderColor(0.6, 0.6, 0.6, 1)
+end
+
+--[[
+  Create a bordered, scrollable list container in the style of the stock configuration
+  menus. Rows attach to the returned container's content frame - a scroll child driven
+  by a MinimalScrollBar. The consumer is responsible for updating the content frame's
+  height to the amount of rows it holds (scroll range = content height - visible height).
+
+  @param {string} listName
+    Name for the container frame; may use $parent which resolves against the passed parent.
+    The content frame is named after the resolved container name suffixed with "Content"
+  @param {table} parent
+  @param {table} position
+    An object containing configuration parameters for a SetPoint function call
+  @param {number} listWidth
+  @param {number} listHeight
+
+  @return {table}
+    The created container with .scrollFrame and .content attached
+]]--
+function me.CreateScrollList(listName, parent, position, listWidth, listHeight)
+  local listContainer = CreateFrame("Frame", listName, parent, "BackdropTemplate")
+  listContainer:SetSize(listWidth, listHeight)
+  listContainer:SetPoint(unpack(position))
+  me.ApplyBorderBackdrop(listContainer)
+
+  local scrollFrame = CreateFrame("ScrollFrame", nil, listContainer)
+  scrollFrame:SetPoint("TOPLEFT", 6, -6)
+  scrollFrame:SetPoint("BOTTOMRIGHT", -22, 6)
+
+  local scrollBar = CreateFrame("EventFrame", nil, listContainer, "MinimalScrollBar")
+  scrollBar:SetPoint("TOPLEFT", scrollFrame, "TOPRIGHT", 8, 0)
+  scrollBar:SetPoint("BOTTOMLEFT", scrollFrame, "BOTTOMRIGHT", 8, 0)
+  ScrollUtil.InitScrollFrameWithScrollBar(scrollFrame, scrollBar)
+
+  local contentFrame = CreateFrame("Frame", listContainer:GetName() .. "Content", scrollFrame)
+  contentFrame:SetSize(listWidth - 28, listHeight)
+  scrollFrame:SetScrollChild(contentFrame)
+
+  listContainer.scrollFrame = scrollFrame
+  listContainer.content = contentFrame
+
+  return listContainer
 end
 
 --[[

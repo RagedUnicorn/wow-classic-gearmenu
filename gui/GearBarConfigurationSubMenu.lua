@@ -23,8 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals STANDARD_TEXT_FONT CreateFrame FauxScrollFrame_Update FauxScrollFrame_GetOffset
--- luacheck: globals InCombatLockdown
+-- luacheck: globals STANDARD_TEXT_FONT CreateFrame InCombatLockdown
 
 --[[
   The gearBarMenu (GM_GearBarConfigurationMenu) module has some similarities to the gearBar (GM_GearBar) module.
@@ -207,8 +206,8 @@ function me.BuildGearBarConfigurationSubMenu(parentFrame)
   gearBarConfigurationContentFrame.changeMenuDirectionDropdown =
     me.CreateChangeMenuDirectionDropdown(gearBarConfigurationContentFrame, parentFrame.gearBarId)
 
-  local scrollFrame = me.CreateGearBarConfigurationSlotsList(gearBarConfigurationContentFrame)
-  me.GearBarConfigurationSlotsListOnUpdate(scrollFrame)
+  local slotsList = me.CreateGearBarConfigurationSlotsList(gearBarConfigurationContentFrame)
+  me.GearBarConfigurationSlotsListOnUpdate(slotsList)
 
   return gearBarConfigurationContentFrame
 end
@@ -616,74 +615,46 @@ end
   @param {table} parentFrame
 
   @return {table}
-    The created scrollFrame
+    The created list container
 ]]--
 function me.CreateGearBarConfigurationSlotsList(parentFrame)
-  local scrollFrame = CreateFrame(
-    "ScrollFrame",
+  local listContainer = mod.uiHelper.CreateScrollList(
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SLOTS_SCROLL_FRAME,
     parentFrame,
-    "FauxScrollFrameTemplate"
-  )
-
-  --[[
-    Store reference of the scroll container for all slot configurations
-    on gearBar configuration container
-  ]]--
-  parentFrame.scrollFrame = scrollFrame
-
-  scrollFrame:SetWidth(RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_WIDTH)
-  scrollFrame:SetHeight(
+    {"TOPLEFT", 20, -290},
+    RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_WIDTH,
     RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_ROW_HEIGHT
     * RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_MAX_ROWS
   )
-  scrollFrame:SetPoint("TOPLEFT", 20, -290)
-  scrollFrame:EnableMouseWheel(true)
-  scrollFrame:SetScript("OnVerticalScroll", me.GearBarConfigurationSlotsListOnVerticalScroll)
 
-  parentFrame.rows = {}
+  --[[
+    Store reference of the list container for all slot configurations
+    on gearBar configuration container
+  ]]--
+  parentFrame.slotsList = listContainer
+  listContainer.rows = {}
 
-  for i = 1, RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_MAX_ROWS do
-    table.insert(parentFrame.rows, me.CreateGearBarConfigurationSlotsListRowFrame(scrollFrame, i))
-  end
-
-  return scrollFrame
+  return listContainer
 end
 
 --[[
-  OnVerticalScroll callback for scrollable slots list
-
-  @param {table} self
-  @param {number} offset
-]]--
-function me.GearBarConfigurationSlotsListOnVerticalScroll(self, offset)
-  --[[ close any open slot dropdown menu - after scrolling the rows are re-purposed and an
-       open menu would apply its selection to the wrong slot position ]]--
-  for _, row in ipairs(self:GetParent().rows) do
-    row.gearSlot:CloseMenu()
-  end
-
-  self.ScrollBar:SetValue(offset)
-  self.offset = math.floor(offset / RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_ROW_HEIGHT + 0.5)
-  me.GearBarConfigurationSlotsListOnUpdate()
-end
-
---[[
-  @param {table} frame
+  @param {table} contentFrame
   @param {number} position
 
   @return {table}
     The created row
 ]]--
-function me.CreateGearBarConfigurationSlotsListRowFrame(frame, position)
+function me.CreateGearBarConfigurationSlotsListRowFrame(contentFrame, position)
+  local rowOffset = (position - 1) * RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_ROW_HEIGHT * -1
   local row = CreateFrame(
     "Button",
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SLOTS_ROW_FRAME .. position,
-    frame,
+    contentFrame,
     "BackdropTemplate"
   )
-  row:SetSize(frame:GetWidth(), RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_ROW_HEIGHT)
-  row:SetPoint("TOPLEFT", frame, 0, (position -1) * RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_ROW_HEIGHT * -1)
+  row:SetHeight(RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_ROW_HEIGHT)
+  row:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", 0, rowOffset)
+  row:SetPoint("TOPRIGHT", contentFrame, "TOPRIGHT", 0, rowOffset)
   row:SetBackdrop({
     bgFile = "Interface\\AddOns\\GearMenu\\assets\\ui_slot_background",
     insets = {left = 0, right = 0, top = 0, bottom = 0},
@@ -947,38 +918,28 @@ function me.RemoveGearSlot(self)
 end
 
 --[[
-  Update a scrollable list holding configuration frames for gearBar slots
+  Update the slots list rows to reflect the configured gearSlots. Rows are created
+  lazily - one per gearSlot - and surplus rows are hidden.
 
-  @param {table} optional scrollFrameReference
-    The scrollFrameReference to update
+  @param {table} optional listContainerReference
+    The list container to update; defaults to the one of the currently active gearBar
 ]]--
-function me.GearBarConfigurationSlotsListOnUpdate(scrollFrameReference)
-  local scrollFrame = scrollFrameReference or me.GetCurrentContentFrame().scrollFrame
-  local rows = scrollFrame:GetParent().rows
-  local maxValue = #gearBarConfiguration.slots or 0
+function me.GearBarConfigurationSlotsListOnUpdate(listContainerReference)
+  local listContainer = listContainerReference or me.GetCurrentContentFrame().slotsList
+  local rows = listContainer.rows
+  local slots = gearBarConfiguration.slots
 
-  if maxValue <= RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_MAX_ROWS then
-    maxValue = RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_MAX_ROWS + 1
-  end
-  -- Note: maxValue needs to be at least max_rows + 1
-  FauxScrollFrame_Update(
-    scrollFrame,
-    maxValue,
-    RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_MAX_ROWS,
-    RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_ROW_HEIGHT
-  )
+  for index = 1, math.max(#slots, #rows) do
+    if index <= #slots and rows[index] == nil then
+      rows[index] = me.CreateGearBarConfigurationSlotsListRowFrame(listContainer.content, index)
+    end
 
-  local offset = FauxScrollFrame_GetOffset(scrollFrame)
-  for index = 1, RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_MAX_ROWS do
-    local gearSlotPosition = index + offset
+    local row = rows[index]
 
-    if gearSlotPosition <= #gearBarConfiguration.slots then
-      local row = rows[index]
-      local slot = gearBarConfiguration.slots[gearSlotPosition]
+    if index <= #slots then
+      local slot = slots[index]
 
-      if slot == nil then return end -- no more slots available for that gearBar
-
-      row.position = gearSlotPosition -- add actual gearSlot position
+      row.position = index -- rows are never re-purposed - position always matches the gearSlot position
       row.slotIcon:SetTexture(slot.textureId)
       -- regenerate so the dropdown text reflects the slot configured for this row
       row.gearSlot:GenerateMenu()
@@ -991,9 +952,14 @@ function me.GearBarConfigurationSlotsListOnUpdate(scrollFrameReference)
 
       row:Show()
     else
-      rows[index]:Hide()
+      row:Hide()
     end
   end
+
+  listContainer.content:SetHeight(
+    math.max(#slots, RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_MAX_ROWS)
+    * RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_ROW_HEIGHT
+  )
 end
 
 --[[
