@@ -199,23 +199,41 @@ end
   @param {table} frame
 ]]--
 function me.BuildStringBox(frame)
-  local stringContainer = CreateFrame(
-    "ScrollFrame",
-    RGGM_CONSTANTS.ELEMENT_PROFILE_STRING_SCROLL_FRAME,
-    frame,
-    "InputScrollFrameTemplate"
-  )
+  local stringContainer = CreateFrame("Frame", nil, frame, "BackdropTemplate")
   stringContainer:SetSize(RGGM_CONSTANTS.ELEMENT_PROFILE_STRING_WIDTH, RGGM_CONSTANTS.ELEMENT_PROFILE_STRING_HEIGHT)
   stringContainer:SetPoint("TOPLEFT", 20, -280)
+  mod.uiHelper.ApplyBorderBackdrop(stringContainer)
 
-  if stringContainer.CharCount then
-    stringContainer.CharCount:Hide()
+  local scrollContainer = CreateFrame(
+    "ScrollFrame",
+    RGGM_CONSTANTS.ELEMENT_PROFILE_STRING_SCROLL_FRAME,
+    stringContainer,
+    "InputScrollFrameTemplate"
+  )
+  scrollContainer:SetPoint("TOPLEFT", 6, -6)
+  scrollContainer:SetPoint("BOTTOMRIGHT", -6, 6)
+
+  --[[ the template draws its own input-border art outside its rect which does not line
+       up with the profile list's backdrop - hide it, the container draws the border ]]--
+  local artKeys = {
+    "TopLeftTex", "TopRightTex", "BottomLeftTex", "BottomRightTex",
+    "TopTex", "BottomTex", "LeftTex", "RightTex", "MiddleTex"
+  }
+
+  for _, artKey in ipairs(artKeys) do
+    if scrollContainer[artKey] then
+      scrollContainer[artKey]:Hide()
+    end
   end
 
-  profileEditBox = stringContainer.EditBox
+  if scrollContainer.CharCount then
+    scrollContainer.CharCount:Hide()
+  end
+
+  profileEditBox = scrollContainer.EditBox
   profileEditBox:SetMaxLetters(0)
   profileEditBox:SetFontObject("ChatFontNormal")
-  profileEditBox:SetWidth(RGGM_CONSTANTS.ELEMENT_PROFILE_STRING_WIDTH - 18)
+  profileEditBox:SetWidth(RGGM_CONSTANTS.ELEMENT_PROFILE_STRING_WIDTH - 30)
   profileEditBox:SetScript("OnEscapePressed", function(self)
     self:ClearFocus()
   end)
