@@ -109,8 +109,9 @@ This generates a JUnit XML report in `./target/luacheck-junit.xml`.
 The project uses [busted](https://lunarmodules.github.io/busted/) for headless unit tests. Specs
 live under `test/headless/spec/`; a busted helper at `test/headless/Bootstrap.lua` sets up the addon
 globals and loads the pure modules so they can be tested without the WoW client running. The
-`test/headless/` subfolder keeps these headless specs separate from future in-game tests under
-`test/`.
+`test/headless/` subfolder keeps these headless specs separate from the manual in-game test cases
+under `test/manual/`. The release test procedure - automated gates, the in-game test matrix and
+the manual test case catalog - is documented in [test/TESTING.md](test/TESTING.md).
 
 **To run the test suite:**
 
