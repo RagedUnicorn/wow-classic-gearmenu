@@ -64,16 +64,10 @@ local builtMenu = false
 function me.BuildUi(parentFrame)
   if builtMenu then return end
 
-  local trinketMenuContentFrame = CreateFrame(
-    "Frame", RGGM_CONSTANTS.ELEMENT_TRINKET_MENU, parentFrame)
-  trinketMenuContentFrame:SetWidth(RGGM_CONSTANTS.INTERFACE_PANEL_CONTENT_FRAME_WIDTH)
-  trinketMenuContentFrame:SetHeight(RGGM_CONSTANTS.INTERFACE_PANEL_CONTENT_FRAME_HEIGHT)
-  trinketMenuContentFrame:SetPoint("TOPLEFT", parentFrame, 5, -7)
-
-  me.CreateTrinketMenuTitle(trinketMenuContentFrame)
+  me.CreateTrinketMenuTitle(parentFrame)
 
   mod.uiHelper.BuildCheckButtonOption(
-    trinketMenuContentFrame,
+    parentFrame,
     RGGM_CONSTANTS.ELEMENT_TRINKET_MENU_OPT_ENABLE_MENU,
     {"TOPLEFT", 20, -60},
     me.EnableTrinketMenuOnShow,
@@ -82,7 +76,7 @@ function me.BuildUi(parentFrame)
   )
 
   mod.uiHelper.BuildCheckButtonOption(
-    trinketMenuContentFrame,
+    parentFrame,
     RGGM_CONSTANTS.ELEMENT_TRINKET_MENU_OPT_LOCK_MENU,
     {"TOPLEFT", 20, -120},
     me.LockTrinketMenuOnShow,
@@ -91,7 +85,7 @@ function me.BuildUi(parentFrame)
   )
 
   mod.uiHelper.BuildCheckButtonOption(
-    trinketMenuContentFrame,
+    parentFrame,
     RGGM_CONSTANTS.ELEMENT_TRINKET_MENU_SHOW_COOLDOWNS,
     {"TOPLEFT", 20, -180},
     me.ShowCooldownsOnShow,
@@ -100,7 +94,7 @@ function me.BuildUi(parentFrame)
   )
 
   mod.uiHelper.CreateSizeSlider(
-    trinketMenuContentFrame,
+    parentFrame,
     RGGM_CONSTANTS.ELEMENT_TRINKET_MENU_COLUMN_AMOUNT_SLIDER,
     {"TOPLEFT", 20, -250},
     RGGM_CONSTANTS.TRINKET_MENU_COLUMN_AMOUNT_SLIDER_MIN,
@@ -112,7 +106,7 @@ function me.BuildUi(parentFrame)
   )
 
   mod.uiHelper.CreateSizeSlider(
-    trinketMenuContentFrame,
+    parentFrame,
     RGGM_CONSTANTS.ELEMENT_TRINKET_MENU_SLOT_SIZE_SLIDER,
     {"TOPLEFT", 20, -330},
     RGGM_CONSTANTS.TRINKET_MENU_SLOT_SIZE_SLIDER_MIN,

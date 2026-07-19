@@ -180,7 +180,7 @@ rggm.L["swap_fallback_to_base_item"] = "Equipped a substitute copy of %s - no co
 
 -- profile
 rggm.L["profile_category_name"] = "Profiles"
-rggm.L["profile_title"] = "Configuration Profiles"
+rggm.L["profile_title"] = "Profiles"
 rggm.L["profile_list_label"] = "Saved Profiles"
 rggm.L["profile_string_label"] = "Profile String (Export / Import)"
 rggm.L["profile_save_button"] = "Save current as..."

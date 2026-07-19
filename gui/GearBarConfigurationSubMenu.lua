@@ -138,17 +138,11 @@ end
     The contentFrame for the gearBar
 ]]
 function me.BuildGearBarConfigurationSubMenu(parentFrame)
-  local gearBarConfigurationContentFrame = CreateFrame(
-    "Frame", RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SUB_MENU .. parentFrame.gearBarId, parentFrame)
-  gearBarConfigurationContentFrame:SetWidth(RGGM_CONSTANTS.INTERFACE_PANEL_CONTENT_FRAME_WIDTH)
-  gearBarConfigurationContentFrame:SetHeight(RGGM_CONSTANTS.INTERFACE_PANEL_CONTENT_FRAME_HEIGHT)
-  gearBarConfigurationContentFrame:SetPoint("TOPLEFT", parentFrame, 5, -7)
-
-  gearBarConfigurationContentFrame.subMenuTitle = me.CreateConfigurationMenuTitle(gearBarConfigurationContentFrame)
-  me.CreateAddGearSlotButton(gearBarConfigurationContentFrame)
+  parentFrame.subMenuTitle = me.CreateConfigurationMenuTitle(parentFrame)
+  me.CreateAddGearSlotButton(parentFrame)
 
   mod.uiHelper.BuildCheckButtonOption(
-    gearBarConfigurationContentFrame,
+    parentFrame,
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_OPT_LOCK_GEAR_BAR .. parentFrame.gearBarId,
     {"TOPLEFT", 20, -50},
     me.LockWindowGearBarOnShow,
@@ -157,7 +151,7 @@ function me.BuildGearBarConfigurationSubMenu(parentFrame)
   )
 
   mod.uiHelper.BuildCheckButtonOption(
-    gearBarConfigurationContentFrame,
+    parentFrame,
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_OPT_SHOW_KEY_BINDINGS .. parentFrame.gearBarId,
     {"TOPLEFT", 20, -110},
     me.ShowKeyBindingsOnShow,
@@ -166,7 +160,7 @@ function me.BuildGearBarConfigurationSubMenu(parentFrame)
   )
 
   mod.uiHelper.BuildCheckButtonOption(
-    gearBarConfigurationContentFrame,
+    parentFrame,
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_OPT_SHOW_COOLDOWNS .. parentFrame.gearBarId,
     {"TOPLEFT", 20, -170},
     me.ShowCooldownsOnShow,
@@ -175,7 +169,7 @@ function me.BuildGearBarConfigurationSubMenu(parentFrame)
   )
 
   mod.uiHelper.CreateSizeSlider(
-    gearBarConfigurationContentFrame,
+    parentFrame,
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_GEAR_SLOT_SIZE_SLIDER .. parentFrame.gearBarId,
     {"TOPLEFT", 300, -130},
     RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_MIN,
@@ -187,7 +181,7 @@ function me.BuildGearBarConfigurationSubMenu(parentFrame)
   )
 
   mod.uiHelper.CreateSizeSlider(
-    gearBarConfigurationContentFrame,
+    parentFrame,
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_CHANGE_SLOT_SIZE_SLIDER .. parentFrame.gearBarId,
     {"TOPLEFT", 300, -205},
     RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_MIN,
@@ -198,18 +192,18 @@ function me.BuildGearBarConfigurationSubMenu(parentFrame)
     me.ChangeSlotSizeSliderOnValueChanged
   )
 
-  me.CreateOrientationLabel(gearBarConfigurationContentFrame)
-  gearBarConfigurationContentFrame.orientationDropdown =
-    me.CreateOrientationDropdown(gearBarConfigurationContentFrame, parentFrame.gearBarId)
+  me.CreateOrientationLabel(parentFrame)
+  parentFrame.orientationDropdown =
+    me.CreateOrientationDropdown(parentFrame, parentFrame.gearBarId)
 
-  me.CreateChangeMenuDirectionLabel(gearBarConfigurationContentFrame)
-  gearBarConfigurationContentFrame.changeMenuDirectionDropdown =
-    me.CreateChangeMenuDirectionDropdown(gearBarConfigurationContentFrame, parentFrame.gearBarId)
+  me.CreateChangeMenuDirectionLabel(parentFrame)
+  parentFrame.changeMenuDirectionDropdown =
+    me.CreateChangeMenuDirectionDropdown(parentFrame, parentFrame.gearBarId)
 
-  local slotsList = me.CreateGearBarConfigurationSlotsList(gearBarConfigurationContentFrame)
+  local slotsList = me.CreateGearBarConfigurationSlotsList(parentFrame)
   me.GearBarConfigurationSlotsListOnUpdate(slotsList)
 
-  return gearBarConfigurationContentFrame
+  return parentFrame
 end
 
 --[[
@@ -306,7 +300,7 @@ end
   @param {table} self
 ]]--
 function me.LockWindowGearBarOnShow(self)
-  if mod.gearBarManager.IsGearBarLocked(self:GetParent():GetParent().gearBarId) then
+  if mod.gearBarManager.IsGearBarLocked(self:GetParent().gearBarId) then
     self:SetChecked(true)
   else
     self:SetChecked(false)
@@ -320,7 +314,7 @@ end
 ]]--
 function me.LockWindowGearBarOnClick(self)
   local enabled = self:GetChecked()
-  local gearBarId = self:GetParent():GetParent().gearBarId
+  local gearBarId = self:GetParent().gearBarId
 
   if enabled then
     mod.gearBarManager.LockGearBar(gearBarId)
@@ -335,7 +329,7 @@ end
   @param {table} self
 ]]--
 function me.ShowKeyBindingsOnShow(self)
-  if mod.gearBarManager.IsShowKeyBindingsEnabled(self:GetParent():GetParent().gearBarId) then
+  if mod.gearBarManager.IsShowKeyBindingsEnabled(self:GetParent().gearBarId) then
     self:SetChecked(true)
   else
     self:SetChecked(false)
@@ -349,7 +343,7 @@ end
 ]]--
 function me.ShowKeyBindingsOnClick(self)
   local enabled = self:GetChecked()
-  local gearBarId = self:GetParent():GetParent().gearBarId
+  local gearBarId = self:GetParent().gearBarId
 
   if enabled then
     mod.gearBarManager.EnableShowKeyBindings(gearBarId)
@@ -364,7 +358,7 @@ end
   @param {table} self
 ]]--
 function me.ShowCooldownsOnShow(self)
-  if mod.gearBarManager.IsShowCooldownsEnabled(self:GetParent():GetParent().gearBarId) then
+  if mod.gearBarManager.IsShowCooldownsEnabled(self:GetParent().gearBarId) then
     self:SetChecked(true)
   else
     self:SetChecked(false)
@@ -378,7 +372,7 @@ end
 ]]--
 function me.ShowCooldownsOnClick(self)
   local enabled = self:GetChecked()
-  local gearBarId = self:GetParent():GetParent().gearBarId
+  local gearBarId = self:GetParent().gearBarId
 
   if enabled then
     mod.gearBarManager.EnableShowCooldowns(gearBarId)
@@ -394,7 +388,7 @@ end
   @param {number} value
 ]]--
 function me.GearSlotSizeSliderOnValueChanged(self, value)
-  local gearBarId = self:GetParent():GetParent().gearBarId
+  local gearBarId = self:GetParent().gearBarId
 
   mod.gearBarManager.SetGearSlotSize(gearBarId, value)
 end
@@ -406,7 +400,7 @@ end
   @param {number} value
 ]]--
 function me.ChangeSlotSizeSliderOnValueChanged(self, value)
-  local gearBarId = self:GetParent():GetParent().gearBarId
+  local gearBarId = self:GetParent().gearBarId
 
   mod.gearBarManager.SetChangeSlotSize(gearBarId, value)
 end

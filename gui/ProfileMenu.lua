@@ -75,31 +75,26 @@ function me.BuildUi(parentFrame)
   if not builtMenu then
     SetupStaticPopups()
 
-    local contentFrame = CreateFrame("Frame", RGGM_CONSTANTS.ELEMENT_PROFILE_MENU, parentFrame)
-    contentFrame:SetWidth(RGGM_CONSTANTS.INTERFACE_PANEL_CONTENT_FRAME_WIDTH)
-    contentFrame:SetHeight(RGGM_CONSTANTS.INTERFACE_PANEL_CONTENT_FRAME_HEIGHT)
-    contentFrame:SetPoint("TOPLEFT", parentFrame, 5, -7)
-
-    local titleFontString = contentFrame:CreateFontString(
+    local titleFontString = parentFrame:CreateFontString(
       RGGM_CONSTANTS.ELEMENT_PROFILE_TITLE, "OVERLAY", "GameFontNormalLarge")
     titleFontString:SetPoint("TOPLEFT", 16, -16)
     mod.uiHelper.SetColor(titleFontString, RGGM_CONSTANTS.COLOR.TITLE_GOLD)
     titleFontString:SetText(rggm.L["profile_title"])
 
-    local listLabel = contentFrame:CreateFontString(nil, "OVERLAY")
+    local listLabel = parentFrame:CreateFontString(nil, "OVERLAY")
     listLabel:SetFont(STANDARD_TEXT_FONT, 13)
-    listLabel:SetPoint("TOPLEFT", 20, -62)
+    listLabel:SetPoint("TOPLEFT", 20, -46)
     listLabel:SetText(rggm.L["profile_list_label"])
 
-    me.BuildProfileList(contentFrame)
-    me.BuildActionButtons(contentFrame)
+    me.BuildProfileList(parentFrame)
+    me.BuildActionButtons(parentFrame)
 
-    local stringLabel = contentFrame:CreateFontString(nil, "OVERLAY")
+    local stringLabel = parentFrame:CreateFontString(nil, "OVERLAY")
     stringLabel:SetFont(STANDARD_TEXT_FONT, 13)
-    stringLabel:SetPoint("TOPLEFT", 20, -262)
+    stringLabel:SetPoint("TOPLEFT", 20, -246)
     stringLabel:SetText(rggm.L["profile_string_label"])
 
-    me.BuildStringBox(contentFrame)
+    me.BuildStringBox(parentFrame)
 
     builtMenu = true
   end
@@ -116,7 +111,7 @@ function me.BuildProfileList(frame)
   local listContainer = mod.uiHelper.CreateScrollList(
     RGGM_CONSTANTS.ELEMENT_PROFILE_LIST_SCROLL_FRAME,
     frame,
-    {"TOPLEFT", 20, -80},
+    {"TOPLEFT", 20, -64},
     RGGM_CONSTANTS.ELEMENT_PROFILE_LIST_WIDTH,
     RGGM_CONSTANTS.ELEMENT_PROFILE_LIST_HEIGHT
   )
@@ -137,7 +132,7 @@ function me.BuildActionButtons(frame)
     frame,
     RGGM_CONSTANTS.ELEMENT_PROFILE_SAVE_BUTTON,
     RGGM_CONSTANTS.ELEMENT_PROFILE_BUTTON_WIDTH,
-    {"TOPLEFT", 320, -80},
+    {"TOPLEFT", 320, -64},
     rggm.L["profile_save_button"],
     function()
       StaticPopup_Show("RGGM_PROFILE_SAVE")
@@ -148,7 +143,7 @@ function me.BuildActionButtons(frame)
     frame,
     RGGM_CONSTANTS.ELEMENT_PROFILE_APPLY_BUTTON,
     RGGM_CONSTANTS.ELEMENT_PROFILE_BUTTON_WIDTH,
-    {"TOPLEFT", 320, -112},
+    {"TOPLEFT", 320, -96},
     rggm.L["profile_apply_button"],
     function()
       if not me.selectedProfile then
@@ -164,7 +159,7 @@ function me.BuildActionButtons(frame)
     frame,
     RGGM_CONSTANTS.ELEMENT_PROFILE_RENAME_BUTTON,
     RGGM_CONSTANTS.ELEMENT_PROFILE_BUTTON_WIDTH,
-    {"TOPLEFT", 320, -144},
+    {"TOPLEFT", 320, -128},
     rggm.L["profile_rename_button"],
     function()
       if not me.selectedProfile then
@@ -180,7 +175,7 @@ function me.BuildActionButtons(frame)
     frame,
     RGGM_CONSTANTS.ELEMENT_PROFILE_DELETE_BUTTON,
     RGGM_CONSTANTS.ELEMENT_PROFILE_BUTTON_WIDTH,
-    {"TOPLEFT", 320, -176},
+    {"TOPLEFT", 320, -160},
     rggm.L["profile_delete_button"],
     function()
       if not me.selectedProfile then
@@ -201,7 +196,7 @@ end
 function me.BuildStringBox(frame)
   local stringContainer = CreateFrame("Frame", nil, frame, "BackdropTemplate")
   stringContainer:SetSize(RGGM_CONSTANTS.ELEMENT_PROFILE_STRING_WIDTH, RGGM_CONSTANTS.ELEMENT_PROFILE_STRING_HEIGHT)
-  stringContainer:SetPoint("TOPLEFT", 20, -280)
+  stringContainer:SetPoint("TOPLEFT", 20, -264)
   mod.uiHelper.ApplyBorderBackdrop(stringContainer)
 
   local scrollContainer = CreateFrame(
@@ -242,7 +237,7 @@ function me.BuildStringBox(frame)
     frame,
     RGGM_CONSTANTS.ELEMENT_PROFILE_EXPORT_BUTTON,
     110,
-    {"TOPLEFT", 20, -382},
+    {"TOPLEFT", 20, -366},
     rggm.L["profile_export_button"],
     HandleExport
   )
@@ -251,7 +246,7 @@ function me.BuildStringBox(frame)
     frame,
     RGGM_CONSTANTS.ELEMENT_PROFILE_IMPORT_BUTTON,
     110,
-    {"TOPLEFT", 140, -382},
+    {"TOPLEFT", 140, -366},
     rggm.L["profile_import_button"],
     HandleImport
   )

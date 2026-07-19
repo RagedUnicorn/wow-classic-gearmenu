@@ -192,7 +192,7 @@ if (GetLocale() == "deDE") then
 
   -- profile
   rggm.L["profile_category_name"] = "Profile"
-  rggm.L["profile_title"] = "Konfigurationsprofile"
+  rggm.L["profile_title"] = "Profile"
   rggm.L["profile_list_label"] = "Gespeicherte Profile"
   rggm.L["profile_string_label"] = "Profilzeichenkette (Export / Import)"
   rggm.L["profile_save_button"] = "Aktuelles speichern als..."

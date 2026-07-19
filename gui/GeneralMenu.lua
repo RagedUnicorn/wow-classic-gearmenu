@@ -104,16 +104,10 @@ StaticPopupDialogs["RGGM_RELOAD_INTERFACE"] = {
 function me.BuildUi(parentFrame)
   if builtMenu then return end
 
-  local generalMenuContentFrame = CreateFrame(
-    "Frame", RGGM_CONSTANTS.ELEMENT_GENERAL_MENU, parentFrame)
-  generalMenuContentFrame:SetWidth(RGGM_CONSTANTS.INTERFACE_PANEL_CONTENT_FRAME_WIDTH)
-  generalMenuContentFrame:SetHeight(RGGM_CONSTANTS.INTERFACE_PANEL_CONTENT_FRAME_HEIGHT)
-  generalMenuContentFrame:SetPoint("TOPLEFT", parentFrame, 5, -7)
-
-  me.CreateGeneralMenuTitle(generalMenuContentFrame)
+  me.CreateGeneralMenuTitle(parentFrame)
 
   mod.uiHelper.BuildCheckButtonOption(
-    generalMenuContentFrame,
+    parentFrame,
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_TOOLTIPS,
     {"TOPLEFT", 20, -60},
     me.EnableTooltipsOnShow,
@@ -122,7 +116,7 @@ function me.BuildUi(parentFrame)
   )
 
   mod.uiHelper.BuildCheckButtonOption(
-    generalMenuContentFrame,
+    parentFrame,
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_SIMPLE_TOOLTIPS,
     {"TOPLEFT", 20, -135},
     me.EnableSimpleTooltipsOnShow,
@@ -131,7 +125,7 @@ function me.BuildUi(parentFrame)
   )
 
   mod.uiHelper.BuildCheckButtonOption(
-    generalMenuContentFrame,
+    parentFrame,
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_DRAG_AND_DROP,
     {"TOPLEFT", 20, -210},
     me.EnableDragAndDropOnShow,
@@ -140,7 +134,7 @@ function me.BuildUi(parentFrame)
   )
 
   mod.uiHelper.BuildCheckButtonOption(
-    generalMenuContentFrame,
+    parentFrame,
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_FASTPRESS,
     {"TOPLEFT", 20, -285},
     me.EnableFastPressOnShow,
@@ -152,7 +146,7 @@ function me.BuildUi(parentFrame)
     From here on move options to "second row"
   ]]--
   mod.uiHelper.BuildCheckButtonOption(
-    generalMenuContentFrame,
+    parentFrame,
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_UNEQUIP_SLOT,
     {"TOPLEFT", 280, -60},
     me.EnableUnequipSlotOnShow,
@@ -161,7 +155,7 @@ function me.BuildUi(parentFrame)
   )
 
   mod.uiHelper.BuildCheckButtonOption(
-    generalMenuContentFrame,
+    parentFrame,
     RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_FALLBACK_TO_BASE_ITEM,
     {"TOPLEFT", 280, -210},
     me.EnableFallbackToBaseItemOnShow,
@@ -169,11 +163,11 @@ function me.BuildUi(parentFrame)
     enableFallbackToBaseItemMetaData
   )
 
-  me.CreateEnableRunesCheckBox(generalMenuContentFrame)
-  me.CreateItemQualityLabel(generalMenuContentFrame)
-  me.CreateItemQualityDropdown(generalMenuContentFrame)
-  me.CreateThemeLabel(generalMenuContentFrame)
-  me.CreateChooseThemeDropdown(generalMenuContentFrame)
+  me.CreateEnableRunesCheckBox(parentFrame)
+  me.CreateItemQualityLabel(parentFrame)
+  me.CreateItemQualityDropdown(parentFrame)
+  me.CreateThemeLabel(parentFrame)
+  me.CreateChooseThemeDropdown(parentFrame)
 
   builtMenu = true
 end

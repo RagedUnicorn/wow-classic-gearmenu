@@ -186,7 +186,7 @@ if (GetLocale() == "ruRU") then
 
   -- profile
   rggm.L["profile_category_name"] = "Профили"
-  rggm.L["profile_title"] = "Профили конфигурации"
+  rggm.L["profile_title"] = "Профили"
   rggm.L["profile_list_label"] = "Сохранённые профили"
   rggm.L["profile_string_label"] = "Строка профиля (Экспорт / Импорт)"
   rggm.L["profile_save_button"] = "Сохранить текущий как..."

@@ -167,8 +167,6 @@ RGGM_CONSTANTS = {
   CHECK_OPTION_DESCRIPTION_WIDTH = 230,
   BUTTON_DEFAULT_PADDING = 20,
   BUTTON_DEFAULT_HEIGHT = 25,
-  INTERFACE_PANEL_CONTENT_FRAME_WIDTH = 580,
-  INTERFACE_PANEL_CONTENT_FRAME_HEIGHT = 552,
   --[[
     About Menu
   ]]--
@@ -180,7 +178,6 @@ RGGM_CONSTANTS = {
   --[[
     General Menu
   ]]--
-  ELEMENT_GENERAL_MENU = "GM_GeneralMenu",
   ELEMENT_GENERAL_MENU_TITLE = "$parentTitle",
   ELEMENT_GENERAL_OPT_ENABLE_TOOLTIPS = "GM_OptEnableTooltips",
   ELEMENT_GENERAL_OPT_ENABLE_SIMPLE_TOOLTIPS = "GM_OptEnableSimpleTooltips",
@@ -196,7 +193,6 @@ RGGM_CONSTANTS = {
   --[[
     Trinket Menu
   ]]--
-  ELEMENT_TRINKET_MENU = "GM_TrinketMenu",
   ELEMENT_TRINKET_MENU_TITLE = "$parentTitle",
   ELEMENT_TRINKET_MENU_OPT = "GM_Opt",
   ELEMENT_TRINKET_MENU_OPT_ENABLE_MENU = "GM_OptEnableTrinketMenu",
@@ -205,7 +201,6 @@ RGGM_CONSTANTS = {
   --[[
     QuickChange
   ]]--
-  ELEMENT_QUICK_CHANGE_MENU = "GM_QuickChangeMenu",
   ELEMENT_QUICK_CHANGE_MENU_TITLE = "$parentTitle",
   ELEMENT_QUICK_CHANGE_MENU_INVENTORY_TYPE_DROPDOWN = "GM_QuickChangeMenuChooseCategory",
   QUICK_CHANGE_BUTTON_MARGIN = 15,
@@ -253,7 +248,6 @@ RGGM_CONSTANTS = {
   --[[
     GearBar configuration menu
   ]]--
-  ELEMENT_GEAR_BAR_CONFIGURATION_MENU = "GM_GearBarConfigurationMenu",
   ELEMENT_GEAR_BAR_CONFIGURATION_MENU_TITLE = "$parentTitle",
   ELEMENT_GEAR_BAR_CONFIGURATION_CREATE_BUTTON = "$parentCreateButton",
   ELEMENT_GEAR_BAR_LIST = "$parentGearBarList",
@@ -270,7 +264,6 @@ RGGM_CONSTANTS = {
   --[[
     GearBar Configuration Sub Menu
   ]]--
-  ELEMENT_GEAR_BAR_CONFIGURATION_SUB_MENU = "GM_GearBarConfigurationSubMenu_",
   ELEMENT_GEAR_BAR_CONFIGURATION_SUB_MENU_TITLE = "$parentTitle",
   ELEMENT_GEAR_BAR_CONFIGURATION_ADD_SLOT_BUTTON = "$parentAddSlotButton",
   ELEMENT_GEAR_BAR_CONFIGURATION_REMOVE_SLOT_BUTTON = "$parentRemoveSlotButton",
@@ -317,7 +310,6 @@ RGGM_CONSTANTS = {
   --[[
     Profile Menu
   ]]--
-  ELEMENT_PROFILE_MENU = "GM_ProfileMenu",
   ELEMENT_PROFILE_TITLE = "$parentTitle",
   ELEMENT_PROFILE_LIST_SCROLL_FRAME = "GM_ProfileListScrollFrame",
   ELEMENT_PROFILE_LIST_ROW = "GM_ProfileListRow", -- suffixed with the row index

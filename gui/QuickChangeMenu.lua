@@ -100,45 +100,28 @@ local toList
 function me.BuildUi(parentFrame)
   if builtMenu then return end
 
-  local quickChangeContentFrame = me.CreateQuickChangeContentFrame(parentFrame)
-  me.CreateQuickChangeMenuTitle(quickChangeContentFrame)
+  me.CreateQuickChangeMenuTitle(parentFrame)
   --[[
     Create input elements
   ]]--
-  local delaySlider = me.CreateDelaySlider(quickChangeContentFrame)
+  local delaySlider = me.CreateDelaySlider(parentFrame)
   me.CreateAddRuleButton(delaySlider)
-  me.CreateRemoveRuleButton(quickChangeContentFrame)
-  me.CreateInventoryTypeDropdown(quickChangeContentFrame)
+  me.CreateRemoveRuleButton(parentFrame)
+  me.CreateInventoryTypeDropdown(parentFrame)
   --[[
     Create item lists
   ]]--
-  rulesList = me.CreateRulesList(quickChangeContentFrame)
+  rulesList = me.CreateRulesList(parentFrame)
   -- initial load of rule list
   me.RulesListOnUpdate(rulesList)
-  fromList = me.CreateFromItemList(quickChangeContentFrame)
+  fromList = me.CreateFromItemList(parentFrame)
   -- initial load of from list
   me.FromListOnUpdate(fromList)
-  toList = me.CreateToItemList(quickChangeContentFrame)
+  toList = me.CreateToItemList(parentFrame)
   -- initial load of to list
   me.ToListOnUpdate(toList)
 
   builtMenu = true
-end
-
---[[
-  @param {table} parentFrame
-
-  @return {table}
-   The created quickchange content frame
-]]--
-function me.CreateQuickChangeContentFrame(parentFrame)
-  local quickChangeContentFrame = CreateFrame(
-    "Frame", RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MENU, parentFrame)
-  quickChangeContentFrame:SetWidth(RGGM_CONSTANTS.INTERFACE_PANEL_CONTENT_FRAME_WIDTH)
-  quickChangeContentFrame:SetHeight(RGGM_CONSTANTS.INTERFACE_PANEL_CONTENT_FRAME_HEIGHT)
-  quickChangeContentFrame:SetPoint("TOPLEFT", parentFrame, 5, -7)
-
-  return quickChangeContentFrame
 end
 
 --[[

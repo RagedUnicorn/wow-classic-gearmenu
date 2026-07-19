@@ -130,15 +130,9 @@ StaticPopupDialogs["RGGM_GEAR_BAR_CONFIRM_DELETE"] = {
 function me.BuildUi(parentFrame)
   if builtMenu then return end
 
-  local gearBarConfigurationContentFrame = CreateFrame(
-    "Frame", RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_MENU, parentFrame)
-  gearBarConfigurationContentFrame:SetWidth(RGGM_CONSTANTS.INTERFACE_PANEL_CONTENT_FRAME_WIDTH)
-  gearBarConfigurationContentFrame:SetHeight(RGGM_CONSTANTS.INTERFACE_PANEL_CONTENT_FRAME_HEIGHT)
-  gearBarConfigurationContentFrame:SetPoint("TOPLEFT", parentFrame, 5, -7)
-
-  me.CreateConfigurationMenuTitle(gearBarConfigurationContentFrame)
-  me.CreateNewGearBarButton(gearBarConfigurationContentFrame)
-  gearBarList = me.CreateGearBarList(gearBarConfigurationContentFrame)
+  me.CreateConfigurationMenuTitle(parentFrame)
+  me.CreateNewGearBarButton(parentFrame)
+  gearBarList = me.CreateGearBarList(parentFrame)
   me.GearBarListOnUpdate(gearBarList)
 
   builtMenu = true

@@ -177,7 +177,7 @@ if (GetLocale() == "zhCN") then
 
   -- profile
   rggm.L["profile_category_name"] = "配置文件"
-  rggm.L["profile_title"] = "配置文件管理"
+  rggm.L["profile_title"] = "配置文件"
   rggm.L["profile_list_label"] = "已保存的配置文件"
   rggm.L["profile_string_label"] = "配置文件字符串(导出 / 导入)"
   rggm.L["profile_save_button"] = "将当前保存为..."
