@@ -168,7 +168,7 @@ function me.CreateDelaySlider(frame)
     "MinimalSliderWithSteppersTemplate"
   )
   delaySlider:SetWidth(RGGM_CONSTANTS.QUICK_CHANGE_DELAY_SLIDER_WIDTH)
-  delaySlider:SetPoint("TOPLEFT", 15, -440)
+  delaySlider:SetPoint("TOPLEFT", 15, -500)
   delaySlider:Init(
     sliderMin,
     sliderOptions.minValue,
@@ -255,7 +255,7 @@ function me.CreateRemoveRuleButton(frame)
     frame,
     "UIPanelButtonTemplate"
   )
-  removeRuleButton:SetPoint("TOPLEFT", 480, -200)
+  removeRuleButton:SetPoint("TOPLEFT", 480, -220)
   removeRuleButton:SetText(rggm.L["quick_change_remove_rule"])
 
   local buttonSize = removeRuleButton:GetTextWidth() + RGGM_CONSTANTS.QUICK_CHANGE_BUTTON_MARGIN
@@ -316,7 +316,7 @@ function me.CreateInventoryTypeDropdown(frame)
   local chooseCategoryDropdownMenu = mod.uiHelper.CreateSettingsDropdown(
     RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_MENU_INVENTORY_TYPE_DROPDOWN,
     frame,
-    {"TOPLEFT", 10, -250},
+    {"TOPLEFT", 10, -285},
     120,
     me.InitializeInventoryTypeDropdownMenu
   )
@@ -408,47 +408,50 @@ end
 ]]--
 function me.CreateRuleRowFrame(contentFrame, position)
   local rowOffset = (position - 1) * RGGM_CONSTANTS.QUICK_CHANGE_ROW_HEIGHT * -1
-  local row = CreateFrame("Button", RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_RULES_ROW .. position, contentFrame)
+  local row = CreateFrame(
+    "Button",
+    RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_RULES_ROW .. position,
+    contentFrame,
+    "BackdropTemplate"
+  )
   row:SetHeight(RGGM_CONSTANTS.QUICK_CHANGE_ROW_HEIGHT)
   row:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", 0, rowOffset)
   row:SetPoint("TOPRIGHT", contentFrame, "TOPRIGHT", 0, rowOffset)
+  me.ApplyRowBackdrop(row, position)
 
-  local fromContainerFrame = mod.uiHelper.CreateMouseOverEventContainer(
-    RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_RULES_MOUSEOVER_CONTAINER_LEFT,
+  local fromItemIcon = mod.uiHelper.CreateItemIconHolder(
     row,
-    { "LEFT", 0, 0 }
+    { "LEFT", 5, 0 },
+    RGGM_CONSTANTS.QUICK_CHANGE_ICON_SIZE
   )
-
-  local fromItemIcon = fromContainerFrame:CreateTexture(nil, "ARTWORK")
-  fromItemIcon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
-  fromItemIcon:SetAllPoints()
   row.fromItemIcon = fromItemIcon
 
   local fromItemName = row:CreateFontString(nil, "OVERLAY")
   fromItemName:SetFont(STANDARD_TEXT_FONT, 14)
-  fromItemName:SetPoint("LEFT", row.fromItemIcon, 0, 0)
-  fromItemName:SetWidth(250)
+  mod.uiHelper.SetColor(fromItemName, RGGM_CONSTANTS.COLOR.BODY)
+  fromItemName:SetPoint("LEFT", fromItemIcon.iconHolder, "RIGHT", 5, 0)
+  fromItemName:SetWidth(200)
+  fromItemName:SetJustifyH("LEFT")
   row.fromItemName = fromItemName
 
-  local toContainerFrame = mod.uiHelper.CreateMouseOverEventContainer(
-    RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_RULES_MOUSEOVER_CONTAINER_RIGHT,
+  local toItemIcon = mod.uiHelper.CreateItemIconHolder(
     row,
-    { "RIGHT", row.fromItemName, 50, 0 }
+    { "LEFT", fromItemName, "RIGHT", 5, 0 },
+    RGGM_CONSTANTS.QUICK_CHANGE_ICON_SIZE
   )
-
-  local toItemIcon = toContainerFrame:CreateTexture(nil, "ARTWORK")
-  toItemIcon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
-  toItemIcon:SetAllPoints()
   row.toItemIcon = toItemIcon
 
   local toItemName = row:CreateFontString(nil, "OVERLAY")
   toItemName:SetFont(STANDARD_TEXT_FONT, 14)
-  toItemName:SetPoint("LEFT", row.toItemIcon, 0, 0)
-  toItemName:SetWidth(250)
+  mod.uiHelper.SetColor(toItemName, RGGM_CONSTANTS.COLOR.BODY)
+  toItemName:SetPoint("LEFT", toItemIcon.iconHolder, "RIGHT", 5, 0)
+  toItemName:SetWidth(200)
+  toItemName:SetJustifyH("LEFT")
   row.toItemName = toItemName
 
   local delay = row:CreateFontString(nil, "OVERLAY")
   delay:SetFont(STANDARD_TEXT_FONT, 14)
+  mod.uiHelper.SetColor(delay, RGGM_CONSTANTS.COLOR.BODY)
   delay:SetPoint("RIGHT", 0, 0)
   delay:SetWidth(50)
   row.delay = delay
@@ -464,10 +467,27 @@ function me.CreateRuleRowFrame(contentFrame, position)
   hoverTexture:SetColorTexture(1, 1, 1, 0.15)
 
   me.SetupRowEvents(row)
-  me.SetupContainerEvents(fromContainerFrame)
-  me.SetupContainerEvents(toContainerFrame)
 
   return row
+end
+
+--[[
+  Apply the striped list row backdrop shared by all quickchange lists
+
+  @param {table} row
+  @param {number} position
+]]--
+function me.ApplyRowBackdrop(row, position)
+  row:SetBackdrop({
+    bgFile = "Interface\\AddOns\\GearMenu\\assets\\ui_slot_background",
+    insets = {left = 0, right = 0, top = 0, bottom = 0},
+  })
+
+  if math.fmod(position, 2) == 0 then
+    row:SetBackdropColor(0.37, 0.37, 0.37, .3)
+  else
+    row:SetBackdropColor(.25, .25, .25, .9)
+  end
 end
 
 --[[
@@ -513,12 +533,14 @@ function me.RulesListOnUpdate(listContainer)
       local ruleData = quickChangeRules[index]
 
       row.fromItemIcon:SetTexture(ruleData.changeFromItemIcon)
+      row.fromItemIcon.iconHolder.itemId = ruleData.changeFromItemId
       row.fromItemName:SetText(ruleData.changeFromName)
       row.fromItemId = ruleData.changeFromItemId
       row.fromItemEnchantId = ruleData.changeFromItemEnchantId
       row.fromRuneAbilityId = ruleData.changeFromRuneAbilityId
       row.fromRuneName = ruleData.changeFromRuneName
       row.toItemIcon:SetTexture(ruleData.changeToItemIcon)
+      row.toItemIcon.iconHolder.itemId = ruleData.changeToItemId
       row.toItemName:SetText(ruleData.changeToName)
       row.toItemId = ruleData.changeToItemId
       row.toItemEnchantId = ruleData.changeToItemEnchantId
@@ -553,7 +575,7 @@ function me.CreateFromItemList(frame)
   return mod.uiHelper.CreateScrollList(
     RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_FROM_SCROLL_FRAME,
     frame,
-    {"TOPLEFT", 5, -300},
+    {"TOPLEFT", 5, -320},
     RGGM_CONSTANTS.QUICK_CHANGE_FROM_CONTENT_FRAME_WIDTH,
     RGGM_CONSTANTS.QUICK_CHANGE_ROW_HEIGHT * RGGM_CONSTANTS.QUICK_CHANGE_MAX_ROWS
   )
@@ -595,6 +617,7 @@ function me.FromListOnUpdate(listContainer, slotId)
 
     if i <= #fromCachedQuickChangeItems then
       row.icon:SetTexture(fromCachedQuickChangeItems[i].texture)
+      row.icon.iconHolder.itemId = fromCachedQuickChangeItems[i].id
       row.name:SetText(fromCachedQuickChangeItems[i].name)
       row.itemId = fromCachedQuickChangeItems[i].id
       row.enchantId = fromCachedQuickChangeItems[i].enchantId or nil
@@ -636,7 +659,7 @@ function me.CreateToItemList(frame)
   return mod.uiHelper.CreateScrollList(
     RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_TO_SCROLL_FRAME,
     frame,
-    {"TOPLEFT", 310, -300},
+    {"TOPLEFT", 310, -320},
     RGGM_CONSTANTS.QUICK_CHANGE_TO_CONTENT_FRAME_WIDTH,
     RGGM_CONSTANTS.QUICK_CHANGE_ROW_HEIGHT * RGGM_CONSTANTS.QUICK_CHANGE_MAX_ROWS
   )
@@ -678,6 +701,7 @@ function me.ToListOnUpdate(listContainer, slotId)
 
     if i <= #toCachedQuickChangeItems then
       row.icon:SetTexture(toCachedQuickChangeItems[i].texture)
+      row.icon.iconHolder.itemId = toCachedQuickChangeItems[i].id
       row.name:SetText(toCachedQuickChangeItems[i].name)
       row.itemId = toCachedQuickChangeItems[i].id
       row.enchantId = toCachedQuickChangeItems[i].enchantId or nil
@@ -718,26 +742,32 @@ end
 ]]--
 function me.CreateRowFrames(contentFrame, position)
   local rowOffset = (position - 1) * RGGM_CONSTANTS.QUICK_CHANGE_ROW_HEIGHT * -1
-  local row = CreateFrame("Button", RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_CONTENT_FRAME_ROW .. position, contentFrame)
+  local row = CreateFrame(
+    "Button",
+    RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_CONTENT_FRAME_ROW .. position,
+    contentFrame,
+    "BackdropTemplate"
+  )
   row:SetHeight(RGGM_CONSTANTS.QUICK_CHANGE_ROW_HEIGHT)
   row:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", 0, rowOffset)
   row:SetPoint("TOPRIGHT", contentFrame, "TOPRIGHT", 0, rowOffset)
+  me.ApplyRowBackdrop(row, position)
 
-  local containerFrame = mod.uiHelper.CreateMouseOverEventContainer(
-    nil,
+  local itemIcon = mod.uiHelper.CreateItemIconHolder(
     row,
-    { "LEFT", 5, 0 }
+    { "LEFT", 5, 0 },
+    RGGM_CONSTANTS.QUICK_CHANGE_ICON_SIZE
   )
-
-  local itemIcon = containerFrame:CreateTexture(nil, "ARTWORK")
-  itemIcon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
-  itemIcon:SetAllPoints()
   row.icon = itemIcon
 
   local itemNameFontString = row:CreateFontString(nil, "OVERLAY")
   itemNameFontString:SetFont(STANDARD_TEXT_FONT, 14)
-  itemNameFontString:SetPoint("LEFT", 16 + 5, 0)
-  itemNameFontString:SetWidth(contentFrame:GetWidth() - 16 - 5)
+  mod.uiHelper.SetColor(itemNameFontString, RGGM_CONSTANTS.COLOR.BODY)
+  itemNameFontString:SetPoint("LEFT", itemIcon.iconHolder, "RIGHT", 5, 0)
+  itemNameFontString:SetWidth(
+    contentFrame:GetWidth() - RGGM_CONSTANTS.QUICK_CHANGE_ICON_SIZE - 20
+  )
+  itemNameFontString:SetJustifyH("LEFT")
   row.name = itemNameFontString
 
   local selectedTexture = row:CreateTexture(nil, "BACKGROUND")
@@ -751,7 +781,6 @@ function me.CreateRowFrames(contentFrame, position)
   hoverTexture:SetColorTexture(1, 1, 1, 0.15)
 
   me.SetupRowEvents(row)
-  me.SetupContainerEvents(containerFrame)
 
   return row
 end
@@ -797,47 +826,6 @@ function me.SetupRowEvents(row)
 
       me.RulesListOnUpdate(rulesList)
     end
-  end)
-end
-
---[[
-  Setup script handlers for a container frame
-
-  @param {table} containerFrame
-]]--
-function me.SetupContainerEvents(containerFrame)
-  containerFrame:SetScript("OnEnter", function(self)
-    local parentFrame = self:GetParent()
-    local item
-
-    if self:GetName() == RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_RULES_MOUSEOVER_CONTAINER_LEFT then
-      item = {
-        ["itemId"] = parentFrame.fromItemId,
-        ["enchantId"] = parentFrame.fromItemEnchantId,
-        ["runeAbilityId"] = parentFrame.fromRuneAbilityId,
-        ["runeName"] = parentFrame.fromRuneName
-      }
-    elseif self:GetName() == RGGM_CONSTANTS.ELEMENT_QUICK_CHANGE_RULES_MOUSEOVER_CONTAINER_RIGHT then
-      item = {
-        ["itemId"] = parentFrame.toItemId,
-        ["enchantId"] = parentFrame.toItemEnchantId,
-        ["runeAbilityId"] = parentFrame.toRuneAbilityId,
-        ["runeName"] = parentFrame.toRuneName
-      }
-    else
-      item = {
-        ["itemId"] = parentFrame.itemId,
-        ["enchantId"] = parentFrame.enchantId,
-        ["runeAbilityId"] = parentFrame.runeAbilityId,
-        ["runeName"] = parentFrame.runeName
-      }
-    end
-
-    mod.tooltip.UpdateTooltipForItem(item)
-  end)
-
-  containerFrame:SetScript("OnLeave", function()
-    mod.tooltip.TooltipClear()
   end)
 end
 

@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals CreateFrame STANDARD_TEXT_FONT Settings MinimalSliderWithSteppersMixin ScrollUtil
+-- luacheck: globals CreateFrame STANDARD_TEXT_FONT Settings MinimalSliderWithSteppersMixin ScrollUtil GameTooltip
 
 local mod = rggm
 local me = {}
@@ -280,27 +280,64 @@ function me.CreateItemTexture(slot, slotSize)
 end
 
 --[[
-  Create a container wrapper for textures to be able to capture mouse events
+  Create a framed item icon with a tooltip showing the hovered item. The displayed
+  itemId is stored on the iconHolder by the consuming list's row update.
 
-  @param {string} frameName
   @param {table} parentFrame
+  @param {table} position
+    An object containing configuration parameters for a SetPoint function call
+  @param {number} iconSize
 
-  @return {table} containerFrame
+  @return {table}
+    The created icon texture (its holder frame is reachable via icon.iconHolder)
 ]]--
-function me.CreateMouseOverEventContainer(frameName, parentFrame, position)
-  local containerFrame = CreateFrame(
-    "Frame",
-    frameName,
-    parentFrame
+function me.CreateItemIconHolder(parentFrame, position, iconSize)
+  local iconHolder = CreateFrame("Frame", nil, parentFrame, "BackdropTemplate")
+  iconHolder:SetSize(
+    iconSize + 5,
+    iconSize + 5
   )
-  containerFrame:SetPoint(unpack(position))
-  containerFrame:SetSize(
-    16,
-    16
-  )
-  containerFrame:EnableMouse(true)
+  iconHolder:SetPoint(unpack(position))
+  iconHolder:EnableMouse(true)
+  iconHolder:SetScript("OnEnter", function(self)
+    if self.itemId ~= nil then
+      GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+      GameTooltip:SetItemByID(self.itemId)
+      GameTooltip:Show()
+    end
+  end)
+  iconHolder:SetScript("OnLeave", function()
+    GameTooltip:Hide()
+  end)
 
-  return containerFrame
+  local itemIcon = iconHolder:CreateTexture(nil, "ARTWORK")
+  itemIcon.iconHolder = iconHolder
+  itemIcon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+  itemIcon:SetPoint("CENTER", 0, 0)
+  itemIcon:SetSize(
+    iconSize,
+    iconSize
+  )
+
+  local backdrop = {
+    bgFile = "Interface\\AddOns\\GearMenu\\assets\\ui_slot_background",
+    edgeFile = "Interface\\AddOns\\GearMenu\\assets\\ui_slot_background",
+    tile = false,
+    tileSize = 32,
+    edgeSize = 20,
+    insets = {
+      left = 12,
+      right = 12,
+      top = 12,
+      bottom = 12
+    }
+  }
+
+  iconHolder:SetBackdrop(backdrop)
+  iconHolder:SetBackdropColor(0.15, 0.15, 0.15, 1)
+  iconHolder:SetBackdropBorderColor(0, 0.96, 0.83, 1)
+
+  return itemIcon
 end
 
 --[[
