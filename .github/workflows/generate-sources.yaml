@@ -35,7 +35,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add GearMenu.toc code/Environment.lua
+          git add GearMenu.toc code/Environment.lua docs/wow_badge_classic.svg docs/wow_badge_tbc.svg docs/wow_badge_mop.svg
           if git diff --staged --quiet; then
             echo "No generated changes to commit"
           else

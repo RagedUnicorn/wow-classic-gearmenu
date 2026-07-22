@@ -295,6 +295,16 @@
                     <include>Environment.lua</include>
                   </includes>
                 </resource>
+                <resource>
+                  <directory>${project.basedir}/target/generated-${profile.id.value}</directory>
+                  <targetPath>${project.basedir}/docs</targetPath>
+                  <filtering>false</filtering>
+                  <includes>
+                    <include>wow_badge_classic.svg</include>
+                    <include>wow_badge_tbc.svg</include>
+                    <include>wow_badge_mop.svg</include>
+                  </includes>
+                </resource>
               </resources>
             </configuration>
           </execution>
