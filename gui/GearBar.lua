@@ -818,13 +818,18 @@ end
 ]]--
 function me.SetupEvents(gearSlot)
   --[[
+    Register both the down and the up phase of a click. The modern ui engine executes the secure
+    action of a button in a single direction only - chosen by the useOnKeyDown attribute
+    respectively the ActionButtonUseKeyDown cvar as fallback. A button that is registered for one
+    direction only is unreachable for keybindings dispatched in the other direction. The
+    useOnKeyDown attribute maps the fastpress option onto that engine behavior - action on
+    keypress when fastpress is enabled, on keyrelease otherwise (see me.UpdateClickHandler for
+    updates on configuration change).
+
     Note: SecureActionButtons ignore right clicks by default - reenable right clicks
   ]]--
-  if mod.configuration.IsFastPressEnabled() then
-    gearSlot:RegisterForClicks("LeftButtonDown", "RightButtonDown")
-  else
-    gearSlot:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-  end
+  gearSlot:RegisterForClicks("LeftButtonDown", "LeftButtonUp", "RightButtonDown", "RightButtonUp")
+  gearSlot:SetAttribute("useOnKeyDown", mod.configuration.IsFastPressEnabled())
 
   gearSlot:RegisterForDrag("LeftButton")
   --[[
@@ -847,29 +852,43 @@ function me.SetupEvents(gearSlot)
 end
 
 --[[
-  Update clickhandler to match fastpress configuration. Only register to events that are needed
+  Update the useOnKeyDown attribute on all gearSlots to match the fastpress configuration.
+  Click registration itself is static (see me.SetupEvents); the attribute alone decides whether
+  the secure action fires on keypress or on keyrelease. Because gearSlots are protected frames
+  the attribute cannot be updated during combat lockdown
 ]]--
 function me.UpdateClickHandler()
+  if InCombatLockdown() then
+    mod.logger.LogError(me.tag, "Unable to update slots in combat. Please /reload after your are out of combat")
+
+    return
+  end
+
   local uiGearBars = mod.gearBarStorage.GetGearBars()
 
   for _, uiGearBar in pairs(uiGearBars) do
     for _, gearSlot in pairs(uiGearBar.gearSlotReferences) do
-      if mod.configuration.IsFastPressEnabled() then
-        gearSlot:RegisterForClicks("LeftButtonDown", "RightButtonDown")
-      else
-        gearSlot:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-      end
+      gearSlot:SetAttribute("useOnKeyDown", mod.configuration.IsFastPressEnabled())
     end
   end
 end
 
 --[[
-  Callback for a gearBarSlot OnClick
+  Callback for a gearBarSlot PreClick. Because gearSlots are registered for both click directions
+  (see me.SetupEvents) this fires for the down and the up phase of every click. The work is gated
+  to the phase that matches the fastpress configuration so it runs exactly once per activation -
+  in the same direction in which the secure action fires
 
   @param {table} self
   @param {string} button
+  @param {boolean} down
+    true for the buttonDown phase, false for the buttonUp phase
 ]]--
-function me.GearSlotOnClick(self, button)
+function me.GearSlotOnClick(self, button, down)
+  if down ~= mod.configuration.IsFastPressEnabled() then
+    return
+  end
+
   if button == "RightButton" then
     mod.combatQueue.RemoveFromQueue(self:GetAttribute("item"))
   end
