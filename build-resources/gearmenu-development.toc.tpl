@@ -4,6 +4,7 @@
 ## Notes: ${addon.description}
 ## Version: ${addon.tag.version}
 ## SavedVariablesPerCharacter: ${addon.savedVariablesPerCharacter}
+## IconTexture: Interface\AddOns\GearMenu\assets\gearmenu_icon
 ${addon.comment.generated.toc}
 
 # constant values

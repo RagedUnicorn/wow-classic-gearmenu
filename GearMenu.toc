@@ -4,6 +4,7 @@
 ## Notes: Addon to manage and keybind usable gear
 ## Version: v2.7.0
 ## SavedVariablesPerCharacter: GearMenuConfiguration
+## IconTexture: Interface\AddOns\GearMenu\assets\gearmenu_icon
 # THIS FILE IS AUTO-GENERATED. ALL CHANGES ARE OVERWRITTEN
 
 # constant values

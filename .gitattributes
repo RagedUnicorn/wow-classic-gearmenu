@@ -1,2 +1,6 @@
 # Automatically normalize line endings for all text-based files
 * text=auto
+
+# Textures are binary - never touch line endings
+*.blp binary
+*.tga binary
