@@ -213,5 +213,6 @@ if (GetLocale() == "ruRU") then
   rggm.L["profile_error_version"] = "Эта строка профиля была создана более новой версией GearMenu"
   rggm.L["profile_error_name_empty"] = "Имя профиля не может быть пустым"
   rggm.L["profile_error_name_exists"] = "Профиль с таким именем уже существует"
+  rggm.L["profile_error_name_too_long"] = "Имя профиля не может быть длиннее %d символов"
   rggm.L["profile_error_no_selection"] = "Профиль не выбран"
 end

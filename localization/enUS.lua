@@ -206,4 +206,5 @@ rggm.L["profile_error_wrong_addon"] = "This profile string was not created by Ge
 rggm.L["profile_error_version"] = "This profile string was created by a newer version of GearMenu"
 rggm.L["profile_error_name_empty"] = "The profile name cannot be empty"
 rggm.L["profile_error_name_exists"] = "A profile with that name already exists"
+rggm.L["profile_error_name_too_long"] = "The profile name cannot be longer than %d characters"
 rggm.L["profile_error_no_selection"] = "No profile selected"

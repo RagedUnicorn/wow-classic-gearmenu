@@ -168,6 +168,33 @@ local function GetStore()
 end
 
 --[[
+  Length of a name in characters. A plain `#name` would count bytes and cut a localized
+  name short, so continuation bytes (0x80-0xBF) of a utf-8 sequence are not counted.
+
+  @param {string} name
+  @return {number}
+]]--
+local function NameLength(name)
+  local _, count = string.gsub(name, "[^\128-\191]", "")
+
+  return count
+end
+
+--[[
+  @param {string} name
+  @return {boolean}
+    true - if the name exceeds RGGM_CONSTANTS.PROFILE_NAME_MAX_LENGTH characters
+    false - otherwise
+]]--
+function me.IsNameTooLong(name)
+  if type(name) ~= "string" then
+    return false
+  end
+
+  return NameLength(name) > RGGM_CONSTANTS.PROFILE_NAME_MAX_LENGTH
+end
+
+--[[
   Build a snapshot of the configurable fields out of the live
   GearMenuConfiguration.
 

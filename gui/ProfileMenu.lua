@@ -56,6 +56,7 @@ local CreateActionButton
 local CreateProfileRow
 local RefreshList
 local Trim
+local IsNameTooLong
 local HandleSave
 local HandleApply
 local HandleDelete
@@ -376,6 +377,27 @@ Trim = function(value)
 end
 
 --[[
+  Refuse an overlong profile name. The name prompts already cap their edit box, so this
+  only catches a name that did not come from typing - an imported envelope carrying a
+  name from an addon version with a laxer limit.
+
+  @param {string} name
+  @return {boolean}
+    true - if the name was refused and an error was printed
+    false - otherwise
+]]--
+IsNameTooLong = function(name)
+  if not mod.profile.IsNameTooLong(name) then
+    return false
+  end
+
+  mod.logger.PrintUserError(
+    string.format(rggm.L["profile_error_name_too_long"], RGGM_CONSTANTS.PROFILE_NAME_MAX_LENGTH))
+
+  return true
+end
+
+--[[
   Save the live configuration as a new (or overwritten) named profile.
 
   @param {string} name
@@ -387,6 +409,8 @@ HandleSave = function(name)
     mod.logger.PrintUserError(rggm.L["profile_error_name_empty"])
     return
   end
+
+  if IsNameTooLong(name) then return end
 
   mod.profile.SaveProfile(name, mod.profile.BuildSnapshot())
   me.selectedProfile = name
@@ -442,6 +466,8 @@ HandleRename = function(oldName, newName)
     mod.logger.PrintUserError(rggm.L["profile_error_name_empty"])
     return
   end
+
+  if IsNameTooLong(newName) then return end
 
   if newName ~= oldName and mod.profile.ProfileExists(newName) then
     mod.logger.PrintUserError(rggm.L["profile_error_name_exists"])
@@ -506,6 +532,8 @@ FinishImport = function(name, envelope)
     return
   end
 
+  if IsNameTooLong(name) then return end
+
   if mod.profile.ProfileExists(name) then
     mod.logger.PrintUserError(rggm.L["profile_error_name_exists"])
     return
@@ -527,7 +555,7 @@ SetupStaticPopups = function()
     button1 = ACCEPT,
     button2 = CANCEL,
     hasEditBox = true,
-    maxLetters = 64,
+    maxLetters = RGGM_CONSTANTS.PROFILE_NAME_MAX_LENGTH,
     OnShow = function(self)
       self.EditBox:SetText("")
       self.EditBox:SetFocus()
@@ -550,7 +578,7 @@ SetupStaticPopups = function()
     button1 = ACCEPT,
     button2 = CANCEL,
     hasEditBox = true,
-    maxLetters = 64,
+    maxLetters = RGGM_CONSTANTS.PROFILE_NAME_MAX_LENGTH,
     OnShow = function(self)
       self.EditBox:SetText(self.data or "")
       self.EditBox:SetFocus()
@@ -575,7 +603,7 @@ SetupStaticPopups = function()
     button1 = ACCEPT,
     button2 = CANCEL,
     hasEditBox = true,
-    maxLetters = 64,
+    maxLetters = RGGM_CONSTANTS.PROFILE_NAME_MAX_LENGTH,
     OnShow = function(self)
       self.EditBox:SetText((self.data and self.data.name) or "")
       self.EditBox:SetFocus()

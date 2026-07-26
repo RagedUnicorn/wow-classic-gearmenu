@@ -203,5 +203,6 @@ if (GetLocale() == "zhCN") then
   rggm.L["profile_error_version"] = "此配置文件字符串是由更新版本的GearMenu创建的"
   rggm.L["profile_error_name_empty"] = "配置文件名称不能为空"
   rggm.L["profile_error_name_exists"] = "已存在同名的配置文件"
+  rggm.L["profile_error_name_too_long"] = "配置文件名称不能超过%d个字符"
   rggm.L["profile_error_no_selection"] = "未选择配置文件"
 end

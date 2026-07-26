@@ -219,5 +219,6 @@ if (GetLocale() == "deDE") then
   rggm.L["profile_error_version"] = "Diese Profilzeichenkette wurde von einer neueren Version von GearMenu erstellt"
   rggm.L["profile_error_name_empty"] = "Der Profilname darf nicht leer sein"
   rggm.L["profile_error_name_exists"] = "Ein Profil mit diesem Namen existiert bereits"
+  rggm.L["profile_error_name_too_long"] = "Der Profilname darf nicht länger als %d Zeichen sein"
   rggm.L["profile_error_no_selection"] = "Kein Profil ausgewählt"
 end

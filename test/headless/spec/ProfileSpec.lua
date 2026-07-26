@@ -217,6 +217,29 @@ describe("Profile", function()
     assert.are.same({ "gamma" }, profile.ListProfiles())
   end)
 
+  describe("name length", function()
+    local maxLength = RGGM_CONSTANTS.PROFILE_NAME_MAX_LENGTH
+
+    it("accepts a name up to the limit", function()
+      assert.is_false(profile.IsNameTooLong(""))
+      assert.is_false(profile.IsNameTooLong(string.rep("a", maxLength)))
+    end)
+
+    it("refuses a name past the limit", function()
+      assert.is_true(profile.IsNameTooLong(string.rep("a", maxLength + 1)))
+    end)
+
+    it("counts characters and not bytes so a localized name is not cut short", function()
+      -- multibyte characters: every one of them is a single character to the user
+      assert.is_false(profile.IsNameTooLong(string.rep("ü", maxLength)))
+      assert.is_true(profile.IsNameTooLong(string.rep("ü", maxLength + 1)))
+    end)
+
+    it("tolerates a non string name", function()
+      assert.is_false(profile.IsNameTooLong(nil))
+    end)
+  end)
+
   it("imports a payload as data without executing it", function()
     local serialized = rggm.serializer.Serialize({
       addon = "GearMenu",
