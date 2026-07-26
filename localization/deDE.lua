@@ -221,4 +221,7 @@ if (GetLocale() == "deDE") then
   rggm.L["profile_error_name_exists"] = "Ein Profil mit diesem Namen existiert bereits"
   rggm.L["profile_error_name_too_long"] = "Der Profilname darf nicht länger als %d Zeichen sein"
   rggm.L["profile_error_no_selection"] = "Kein Profil ausgewählt"
+  rggm.L["profile_error_default_cannot_be_deleted"] = "Das Profil \"%s\" kann nicht gelöscht werden"
+  rggm.L["profile_error_default_cannot_be_renamed"] = "Das Profil \"%s\" kann nicht umbenannt werden"
+  rggm.L["profile_error_default_cannot_be_overwritten"] = "Das Profil \"%s\" kann nicht überschrieben werden"
 end

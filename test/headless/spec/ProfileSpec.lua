@@ -47,15 +47,42 @@ local function readSource(path)
   return content
 end
 
+--[[
+  EnsureDefaultProfile seeds the default profile from the shipped defaults, which live in
+  code/Configuration.lua. dofile the real module once to capture its GetDefaults, then put the
+  namespace back so the no-op stub installed per test stays in charge of SetupConfiguration.
+
+  @return {function}
+]]--
+local function captureGetDefaults()
+  local previous = rggm.configuration
+
+  dofile("code/Configuration.lua")
+
+  local getDefaults = rggm.configuration.GetDefaults
+  rggm.configuration = previous
+
+  return getDefaults
+end
+
 describe("Profile", function()
   local profile = rggm.profile
+  local getDefaults = captureGetDefaults()
   local previousConfiguration
+  -- EnsureDefaultProfile logs through rggm.logger, whose print path needs a WoW client (C_AddOns
+  -- for the addon title) and rggm.filter, neither of which the bootstrap provides. Drop the level
+  -- below `info` while this spec runs so nothing is printed; rggm.logger is a deep field of the
+  -- shared rggm table that busted's file insulation does not restore, so put it back in after_each.
+  local previousLogLevel
 
   before_each(function()
     -- ApplySnapshot backfills via mod.configuration.SetupConfiguration; other specs dofile the real
     -- configuration module into the shared rggm namespace, so pin a no-op stub for these tests.
     previousConfiguration = rggm.configuration
-    rggm.configuration = { SetupConfiguration = function() end }
+    rggm.configuration = { SetupConfiguration = function() end, GetDefaults = getDefaults }
+
+    previousLogLevel = rggm.logger.logLevel
+    rggm.logger.logLevel = rggm.logger.event
 
     GearMenuConfiguration.profiles = {}
     GearMenuConfiguration.enableTooltips = true
@@ -68,6 +95,7 @@ describe("Profile", function()
 
   after_each(function()
     rggm.configuration = previousConfiguration
+    rggm.logger.logLevel = previousLogLevel
   end)
 
   it("exports and imports a snapshot round-trip", function()
@@ -237,6 +265,114 @@ describe("Profile", function()
 
     it("tolerates a non string name", function()
       assert.is_false(profile.IsNameTooLong(nil))
+    end)
+  end)
+
+  describe("default profile", function()
+    local defaultName = RGGM_CONSTANTS.DEFAULT_PROFILE_NAME
+
+    it("seeds the default profile when the store does not hold one yet", function()
+      assert.are.same({}, profile.ListProfiles())
+
+      profile.EnsureDefaultProfile()
+
+      assert.are.same({ defaultName }, profile.ListProfiles())
+      assert.is_true(profile.ProfileExists(defaultName))
+    end)
+
+    it("seeds it from the shipped defaults, not from the live configuration", function()
+      -- a customized live configuration must not bleed into the frozen baseline
+      GearMenuConfiguration.enableTooltips = false
+      GearMenuConfiguration.filterItemQuality = 5
+      GearMenuConfiguration.uiTheme = RGGM_CONSTANTS.UI_THEME_CLASSIC
+      GearMenuConfiguration.gearBars = { { id = 100001, slots = {} } }
+      GearMenuConfiguration.frames = { GM_TrinketMenuFrame = { posX = 42 } }
+
+      profile.EnsureDefaultProfile()
+
+      local payload = profile.GetProfile(defaultName)
+
+      assert.is_true(payload.enableTooltips)
+      assert.are.equal(2, payload.filterItemQuality)
+      assert.are.equal(RGGM_CONSTANTS.UI_THEME_CUSTOM, payload.uiTheme)
+      -- the userOwned collections default to empty: applying the default is a fresh-install state
+      assert.are.same({}, payload.gearBars)
+      assert.are.same({}, payload.quickChangeRules)
+      assert.are.same({}, payload.frames)
+    end)
+
+    it("carries every profile field", function()
+      profile.EnsureDefaultProfile()
+
+      local payload = profile.GetProfile(defaultName)
+
+      for _, field in ipairs(profile.PROFILE_FIELDS) do
+        assert.is_not_nil(payload[field], "default profile is missing " .. field)
+      end
+    end)
+
+    it("does not share table references with the shipped defaults", function()
+      profile.EnsureDefaultProfile()
+      -- a later mutation of the seeded payload must not reach CONFIGURATION_DEFAULTS
+      profile.GetProfile(defaultName).frames.GM_TrinketMenuFrame = { posX = 1 }
+
+      assert.are.same({}, getDefaults().frames)
+    end)
+
+    it("leaves an already seeded default untouched on a second call", function()
+      profile.EnsureDefaultProfile()
+      local seeded = profile.GetProfile(defaultName)
+
+      profile.EnsureDefaultProfile()
+
+      assert.is_true(rawequal(seeded, profile.GetProfile(defaultName)))
+    end)
+
+    it("refuses to delete the default profile", function()
+      profile.EnsureDefaultProfile()
+
+      assert.is_false(profile.DeleteProfile(defaultName))
+      assert.is_true(profile.ProfileExists(defaultName))
+    end)
+
+    it("refuses to rename the default profile", function()
+      profile.EnsureDefaultProfile()
+
+      assert.is_false(profile.RenameProfile(defaultName, "MyDefault"))
+      assert.is_true(profile.ProfileExists(defaultName))
+      assert.is_false(profile.ProfileExists("MyDefault"))
+    end)
+
+    it("refuses to rename another profile onto the default name", function()
+      profile.EnsureDefaultProfile()
+      profile.SaveProfile("alpha", profile.BuildSnapshot())
+
+      assert.is_false(profile.RenameProfile("alpha", defaultName))
+      assert.is_true(profile.ProfileExists("alpha"))
+      assert.are.same(profile.BuildDefaultSnapshot(), profile.GetProfile(defaultName))
+    end)
+
+    it("refuses to overwrite the default profile through SaveProfile", function()
+      profile.EnsureDefaultProfile()
+      GearMenuConfiguration.filterItemQuality = 5
+
+      assert.is_false(profile.SaveProfile(defaultName, profile.BuildSnapshot()))
+      assert.are.equal(2, profile.GetProfile(defaultName).filterItemQuality)
+    end)
+
+    it("still saves, renames and deletes user created profiles", function()
+      profile.EnsureDefaultProfile()
+
+      assert.is_true(profile.SaveProfile("alpha", profile.BuildSnapshot()))
+      assert.is_true(profile.RenameProfile("alpha", "beta"))
+      assert.is_true(profile.DeleteProfile("beta"))
+      assert.are.same({ defaultName }, profile.ListProfiles())
+    end)
+
+    it("recognizes only the reserved name as the default profile", function()
+      assert.is_true(profile.IsDefaultProfile(defaultName))
+      assert.is_false(profile.IsDefaultProfile("default"))
+      assert.is_false(profile.IsDefaultProfile(nil))
     end)
   end)
 

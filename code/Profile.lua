@@ -168,6 +168,16 @@ local function GetStore()
 end
 
 --[[
+  @param {string} name
+  @return {boolean}
+    true - if the name is the reserved default profile name
+    false - otherwise
+]]--
+function me.IsDefaultProfile(name)
+  return name == RGGM_CONSTANTS.DEFAULT_PROFILE_NAME
+end
+
+--[[
   Length of a name in characters. A plain `#name` would count bytes and cut a localized
   name short, so continuation bytes (0x80-0xBF) of a utf-8 sequence are not counted.
 
@@ -192,6 +202,40 @@ function me.IsNameTooLong(name)
   end
 
   return NameLength(name) > RGGM_CONSTANTS.PROFILE_NAME_MAX_LENGTH
+end
+
+--[[
+  Build a snapshot of the configurable fields out of the shipped defaults rather than the
+  live configuration, so the default profile is a pristine baseline no matter when it gets
+  seeded (fresh install or an upgrade of an already customized character). The userOwned
+  collections (gearBars, quickChangeRules, frames) default to empty, so applying the default
+  profile returns the character to the fresh-install state.
+
+  @return {table}
+]]--
+function me.BuildDefaultSnapshot()
+  local defaults = mod.configuration.GetDefaults()
+  local snapshot = {}
+
+  for _, field in ipairs(me.PROFILE_FIELDS) do
+    snapshot[field] = mod.common.Clone(defaults[field])
+  end
+
+  return snapshot
+end
+
+--[[
+  Guarantee that the undeletable default profile exists. Called on every login (see
+  code/Core.lua Initialize) right after the configuration defaults were applied.
+  Idempotent - an already seeded default is left untouched, its payload stays frozen.
+]]--
+function me.EnsureDefaultProfile()
+  local store = GetStore()
+
+  if store[RGGM_CONSTANTS.DEFAULT_PROFILE_NAME] == nil then
+    mod.logger.LogInfo(me.tag, "Seeding the default profile")
+    store[RGGM_CONSTANTS.DEFAULT_PROFILE_NAME] = me.BuildDefaultSnapshot()
+  end
 end
 
 --[[
@@ -352,32 +396,58 @@ function me.GetProfile(name)
 end
 
 --[[
-  Store (or overwrite) a named profile from a payload snapshot.
+  Store (or overwrite) a named profile from a payload snapshot. The default profile is
+  frozen and can never be overwritten.
 
   @param {string} name
   @param {table} payload
+
+  @return {boolean}
+    true on success, false if name is the default profile
 ]]--
 function me.SaveProfile(name, payload)
+  if me.IsDefaultProfile(name) then
+    return false
+  end
+
   GetStore()[name] = mod.common.Clone(payload)
+
+  return true
 end
 
 --[[
+  Delete a stored profile. The default profile can never be deleted.
+
   @param {string} name
+
+  @return {boolean}
+    true on success, false if name is the default profile
 ]]--
 function me.DeleteProfile(name)
+  if me.IsDefaultProfile(name) then
+    return false
+  end
+
   GetStore()[name] = nil
+
+  return true
 end
 
 --[[
-  Rename a stored profile.
+  Rename a stored profile. The default profile can neither be renamed nor be replaced by
+  renaming another profile onto its name.
 
   @param {string} oldName
   @param {string} newName
 
   @return {boolean}
-    true on success, false if oldName does not exist
+    true on success, false if oldName does not exist or either name is the default profile
 ]]--
 function me.RenameProfile(oldName, newName)
+  if me.IsDefaultProfile(oldName) or me.IsDefaultProfile(newName) then
+    return false
+  end
+
   local store = GetStore()
 
   if store[oldName] == nil then

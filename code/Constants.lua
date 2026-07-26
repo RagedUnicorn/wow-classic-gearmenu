@@ -315,6 +315,12 @@ RGGM_CONSTANTS = {
     the chat messages that quote it
   ]]--
   PROFILE_NAME_MAX_LENGTH = 30,
+  --[[
+    Name of the reserved profile that is seeded on every login and can neither be
+    deleted, renamed nor overwritten. Deliberately not localized - it is a saved variable
+    key that also travels inside export strings, so it has to read the same everywhere
+  ]]--
+  DEFAULT_PROFILE_NAME = "Default",
   ELEMENT_PROFILE_TITLE = "$parentTitle",
   ELEMENT_PROFILE_LIST_SCROLL_FRAME = "GM_ProfileListScrollFrame",
   ELEMENT_PROFILE_LIST_ROW = "GM_ProfileListRow", -- suffixed with the row index

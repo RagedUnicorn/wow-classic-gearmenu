@@ -50,11 +50,20 @@ local rowPool
 ]]--
 local profileEditBox
 
+--[[
+  The two action buttons that are greyed out while the immutable default profile is
+  selected
+]]--
+local renameButton
+local deleteButton
+
 -- forward declarations
 local SetupStaticPopups
 local CreateActionButton
 local CreateProfileRow
 local RefreshList
+local UpdateActionButtonState
+local PrintDefaultProfileError
 local Trim
 local IsNameTooLong
 local HandleSave
@@ -156,7 +165,7 @@ function me.BuildActionButtons(frame)
     end
   )
 
-  CreateActionButton(
+  renameButton = CreateActionButton(
     frame,
     RGGM_CONSTANTS.ELEMENT_PROFILE_RENAME_BUTTON,
     RGGM_CONSTANTS.ELEMENT_PROFILE_BUTTON_WIDTH,
@@ -168,11 +177,16 @@ function me.BuildActionButtons(frame)
         return
       end
 
+      if mod.profile.IsDefaultProfile(me.selectedProfile) then
+        PrintDefaultProfileError("profile_error_default_cannot_be_renamed")
+        return
+      end
+
       StaticPopup_Show("RGGM_PROFILE_RENAME", nil, nil, me.selectedProfile)
     end
   )
 
-  CreateActionButton(
+  deleteButton = CreateActionButton(
     frame,
     RGGM_CONSTANTS.ELEMENT_PROFILE_DELETE_BUTTON,
     RGGM_CONSTANTS.ELEMENT_PROFILE_BUTTON_WIDTH,
@@ -184,9 +198,16 @@ function me.BuildActionButtons(frame)
         return
       end
 
+      if mod.profile.IsDefaultProfile(me.selectedProfile) then
+        PrintDefaultProfileError("profile_error_default_cannot_be_deleted")
+        return
+      end
+
       StaticPopup_Show("RGGM_PROFILE_DELETE", me.selectedProfile, nil, me.selectedProfile)
     end
   )
+
+  UpdateActionButtonState()
 end
 
 --[[
@@ -270,6 +291,32 @@ function me.SelectProfile(name)
       row.selectedTexture:Hide()
     end
   end)
+
+  UpdateActionButtonState()
+end
+
+--[[
+  Grey out Rename and Delete while the immutable default profile is selected. The click
+  handlers guard the same condition - this only makes the refusal visible before the click.
+]]--
+UpdateActionButtonState = function()
+  if not renameButton or not deleteButton then return end
+
+  local isDefault = me.selectedProfile ~= nil and mod.profile.IsDefaultProfile(me.selectedProfile)
+
+  renameButton:SetEnabled(not isDefault)
+  deleteButton:SetEnabled(not isDefault)
+end
+
+--[[
+  Print one of the profile_error_default_* messages. The reserved profile name is not
+  translated - it is a saved-variable key that also travels inside export strings - so every
+  locale spells it out verbatim instead of naming it in its own words.
+
+  @param {string} errorKey
+]]--
+PrintDefaultProfileError = function(errorKey)
+  mod.logger.PrintUserError(string.format(rggm.L[errorKey], RGGM_CONSTANTS.DEFAULT_PROFILE_NAME))
 end
 
 --[[
@@ -342,6 +389,8 @@ RefreshList = function()
   end
 
   rowPool.ReleaseFrom(#names + 1)
+
+  UpdateActionButtonState()
 end
 
 --[[
@@ -412,6 +461,12 @@ HandleSave = function(name)
 
   if IsNameTooLong(name) then return end
 
+  --[[ save-as overwrites an existing profile of the same name - the default profile is frozen ]]--
+  if mod.profile.IsDefaultProfile(name) then
+    PrintDefaultProfileError("profile_error_default_cannot_be_overwritten")
+    return
+  end
+
   mod.profile.SaveProfile(name, mod.profile.BuildSnapshot())
   me.selectedProfile = name
   RefreshList()
@@ -443,7 +498,10 @@ end
   @param {string} name
 ]]--
 HandleDelete = function(name)
-  mod.profile.DeleteProfile(name)
+  if not mod.profile.DeleteProfile(name) then
+    PrintDefaultProfileError("profile_error_default_cannot_be_deleted")
+    return
+  end
 
   if me.selectedProfile == name then
     me.selectedProfile = nil
@@ -468,6 +526,17 @@ HandleRename = function(oldName, newName)
   end
 
   if IsNameTooLong(newName) then return end
+
+  if mod.profile.IsDefaultProfile(oldName) then
+    PrintDefaultProfileError("profile_error_default_cannot_be_renamed")
+    return
+  end
+
+  --[[ renaming another profile onto the default name would replace the frozen baseline ]]--
+  if mod.profile.IsDefaultProfile(newName) then
+    PrintDefaultProfileError("profile_error_default_cannot_be_overwritten")
+    return
+  end
 
   if newName ~= oldName and mod.profile.ProfileExists(newName) then
     mod.logger.PrintUserError(rggm.L["profile_error_name_exists"])
@@ -533,6 +602,11 @@ FinishImport = function(name, envelope)
   end
 
   if IsNameTooLong(name) then return end
+
+  if mod.profile.IsDefaultProfile(name) then
+    PrintDefaultProfileError("profile_error_default_cannot_be_overwritten")
+    return
+  end
 
   if mod.profile.ProfileExists(name) then
     mod.logger.PrintUserError(rggm.L["profile_error_name_exists"])

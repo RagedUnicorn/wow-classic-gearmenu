@@ -215,4 +215,7 @@ if (GetLocale() == "ruRU") then
   rggm.L["profile_error_name_exists"] = "Профиль с таким именем уже существует"
   rggm.L["profile_error_name_too_long"] = "Имя профиля не может быть длиннее %d символов"
   rggm.L["profile_error_no_selection"] = "Профиль не выбран"
+  rggm.L["profile_error_default_cannot_be_deleted"] = "Профиль \"%s\" нельзя удалить"
+  rggm.L["profile_error_default_cannot_be_renamed"] = "Профиль \"%s\" нельзя переименовать"
+  rggm.L["profile_error_default_cannot_be_overwritten"] = "Профиль \"%s\" нельзя перезаписать"
 end

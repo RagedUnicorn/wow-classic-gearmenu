@@ -207,6 +207,12 @@ local CONFIGURATION_DEFAULTS = {
 ]]--
 GearMenuConfiguration = GearMenuConfiguration or {}
 
+--[[
+  Lazily built fieldName -> default value map, derived from CONFIGURATION_DEFAULTS. See
+  me.GetDefaults
+]]--
+local defaultsByName
+
 -- forward declarations
 local ApplyConfigurationDefaults
 
@@ -271,6 +277,29 @@ function me.SetupConfiguration()
     a migration path applies to the current saved variables or not
   ]]--
   me.SetAddonVersion()
+end
+
+--[[
+  Read access to the shipped default values, keyed by field name. Used by code/Profile.lua
+  to seed the default profile with a pristine baseline instead of whatever the live
+  GearMenuConfiguration happens to hold at seed time.
+
+  The returned table holds the module's own default values - callers must treat it as
+  read-only and copy anything they intend to keep.
+
+  @return {table}
+    map of fieldName -> default value
+]]--
+function me.GetDefaults()
+  if defaultsByName == nil then
+    defaultsByName = {}
+
+    for _, entry in ipairs(CONFIGURATION_DEFAULTS) do
+      defaultsByName[entry.name] = entry.default
+    end
+  end
+
+  return defaultsByName
 end
 
 --[[

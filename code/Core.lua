@@ -283,6 +283,8 @@ Initialize = function()
   me.cmd.SetupSlashCmdList()
   -- load addon variables
   me.configuration.SetupConfiguration()
+  -- guarantee the undeletable default profile exists (needs the defaults applied above)
+  me.profile.EnsureDefaultProfile()
   -- setup addon configuration ui
   me.addonConfiguration.SetupAddonConfiguration()
   -- sync up theme (needs to be happening before accessing ui elements)

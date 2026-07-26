@@ -164,6 +164,7 @@ One file per test case under [test/manual/](manual/). Case IDs follow `TC-<AREA>
 | [TC-PR-04](manual/TC-PR-04-export-profile-string.md)     | Export produces profile string        |
 | [TC-PR-05](manual/TC-PR-05-import-round-trip.md)         | Import round-trip                     |
 | [TC-PR-06](manual/TC-PR-06-corrupted-import-rejected.md) | Corrupted import string rejected      |
+| [TC-PR-07](manual/TC-PR-07-default-profile.md)           | Default profile seeded and immutable  |
 
 ### Macros / public API
 

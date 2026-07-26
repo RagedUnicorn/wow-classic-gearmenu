@@ -205,4 +205,7 @@ if (GetLocale() == "zhCN") then
   rggm.L["profile_error_name_exists"] = "已存在同名的配置文件"
   rggm.L["profile_error_name_too_long"] = "配置文件名称不能超过%d个字符"
   rggm.L["profile_error_no_selection"] = "未选择配置文件"
+  rggm.L["profile_error_default_cannot_be_deleted"] = "无法删除“%s”配置文件"
+  rggm.L["profile_error_default_cannot_be_renamed"] = "无法重命名“%s”配置文件"
+  rggm.L["profile_error_default_cannot_be_overwritten"] = "无法覆盖“%s”配置文件"
 end
