@@ -343,11 +343,13 @@ RGGM_SHOTS = {
   {
     name = "gm_trinket_menu_still",
     shot = "trinket_menu_still",
-    frame = "GM_TrinketMenuFrame",
-    setup = {},
+    frame = "SettingsPanel",
+    setup = { "openCategory:trinketMenu" },
+    includeFrames = { "GM_TrinketMenuFrame" },
+    hideFrames = { "GM_GearBarFrame_1", "GM_GearBarFrame_2" },
     hideChrome = true,
-    padding = 200,
-    shows = "Static TrinketMenu scene, the store gallery TrinketMenu tile"
+    padding = 150,
+    shows = "Static TrinketMenu configuration panel with the live TrinketMenu in view, the store gallery TrinketMenu tile"
   },
   {
     name = "gm_configuration_still",
