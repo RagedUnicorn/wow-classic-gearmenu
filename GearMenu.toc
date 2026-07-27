@@ -2,7 +2,7 @@
 ## Title: GearMenu
 ## Author: Michael Wiesendanger <michael.wiesendanger@gmail.com>
 ## Notes: Addon to manage and keybind usable gear
-## Version: v2.7.0
+## Version: v2.8.0
 ## SavedVariablesPerCharacter: GearMenuConfiguration
 ## SavedVariables: GearMenuShotLog
 ## IconTexture: Interface\AddOns\GearMenu\assets\gearmenu_icon
