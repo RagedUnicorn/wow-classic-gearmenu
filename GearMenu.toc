@@ -4,6 +4,7 @@
 ## Notes: Addon to manage and keybind usable gear
 ## Version: v2.7.0
 ## SavedVariablesPerCharacter: GearMenuConfiguration
+## SavedVariables: GearMenuShotLog
 ## IconTexture: Interface\AddOns\GearMenu\assets\gearmenu_icon
 # THIS FILE IS AUTO-GENERATED. ALL CHANGES ARE OVERWRITTEN
 
@@ -66,3 +67,7 @@ gui/TrinketConfigurationMenu.lua
 gui/QuickChangeMenu.lua
 gui/KeyBind.lua
 gui/EngraveFrame.lua
+
+# dev - media capture
+dev/ShotManifest.lua
+dev/Capture.lua

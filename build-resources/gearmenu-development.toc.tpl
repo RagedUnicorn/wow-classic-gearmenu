@@ -4,6 +4,7 @@
 ## Notes: ${addon.description}
 ## Version: ${addon.tag.version}
 ## SavedVariablesPerCharacter: ${addon.savedVariablesPerCharacter}
+## SavedVariables: GearMenuShotLog
 ## IconTexture: Interface\AddOns\GearMenu\assets\gearmenu_icon
 ${addon.comment.generated.toc}
 
@@ -66,3 +67,7 @@ gui/TrinketConfigurationMenu.lua
 gui/QuickChangeMenu.lua
 gui/KeyBind.lua
 gui/EngraveFrame.lua
+
+# dev - media capture
+dev/ShotManifest.lua
+dev/Capture.lua

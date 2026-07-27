@@ -75,13 +75,9 @@ Certain items cannot be switched while the player is in combat. While in combat 
 
 ![](docs/gm_combat_queue_cancel.gif)
 
-GearMenu also detects whether an itemswitch is possible even when out of combat. If you're switching an item while you're casting your mount or any other spell it will put the item in the combatqueue. As soon as the cast is over the item will be switched.
+GearMenu also detects whether an itemswitch is possible even when out of combat. If you're switching an item while you're casting your mount or any other spell it will put the item in the combatqueue. As soon as the cast is over the item will be switched. This is also the case if you cancel your cast.
 
 ![](docs/gm_combat_queue_cast.gif)
-
-This is also the case if you cancel your cast.
-
-![](docs/gm_combat_queue_cast_cancel.gif)
 
 ### Quick Change
 
@@ -99,7 +95,7 @@ GearMenu allows to keybind to every slot with a keybinding. Keybindings have to 
 
 ### Drag and drop support
 
-GearMenu allows dragging and dropping items onto slots, removing them from slots, and even swapping items between slots.
+GearMenu allows dragging and dropping items onto slots, removing them from slots, and even swapping items between slots. Drag and drop can be enabled or disabled in the options' menu.
 
 #### Drag and drop between slots
 
@@ -249,17 +245,11 @@ Whether a GearBar should be freely movable or be locked in place can be configur
 
 ![](docs/gm_options_lock_window.gif)
 
-#### GearSlot Size
+#### GearSlot and ChangeMenu Size
 
-Every GearBar can have a different size for its GearSlots. You could, for example, have a GearBar with very big trinkets and another with smaller slots for less important items.
+Every GearBar can have a different size for its GearSlots. You could, for example, have a GearBar with very big trinkets and another with smaller slots for less important items. The size of the ChangeMenu can be configured independently of the GearSlot size.
 
-![](docs/gm_options_gearslot_size.gif)
-
-#### ChangeMenu Size
-
-The size of the ChangeMenu can be configured independently of the GearSlot size.
-
-![](docs/gm_options_changemenu_size.gif)
+![](docs/gm_options_slot_sizes.gif)
 
 #### Orientation
 
@@ -272,6 +262,10 @@ When switching the orientation, you can also choose the direction in which the C
 ![](docs/gm_vertical_and_horizontal_gearbar.png)
 
 ### General Configuration
+
+#### Tooltips
+
+GearMenu can show item tooltips when hovering items in its slots and change menus. Tooltips can be turned off entirely, or set to a simple mode that only displays the item name instead of the full tooltip.
 
 #### FastPress Support
 
@@ -289,11 +283,11 @@ GearMenu supports two different themes for its UI elements. By default, the cust
 
 ##### Custom
 
-![](docs/gm_theme_custom.jpg)
+![](docs/gm_theme_custom.png)
 
 ##### Classic
 
-![](docs/gm_theme_classic.jpg)
+![](docs/gm_theme_classic.png)
 
 ### TrinketMenu Configuration
 
@@ -302,6 +296,7 @@ TrinketMenu supports the following configuration features.
 - Enabling/Disabling TrinketMenu completely
 - Lock/Unlock the TrinketMenu
 - Show or Hide trinket cooldowns
+- Configure the number of columns of the TrinketMenu
 - Adapt size of the TrinketMenu
 
 ![](docs/gm_trinketmenu_configuration.gif)

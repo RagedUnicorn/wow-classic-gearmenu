@@ -51,6 +51,14 @@ local gearBarSubCategoryId
   {number}
 ]]--
 local settingsRefreshBounceCategoryId
+--[[
+  Category ids captured at registration, keyed by a stable name ("main", "general",
+  "trinketMenu", "quickChange", "profile", "gearBar"). Settings.OpenToCategory requires
+  the numeric id - category names error on Classic Era - so callers resolve through
+  me.GetCategoryId instead of hardcoding ids.
+  {table}
+]]--
+local categoryIds = {}
 
 --[[
   Retrieve a reference to the main category of the addon
@@ -85,6 +93,20 @@ function me.GetGearBarSubCategory()
 end
 
 --[[
+  Retrieve the numeric settings category id registered under a key. Intended for
+  programmatic navigation via Settings.OpenToCategory, which accepts only numeric ids.
+
+  @param {string} key
+    One of "main", "general", "trinketMenu", "quickChange", "profile" or "gearBar"
+
+  @return {number | nil}
+    The category id or nil for an unknown key or before SetupAddonConfiguration ran
+]]--
+function me.GetCategoryId(key)
+  return categoryIds[key]
+end
+
+--[[
   Create addon configuration menu(s)
 ]]--
 function me.SetupAddonConfiguration()
@@ -92,6 +114,7 @@ function me.SetupAddonConfiguration()
   local category, menu = me.BuildCategory(RGGM_CONSTANTS.ELEMENT_ADDON_PANEL, nil, rggm.L["addon_name"])
   -- add about content into main category
   mod.aboutContent.BuildAboutContent(menu)
+  categoryIds.main = category.ID
 
   local generalSubCategory = me.BuildCategory(
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_GENERAL_OPTIONS_FRAME,
@@ -100,24 +123,28 @@ function me.SetupAddonConfiguration()
     mod.generalMenu.BuildUi
   )
   settingsRefreshBounceCategoryId = generalSubCategory.ID
-  me.BuildCategory(
+  categoryIds.general = generalSubCategory.ID
+  local trinketMenuSubCategory = me.BuildCategory(
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_TRINKET_MENU_FRAME,
     category,
     rggm.L["trinket_menu_category_name"],
     mod.trinketConfigurationMenu.BuildUi
   )
-  me.BuildCategory(
+  categoryIds.trinketMenu = trinketMenuSubCategory.ID
+  local quickChangeSubCategory = me.BuildCategory(
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_QUICK_CHANGE_FRAME,
     category,
     rggm.L["quick_change_category_name"],
     mod.quickChangeMenu.BuildUi
   )
-  me.BuildCategory(
+  categoryIds.quickChange = quickChangeSubCategory.ID
+  local profileSubCategory = me.BuildCategory(
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_PROFILE_FRAME,
     category,
     rggm.L["profile_category_name"],
     mod.profileMenu.BuildUi
   )
+  categoryIds.profile = profileSubCategory.ID
   local gearBarConfigurationSubCategory = me.BuildCategory(
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_GEAR_BAR_CONFIG_FRAME,
     category,
@@ -125,6 +152,7 @@ function me.SetupAddonConfiguration()
     mod.gearBarConfigurationMenu.BuildUi
   )
   gearBarSubCategoryId = gearBarConfigurationSubCategory.ID
+  categoryIds.gearBar = gearBarConfigurationSubCategory.ID
   --[[
    load configured gearBars after the menu RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_GEAR_BAR_CONFIG_FRAME was
    created to attach to
