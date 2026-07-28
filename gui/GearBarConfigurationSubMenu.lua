@@ -93,6 +93,8 @@ function me.GearBarConfigurationCategoryContainerOnCallback(self)
 
   if me.GetCurrentContentFrame() == nil then
     me.AddGearBarContentFrame(me.BuildGearBarConfigurationSubMenu(self))
+  else
+    me.GearBarConfigurationSlotsListOnUpdate()
   end
 end
 
@@ -626,6 +628,7 @@ function me.CreateGearBarConfigurationSlotsList(parentFrame)
     on gearBar configuration container
   ]]--
   parentFrame.slotsList = listContainer
+  listContainer.content.gearBarId = parentFrame.gearBarId
   listContainer.rows = {}
 
   return listContainer
@@ -659,6 +662,9 @@ function me.CreateGearBarConfigurationSlotsListRowFrame(contentFrame, position)
   else
     row:SetBackdropColor(.25, .25, .25, .9)
   end
+
+  row.gearBarId = contentFrame.gearBarId
+  row.position = position
 
   row.slotIcon = me.CreateGearBarConfigurationSlotIcon(row)
   row.gearSlot = me.CreateGearBarConfigurationSlotDropdown(row, position)
@@ -763,7 +769,8 @@ end
   @return {boolean}
 ]]--
 function me.IsGearSlotSelected(dropdown, slotId)
-  local gearSlotMetaData = mod.gearBarManager.GetGearSlot(gearBarConfiguration.id, dropdown:GetParent().position)
+  local row = dropdown:GetParent()
+  local gearSlotMetaData = mod.gearBarManager.GetGearSlot(row.gearBarId, row.position)
 
   return gearSlotMetaData ~= nil and gearSlotMetaData.slotId == slotId
 end
@@ -776,10 +783,11 @@ end
     The slotId of the selected gearSlot
 ]]--
 function me.OnGearSlotSelect(dropdown, slotId)
+  local row = dropdown:GetParent()
   -- the row position was updated to the actual gearSlot position (including scroll offset)
-  local position = dropdown:GetParent().position
+  local position = row.position
   local gearSlotMetaData = mod.gearManager.GetGearSlotForSlotId(slotId)
-  local currentMetaData = mod.gearBarManager.GetGearSlot(gearBarConfiguration.id, position)
+  local currentMetaData = mod.gearBarManager.GetGearSlot(row.gearBarId, position)
 
   --[[
     Preserve keyBinding text if one is present. Note: this is only the text that is displayed. The keyBind itself
@@ -790,7 +798,7 @@ function me.OnGearSlotSelect(dropdown, slotId)
     gearSlotMetaData.keyBinding = currentMetaData.keyBinding
   end
 
-  mod.gearBarManager.UpdateGearSlot(gearBarConfiguration.id, position, gearSlotMetaData)
+  mod.gearBarManager.UpdateGearSlot(row.gearBarId, position, gearSlotMetaData)
   me.GearBarConfigurationSlotsListOnUpdate()
 end
 
@@ -933,7 +941,6 @@ function me.GearBarConfigurationSlotsListOnUpdate(listContainerReference)
     if index <= #slots then
       local slot = slots[index]
 
-      row.position = index -- rows are never re-purposed - position always matches the gearSlot position
       row.slotIcon:SetTexture(slot.textureId)
       -- regenerate so the dropdown text reflects the slot configured for this row
       row.gearSlot:GenerateMenu()

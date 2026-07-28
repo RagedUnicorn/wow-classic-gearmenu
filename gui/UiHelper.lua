@@ -126,6 +126,9 @@ function me.CreateSettingsDropdown(frameName, parent, position, width, menuGener
   dropdown:SetPoint(unpack(position))
   dropdown:SetWidth(width)
   dropdown:SetupMenu(menuGenerator)
+  dropdown:HookScript("OnShow", function(self)
+    self:GenerateMenu()
+  end)
 
   return dropdown
 end
