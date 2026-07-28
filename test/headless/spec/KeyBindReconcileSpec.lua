@@ -24,9 +24,10 @@
 
 --[[
   Spec for the profile-apply keyBinding reconciliation added to gui/KeyBind.lua
-  (me.ApplyGearBarKeyBindings / me.ClearGearBarKeyBindings). Both build the slot
-  frame name from configuration data (gearBar.id + slot position) rather than from
-  ui frames, so they can be exercised headless with the WoW binding API stubbed.
+  (me.ApplyGearBarKeyBindings / me.ClearGearBarKeyBindings) and for the override
+  flow in me.SetKeyBindingToGearSlot. All build the slot frame name from
+  configuration data (gearBar.id + slot position) rather than from ui frames, so
+  they can be exercised headless with the WoW binding API stubbed.
 
   gui/KeyBind.lua registers two StaticPopupDialogs at load time whose text is read
   from rggm.L, so before the module is dofile'd we install a StaticPopupDialogs
@@ -61,6 +62,8 @@ describe("KeyBind reconcile", function()
     previous = {
       keyBind = rggm.keyBind,
       gearBarManager = rggm.gearBarManager,
+      gearBarStorage = rggm.gearBarStorage,
+      gearBarConfigurationSubMenu = rggm.gearBarConfigurationSubMenu,
       logger = rggm.logger,
       L = rggm.L,
       StaticPopupDialogs = _G.StaticPopupDialogs
@@ -104,6 +107,8 @@ describe("KeyBind reconcile", function()
 
     rggm.keyBind = previous.keyBind
     rggm.gearBarManager = previous.gearBarManager
+    rggm.gearBarStorage = previous.gearBarStorage
+    rggm.gearBarConfigurationSubMenu = previous.gearBarConfigurationSubMenu
     rggm.logger = previous.logger
     rggm.L = previous.L
     _G.StaticPopupDialogs = previous.StaticPopupDialogs
@@ -165,6 +170,51 @@ describe("KeyBind reconcile", function()
     it("ignores a nil argument", function()
       assert.has_no.errors(function() keyBind.ClearGearBarKeyBindings(nil) end)
       assert.are.equal(0, #calls.unbound)
+    end)
+  end)
+
+  describe("SetKeyBindingToGearSlot", function()
+    it("clears the keyBinding from the previous owner before refreshing the configuration menu", function()
+      local order = {}
+
+      rggm.gearBarStorage = {
+        GetGearBar = function()
+          return {
+            gearSlotReferences = {
+              [1] = { GetName = function() return "GM_GearBarFrame_1Slot_1" end }
+            }
+          }
+        end
+      }
+
+      -- gearBar 2 slot 2 is the previous owner of "T" that CleanupKeyBindingOnSlots must clear
+      rggm.gearBarManager = {
+        GetGearBars = function()
+          return {
+            { id = 1, slots = { [1] = { keyBinding = nil } } },
+            { id = 2, slots = { [2] = { keyBinding = "T" } } }
+          }
+        end,
+        SetSlotKeyBinding = function(gearBarId, position, keyBinding)
+          order[#order + 1] = "set:" .. gearBarId .. ":" .. position .. ":" .. tostring(keyBinding)
+        end
+      }
+
+      rggm.gearBarConfigurationSubMenu = {
+        UpdateGearBarConfigurationMenu = function()
+          order[#order + 1] = "configMenuUpdate"
+        end
+      }
+
+      keyBind.SetKeyBindingToGearSlot(1, "T", 1)
+
+      -- the config menu refresh must run only after the leftover slot's data was cleared,
+      -- otherwise the old slot keeps displaying the keyBinding until a reload
+      assert.are.same({
+        "set:1:1:T",
+        "set:2:2:nil",
+        "configMenuUpdate"
+      }, order)
     end)
   end)
 end)

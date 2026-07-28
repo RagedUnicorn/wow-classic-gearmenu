@@ -423,12 +423,13 @@ function me.SetKeyBindingToGearSlot(gearBarId, keyBinding, gearSlotPosition)
   if SetBinding(keyBinding, "CLICK " .. uiGearSlot:GetName() .. ":LeftButton") then
     mod.logger.LogInfo(me.tag, "Successfully changed keyBind")
     mod.gearBarManager.SetSlotKeyBinding(gearBarId, gearSlotPosition, keyBinding)
+    -- clear the keyBinding from any other slot before refreshing the configuration sub menu
+    me.CleanupKeyBindingOnSlots(gearBarId, gearSlotPosition, keyBinding)
 
     -- update the configuration sub menu (show proper keyBinding after change)
     mod.gearBarConfigurationSubMenu.UpdateGearBarConfigurationMenu()
     -- save keyBindings to wow-cache
     me.SaveBindings()
-    me.CleanupKeyBindingOnSlots(gearBarId, gearSlotPosition, keyBinding)
   else
     mod.logger.LogWarn(me.tag, "Failed to update keybinding: " .. keyBinding .. " to " .. uiGearSlot:GetName())
     mod.logger.PrintUserError(rggm.L["gear_bar_configuration_key_binding_user_error"])
