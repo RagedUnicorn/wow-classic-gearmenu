@@ -20,7 +20,7 @@ rggm.L["email"] = "E-Mail: michael.wiesendanger@gmail.com"
 rggm.L["version"] = "Version: " .. C_AddOns.GetAddOnMetadata(RGGM_CONSTANTS.ADDON_NAME, "Version")
 rggm.L["issues"] = "Issues: https://github.com/RagedUnicorn/wow-classic-gearmenu/issues"
 
--- general
+-- options
 rggm.L["options_category_name"] = "Options"
 rggm.L["options_title"] = "Options"
 rggm.L["enable_tooltips"] = "Enable Tooltips"

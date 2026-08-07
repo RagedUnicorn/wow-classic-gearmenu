@@ -22,7 +22,7 @@ if (GetLocale() == "deDE") then
   rggm.L["version"] = "Version: " .. C_AddOns.GetAddOnMetadata(RGGM_CONSTANTS.ADDON_NAME, "Version")
   rggm.L["issues"] = "Probleme: https://github.com/RagedUnicorn/wow-classic-gearmenu/issues"
 
-  -- general
+  -- options
   rggm.L["options_category_name"] = "Optionen"
   rggm.L["options_title"] = "Optionen"
   rggm.L["enable_tooltips"] = "Aktiviere KurzInfo"

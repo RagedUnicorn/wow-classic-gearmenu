@@ -21,7 +21,7 @@ if (GetLocale() == "zhCN") then
   rggm.L["version"] = "Version: " .. C_AddOns.GetAddOnMetadata(RGGM_CONSTANTS.ADDON_NAME, "Version")
   rggm.L["issues"] = "Issues: https://github.com/RagedUnicorn/wow-classic-gearmenu/issues"
 
-  -- general
+  -- options
   rggm.L["options_category_name"] = "选项"
   rggm.L["options_title"] = "选项"
   rggm.L["enable_tooltips"] = "鼠标提示"
