@@ -24,7 +24,7 @@
 ]]--
 
 -- luacheck: globals CreateFrame UIParent INVSLOT_TRINKET1 INVSLOT_TRINKET2 CooldownFrame_Set CooldownFrame_Clear
--- luacheck: globals C_Container
+-- luacheck: globals C_Container C_Item GetCursorInfo
 
 local mod = rggm
 local me = {}
@@ -294,6 +294,11 @@ end
 function me.SetupEvents(trinketSlot)
   -- register button to receive leftclick
   trinketSlot:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+  --[[
+    Register the button for dragging in both directions - out of the menu onto the cursor and
+    back into the menu.
+  ]]--
+  trinketSlot:RegisterForDrag("LeftButton")
 
   trinketSlot:SetScript("OnEnter", function(self)
     me.TrinketMenuSlotOnEnter(self)
@@ -305,6 +310,14 @@ function me.SetupEvents(trinketSlot)
 
   trinketSlot:SetScript("OnClick", function(self, button)
     me.TrinketMenuSlotOnClick(self, button)
+  end)
+
+  trinketSlot:SetScript("OnDragStart", function(self)
+    me.TrinketMenuSlotOnDragStart(self)
+  end)
+
+  trinketSlot:SetScript("OnReceiveDrag", function()
+    me.TrinketMenuSlotOnReceiveDrag()
   end)
 end
 
@@ -352,6 +365,63 @@ function me.TrinketMenuSlotOnClick(self, button)
   end
 
   mod.themeCoordinator.TrinketMenuSlotOnClick(self, button)
+end
+
+--[[
+  Callback for a trinketMenuSlot OnDragStart. Picks the trinket that the slot represents up from
+  the bags onto the cursor. From there the player can drop it onto a character trinket slot or a
+  gearSlot of a gearBar to equip it - the drop target decides what happens next, a gearSlot for
+  example queues the swap while the player is in combat (see gui/GearBar.lua GearSlotOnReceiveDrag)
+
+  @param {table} self
+]]--
+function me.TrinketMenuSlotOnDragStart(self)
+  if not mod.configuration.IsDragAndDropEnabled() then return end
+
+  if self.itemId == nil then return end -- slot represents no item
+
+  --[[
+    Trinkets carry neither an enchant nor a rune - matching on the itemId alone is enough
+    (0 acts as a wildcard for both the enchantId and the runeAbilityId)
+  ]]--
+  local bagNumber, bagPos = mod.itemManager.FindItemInBag(self.itemId, 0, 0)
+
+  if bagNumber == nil then return end
+
+  local itemInfo = C_Container.GetContainerItemInfo(bagNumber, bagPos)
+
+  if itemInfo == nil or itemInfo.isLocked then return end
+
+  C_Container.PickupContainerItem(bagNumber, bagPos)
+end
+
+--[[
+  Callback for a trinketMenuSlot OnReceiveDrag. Places a cursor held trinket into the first free
+  bag slot. For a trinket that is currently worn this unequips it and makes it show up in the
+  trinketMenu list again. Anything that is not a trinket is left untouched on the cursor.
+
+  Placing an item into a bag is not a protected action - should the client refuse it anyway
+  (full bags, combat) the item is taken off the cursor and the player is notified with the
+  localized no bag space message instead of leaving the cursor in a broken state
+]]--
+function me.TrinketMenuSlotOnReceiveDrag()
+  if not mod.configuration.IsDragAndDropEnabled() then return end
+
+  local cursorType, itemId = GetCursorInfo()
+
+  if cursorType ~= "item" or itemId == nil then return end
+
+  local equipSlot = select(4, C_Item.GetItemInfoInstant(itemId))
+
+  if equipSlot ~= RGGM_CONSTANTS.TRINKET_MENU_INV_TYPE then
+    mod.logger.LogInfo(me.tag, "Ignoring dropped item - the trinketMenu only accepts trinkets")
+
+    return -- leave the item on the cursor
+  end
+
+  if mod.itemManager.PlaceCursorItemInBag(itemId) ~= nil then return end
+
+  me.UpdateTrinketMenu()
 end
 
 --[[

@@ -125,6 +125,8 @@ Enable an empty slot in the changeMenu that allows for quicker and easier unequi
 
 TrinketMenu allows the player to have all available trinkets and their status in view at all times. This makes it easier for the player to plan when to equip a trinket with a long cooldown. A left click will equip the trinket into the upper trinketslot and a right click will equip the item into the lower trinketslot.
 
+With drag and drop enabled the TrinketMenu also works in both directions: a trinket can be dragged out of the TrinketMenu and dropped onto a character trinketslot or a GearSlot to equip it, and a worn trinket can be dragged back onto the TrinketMenu to unequip it into the bags.
+
 ![](docs/gm_trinketmenu_demo.gif)
 
 ### Season of Discovery Rune Support

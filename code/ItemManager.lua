@@ -747,6 +747,45 @@ function me.FindSpace()
 end
 
 --[[
+  Place the item that the cursor is currently holding into the first free bag slot. Used by the
+  drag and drop paths where the item is already on the cursor by the time the drop is received -
+  unlike me.UnequipItemToBag which picks the item up from an inventory slot itself
+
+  @param {number} itemId
+    Optional itemId of the held item - used for the failure message only
+  @param {number} slotId
+    Optional slotId the item was worn in - used for the failure message only
+
+  @return {string | nil}
+    string - me.failureReason.noBagSpace if the item could not be placed into a bag
+    nil - if the item was placed into a bag
+]]--
+function me.PlaceCursorItemInBag(itemId, slotId)
+  local bagNumber, bagPos = me.FindSpace()
+
+  if bagNumber == nil then
+    NotifySwapFailure(me.failureReason.noBagSpace, slotId, itemId)
+
+    return me.failureReason.noBagSpace
+  end
+
+  if bagNumber == 0 then
+    PutItemInBackpack()
+  else
+    -- PutItemInBag(mod.gearManager.GetMappedBag(bagNumber)) seems to be broken with latest patch
+    C_Container.PickupContainerItem(bagNumber, bagPos)
+  end
+
+  -- if the item is still on the cursor the placement was refused (e.g. a special bag slot)
+  if CursorHasItem() then
+    ClearCursor()
+    NotifySwapFailure(me.failureReason.noBagSpace, slotId, itemId)
+
+    return me.failureReason.noBagSpace
+  end
+end
+
+--[[
   Unequips the item from the referenced slot into the first free bag slot. The free slot is
   searched before the item is picked up - with full bags the action is aborted and the user
   is notified without the cursor ever holding the item
@@ -762,9 +801,7 @@ function me.UnequipItemToBag(slot)
 
   if itemId == nil then return end -- slot is empty, nothing to unequip
 
-  local bagNumber, bagPos = me.FindSpace()
-
-  if bagNumber == nil then
+  if me.FindSpace() == nil then
     NotifySwapFailure(me.failureReason.noBagSpace, slot.slotId, itemId)
 
     return me.failureReason.noBagSpace
@@ -772,20 +809,7 @@ function me.UnequipItemToBag(slot)
 
   PickupInventoryItem(slot.slotId)
 
-  if bagNumber == 0 then
-    PutItemInBackpack()
-  else
-    -- PutItemInBag(mod.gearManager.GetMappedBag(bagNumber)) seems to be broken with latest patch
-    C_Container.PickupContainerItem(bagNumber, bagPos)
-  end
-
-  -- if the item is still on the cursor the placement was refused (e.g. a special bag slot)
-  if CursorHasItem() then
-    ClearCursor()
-    NotifySwapFailure(me.failureReason.noBagSpace, slot.slotId, itemId)
-
-    return me.failureReason.noBagSpace
-  end
+  return me.PlaceCursorItemInBag(itemId, slot.slotId)
 end
 
 --[[

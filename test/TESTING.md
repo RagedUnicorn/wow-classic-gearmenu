@@ -146,6 +146,7 @@ One file per test case under [test/manual/](manual/). Case IDs follow `TC-<AREA>
 | [TC-TM-01](manual/TC-TM-01-enable-and-show.md)          | Enable and show TrinketMenu                 |
 | [TC-TM-02](manual/TC-TM-02-equip-trinket-left-right.md) | Left/right click equips upper/lower trinket |
 | [TC-TM-03](manual/TC-TM-03-configuration-options.md)    | TrinketMenu configuration options           |
+| [TC-TM-04](manual/TC-TM-04-drag-and-drop.md)            | Drag and drop out of and into the TrinketMenu |
 
 ### Themes
 
