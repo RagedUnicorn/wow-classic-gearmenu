@@ -372,6 +372,6 @@ function me.GearBarListOnUpdate(listContainer)
   end
 
   listContainer.content:SetHeight(
-    math.max(#gearBars, RGGM_CONSTANTS.GEAR_BAR_LIST_MAX_ROWS) * RGGM_CONSTANTS.GEAR_BAR_LIST_ROW_HEIGHT
+    math.max(#gearBars * RGGM_CONSTANTS.GEAR_BAR_LIST_ROW_HEIGHT, 1)
   )
 end

@@ -958,8 +958,7 @@ function me.GearBarConfigurationSlotsListOnUpdate(listContainerReference)
   end
 
   listContainer.content:SetHeight(
-    math.max(#slots, RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_MAX_ROWS)
-    * RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_ROW_HEIGHT
+    math.max(#slots * RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_ROW_HEIGHT, 1)
   )
 end
 

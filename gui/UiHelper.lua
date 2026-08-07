@@ -79,7 +79,8 @@ end
   @param {number} listHeight
 
   @return {table}
-    The created container with .scrollFrame and .content attached
+    The created container with .scrollFrame, .scrollBar and .content attached. The scrollbar
+    hides itself while the content fits inside the list
 ]]--
 function me.CreateScrollList(listName, parent, position, listWidth, listHeight)
   local listContainer = CreateFrame("Frame", listName, parent, "BackdropTemplate")
@@ -92,15 +93,34 @@ function me.CreateScrollList(listName, parent, position, listWidth, listHeight)
   scrollFrame:SetPoint("BOTTOMRIGHT", -22, 6)
 
   local scrollBar = CreateFrame("EventFrame", nil, listContainer, "MinimalScrollBar")
-  scrollBar:SetPoint("TOPLEFT", scrollFrame, "TOPRIGHT", 8, 0)
-  scrollBar:SetPoint("BOTTOMLEFT", scrollFrame, "BOTTOMRIGHT", 8, 0)
+  scrollBar:SetPoint("TOPLEFT", scrollFrame, "TOPRIGHT", 6, 0)
+  scrollBar:SetPoint("BOTTOMLEFT", scrollFrame, "BOTTOMRIGHT", 6, 0)
   ScrollUtil.InitScrollFrameWithScrollBar(scrollFrame, scrollBar)
 
+  if scrollBar.SetHideIfUnscrollable then
+    scrollBar:SetHideIfUnscrollable(true)
+  else
+    --[[
+      Classic Era did not backport ScrollBarMixin:SetHideIfUnscrollable - track the scroll
+      range manually instead
+    ]]--
+    scrollFrame:HookScript("OnScrollRangeChanged", function(_, _, yRange)
+      scrollBar:SetShown(yRange > 0)
+    end)
+    scrollBar:Hide()
+  end
+
   local contentFrame = CreateFrame("Frame", listContainer:GetName() .. "Content", scrollFrame)
-  contentFrame:SetSize(listWidth - 28, listHeight)
+  --[[
+    Seed the content with no scrollable extent - every consumer sets the real height once it
+    knows its row count. Seeding the full listHeight would leave the list scrollable by the
+    viewport insets alone and keep the scrollbar visible on an empty list
+  ]]--
+  contentFrame:SetSize(listWidth - 28, 1)
   scrollFrame:SetScrollChild(contentFrame)
 
   listContainer.scrollFrame = scrollFrame
+  listContainer.scrollBar = scrollBar
   listContainer.content = contentFrame
 
   return listContainer

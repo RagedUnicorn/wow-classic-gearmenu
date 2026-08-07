@@ -561,7 +561,7 @@ function me.RulesListOnUpdate(listContainer)
   end
 
   listContainer.content:SetHeight(
-    math.max(#quickChangeRules, RGGM_CONSTANTS.QUICK_CHANGE_MAX_ROWS) * RGGM_CONSTANTS.QUICK_CHANGE_ROW_HEIGHT
+    math.max(#quickChangeRules * RGGM_CONSTANTS.QUICK_CHANGE_ROW_HEIGHT, 1)
   )
 end
 
@@ -644,8 +644,7 @@ function me.FromListOnUpdate(listContainer, slotId)
   end
 
   listContainer.content:SetHeight(
-    math.max(#fromCachedQuickChangeItems, RGGM_CONSTANTS.QUICK_CHANGE_MAX_ROWS)
-    * RGGM_CONSTANTS.QUICK_CHANGE_ROW_HEIGHT
+    math.max(#fromCachedQuickChangeItems * RGGM_CONSTANTS.QUICK_CHANGE_ROW_HEIGHT, 1)
   )
 end
 
@@ -728,8 +727,7 @@ function me.ToListOnUpdate(listContainer, slotId)
   end
 
   listContainer.content:SetHeight(
-    math.max(#toCachedQuickChangeItems, RGGM_CONSTANTS.QUICK_CHANGE_MAX_ROWS)
-    * RGGM_CONSTANTS.QUICK_CHANGE_ROW_HEIGHT
+    math.max(#toCachedQuickChangeItems * RGGM_CONSTANTS.QUICK_CHANGE_ROW_HEIGHT, 1)
   )
 end
 
