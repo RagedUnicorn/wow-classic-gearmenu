@@ -6,6 +6,7 @@
 ## SavedVariablesPerCharacter: GearMenuConfiguration
 ## SavedVariables: GearMenuShotLog
 ## IconTexture: Interface\AddOns\GearMenu\assets\gearmenu_icon
+## Category: RagedUnicorn
 # THIS FILE IS AUTO-GENERATED. ALL CHANGES ARE OVERWRITTEN
 
 # constant values

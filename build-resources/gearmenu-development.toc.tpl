@@ -6,6 +6,7 @@
 ## SavedVariablesPerCharacter: ${addon.savedVariablesPerCharacter}
 ## SavedVariables: GearMenuShotLog
 ## IconTexture: Interface\AddOns\GearMenu\assets\gearmenu_icon
+## Category: RagedUnicorn
 ${addon.comment.generated.toc}
 
 # constant values
