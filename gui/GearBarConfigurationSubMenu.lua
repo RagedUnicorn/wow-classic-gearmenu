@@ -448,8 +448,10 @@ function me.CreateOrientationDropdown(parentFrame, gearBarId)
   orientationDropdownMenu:GenerateMenu()
 
   --[[ hooked instead of set so the template's hover state visuals stay intact ]]--
-  orientationDropdownMenu:HookScript("OnEnter", function()
-    mod.tooltip.BuildTooltipForOption(rggm.L["gearbar_orientation"], rggm.L["gearbar_orientation_tooltip"])
+  orientationDropdownMenu:HookScript("OnEnter", function(self)
+    mod.tooltip.BuildTooltipForOption(
+      rggm.L["gearbar_orientation"], rggm.L["gearbar_orientation_tooltip"], self
+    )
   end)
   orientationDropdownMenu:HookScript("OnLeave", function()
     _G[RGGM_CONSTANTS.ELEMENT_TOOLTIP]:Hide()
@@ -528,8 +530,10 @@ function me.CreateChangeMenuDirectionDropdown(parentFrame, gearBarId)
   changeMenuDirectionDropdownMenu:GenerateMenu()
 
   --[[ hooked instead of set so the template's hover state visuals stay intact ]]--
-  changeMenuDirectionDropdownMenu:HookScript("OnEnter", function()
-    mod.tooltip.BuildTooltipForOption(rggm.L["change_menu_direction"], rggm.L["change_menu_direction_tooltip"])
+  changeMenuDirectionDropdownMenu:HookScript("OnEnter", function(self)
+    mod.tooltip.BuildTooltipForOption(
+      rggm.L["change_menu_direction"], rggm.L["change_menu_direction_tooltip"], self
+    )
   end)
   changeMenuDirectionDropdownMenu:HookScript("OnLeave", function()
     _G[RGGM_CONSTANTS.ELEMENT_TOOLTIP]:Hide()

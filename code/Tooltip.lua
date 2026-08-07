@@ -142,14 +142,19 @@ function me.TooltipClear()
 end
 
 --[[
+  Build the tooltip for a configuration option. Anchored to the right of the hovered
+  option instead of the default bottom right screen corner - the same placement the
+  item icons in the configuration menus use
+
   @param {string} line1
   @param {string} line2
+  @param {table} owner
+    Optional frame owning the tooltip and providing its anchor - defaults to UIParent
 ]]--
-function me.BuildTooltipForOption(line1, line2)
+function me.BuildTooltipForOption(line1, line2, owner)
   local tooltip = _G[RGGM_CONSTANTS.ELEMENT_TOOLTIP]
 
-  tooltip:SetOwner(UIParent)
-  GameTooltip_SetDefaultAnchor(tooltip, UIParent)
+  tooltip:SetOwner(owner or UIParent, "ANCHOR_RIGHT")
   tooltip:AddLine(line1)
   tooltip:AddLine(line2, .8, .8, .8, 1)
 
