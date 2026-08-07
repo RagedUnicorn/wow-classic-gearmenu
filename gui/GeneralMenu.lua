@@ -180,7 +180,7 @@ function me.CreateGeneralMenuTitle(contentFrame)
     RGGM_CONSTANTS.ELEMENT_GENERAL_MENU_TITLE, "OVERLAY", "GameFontNormalLarge")
   titleFontString:SetPoint("TOPLEFT", 16, -16)
   mod.uiHelper.SetColor(titleFontString, RGGM_CONSTANTS.COLOR.TITLE_GOLD)
-  titleFontString:SetText(rggm.L["general_title"])
+  titleFontString:SetText(rggm.L["options_title"])
 end
 
 --[[

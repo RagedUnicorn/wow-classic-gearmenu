@@ -119,7 +119,7 @@ function me.SetupAddonConfiguration()
   local generalSubCategory = me.BuildCategory(
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIG_GENERAL_OPTIONS_FRAME,
     category,
-    rggm.L["general_category_name"],
+    rggm.L["options_category_name"],
     mod.generalMenu.BuildUi
   )
   settingsRefreshBounceCategoryId = generalSubCategory.ID
