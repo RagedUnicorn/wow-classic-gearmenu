@@ -97,6 +97,7 @@ function me.BuildGearBar(gearBar)
   me.UpdateGearBarSize(gearBar)
   me.UpdateGearBarPosition(gearBar)
   me.UpdateGearBarLockedState(gearBar)
+  me.UpdateGearBarVisibility(gearBar)
   me.UpdateGearBarGearSlotTexturesAttributes(gearBar)
 
   return gearBarFrame
@@ -386,6 +387,35 @@ function me.UpdateGearBarLockedState(gearBar)
       bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background"
     })
     uiGearBar.gearBarReference.dragHandle:Show()
+  end
+end
+
+--[[
+  Show or hide the whole gearBarFrame based on the per-gearBar visibility flag.
+
+  Hiding is purely visual - the gearSlots keep their keyBindings and the range-check ticker
+  is left untouched, so a hidden gearBar can still be triggered by its keyBindings.
+
+  Note that the gearSlots of a gearBar inherit from the SecureActionButtonTemplate. Changing the
+  visibility of their parent frame is a protected operation and CANNOT be executed while in combat.
+  Guard the update here so a visibility change made during combat hits the graceful error path
+  instead of a blocked protected operation.
+
+  @param {table} gearBar
+]]--
+function me.UpdateGearBarVisibility(gearBar)
+  if InCombatLockdown() then
+    mod.logger.LogError(me.tag, "Unable to change the visibility of a gearBar in combat")
+
+    return
+  end
+
+  local uiGearBar = mod.gearBarStorage.GetGearBar(gearBar.id)
+
+  if mod.gearBarManager.IsGearBarVisible(gearBar.id) then
+    uiGearBar.gearBarReference:Show()
+  else
+    uiGearBar.gearBarReference:Hide()
   end
 end
 

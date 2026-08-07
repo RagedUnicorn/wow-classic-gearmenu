@@ -135,6 +135,12 @@ if (GetLocale() == "deDE") then
   rggm.L["show_keybindings_tooltip"] = "Zeige Tastaturkürzel auf den ausgerüsteten Items an"
   rggm.L["show_cooldowns"] = "Zeige Abklingzeiten an"
   rggm.L["show_cooldowns_tooltip"] = "Zeige Abklingzeiten für alle Slots an"
+  rggm.L["show_gear_bar"] = "Zeige Ausrüstungsbalken an"
+  rggm.L["show_gear_bar_tooltip"] =
+    "Zeige diesen Ausrüstungsbalken an. Tastaturkürzel bleiben aktiv wenn er ausgeblendet ist"
+  rggm.L["show_gear_bar_combat"] =
+    "Die Sichtbarkeit eines Ausrüstungsbalken kann im Kampf nicht geändert werden. "
+    .. "Bitte versuche es nach dem Kampf erneut"
   rggm.L["gear_slot_size_slider_title"] = "Ausrüstungsslot Grösse"
   rggm.L["gear_slot_size_slider_tooltip"] = "Verändere die Grösse der Ausrüstungsslots"
   rggm.L["change_slot_size_slider_title"] = "Wechselslots Grösse"

@@ -82,6 +82,7 @@ function me.AddGearBar(gearBarName, addDefaultSlot)
     ["id"] = GenerateUniqueGearBarId(),
     ["displayName"] = gearBarName,
     ["isLocked"] = false,
+    ["isEnabled"] = true,
     ["showKeyBindings"] = true,
     ["showCooldowns"] = true,
     ["slots"] = {},
@@ -213,6 +214,45 @@ function me.IsGearBarLocked(gearBarId)
   local gearBar = me.GetGearBar(gearBarId)
 
   return gearBar.isLocked
+end
+
+--[[
+  Show a specific gearBar. Hiding and showing a gearBar is purely visual - the gearSlots keep
+  their keyBindings and stay clickable while the bar is hidden and the range-check ticker is
+  left untouched. Only the visibility of the gearBarFrame changes.
+
+  @param {number} gearBarId
+]]--
+function me.ShowGearBar(gearBarId)
+  local gearBar = me.GetGearBar(gearBarId)
+
+  gearBar.isEnabled = true
+  mod.gearBar.UpdateGearBarVisibility(gearBar)
+end
+
+--[[
+  Hide a specific gearBar. See me.ShowGearBar for the semantics of a hidden gearBar.
+
+  @param {number} gearBarId
+]]--
+function me.HideGearBar(gearBarId)
+  local gearBar = me.GetGearBar(gearBarId)
+
+  gearBar.isEnabled = false
+  mod.gearBar.UpdateGearBarVisibility(gearBar)
+end
+
+--[[
+  @param {number} gearBarId
+
+  @return {boolean}
+    true - if the gearBar is visible
+    false - if the gearBar is hidden
+]]--
+function me.IsGearBarVisible(gearBarId)
+  local gearBar = me.GetGearBar(gearBarId)
+
+  return gearBar.isEnabled
 end
 
 --[[

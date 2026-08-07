@@ -70,6 +70,7 @@ describe("GearBarManager", function()
     -- per-test recorder state for the UI / collaborator side effects
     calls = {
       updateLockedState = 0,
+      updateVisibility = 0,
       updateKeyBindingState = 0,
       updateCooldowns = 0,
       updateGearSlots = 0,
@@ -103,6 +104,7 @@ describe("GearBarManager", function()
     }
     rggm.gearBar = {
       UpdateGearBarLockedState = function() calls.updateLockedState = calls.updateLockedState + 1 end,
+      UpdateGearBarVisibility = function() calls.updateVisibility = calls.updateVisibility + 1 end,
       UpdateKeyBindingState = function() calls.updateKeyBindingState = calls.updateKeyBindingState + 1 end,
       UpdateGearBarGearSlotCooldowns = function() calls.updateCooldowns = calls.updateCooldowns + 1 end,
       UpdateGearBarGearSlots = function() calls.updateGearSlots = calls.updateGearSlots + 1 end,
@@ -153,6 +155,7 @@ describe("GearBarManager", function()
       assert.are.equal(gearBar, _G.GearMenuConfiguration.gearBars[1])
       assert.are.equal("MyBar", gearBar.displayName)
       assert.is_false(gearBar.isLocked)
+      assert.is_true(gearBar.isEnabled)
       assert.is_true(gearBar.showKeyBindings)
       assert.is_true(gearBar.showCooldowns)
       assert.are.same({}, gearBar.slots)
@@ -283,6 +286,52 @@ describe("GearBarManager", function()
 
       assert.is_false(gearBarManager.IsGearBarLocked(id))
       assert.are.equal(2, calls.updateLockedState)
+    end)
+  end)
+
+  describe("ShowGearBar / HideGearBar / IsGearBarVisible", function()
+    it("starts visible on a fresh bar", function()
+      local id = addBar("BarA")
+
+      assert.is_true(gearBarManager.IsGearBarVisible(id))
+    end)
+
+    it("hiding clears the flag and notifies the ui", function()
+      local id = addBar("BarA")
+
+      gearBarManager.HideGearBar(id)
+
+      assert.is_false(gearBarManager.IsGearBarVisible(id))
+      assert.are.equal(1, calls.updateVisibility)
+    end)
+
+    it("showing a hidden bar sets the flag and notifies the ui", function()
+      local id = addBar("BarA")
+      gearBarManager.HideGearBar(id)
+
+      gearBarManager.ShowGearBar(id)
+
+      assert.is_true(gearBarManager.IsGearBarVisible(id))
+      assert.are.equal(2, calls.updateVisibility)
+    end)
+
+    it("leaves the visibility of other bars untouched", function()
+      local idA = addBar("BarA")
+      local idB = addBar("BarB")
+
+      gearBarManager.HideGearBar(idA)
+
+      assert.is_false(gearBarManager.IsGearBarVisible(idA))
+      assert.is_true(gearBarManager.IsGearBarVisible(idB))
+    end)
+
+    it("does not touch the range-check ticker - hiding is purely visual", function()
+      local id = addBar("BarA")
+
+      gearBarManager.HideGearBar(id)
+
+      assert.are.same({}, calls.registerTicker)
+      assert.are.same({}, calls.unregisterTicker)
     end)
   end)
 

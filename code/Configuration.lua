@@ -99,6 +99,9 @@ local CONFIGURATION_DEFAULTS = {
         A user friendly display name for the user to recognize
       ["isLocked"] = {boolean},
         Whether the gearBar can be moved around or if it is locked
+      ["isEnabled"] = {boolean},
+        Whether the gearBar is shown or hidden. Hiding is purely visual - the gearSlots keep their
+        keyBindings and stay usable while the gearBar is hidden
       ["showKeyBindings"] = {boolean},
         Whether keybindings are shown on top of the gearSlots or not
       ["showCooldowns"] = {boolean},
@@ -260,6 +263,14 @@ function me.SetupConfiguration()
   ApplyConfigurationDefaults()
 
   for _, gearBar in pairs(GearMenuConfiguration.gearBars) do
+    --[[
+      gearBars is a userOwned collection - ApplyConfigurationDefaults never descends into it,
+      so a per-bar field added in a later version has to be backfilled here
+    ]]--
+    if gearBar.isEnabled == nil then
+      gearBar.isEnabled = true
+    end
+
     if gearBar.orientation == nil then
       mod.logger.LogInfo(me.tag, "gearBar orientation has unexpected nil value")
       gearBar.orientation = RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_HORIZONTAL

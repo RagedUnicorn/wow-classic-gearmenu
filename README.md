@@ -229,6 +229,10 @@ Each GearBar has some configurations that can be done individually for each Gear
 
 ### Individual GearBar Configuration
 
+#### Hide/Show GearBar
+
+Each GearBar can be shown or hidden individually without deleting it, so a situational bar keeps its GearSlots and keybindings while staying off-screen. Hiding is purely visual - the keybindings of a hidden GearBar keep working. Because GearSlots are protected buttons, the visibility of a GearBar cannot be changed while in combat.
+
 #### Hide/Show Cooldowns
 
 Whether cooldowns should be shown or hidden can be configured individually for each GearBar.

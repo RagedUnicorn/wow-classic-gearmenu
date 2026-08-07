@@ -73,6 +73,12 @@ local showCooldownsMetaData = {
   rggm.L["show_cooldowns_tooltip"]
 }
 
+local showGearBarMetaData = {
+  "ShowGearBar",
+  rggm.L["show_gear_bar"],
+  rggm.L["show_gear_bar_tooltip"]
+}
+
 --[[
   The active configuration menu for a gearBar. This is the menu that is currently
   visible to the user. It is used to determine which gearBar is currently getting
@@ -170,6 +176,15 @@ function me.BuildGearBarConfigurationSubMenu(parentFrame)
     showCooldownsMetaData
   )
 
+  mod.uiHelper.BuildCheckButtonOption(
+    parentFrame,
+    RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_OPT_SHOW_GEAR_BAR .. parentFrame.gearBarId,
+    {"TOPLEFT", 20, -230},
+    me.ShowGearBarOnShow,
+    me.ShowGearBarOnClick,
+    showGearBarMetaData
+  )
+
   mod.uiHelper.CreateSizeSlider(
     parentFrame,
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_GEAR_SLOT_SIZE_SLIDER .. parentFrame.gearBarId,
@@ -248,7 +263,7 @@ function me.CreateAddGearSlotButton(parentFrame)
 
   button:SetHeight(RGGM_CONSTANTS.BUTTON_DEFAULT_HEIGHT)
   button:SetText(rggm.L["gear_bar_configuration_add_gearslot"])
-  button:SetPoint("TOPLEFT", 20, -260)
+  button:SetPoint("TOPLEFT", 20, -290)
   button:SetScript('OnClick', me.AddGearSlot)
   -- Attach gearBarId to the button
   button.gearBarId = parentFrame.gearBarId
@@ -380,6 +395,46 @@ function me.ShowCooldownsOnClick(self)
     mod.gearBarManager.EnableShowCooldowns(gearBarId)
   else
     mod.gearBarManager.DisableShowCooldowns(gearBarId)
+  end
+end
+
+--[[
+  OnShow callback for checkbuttons - show gearBar
+
+  @param {table} self
+]]--
+function me.ShowGearBarOnShow(self)
+  if mod.gearBarManager.IsGearBarVisible(self:GetParent().gearBarId) then
+    self:SetChecked(true)
+  else
+    self:SetChecked(false)
+  end
+end
+
+--[[
+  OnClick callback for checkbuttons - show gearBar
+
+  Showing or hiding a gearBar changes the visibility of the parent frame of gearSlots that inherit
+  from the SecureActionButtonTemplate, which is blocked in combat. Block the toggle instead of
+  letting the stored state drift away from what is actually displayed.
+
+  @param {table} self
+]]--
+function me.ShowGearBarOnClick(self)
+  local gearBarId = self:GetParent().gearBarId
+
+  if InCombatLockdown() then
+    mod.logger.PrintUserError(rggm.L["show_gear_bar_combat"])
+    -- restore the checkbox to the unchanged stored state
+    me.ShowGearBarOnShow(self)
+
+    return
+  end
+
+  if self:GetChecked() then
+    mod.gearBarManager.ShowGearBar(gearBarId)
+  else
+    mod.gearBarManager.HideGearBar(gearBarId)
   end
 end
 
@@ -621,7 +676,7 @@ function me.CreateGearBarConfigurationSlotsList(parentFrame)
   local listContainer = mod.uiHelper.CreateScrollList(
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_CONFIGURATION_SLOTS_SCROLL_FRAME,
     parentFrame,
-    {"TOPLEFT", 20, -290},
+    {"TOPLEFT", 20, -320},
     RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_WIDTH,
     RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_ROW_HEIGHT
     * RGGM_CONSTANTS.GEAR_BAR_CONFIGURATION_SLOTS_LIST_MAX_ROWS

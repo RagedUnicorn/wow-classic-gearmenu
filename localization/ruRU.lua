@@ -131,6 +131,11 @@ if (GetLocale() == "ruRU") then
   rggm.L["show_keybindings_tooltip"] = "Отображать привязки клавиш над надетыми предметами"
   rggm.L["show_cooldowns"] = "Показывать кулдауны"
   rggm.L["show_cooldowns_tooltip"] = "Отображать кулдаун для всех слотов предметов"
+  rggm.L["show_gear_bar"] = "Показывать панель экипировки"
+  rggm.L["show_gear_bar_tooltip"] =
+    "Отображать эту панель экипировки. Привязки клавиш продолжают работать, пока она скрыта"
+  rggm.L["show_gear_bar_combat"] =
+    "Невозможно изменить видимость панели экипировки в бою. Пожалуйста, попробуйте после боя"
   rggm.L["gear_slot_size_slider_title"] = "Размер слота экипировки"
   rggm.L["gear_slot_size_slider_tooltip"] = "Изменить размер слотов экипировки"
   rggm.L["change_slot_size_slider_title"] = "Размер слота смены"

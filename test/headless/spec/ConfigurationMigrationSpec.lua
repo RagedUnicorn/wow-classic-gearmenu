@@ -361,6 +361,25 @@ describe("Configuration migration", function()
       assert.are.equal(RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_HORIZONTAL, config.gearBars[1].orientation)
     end)
 
+    -- gearBars is a userOwned collection, so the per-bar loop is the only backfill site for a
+    -- per-bar field added in a later version
+    it("backfills a nil per-bar visibility flag to visible", function()
+      local config = useConfig({ gearBars = { { id = 1, slots = {} }, { id = 2, slots = {} } } })
+
+      configuration.SetupConfiguration()
+
+      assert.is_true(config.gearBars[1].isEnabled)
+      assert.is_true(config.gearBars[2].isEnabled)
+    end)
+
+    it("preserves a stored hidden gearBar across setup", function()
+      local config = useConfig({ gearBars = { { id = 1, slots = {}, isEnabled = false } } })
+
+      configuration.SetupConfiguration()
+
+      assert.is_false(config.gearBars[1].isEnabled)
+    end)
+
     it("normalizes a now-invalid change menu direction to the orientation default", function()
       -- LEFT is invalid for a (backfilled) horizontal bar, so it resets to UP
       local config = useConfig({
