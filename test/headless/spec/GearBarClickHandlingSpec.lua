@@ -102,6 +102,8 @@ describe("GearBar click handling", function()
     calls = {
       removedFromQueue = {},  -- combatQueue.RemoveFromQueue(slotId)
       themeClicks = {},       -- themeCoordinator.GearSlotOnClick(self, button)
+      flyoutClickHandlers = 0, -- weaponFlyout.UpdateClickHandler(gearSlot)
+      flyoutsSetUp = {},      -- weaponFlyout.SetupGearSlot(gearSlot)
       errorsLogged = 0
     }
 
@@ -112,7 +114,21 @@ describe("GearBar click handling", function()
       combatQueue = rggm.combatQueue,
       themeCoordinator = rggm.themeCoordinator,
       gearBarStorage = rggm.gearBarStorage,
+      weaponFlyout = rggm.weaponFlyout,
       logger = rggm.logger
+    }
+
+    --[[
+      SetupEvents attaches the secure weaponFlyout once the gearSlot's own scripts are in
+      place; its buttons follow the same fastpress setting as the gearSlot itself
+    ]]--
+    rggm.weaponFlyout = {
+      UpdateClickHandler = function()
+        calls.flyoutClickHandlers = calls.flyoutClickHandlers + 1
+      end,
+      SetupGearSlot = function(gearSlot)
+        calls.flyoutsSetUp[#calls.flyoutsSetUp + 1] = gearSlot
+      end
     }
 
     rggm.configuration = {
@@ -157,6 +173,7 @@ describe("GearBar click handling", function()
     rggm.combatQueue = previous.combatQueue
     rggm.themeCoordinator = previous.themeCoordinator
     rggm.gearBarStorage = previous.gearBarStorage
+    rggm.weaponFlyout = previous.weaponFlyout
     rggm.logger = previous.logger
   end)
 
@@ -190,6 +207,29 @@ describe("GearBar click handling", function()
 
       assert.are.equal(1, #gearSlot.attributes)
       assert.are.same({ name = "useOnKeyDown", value = true }, gearSlot.attributes[1])
+    end)
+
+    --[[
+      The weaponFlyout wraps OnEnter/OnLeave with secure snippets. A wrapper installed before
+      the handlers exist can be replaced by the SetScript calls that follow, so the flyout has
+      to be attached last - this pins that ordering
+    ]]--
+    it("attaches the weaponFlyout only once the gearSlot scripts are in place", function()
+      local gearSlot = CreateFakeGearSlot(16)
+      local scriptsWhenAttached
+
+      rggm.weaponFlyout.SetupGearSlot = function(slot)
+        scriptsWhenAttached = {}
+
+        for scriptType in pairs(slot.scripts) do
+          scriptsWhenAttached[scriptType] = true
+        end
+      end
+
+      gearBar.SetupEvents(gearSlot)
+
+      assert.is_true(scriptsWhenAttached.OnEnter)
+      assert.is_true(scriptsWhenAttached.OnLeave)
     end)
   end)
 

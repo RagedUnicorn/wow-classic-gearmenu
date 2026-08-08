@@ -77,6 +77,7 @@ describe("GearBarManager", function()
       updateGearSlotSizes = 0,
       updateGearBarSize = 0,
       updateGearBars = 0,
+      updateWeaponFlyouts = 0,
       registerTicker = {},
       unregisterTicker = {},
       checkKeyBindingSlots = {},
@@ -88,7 +89,8 @@ describe("GearBarManager", function()
       gearBar = rggm.gearBar,
       gearManager = rggm.gearManager,
       ticker = rggm.ticker,
-      keyBind = rggm.keyBind
+      keyBind = rggm.keyBind,
+      weaponFlyout = rggm.weaponFlyout
     }
     -- snapshot the global the module mutates so it does not leak into other specs
     previousConfig = _G.GearMenuConfiguration
@@ -132,6 +134,13 @@ describe("GearBarManager", function()
     rggm.keyBind = {
       CheckKeyBindingSlots = function(id) calls.checkKeyBindingSlots[#calls.checkKeyBindingSlots + 1] = id end
     }
+    --[[
+      geometry changes (slot size, menu direction, orientation) have to re-lay-out the secure
+      weaponFlyouts, which - unlike the transient changeMenu - cannot rebuild themselves on hover
+    ]]--
+    rggm.weaponFlyout = {
+      UpdateGearBarFlyouts = function() calls.updateWeaponFlyouts = calls.updateWeaponFlyouts + 1 end
+    }
 
     -- fresh module table (mirrors the isolation convention used by the other specs)
     dofile("code/GearBarManager.lua")
@@ -144,6 +153,7 @@ describe("GearBarManager", function()
     rggm.gearManager = previousModules.gearManager
     rggm.ticker = previousModules.ticker
     rggm.keyBind = previousModules.keyBind
+    rggm.weaponFlyout = previousModules.weaponFlyout
     _G.GearMenuConfiguration = previousConfig
   end)
 

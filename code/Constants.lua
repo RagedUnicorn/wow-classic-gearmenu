@@ -138,6 +138,18 @@ RGGM_CONSTANTS = {
   GEAR_BAR_CHANGE_MENU_DIRECTION_LEFT = 3,
   GEAR_BAR_CHANGE_MENU_DIRECTION_RIGHT = 4,
   --[[
+    WeaponFlyout (prototype)
+
+    Secure per gearSlot flyout holding prepared "/equipslot" macro buttons. Only the slots
+    the game itself allows to change during combat get one - see gui/WeaponFlyout.lua.
+    Layout intentionally reuses the ChangeMenu column amount and slot size so both menus
+    read the same
+  ]]--
+  ELEMENT_WEAPON_FLYOUT_FRAME = "$parent_WeaponFlyout",
+  ELEMENT_WEAPON_FLYOUT_SLOT = "$parentSlot_",
+  -- Maximum amount of macro buttons a single flyout offers
+  WEAPON_FLYOUT_SLOT_AMOUNT = 12,
+  --[[
     GearBar Configuration Menus
   ]]--
   ELEMENT_GEAR_BAR_CONFIG_GENERAL_OPTIONS_FRAME = "GM_GearBarConfigGeneralOptionsFrame",
@@ -186,6 +198,7 @@ RGGM_CONSTANTS = {
   ELEMENT_GENERAL_OPT_ENABLE_UNEQUIP_SLOT = "GM_OptEnableUnequipSlot",
   ELEMENT_GENERAL_OPT_ENABLE_RUNE_SLOTS = "GM_OptEnableRuneSlots",
   ELEMENT_GENERAL_OPT_ENABLE_FALLBACK_TO_BASE_ITEM = "GM_OptEnableFallbackToBaseItem",
+  ELEMENT_GENERAL_OPT_ENABLE_WEAPON_FLYOUT = "GM_OptEnableWeaponFlyout",
   ELEMENT_GENERAL_OPT_FILTER_ITEM_QUALITY = "GM_OptFilterItemQuality",
   ELEMENT_GENERAL_LABEL_FILTER_ITEM_QUALITY = "GM_LabelFilterItemQuality",
   ELEMENT_GENERAL_LABEL_CHOOSE_THEME = "GM_LabelChooseTheme",

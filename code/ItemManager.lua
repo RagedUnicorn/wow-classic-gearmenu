@@ -103,6 +103,9 @@ function me.RequestBagUpdate()
     if mod.configuration.IsTrinketMenuEnabled() then
       mod.trinketMenu.UpdateTrinketMenu()
     end
+
+    -- the weaponFlyout macros are built from the bag contents and go stale with them
+    mod.weaponFlyout.UpdateAllFlyouts()
   end)
 end
 

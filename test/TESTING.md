@@ -107,6 +107,15 @@ One file per test case under [test/manual/](manual/). Case IDs follow `TC-<AREA>
 | [TC-CQ-04](manual/TC-CQ-04-loss-of-control.md)     | Queue during loss of control                |
 | [TC-CQ-05](manual/TC-CQ-05-death-and-release.md)   | Queue survives death, fires when alive      |
 
+### Weapon quick swap (prototype)
+
+| ID                                                                | Case                                        |
+|-------------------------------------------------------------------|---------------------------------------------|
+| [TC-WF-01](manual/TC-WF-01-swap-weapon-during-combat.md)          | Weapon quick swap works during combat       |
+| [TC-WF-02](manual/TC-WF-02-only-weapon-slots-and-toggle.md)       | Only weapon slots get a flyout, live toggle |
+| [TC-WF-03](manual/TC-WF-03-content-frozen-during-combat.md)       | Flyout frozen in combat, refreshes after    |
+| [TC-WF-04](manual/TC-WF-04-unequip-slot.md)                       | Unequip slot in the weapon flyout           |
+
 ### QuickChange
 
 | ID                                                  | Case                        |

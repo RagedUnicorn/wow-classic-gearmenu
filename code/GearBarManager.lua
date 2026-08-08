@@ -521,6 +521,8 @@ function me.SetGearBarOrientation(gearBarId, orientation)
 
     mod.gearBar.UpdateGearSlotSizes(gearBar)
     mod.gearBar.UpdateGearBarSize(gearBar) -- resize the underlying gearBarFrame
+    -- unlike the transient changeMenu the weaponFlyout has its geometry baked in
+    mod.weaponFlyout.UpdateGearBarFlyouts(gearBar)
   else
     mod.logger.LogError(me.tag, "Failed to update the orientation of the gearBar with id: " .. gearBarId)
   end
@@ -594,6 +596,8 @@ function me.SetChangeMenuDirection(gearBarId, changeMenuDirection)
 
   if gearBar then
     gearBar.changeMenuDirection = changeMenuDirection
+    -- unlike the transient changeMenu the weaponFlyout has its anchoring baked in
+    mod.weaponFlyout.UpdateGearBarFlyouts(gearBar)
   else
     mod.logger.LogError(me.tag, "Failed to update the changeMenuDirection of the gearBar with id: " .. gearBarId)
   end
@@ -652,7 +656,9 @@ function me.SetChangeSlotSize(gearBarId, changeSlotSize)
 
   if gearBar then
     gearBar.changeSlotSize = changeSlotSize
-    -- no ui update necessary, update will be triggered next time the changeMenu is shown
+    -- no changeMenu update necessary, it is rebuilt the next time it is shown
+    -- the weaponFlyout however has its geometry baked in and has to be re-laid-out
+    mod.weaponFlyout.UpdateGearBarFlyouts(gearBar)
   else
     mod.logger.LogError(me.tag, "Failed to update the changeSlotSize of the gearBar with id: " .. gearBarId)
   end

@@ -192,6 +192,13 @@ local CONFIGURATION_DEFAULTS = {
   ]]--
   { ["name"] = "enableFallbackToBaseItem", ["default"] = false },
   --[[
+    PROTOTYPE - whether the secure weaponFlyout is enabled. When on, gearSlots configured
+    for a slot the game allows to change in combat (main hand, off hand, ranged) open a
+    flyout of prepared "/equipslot" macro buttons on hover instead of the changeMenu.
+    Clicking one equips the weapon immediately, even in combat. Off by default
+  ]]--
+  { ["name"] = "enableWeaponFlyout", ["default"] = false },
+  --[[
     Named configuration profiles keyed by the user given name. Each entry is a
     snapshot of the configurable fields (see code/Profile.lua me.PROFILE_FIELDS)
   ]]--
@@ -882,6 +889,31 @@ end
 ]]--
 function me.IsFallbackToBaseItemEnabled()
   return GearMenuConfiguration.enableFallbackToBaseItem
+end
+
+--[[
+  Enable the secure weaponFlyout
+]]--
+function me.EnableWeaponFlyout()
+  GearMenuConfiguration.enableWeaponFlyout = true
+  mod.weaponFlyout.UpdateAllFlyouts()
+end
+
+--[[
+  Disable the secure weaponFlyout
+]]--
+function me.DisableWeaponFlyout()
+  GearMenuConfiguration.enableWeaponFlyout = false
+  mod.weaponFlyout.UpdateAllFlyouts()
+end
+
+--[[
+  @return {boolean}
+    true - if the secure weaponFlyout is enabled
+    false - if the secure weaponFlyout is disabled
+]]--
+function me.IsWeaponFlyoutEnabled()
+  return GearMenuConfiguration.enableWeaponFlyout
 end
 
 

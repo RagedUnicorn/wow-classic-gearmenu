@@ -112,6 +112,41 @@ function me.CreateChangeSlot(changeMenuFrame, position)
 end
 
 --[[
+  Create a single weaponFlyout slot. Unlike a changeSlot this button inherits from the
+  SecureActionButtonTemplate - it carries a prepared "/equipslot" macro so the swap can be
+  performed by the player during combat. Because of SetAttribute this CANNOT be executed
+  while in combat
+
+  @param {table} flyoutFrame
+  @param {number} position
+
+  @return {table}
+    The created weaponFlyout slot
+]]--
+function me.CreateWeaponFlyoutSlot(flyoutFrame, position)
+  local flyoutSlot = CreateFrame(
+    "Button",
+    RGGM_CONSTANTS.ELEMENT_WEAPON_FLYOUT_SLOT .. position,
+    flyoutFrame,
+    "SecureActionButtonTemplate"
+  )
+
+  flyoutSlot:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square")
+  flyoutSlot:SetNormalTexture("Interface\\Buttons\\UI-Quickslot2")
+  flyoutSlot:SetPushedTexture("Interface\\Buttons\\UI-Quickslot-Depress")
+
+  local normalTexture = flyoutSlot:GetNormalTexture()
+  normalTexture:SetTexCoord(0.19, 0.80, 0.19, 0.80)
+  normalTexture:SetSize(RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE, RGGM_CONSTANTS.GEAR_BAR_DEFAULT_SLOT_SIZE)
+
+  mod.uiHelper.CreateItemTexture(flyoutSlot, RGGM_CONSTANTS.GEAR_BAR_CHANGE_DEFAULT_SLOT_SIZE)
+
+  mod.weaponFlyout.SetupEvents(flyoutSlot)
+
+  return flyoutSlot
+end
+
+--[[
   @param {table} trinketMenuFrame
     The trinketMenuFrame to attach the created slot to
   @param {number} position

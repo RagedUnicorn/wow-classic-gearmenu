@@ -192,7 +192,10 @@ end
     Position on the gearBar
   @param {string} template
     The frame template the button inherits from (themes differ, e.g. the custom theme
-    additionally mixes in BackdropTemplate)
+    additionally mixes in BackdropTemplate). SecureHandlerBaseTemplate is mixed in here for
+    every theme - it is not a styling concern but what turns the gearSlot into a secure
+    handler, which the weaponFlyout needs to open and close from within the restricted
+    environment (see gui/WeaponFlyout.lua)
 
   @return {table}
     The created gearSlot
@@ -202,7 +205,7 @@ function me.CreateGearSlotBase(gearBarFrame, gearBar, position, template)
     "Button",
     RGGM_CONSTANTS.ELEMENT_GEAR_BAR_SLOT .. position,
     gearBarFrame,
-    template
+    template .. ", SecureHandlerBaseTemplate"
   )
 
   gearSlot:SetSize(gearBar.gearSlotSize, gearBar.gearSlotSize)
@@ -749,6 +752,7 @@ function me.UpdateGearBarGearSlots(gearBar)
   me.UpdateGearBarGearSlotCooldowns(gearBar)
   me.UpdateKeyBindingState(gearBar)
   me.UpdateGearBarSize(gearBar)
+  mod.weaponFlyout.UpdateGearBarFlyouts(gearBar)
   me.CleanupOrphanedGearSlots(gearBar)
 end
 
@@ -879,6 +883,12 @@ function me.SetupEvents(gearSlot)
   gearSlot:SetScript("OnDragStart", function(self)
     me.GearSlotOnDragStart(self)
   end)
+
+  --[[
+    Last on purpose - the weaponFlyout wraps the OnEnter/OnLeave scripts assigned above with
+    secure snippets, and those wrappers have to be installed on top of the final handlers
+  ]]--
+  mod.weaponFlyout.SetupGearSlot(gearSlot)
 end
 
 --[[
@@ -899,6 +909,7 @@ function me.UpdateClickHandler()
   for _, uiGearBar in pairs(uiGearBars) do
     for _, gearSlot in pairs(uiGearBar.gearSlotReferences) do
       gearSlot:SetAttribute("useOnKeyDown", mod.configuration.IsFastPressEnabled())
+      mod.weaponFlyout.UpdateClickHandler(gearSlot)
     end
   end
 end
@@ -932,7 +943,17 @@ end
   @param {table} self
 ]]--
 function me.GearSlotOnEnter(self)
-  mod.gearBarChangeMenu.UpdateChangeMenu(self.position, self:GetParent().id)
+  --[[
+    A gearSlot with a prepared weaponFlyout gets that flyout instead of the changeMenu - the
+    flyout is opened by a secure snippet wrapped around this very OnEnter (see
+    gui/WeaponFlyout.lua). Showing both menus at once would stack them on top of each other
+  ]]--
+  if mod.weaponFlyout.IsFlyoutActive(self) then
+    mod.gearBarChangeMenu.CloseChangeMenu()
+    mod.weaponFlyout.ShowFlyoutIfPrepared(self)
+  else
+    mod.gearBarChangeMenu.UpdateChangeMenu(self.position, self:GetParent().id)
+  end
 
   mod.tooltip.UpdateTooltipForSlot(self:GetAttribute("item"))
   mod.themeCoordinator.GearSlotOnEnter(self)
@@ -944,6 +965,7 @@ end
   @param {table} self
 ]]--
 function me.GearSlotOnLeave(self)
+  mod.weaponFlyout.HideFlyoutIfUnhovered(self.weaponFlyout)
   mod.tooltip.TooltipClear()
   mod.themeCoordinator.GearSlotOnLeave(self)
 end

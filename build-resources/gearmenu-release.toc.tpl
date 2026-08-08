@@ -51,6 +51,7 @@ gui/Frame.xml
 gui/UiHelper.lua
 gui/GearBar.lua
 gui/GearBarChangeMenu.lua
+gui/WeaponFlyout.lua
 gui/TrinketMenu.lua
 gui/ThemeCoordinator.lua
 gui/ThemeClassic.lua

@@ -88,6 +88,25 @@ function me.CreateChangeSlot(changeMenuFrame, position)
 end
 
 --[[
+  Fallthrough for CreateWeaponFlyoutSlot
+
+  @param {table} flyoutFrame
+    The weaponFlyout frame where the flyoutSlot gets attached to
+  @param {number} position
+    Position in the weaponFlyout
+
+  @return {table}
+    The created weaponFlyout slot
+]]--
+function me.CreateWeaponFlyoutSlot(flyoutFrame, position)
+  if type(themeReference.CreateWeaponFlyoutSlot) == "function" then
+    return themeReference.CreateWeaponFlyoutSlot(flyoutFrame, position)
+  else
+    mod.logger.LogInfo(me.tag, "No implementation for CreateWeaponFlyoutSlot in theme doing nothing...")
+  end
+end
+
+--[[
   Fallthrough for CreateTrinketSlot
 
   @param {table} trinketMenuFrame

@@ -97,6 +97,11 @@ end
 ]]--
 OnPlayerEquipmentChanged = function()
   me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarVisual)
+  --[[
+    The weaponFlyout offers the worn weapon as a way back after a swap - equipping moves
+    that item into the bags, so the prepared macros have to be rebuilt
+  ]]--
+  me.weaponFlyout.UpdateAllFlyouts()
 end
 
 --[[
@@ -177,6 +182,9 @@ OnPlayerAliveOrLeftCombat = function()
   if not me.common.IsPlayerReallyDead() then
     me.ticker.StartTickerCombatQueue()
   end
+
+  -- flyouts cannot be rebuilt during combat lockdown - replay whatever was deferred
+  me.weaponFlyout.OnLeaveCombat()
 end
 
 --[[
@@ -293,6 +301,8 @@ Initialize = function()
   me.gearBar.BuildGearBars()
   -- build ui for changeMenu
   me.gearBarChangeMenu.BuildChangeMenu()
+  -- prepare the secure weaponFlyout macros for all gearBars
+  me.weaponFlyout.UpdateAllFlyouts()
   -- update initial view of gearBars after addon initialization
   me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarVisual)
 

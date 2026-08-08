@@ -75,6 +75,12 @@ local enableFallbackToBaseItemMetaData = {
   rggm.L["enable_fallback_to_base_item_tooltip"]
 }
 
+local enableWeaponFlyoutMetaData = {
+  "EnableWeaponFlyout",
+  rggm.L["enable_weapon_flyout"],
+  rggm.L["enable_weapon_flyout_tooltip"]
+}
+
 -- track whether the menu was already built
 local builtMenu = false
 
@@ -168,6 +174,20 @@ function me.BuildUi(parentFrame)
   me.CreateItemQualityDropdown(parentFrame)
   me.CreateThemeLabel(parentFrame)
   me.CreateChooseThemeDropdown(parentFrame)
+
+  --[[
+    Own row below the dropdowns rather than the free spot at {280, -285}: the option above it
+    in that column carries a description tall enough to reach into that slot, and the theme
+    dropdown below would be reached by this option's own description
+  ]]--
+  mod.uiHelper.BuildCheckButtonOption(
+    parentFrame,
+    RGGM_CONSTANTS.ELEMENT_GENERAL_OPT_ENABLE_WEAPON_FLYOUT,
+    {"TOPLEFT", 20, -440},
+    me.EnableWeaponFlyoutOnShow,
+    me.EnableWeaponFlyoutOnClick,
+    enableWeaponFlyoutMetaData
+  )
 
   builtMenu = true
 end
@@ -542,5 +562,33 @@ function me.EnableFallbackToBaseItemOnClick(self)
     mod.configuration.EnableFallbackToBaseItem()
   else
     mod.configuration.DisableFallbackToBaseItem()
+  end
+end
+
+--[[
+  OnShow callback for checkbuttons - enable weaponFlyout
+
+  @param {table} self
+]]--
+function me.EnableWeaponFlyoutOnShow(self)
+  if mod.configuration.IsWeaponFlyoutEnabled() then
+    self:SetChecked(true)
+  else
+    self:SetChecked(false)
+  end
+end
+
+--[[
+  OnClick callback for checkbuttons - enable weaponFlyout
+
+  @param {table} self
+]]--
+function me.EnableWeaponFlyoutOnClick(self)
+  local enabled = self:GetChecked()
+
+  if enabled then
+    mod.configuration.EnableWeaponFlyout()
+  else
+    mod.configuration.DisableWeaponFlyout()
   end
 end
