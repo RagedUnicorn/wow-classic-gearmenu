@@ -28,9 +28,9 @@
       MoP Classic - covers: Mists of Pandaria Classic
     -->
     <!-- renovate: datasource=custom.wow-game-versions-classic depName=wow-gameversion-classic versioning=loose -->
-    <addon.curseforge.gameVersionClassic>14029</addon.curseforge.gameVersionClassic>
+    <addon.curseforge.gameVersionClassic>16630</addon.curseforge.gameVersionClassic>
     <!-- renovate: datasource=custom.wow-game-versions-tbcc depName=wow-gameversion-tbcc versioning=loose -->
-    <addon.curseforge.gameVersionTbcc>14300</addon.curseforge.gameVersionTbcc>
+    <addon.curseforge.gameVersionTbcc>16533</addon.curseforge.gameVersionTbcc>
     <!-- renovate: datasource=custom.wow-game-versions-mop depName=wow-gameversion-mop versioning=loose -->
     <addon.curseforge.gameVersionMop>16168</addon.curseforge.gameVersionMop>
     <addon.wago.projectId>kaNeybN2</addon.wago.projectId>
