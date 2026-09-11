@@ -10,6 +10,7 @@ permissions:
 jobs:
   generate-sources:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout PR branch
         uses: actions/checkout@v7
