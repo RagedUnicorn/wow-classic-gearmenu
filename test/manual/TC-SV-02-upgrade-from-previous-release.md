@@ -39,9 +39,9 @@
 - Fields introduced after v2.7.0 are present at their defaults:
   `enableFallbackToBaseItem = false`, `lastNotifiedVersion = ""`
 - `GearMenuConfiguration.profiles` is created and holds **exactly one** entry named `Default`,
-  seeded by `EnsureDefaultProfile()` as a frozen snapshot of the shipped configuration
-  defaults — **not** a snapshot of the imported v2.7.0 values. Save/Rename/Delete refuse to
-  touch it (see TC-PR-07)
+  seeded by `EnsureDefaultProfile()` as a snapshot of the shipped configuration defaults
+  (re-seeded on every login so it always matches the running version) — **not** a snapshot
+  of the imported v2.7.0 values. Save/Rename/Delete refuse to touch it (see TC-PR-07)
 - `addonVersion` in the file is bumped to the new release version
 
 ## Notes

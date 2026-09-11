@@ -69,20 +69,12 @@ describe("Profile", function()
   local profile = rggm.profile
   local getDefaults = captureGetDefaults()
   local previousConfiguration
-  -- EnsureDefaultProfile logs through rggm.logger, whose print path needs a WoW client (C_AddOns
-  -- for the addon title) and rggm.filter, neither of which the bootstrap provides. Drop the level
-  -- below `info` while this spec runs so nothing is printed; rggm.logger is a deep field of the
-  -- shared rggm table that busted's file insulation does not restore, so put it back in after_each.
-  local previousLogLevel
 
   before_each(function()
     -- ApplySnapshot backfills via mod.configuration.SetupConfiguration; other specs dofile the real
     -- configuration module into the shared rggm namespace, so pin a no-op stub for these tests.
     previousConfiguration = rggm.configuration
     rggm.configuration = { SetupConfiguration = function() end, GetDefaults = getDefaults }
-
-    previousLogLevel = rggm.logger.logLevel
-    rggm.logger.logLevel = rggm.logger.event
 
     GearMenuConfiguration.profiles = {}
     GearMenuConfiguration.enableTooltips = true
@@ -95,7 +87,6 @@ describe("Profile", function()
 
   after_each(function()
     rggm.configuration = previousConfiguration
-    rggm.logger.logLevel = previousLogLevel
   end)
 
   it("exports and imports a snapshot round-trip", function()
@@ -281,7 +272,7 @@ describe("Profile", function()
     end)
 
     it("seeds it from the shipped defaults, not from the live configuration", function()
-      -- a customized live configuration must not bleed into the frozen baseline
+      -- a customized live configuration must not bleed into the factory baseline
       GearMenuConfiguration.enableTooltips = false
       GearMenuConfiguration.filterItemQuality = 5
       GearMenuConfiguration.uiTheme = RGGM_CONSTANTS.UI_THEME_CLASSIC
@@ -319,13 +310,21 @@ describe("Profile", function()
       assert.are.same({}, getDefaults().frames)
     end)
 
-    it("leaves an already seeded default untouched on a second call", function()
-      profile.EnsureDefaultProfile()
-      local seeded = profile.GetProfile(defaultName)
+    it("re-seeds a stale default so newer profile fields are covered again", function()
+      -- a default frozen at an older shape (seeded before newer PROFILE_FIELDS
+      -- members existed) breaks "reset to factory settings": ApplySnapshot
+      -- skips fields the payload lacks, so the newer fields kept the player's
+      -- values. EnsureDefaultProfile therefore overwrites on every call.
+      GearMenuConfiguration.profiles = {
+        [defaultName] = {
+          enableTooltips = false,
+          gearBars = {}
+        }
+      }
 
       profile.EnsureDefaultProfile()
 
-      assert.is_true(rawequal(seeded, profile.GetProfile(defaultName)))
+      assert.are.same(profile.BuildDefaultSnapshot(), profile.GetProfile(defaultName))
     end)
 
     it("refuses to delete the default profile", function()

@@ -225,17 +225,18 @@ function me.BuildDefaultSnapshot()
 end
 
 --[[
-  Guarantee that the undeletable default profile exists. Called on every login (see
-  code/Core.lua Initialize) right after the configuration defaults were applied.
-  Idempotent - an already seeded default is left untouched, its payload stays frozen.
+  Guarantee that the undeletable default profile exists and matches the RUNNING
+  version's factory defaults. Called on every login (see code/Core.lua
+  Initialize) right after the configuration defaults were applied.
+
+  Re-seeds unconditionally: the payload derives purely from GetDefaults() and
+  can never hold player data (SaveProfile refuses the reserved name), so
+  overwriting is lossless - while a frozen seed goes stale whenever
+  PROFILE_FIELDS grows, and ApplySnapshot skips fields the payload lacks,
+  silently exempting every newer field from "reset to factory settings".
 ]]--
 function me.EnsureDefaultProfile()
-  local store = GetStore()
-
-  if store[RGGM_CONSTANTS.DEFAULT_PROFILE_NAME] == nil then
-    mod.logger.LogInfo(me.tag, "Seeding the default profile")
-    store[RGGM_CONSTANTS.DEFAULT_PROFILE_NAME] = me.BuildDefaultSnapshot()
-  end
+  GetStore()[RGGM_CONSTANTS.DEFAULT_PROFILE_NAME] = me.BuildDefaultSnapshot()
 end
 
 --[[
