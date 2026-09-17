@@ -24,13 +24,24 @@
 ]]--
 
 --[[
-  GearMenu configuration profiles.
+  GearMenu configuration profiles - the family feature every sibling addon carries.
 
   Owns everything that makes a "GearMenu profile": which configuration fields are
   part of a profile, snapshotting the live config into a profile and applying a
   profile back, encoding a profile to / from a portable string (via the generic
   rggm.serializer + rggm.encoder modules), and the per-character named-profile
   store kept in GearMenuConfiguration.profiles.
+
+  One stored profile is the ACTIVE profile, named by GearMenuConfiguration.activeProfile
+  (bookkeeping outside CONFIGURATION_DEFAULTS - the backfill must not seed it, adoption
+  keys on nil). The live configuration is what the player edits; it is mirrored into the
+  active profile's stored copy at the moments that matter - before a switch, on
+  PLAYER_LOGOUT (code/Core.lua), on export, after a reset to defaults and at login
+  (EnsureActiveProfile) - so a profile never goes stale behind the player's back and
+  switching never loses an edit. Between those moments the live SavedVariable is the
+  truth; nothing hooks the individual setters. "Default" is the editable home profile
+  every character starts on: seeded from the factory settings only when absent, never
+  deleted or renamed, and reset through ResetActiveProfile rather than re-loaded.
 ]]--
 
 local mod = rggm
@@ -58,9 +69,10 @@ local ADDON_TAG = "GearMenu"
   the derived name list (me.PROFILE_FIELDS); import validates each present payload
   field against the derived type map (PROFILE_FIELD_TYPES). Adding a configurable
   option is therefore a one-line change here. Deliberately excludes bookkeeping
-  (addonVersion, firstTimeInitializationDone) and the profile store itself
-  (profiles). Types mirror the defaults in code/Configuration.lua (note gearBars
-  defaults to nil there, hence the explicit "table").
+  (addonVersion, firstTimeInitializationDone, and activeProfile - which profile the
+  live configuration belongs to is not a setting of that profile) and the profile
+  store itself (profiles). Types mirror the defaults in code/Configuration.lua (note
+  gearBars defaults to nil there, hence the explicit "table").
 ]]--
 local PROFILE_FIELD_SPEC = {
   { ["name"] = "enableTooltips",           ["type"] = "boolean" },
@@ -206,10 +218,10 @@ end
 
 --[[
   Build a snapshot of the configurable fields out of the shipped defaults rather than the
-  live configuration, so the default profile is a pristine baseline no matter when it gets
-  seeded (fresh install or an upgrade of an already customized character). The userOwned
-  collections (gearBars, quickChangeRules, frames) default to empty, so applying the default
-  profile returns the character to the fresh-install state.
+  live configuration: the factory baseline a fresh character starts on, the seed of the
+  Default profile and what ResetActiveProfile restores. The userOwned collections
+  (gearBars, quickChangeRules, frames) default to empty - the starter GearBar a fresh
+  install gets is added on top of this by ResetActiveProfile, not carried here.
 
   @return {table}
 ]]--
@@ -225,18 +237,22 @@ function me.BuildDefaultSnapshot()
 end
 
 --[[
-  Guarantee that the undeletable default profile exists and matches the RUNNING
-  version's factory defaults. Called on every login (see code/Core.lua
-  Initialize) right after the configuration defaults were applied.
+  Seed the undeletable default profile from the running version's factory defaults
+  when the store has none - a fresh character, or a store from before profiles
+  existed. Called on every login (see code/Core.lua Initialize) right after the
+  configuration defaults were applied and ahead of the active profile adoption.
 
-  Re-seeds unconditionally: the payload derives purely from GetDefaults() and
-  can never hold player data (SaveProfile refuses the reserved name), so
-  overwriting is lossless - while a frozen seed goes stale whenever
-  PROFILE_FIELDS grows, and ApplySnapshot skips fields the payload lacks,
-  silently exempting every newer field from "reset to factory settings".
+  Never re-seeds: Default is the editable home profile, so its stored copy holds the
+  player's own settings whenever it is the active one and the mirror is its only
+  writer after the seed. The factory settings stay reachable through
+  ResetActiveProfile.
 ]]--
 function me.EnsureDefaultProfile()
-  GetStore()[RGGM_CONSTANTS.DEFAULT_PROFILE_NAME] = me.BuildDefaultSnapshot()
+  local store = GetStore()
+
+  if store[RGGM_CONSTANTS.DEFAULT_PROFILE_NAME] == nil then
+    store[RGGM_CONSTANTS.DEFAULT_PROFILE_NAME] = me.BuildDefaultSnapshot()
+  end
 end
 
 --[[
@@ -365,16 +381,23 @@ end
 
 --[[
   @return {table}
-    alphabetically sorted list of saved profile names
+    the saved profile names, the default profile first and the rest sorted
 ]]--
 function me.ListProfiles()
+  local store = GetStore()
   local names = {}
 
-  for name in pairs(GetStore()) do
-    names[#names + 1] = name
+  for name in pairs(store) do
+    if not me.IsDefaultProfile(name) then
+      names[#names + 1] = name
+    end
   end
 
   table.sort(names)
+
+  if store[RGGM_CONSTANTS.DEFAULT_PROFILE_NAME] ~= nil then
+    table.insert(names, 1, RGGM_CONSTANTS.DEFAULT_PROFILE_NAME)
+  end
 
   return names
 end
@@ -397,8 +420,9 @@ function me.GetProfile(name)
 end
 
 --[[
-  Store (or overwrite) a named profile from a payload snapshot. The default profile is
-  frozen and can never be overwritten.
+  Store (or overwrite) a named profile from a payload snapshot - the import path.
+  The reserved default name is refused: the mirror (SaveActiveProfile) is the only
+  writer of the Default profile's copy.
 
   @param {string} name
   @param {table} payload
@@ -417,26 +441,42 @@ function me.SaveProfile(name, payload)
 end
 
 --[[
-  Delete a stored profile. The default profile can never be deleted.
+  Delete a stored profile. The default profile can never be deleted. Deleting the
+  active profile falls back to Default: its stored copy is applied to the live
+  configuration and it becomes the active one - with no mirror before or after,
+  which would only resurrect the deleted profile - and the caller reloads the UI
+  when the second return value says so.
 
   @param {string} name
 
-  @return {boolean}
-    true on success, false if name is the default profile
+  @return {boolean}, {boolean}
+    true on success, false if name is the default profile;
+    whether the live configuration fell back to Default (the active profile went)
 ]]--
 function me.DeleteProfile(name)
   if me.IsDefaultProfile(name) then
     return false
   end
 
-  GetStore()[name] = nil
+  local store = GetStore()
 
-  return true
+  store[name] = nil
+
+  if name ~= GearMenuConfiguration.activeProfile then
+    return true, false
+  end
+
+  me.EnsureDefaultProfile()
+  me.ApplySnapshot(store[RGGM_CONSTANTS.DEFAULT_PROFILE_NAME])
+  GearMenuConfiguration.activeProfile = RGGM_CONSTANTS.DEFAULT_PROFILE_NAME
+
+  return true, true
 end
 
 --[[
   Rename a stored profile. The default profile can neither be renamed nor be replaced by
-  renaming another profile onto its name.
+  renaming another profile onto its name. Renaming the active profile moves the active
+  name along.
 
   @param {string} oldName
   @param {string} newName
@@ -458,5 +498,145 @@ function me.RenameProfile(oldName, newName)
   store[newName] = store[oldName]
   store[oldName] = nil
 
+  if GearMenuConfiguration.activeProfile == oldName then
+    GearMenuConfiguration.activeProfile = newName
+  end
+
   return true
+end
+
+--[[
+  @return {string|nil}
+    the name of the active profile; nil on a store from before the active profile
+    existed, until EnsureActiveProfile adopted one
+]]--
+function me.GetActiveProfileName()
+  return GearMenuConfiguration.activeProfile
+end
+
+--[[
+  Mirror the live configuration into the active profile's stored copy - the one
+  writer of a profile from the live state. Bypasses SaveProfile on purpose: Default
+  is a home profile like any other here. A missing or dangling active name (a store
+  from before the active profile existed, a hand-edited file) is repaired to Default
+  first, so the mirror always lands somewhere.
+
+  Runs before a switch, on PLAYER_LOGOUT, on export, after a reset and at login;
+  between those moments the live SavedVariable is the truth.
+
+  @return {string}
+    the name the configuration was mirrored into
+]]--
+function me.SaveActiveProfile()
+  local store = GetStore()
+  local name = GearMenuConfiguration.activeProfile
+
+  if name == nil or store[name] == nil then
+    name = RGGM_CONSTANTS.DEFAULT_PROFILE_NAME
+    GearMenuConfiguration.activeProfile = name
+  end
+
+  store[name] = me.BuildSnapshot()
+
+  return name
+end
+
+--[[
+  Adopt the active profile at login (see code/Core.lua Initialize, right after
+  EnsureDefaultProfile) and mirror the live configuration into it. A store that
+  names a stored profile keeps it. One that does not - the first login after the
+  upgrade from the snapshot model, or a name that no longer exists - activates the
+  first profile other than Default whose stored copy deep-equals the live
+  configuration (the player applied it and changed nothing since), else Default.
+  Nothing is lost either way: the live settings become the active profile's, and the
+  factory copy stays reachable through ResetActiveProfile. The closing mirror is also
+  the self-heal for a logout the mirror missed (a crash).
+]]--
+function me.EnsureActiveProfile()
+  local store = GetStore()
+  local name = GearMenuConfiguration.activeProfile
+
+  if name == nil or store[name] == nil then
+    local live = me.BuildSnapshot()
+
+    name = RGGM_CONSTANTS.DEFAULT_PROFILE_NAME
+
+    for _, candidate in ipairs(me.ListProfiles()) do
+      if not me.IsDefaultProfile(candidate) and mod.common.DeepEquals(store[candidate], live) then
+        name = candidate
+        break
+      end
+    end
+
+    GearMenuConfiguration.activeProfile = name
+    mod.logger.LogInfo(me.tag, "Adopted \"" .. name .. "\" as the active profile")
+  end
+
+  me.SaveActiveProfile()
+end
+
+--[[
+  Switch to a stored profile: mirror the live configuration into the active profile
+  first, so nothing edited since it was activated is lost, then apply the target and
+  make it the active one. The caller clears the outgoing key bindings before and
+  applies the incoming ones after (see gui/KeyBind.lua), then reloads the UI.
+  Switching to the profile that is active already is a no-op.
+
+  @param {string} name
+
+  @return {boolean}
+    true on a real switch, false for an unknown name or the active profile
+]]--
+function me.SwitchProfile(name)
+  local store = GetStore()
+
+  if store[name] == nil or name == GearMenuConfiguration.activeProfile then
+    return false
+  end
+
+  me.SaveActiveProfile()
+  me.ApplySnapshot(store[name])
+  GearMenuConfiguration.activeProfile = name
+
+  return true
+end
+
+--[[
+  Store a copy of the current settings under a new name and make it the active
+  profile. The live configuration is unchanged, so no reload is needed; the profile
+  that was active keeps everything edited up to now (it is mirrored first).
+
+  @param {string} name
+
+  @return {boolean}
+    true on success, false for a blank name, the reserved default name or a name in use
+]]--
+function me.CreateProfile(name)
+  local store = GetStore()
+
+  if type(name) ~= "string" or name == "" or me.IsDefaultProfile(name) or store[name] ~= nil then
+    return false
+  end
+
+  local active = me.SaveActiveProfile()
+
+  store[name] = mod.common.Clone(store[active])
+  GearMenuConfiguration.activeProfile = name
+
+  return true
+end
+
+--[[
+  Reset the active profile to the factory settings: the shipped defaults are applied
+  to the live configuration, the starter GearBar a fresh install gets is created on
+  top of them (Configuration.FirstTimeInitialization - the defaults alone leave zero
+  bars, which is not the fresh-install state), and the result is mirrored into the
+  active profile. The caller wraps this in the key-binding dance and reloads the UI
+  afterwards. This is what "reset to defaults" means since Default became an editable
+  profile - loading Default no longer resets anything.
+]]--
+function me.ResetActiveProfile()
+  me.ApplySnapshot(me.BuildDefaultSnapshot())
+  mod.configuration.FirstTimeInitialization()
+  me.SaveActiveProfile()
 end

@@ -313,23 +313,23 @@ GearMenu lets you save your entire configuration as named profiles, so you can s
 
 ![](docs/gm_profile_configuration.png)
 
-A profile captures your full GearMenu setup – all of your GearBars (their GearSlots, sizes, orientation, lock state and on-screen position), your QuickChange rules, the TrinketMenu settings, the selected theme and the general options.
+A profile captures your full GearMenu setup – all of your GearBars (their GearSlots, sizes, orientation, lock state and on-screen position), your QuickChange rules, the TrinketMenu settings, the selected theme and the general options. One profile is always the **active** one, marked in gold as *"Raid (active)"* in the list: every change you make in the settings belongs to it, and it is saved automatically – when you switch profiles, log out or reload, export it, and at every login. There is nothing to remember to save.
 
-- **Save current as...**: Snapshots your current configuration into a new named profile (or overwrites an existing one of the same name).
-- **Apply**: Loads the selected profile, applies its settings and reloads the UI.
-- **Rename**: Renames the selected profile.
-- **Delete**: Removes the selected profile.
+- **Create new Profile**: Stores a copy of your current settings under a new name and makes it the active profile.
+- **Load**: Switches to the selected profile and reloads the UI. The profile you are leaving keeps your settings as they are now.
+- **Rename** / **Delete**: Manage the selected profile. Deleting the active profile switches you back to *Default*.
+- **Reset to defaults**: Puts the active profile back to GearMenu's shipped settings – the general options, the TrinketMenu settings and the theme at their defaults, your GearBars and QuickChange rules replaced by the starter GearBar, exactly like a fresh install – then reloads the UI.
 
 #### The Default Profile
 
-Every character starts with a profile named **Default**. It holds GearMenu's shipped settings and is created automatically – you never have to save it yourself. It cannot be deleted, renamed or overwritten, so there is always a clean baseline to go back to: select **Default** and click **Apply** to reset GearMenu to its factory settings. Note that this also removes all of your GearBars and QuickChange rules, exactly like a fresh install. The Rename and Delete buttons are greyed out while it is selected.
+Every character starts on a profile named **Default**. It is your editable home profile – created automatically, never deleted or renamed, otherwise a profile like any other. To get the factory settings back, use **Reset to defaults**; loading *Default* only brings back what you last had in it. The Rename and Delete buttons are greyed out while it is selected.
 
 #### Sharing Profiles (Export / Import)
 
 Profiles can be shared as portable strings, making it easy to copy a setup between characters or hand it to another player.
 
-- **Export**: Generates a copy-pasteable profile string for the selected profile in the *Profile String* field.
-- **Import**: Paste a profile string into the field and import it as a new profile. Imported strings are validated, so an invalid, corrupted, or non-GearMenu string is rejected without changing any of your settings.
+- **Export**: Generates a copy-pasteable profile string for the selected profile in the *Profile String* field. The active profile exports your settings as they are right now.
+- **Import**: Paste a profile string into the field and import it as a new profile, stored without switching to it. Imported strings are validated, so an invalid, corrupted, or non-GearMenu string is rejected without changing any of your settings.
 
 > Note: Profiles are stored per character. Use export/import to move a profile to another character.
 

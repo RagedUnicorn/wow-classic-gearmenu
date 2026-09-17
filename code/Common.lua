@@ -85,6 +85,37 @@ function me.Clone(obj)
 end
 
 --[[
+  Whether two values are deeply equal: tables are compared recursively over the
+  union of both key sets, anything else with a plain == (no epsilon - the one
+  comparison this serves, the profile adoption in Profile.EnsureActiveProfile,
+  holds two tables that went through the same SavedVariables writer). Pure.
+
+  @param {any} a
+  @param {any} b
+
+  @return {boolean}
+]]--
+function me.DeepEquals(a, b)
+  if type(a) ~= "table" or type(b) ~= "table" then
+    return a == b
+  end
+
+  for key, inner in pairs(a) do
+    if not me.DeepEquals(inner, b[key]) then
+      return false
+    end
+  end
+
+  for key in pairs(b) do
+    if a[key] == nil then
+      return false
+    end
+  end
+
+  return true
+end
+
+--[[
   @return {number}
     Returns the uiScale of the UIParent frame 0..1
 ]]--

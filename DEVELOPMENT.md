@@ -145,6 +145,117 @@ Before committing changes:
 3. Test the addon in-game with `/reload` to ensure functionality works correctly
 4. Verify the addon loads without errors
 
+## Profiles
+
+The configuration profiles (`code/Profile.lua`, `rggm.profile`; the page is
+`gui/ProfileMenu.lua`) are the family feature every sibling addon carries, cloned from
+the Quartermaster reference implementation (family spec CMI-0006) - keep the shape below
+when touching it, so a reader can move between the repos.
+
+**Two data homes.** The live configuration is `GearMenuConfiguration`: what every
+setter writes and every reader reads. The profile store is
+`GearMenuConfiguration.profiles = { [name] = snapshot }`, one stored copy per profile. A
+profile captures the `PROFILE_FIELD_SPEC` fields - the general options, the item quality
+filter, `gearBars` (every bar with its slots, sizes, orientation, lock state, key-binding
+labels and position), `quickChangeRules`, `frames`, the TrinketMenu settings, `uiTheme`,
+the Season of Discovery rune option and the base-item fallback. Bookkeeping stays out of
+it: `addonVersion`, `firstTimeInitializationDone`, the store itself and `activeProfile`,
+the name of the profile the live configuration belongs to. `activeProfile` is written
+only by `EnsureActiveProfile`, `SwitchProfile`, `CreateProfile`, `DeleteProfile` and
+`RenameProfile`, and it is deliberately absent from `CONFIGURATION_DEFAULTS` - a
+backfilled `"Default"` would make the adoption below dead code.
+
+**The mirror rule.** Edits always belong to the active profile, but nothing hooks the
+setters. `SaveActiveProfile()` copies the live configuration into `store[activeProfile]`
+at five moments: before a switch, on `PLAYER_LOGOUT` (a gated bus registration in
+`Core`; the event fires on logout, `/reload` and disconnect before the SavedVariables are
+written, and not on a crash), on export, after a reset, and at the end of
+`EnsureActiveProfile()` at every login - the self-heal for a logout the mirror missed.
+Between those moments the live SavedVariable is the truth. A nil or dangling active
+name is repaired to Default before the mirror lands.
+
+**Adoption at login.** `Core.Initialize` runs `EnsureDefaultProfile()`, which seeds
+Default only when the store has none, and then `EnsureActiveProfile()`: a store that
+names a stored profile keeps it; the first login after the upgrade from the snapshot
+model (no `activeProfile` yet) or a name whose profile went activates the first
+non-Default profile whose stored copy deep-equals the live configuration
+(`Common.DeepEquals` - the player applied it and changed nothing since), else Default.
+Either way the login ends with the active profile equal to the live configuration.
+
+**Default and Reset to defaults.** Default is the editable home profile every character
+starts on: never deleted, renamed, imported over or created over
+(`profile_error_default_cannot_be_overwritten` reads "reserved name"), otherwise a
+profile like any other. The factory settings are not a profile any more -
+`ResetActiveProfile()` applies `BuildDefaultSnapshot()` (`GetDefaults()`, the userOwned
+collections empty) to the live configuration, runs
+`Configuration.FirstTimeInitialization()` so the starter "Default GearBar" (trinket 1 /
+trinket 2 / head) comes back like on a fresh install, and mirrors the result into the
+active profile.
+
+**Switch, delete, export.** `SwitchProfile(name)` mirrors, applies `store[name]` and
+makes it active. `DeleteProfile(name)` of the active profile applies Default and
+returns a second value `fellBack`, with no mirror before or after (it would resurrect
+the deleted profile). Every page path that applies a snapshot - Load, Reset to
+defaults, deleting the active profile - is wrapped in the key-binding dance:
+`keyBind.ClearGearBarKeyBindings(gearBarManager.GetGearBars())` before (the outgoing
+bars' WoW bindings would otherwise keep firing slots that no longer exist),
+`keyBind.ApplyGearBarKeyBindings()` after (the profile carries the binding labels, not
+WoW's binding cache), then `ReloadUI()` so every GearBar, the ChangeMenu and the
+TrinketMenu rebuild from the applied state (the post-reload logout mirror re-writes the
+`SetupConfiguration`-normalised copy - harmless). Export mirrors first and then exports
+the stored copy of the selected row, so the active row exports the live settings; an
+import is stored inactive. Accepted quirk: a stored profile from an older schema lacks
+the newer fields, `ApplySnapshot` keeps the live value for those and the first mirror
+persists it.
+
+**Adding a field to a profile.** One entry in `CONFIGURATION_DEFAULTS` in
+`code/Configuration.lua` (the backfill covers existing characters) and one line in
+`PROFILE_FIELD_SPEC` in `code/Profile.lua` with its Lua type (import validates it).
+Never `activeProfile`.
+
+**Page to module.** Every confirm answers Yes / No, every name prompt Accept / Cancel;
+the click guards print the refusal a greyed button already shows. "Key-binding dance"
+means `ClearGearBarKeyBindings` before the module call and `ApplyGearBarKeyBindings`
+after it, right before the `ReloadUI()`.
+
+| Button / popup | Module call | Greyed while | Reloads |
+|---|---|---|---|
+| Create new Profile (`RGGM_PROFILE_CREATE`, name prompt) | `CreateProfile(name)` - mirror, copy, activate | never | no |
+| Load (`RGGM_PROFILE_LOAD`) | `SwitchProfile(name)`, key-binding dance around it | nothing selected, the active row | yes |
+| Rename (`RGGM_PROFILE_RENAME`, name prompt) | `RenameProfile(old, new)` - the active name follows | nothing selected, Default | no |
+| Delete (`RGGM_PROFILE_DELETE`, `RGGM_PROFILE_DELETE_ACTIVE` on the active row) | `DeleteProfile(name)` -> `deleted, fellBack`, key-binding dance on the active row | nothing selected, Default | only when `fellBack` |
+| Reset to defaults (`RGGM_PROFILE_RESET`) | `ResetActiveProfile()`, key-binding dance around it | never | yes |
+| Export | `SaveActiveProfile()`, then `ExportString(GetProfile(name), name)` | nothing selected | no |
+| Import (`RGGM_PROFILE_IMPORT`, name prompt prefilled from the string) | `ImportString(text)`, then `SaveProfile(name, payload)` - stored inactive | never | no |
+| Key-binding dance (every reload above) | `keyBind.ClearGearBarKeyBindings(gearBarManager.GetGearBars())` before, `keyBind.ApplyGearBarKeyBindings()` after | - | precedes `ReloadUI()` |
+
+**Profile data flow**
+
+```mermaid
+flowchart LR
+  live[("GearMenuConfiguration<br/>the live configuration")]
+  store[("GearMenuConfiguration.profiles<br/>the profile store")]
+  defaults["GetDefaults() +<br/>FirstTimeInitialization()"]
+  live -- "SaveActiveProfile()<br/>before a switch, on PLAYER_LOGOUT,<br/>on export, after a reset, at login" --> store
+  store -- "ApplySnapshot(store[name])<br/>SwitchProfile, delete-active fallback" --> live
+  defaults -- "ResetActiveProfile()<br/>ApplySnapshot(BuildDefaultSnapshot())<br/>+ the starter GearBar" --> live
+```
+
+**Adoption at login**
+
+```mermaid
+flowchart TD
+  start(["EnsureActiveProfile()<br/>right after EnsureDefaultProfile()"]) --> named{"activeProfile names<br/>a stored profile?"}
+  named -- yes --> mirror["SaveActiveProfile()"]
+  named -- no --> walk["walk ListProfiles()"]
+  walk --> match{"first non-Default profile<br/>deep-equal to BuildSnapshot()?"}
+  match -- found --> adopt["activeProfile = that profile"]
+  match -- none --> fallback["activeProfile = Default"]
+  adopt --> mirror
+  fallback --> mirror
+  mirror --> done(["the active profile equals<br/>the live configuration"])
+```
+
 ## Dependency Management
 
 This repository uses [Renovate](https://renovatebot.com/) for automated dependency updates. Renovate monitors and updates:

@@ -317,18 +317,21 @@ RGGM_CONSTANTS = {
   ]]--
   PROFILE_NAME_MAX_LENGTH = 30,
   --[[
-    Name of the reserved profile that is seeded on every login and can neither be
-    deleted, renamed nor overwritten. Deliberately not localized - it is a saved variable
-    key that also travels inside export strings, so it has to read the same everywhere
+    Name of the editable home profile every character starts on. Seeded from the factory
+    defaults only when the store has none, then written by the mirror alone; it can neither
+    be deleted nor renamed, and no other profile can be created, renamed or imported onto
+    its name. Deliberately not localized - it is a saved variable key that also travels
+    inside export strings, so it has to read the same everywhere
   ]]--
   DEFAULT_PROFILE_NAME = "Default",
   ELEMENT_PROFILE_TITLE = "$parentTitle",
   ELEMENT_PROFILE_LIST_SCROLL_FRAME = "GM_ProfileListScrollFrame",
   ELEMENT_PROFILE_LIST_ROW = "GM_ProfileListRow", -- suffixed with the row index
-  ELEMENT_PROFILE_SAVE_BUTTON = "GM_ProfileSaveButton",
-  ELEMENT_PROFILE_APPLY_BUTTON = "GM_ProfileApplyButton",
+  ELEMENT_PROFILE_CREATE_BUTTON = "GM_ProfileCreateButton",
+  ELEMENT_PROFILE_LOAD_BUTTON = "GM_ProfileLoadButton",
   ELEMENT_PROFILE_RENAME_BUTTON = "GM_ProfileRenameButton",
   ELEMENT_PROFILE_DELETE_BUTTON = "GM_ProfileDeleteButton",
+  ELEMENT_PROFILE_RESET_BUTTON = "GM_ProfileResetButton",
   ELEMENT_PROFILE_EXPORT_BUTTON = "GM_ProfileExportButton",
   ELEMENT_PROFILE_IMPORT_BUTTON = "GM_ProfileImportButton",
   ELEMENT_PROFILE_STRING_SCROLL_FRAME = "GM_ProfileStringScrollFrame",

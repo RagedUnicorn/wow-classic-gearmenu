@@ -318,7 +318,7 @@ RGGM_SHOTS = {
     hideFrames = { "GM_GearBarFrame_1", "GM_GearBarFrame_2", "GM_TrinketMenuFrame" },
     hideChrome = true,
     padding = 0,
-    shows = "Profiles panel with the named-profile list (immutable Default entry), management buttons and the export/import string box"
+    shows = "Profiles panel with the named-profile list (the gold (active) row, Default pinned first), management buttons and the export/import string box"
   },
   {
     name = "gm_switch_items_still",

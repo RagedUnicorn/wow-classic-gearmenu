@@ -157,15 +157,15 @@ One file per test case under [test/manual/](manual/). Case IDs follow `TC-<AREA>
 
 ### Profiles
 
-| ID                                                       | Case                                  |
-|----------------------------------------------------------|---------------------------------------|
-| [TC-PR-01](manual/TC-PR-01-save-profile.md)              | Save current configuration as profile |
-| [TC-PR-02](manual/TC-PR-02-apply-profile.md)             | Apply profile restores configuration  |
-| [TC-PR-03](manual/TC-PR-03-rename-and-delete-profile.md) | Rename and delete a profile           |
-| [TC-PR-04](manual/TC-PR-04-export-profile-string.md)     | Export produces profile string        |
-| [TC-PR-05](manual/TC-PR-05-import-round-trip.md)         | Import round-trip                     |
-| [TC-PR-06](manual/TC-PR-06-corrupted-import-rejected.md) | Corrupted import string rejected      |
-| [TC-PR-07](manual/TC-PR-07-default-profile.md)           | Default profile seeded and immutable  |
+| ID                                                       | Case                                            |
+|----------------------------------------------------------|-------------------------------------------------|
+| [TC-PR-01](manual/TC-PR-01-create-profile.md)            | Create a profile from the current settings      |
+| [TC-PR-02](manual/TC-PR-02-switch-profile.md)            | Switch profiles without losing edits            |
+| [TC-PR-03](manual/TC-PR-03-rename-and-delete-profile.md) | Rename and delete a profile, the active one too |
+| [TC-PR-04](manual/TC-PR-04-export-profile-string.md)     | Export produces profile string                  |
+| [TC-PR-05](manual/TC-PR-05-import-round-trip.md)         | Import round-trip                               |
+| [TC-PR-06](manual/TC-PR-06-corrupted-import-rejected.md) | Corrupted import string rejected                |
+| [TC-PR-07](manual/TC-PR-07-default-profile.md)           | Default profile editable, Reset to defaults     |
 
 ### Macros / public API
 

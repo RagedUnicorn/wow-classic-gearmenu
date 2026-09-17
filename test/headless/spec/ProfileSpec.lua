@@ -23,9 +23,9 @@
 ]]--
 
 --[[
-  Tests for the GearMenu profile envelope, export/import and named-profile store
-  (code/Profile.lua). GearMenuConfiguration and the no-op rggm.configuration stub
-  are provided by test/headless/Bootstrap.lua.
+  Tests for the GearMenu profile envelope, export/import, the named-profile store and
+  the live active profile (code/Profile.lua). GearMenuConfiguration and the no-op
+  rggm.configuration stub are provided by test/headless/Bootstrap.lua.
 ]]--
 
 -- busted extends `assert` with .same / .equal / etc. at runtime; luacheck cannot verify those
@@ -65,19 +65,44 @@ local function captureGetDefaults()
   return getDefaults
 end
 
+--[[
+  The starter GearBar the real FirstTimeInitialization creates on a fresh install, reduced
+  to a recognizable fixture: ResetActiveProfile has to run it between applying the factory
+  defaults and mirroring, so the reset ends with this bar in both the live configuration
+  and the active profile.
+]]--
+local STARTER_GEAR_BAR = { id = 100001, displayName = "Default GearBar", slots = { 13, 14, 1 } }
+
 describe("Profile", function()
   local profile = rggm.profile
   local getDefaults = captureGetDefaults()
+  local defaultName = RGGM_CONSTANTS.DEFAULT_PROFILE_NAME
   local previousConfiguration
+  local previousLogger
 
   before_each(function()
+    -- EnsureActiveProfile logs the adoption; the real logger reaches the chat frame and the
+    -- filter module, neither of which the bootstrap loads, so a silent stub stands in
+    previousLogger = rggm.logger
+    rggm.logger = { LogInfo = function() end, LogDebug = function() end, LogWarn = function() end }
+
     -- ApplySnapshot backfills via mod.configuration.SetupConfiguration; other specs dofile the real
-    -- configuration module into the shared rggm namespace, so pin a no-op stub for these tests.
+    -- configuration module into the shared rggm namespace, so pin a stub for these tests. The
+    -- stubbed FirstTimeInitialization seeds the starter GearBar like the real one does.
     previousConfiguration = rggm.configuration
-    rggm.configuration = { SetupConfiguration = function() end, GetDefaults = getDefaults }
+    rggm.configuration = {
+      SetupConfiguration = function() end,
+      GetDefaults = getDefaults,
+      FirstTimeInitialization = function()
+        GearMenuConfiguration.gearBars[#GearMenuConfiguration.gearBars + 1] = rggm.common.Clone(STARTER_GEAR_BAR)
+        GearMenuConfiguration.firstTimeInitializationDone = true
+      end
+    }
 
     GearMenuConfiguration.profiles = {}
+    GearMenuConfiguration.activeProfile = nil
     GearMenuConfiguration.enableTooltips = true
+    GearMenuConfiguration.enableFastPress = false
     GearMenuConfiguration.filterItemQuality = 2
     GearMenuConfiguration.uiTheme = 2
     GearMenuConfiguration.gearBars = {}
@@ -87,6 +112,7 @@ describe("Profile", function()
 
   after_each(function()
     rggm.configuration = previousConfiguration
+    rggm.logger = previousLogger
   end)
 
   it("exports and imports a snapshot round-trip", function()
@@ -236,6 +262,17 @@ describe("Profile", function()
     assert.are.same({ "gamma" }, profile.ListProfiles())
   end)
 
+  it("never carries the active profile name inside a profile", function()
+    GearMenuConfiguration.activeProfile = "Raid"
+
+    assert.is_nil(profile.BuildSnapshot().activeProfile)
+    assert.is_nil(profile.BuildDefaultSnapshot().activeProfile)
+
+    for _, field in ipairs(profile.PROFILE_FIELDS) do
+      assert.are_not.equal("activeProfile", field)
+    end
+  end)
+
   describe("name length", function()
     local maxLength = RGGM_CONSTANTS.PROFILE_NAME_MAX_LENGTH
 
@@ -260,8 +297,6 @@ describe("Profile", function()
   end)
 
   describe("default profile", function()
-    local defaultName = RGGM_CONSTANTS.DEFAULT_PROFILE_NAME
-
     it("seeds the default profile when the store does not hold one yet", function()
       assert.are.same({}, profile.ListProfiles())
 
@@ -286,7 +321,7 @@ describe("Profile", function()
       assert.is_true(payload.enableTooltips)
       assert.are.equal(2, payload.filterItemQuality)
       assert.are.equal(RGGM_CONSTANTS.UI_THEME_CUSTOM, payload.uiTheme)
-      -- the userOwned collections default to empty: applying the default is a fresh-install state
+      -- the userOwned collections default to empty; the starter GearBar is added by the reset
       assert.are.same({}, payload.gearBars)
       assert.are.same({}, payload.quickChangeRules)
       assert.are.same({}, payload.frames)
@@ -310,21 +345,50 @@ describe("Profile", function()
       assert.are.same({}, getDefaults().frames)
     end)
 
-    it("re-seeds a stale default so newer profile fields are covered again", function()
-      -- a default frozen at an older shape (seeded before newer PROFILE_FIELDS
-      -- members existed) breaks "reset to factory settings": ApplySnapshot
-      -- skips fields the payload lacks, so the newer fields kept the player's
-      -- values. EnsureDefaultProfile therefore overwrites on every call.
+    it("leaves an existing Default alone and seeds it only when absent", function()
+      -- Default is the editable home profile: its stored copy holds the player's own
+      -- settings, so a login must never overwrite it with the factory defaults
       GearMenuConfiguration.profiles = {
         [defaultName] = {
           enableTooltips = false,
-          gearBars = {}
+          gearBars = { { id = 100001, slots = {} } }
         }
       }
 
       profile.EnsureDefaultProfile()
 
+      assert.are.same(
+        { enableTooltips = false, gearBars = { { id = 100001, slots = {} } } },
+        profile.GetProfile(defaultName)
+      )
+
+      GearMenuConfiguration.profiles = {}
+      profile.EnsureDefaultProfile()
+
       assert.are.same(profile.BuildDefaultSnapshot(), profile.GetProfile(defaultName))
+    end)
+
+    it("is an editable home profile: loading it resets nothing, ResetActiveProfile does", function()
+      profile.EnsureDefaultProfile()
+      profile.EnsureActiveProfile()
+      GearMenuConfiguration.enableFastPress = true
+      GearMenuConfiguration.filterItemQuality = 5
+      GearMenuConfiguration.gearBars = { { id = 200001, slots = {} }, { id = 200002, slots = {} } }
+      GearMenuConfiguration.quickChangeRules = { { from = 1, to = 2 } }
+
+      -- the edits belong to the active Default, so there is nothing to load
+      assert.is_false(profile.SwitchProfile(defaultName))
+      assert.is_true(GearMenuConfiguration.enableFastPress)
+      assert.are.equal(2, #GearMenuConfiguration.gearBars)
+
+      profile.ResetActiveProfile()
+
+      assert.is_false(GearMenuConfiguration.enableFastPress)
+      assert.are.equal(2, GearMenuConfiguration.filterItemQuality)
+      assert.are.same({}, GearMenuConfiguration.quickChangeRules)
+      -- the factory defaults plus the starter GearBar: the fresh-install state
+      assert.are.same({ STARTER_GEAR_BAR }, GearMenuConfiguration.gearBars)
+      assert.are.same(profile.BuildSnapshot(), profile.GetProfile(defaultName))
     end)
 
     it("refuses to delete the default profile", function()
@@ -372,6 +436,239 @@ describe("Profile", function()
       assert.is_true(profile.IsDefaultProfile(defaultName))
       assert.is_false(profile.IsDefaultProfile("default"))
       assert.is_false(profile.IsDefaultProfile(nil))
+    end)
+  end)
+
+  describe("active profile", function()
+    it("has none until one is adopted, and the defaults never name one", function()
+      assert.is_nil(profile.GetActiveProfileName())
+      assert.is_nil(getDefaults().activeProfile)
+
+      profile.EnsureDefaultProfile()
+      assert.is_nil(profile.GetActiveProfileName())
+
+      profile.EnsureActiveProfile()
+
+      assert.are.equal(defaultName, profile.GetActiveProfileName())
+      assert.are.same(profile.BuildSnapshot(), profile.GetProfile(defaultName))
+    end)
+
+    it("mirrors the live configuration into the active profile, a missing or dangling name repaired to Default",
+      function()
+      profile.EnsureDefaultProfile()
+      GearMenuConfiguration.enableTooltips = false
+
+      -- no active name yet: the mirror lands in Default
+      assert.are.equal(defaultName, profile.SaveActiveProfile())
+      assert.are.equal(defaultName, profile.GetActiveProfileName())
+      assert.is_false(profile.GetProfile(defaultName).enableTooltips)
+
+      profile.SaveProfile("Raid", profile.BuildSnapshot())
+      GearMenuConfiguration.activeProfile = "Raid"
+      GearMenuConfiguration.enableFastPress = true
+
+      assert.are.equal("Raid", profile.SaveActiveProfile())
+      assert.is_true(profile.GetProfile("Raid").enableFastPress)
+      assert.is_false(profile.GetProfile(defaultName).enableFastPress)
+
+      -- the mirrored copy is its own table
+      GearMenuConfiguration.gearBars[1] = { id = 100001, slots = {} }
+      assert.are.same({}, profile.GetProfile("Raid").gearBars)
+
+      -- a name whose profile went is repaired to Default
+      GearMenuConfiguration.activeProfile = "Gone"
+      assert.are.equal(defaultName, profile.SaveActiveProfile())
+      assert.are.equal(defaultName, profile.GetActiveProfileName())
+      assert.is_true(profile.GetProfile(defaultName).enableFastPress)
+    end)
+
+    it("adopts the profile the player applied and left untouched on a store without an active name", function()
+      -- the upgrade from the snapshot model: the player applied Raid before the update and
+      -- changed nothing since, so the live configuration still equals its stored copy
+      profile.EnsureDefaultProfile()
+      GearMenuConfiguration.enableFastPress = true
+      GearMenuConfiguration.gearBars = { { id = 100001, slots = { 13, 14 } } }
+      profile.SaveProfile("Raid", profile.BuildSnapshot())
+      profile.SaveProfile("PvP", profile.BuildSnapshot())
+      -- PvP drifted from the live configuration by one field
+      profile.GetProfile("PvP").enableTooltips = false
+
+      profile.EnsureActiveProfile()
+
+      assert.are.equal("Raid", profile.GetActiveProfileName())
+      assert.are.same(profile.BuildSnapshot(), profile.GetProfile("Raid"))
+      assert.is_true(profile.GetProfile(defaultName).enableTooltips)
+      assert.is_false(profile.GetProfile(defaultName).enableFastPress)
+    end)
+
+    it("falls back to Default when no stored profile equals the live configuration, on a dangling name too", function()
+      profile.EnsureDefaultProfile()
+      profile.SaveProfile("Raid", profile.BuildSnapshot())
+      -- edited after the apply: the drift makes Raid no match
+      GearMenuConfiguration.enableFastPress = true
+
+      profile.EnsureActiveProfile()
+
+      assert.are.equal(defaultName, profile.GetActiveProfileName())
+      assert.is_true(profile.GetProfile(defaultName).enableFastPress)
+      assert.is_false(profile.GetProfile("Raid").enableFastPress)
+
+      -- a name whose profile went: the same rule, and here the live configuration equals Raid again
+      GearMenuConfiguration.activeProfile = "Gone"
+      GearMenuConfiguration.enableFastPress = false
+
+      profile.EnsureActiveProfile()
+
+      assert.are.equal("Raid", profile.GetActiveProfileName())
+    end)
+
+    it("keeps an active profile that exists and mirrors the live configuration into it at every login", function()
+      profile.EnsureDefaultProfile()
+      profile.SaveProfile("Raid", profile.BuildSnapshot())
+      GearMenuConfiguration.activeProfile = "Raid"
+      -- an edit no logout mirrored (a crash)
+      GearMenuConfiguration.enableTooltips = false
+
+      profile.EnsureActiveProfile()
+
+      assert.are.equal("Raid", profile.GetActiveProfileName())
+      assert.is_false(profile.GetProfile("Raid").enableTooltips)
+      assert.is_true(profile.GetProfile(defaultName).enableTooltips)
+    end)
+
+    it("switches by mirroring the active profile first, then applying and activating the target", function()
+      profile.EnsureDefaultProfile()
+      profile.EnsureActiveProfile()
+      profile.SaveProfile("Raid", profile.BuildSnapshot())
+      profile.GetProfile("Raid").enableFastPress = true
+      profile.GetProfile("Raid").gearBars = { { id = 100001, slots = { 13 } } }
+      -- an edit that belongs to the active Default
+      GearMenuConfiguration.enableTooltips = false
+
+      assert.is_true(profile.SwitchProfile("Raid"))
+
+      assert.are.equal("Raid", profile.GetActiveProfileName())
+      assert.is_true(GearMenuConfiguration.enableFastPress)
+      assert.are.same({ { id = 100001, slots = { 13 } } }, GearMenuConfiguration.gearBars)
+      assert.is_true(GearMenuConfiguration.enableTooltips)
+      assert.is_false(profile.GetProfile(defaultName).enableTooltips)
+
+      -- the active profile and an unknown name are no switch, and nothing is mirrored either
+      GearMenuConfiguration.filterItemQuality = 5
+      assert.is_false(profile.SwitchProfile("Raid"))
+      assert.is_false(profile.SwitchProfile("Gone"))
+      assert.are.equal("Raid", profile.GetActiveProfileName())
+      assert.are.equal(5, GearMenuConfiguration.filterItemQuality)
+      assert.are.equal(2, profile.GetProfile("Raid").filterItemQuality)
+    end)
+
+    it("creates a profile as a copy of the current settings and activates it, the live configuration untouched",
+      function()
+      profile.EnsureDefaultProfile()
+      profile.EnsureActiveProfile()
+      GearMenuConfiguration.enableFastPress = true
+      GearMenuConfiguration.gearBars = { { id = 100001, slots = { 13 } } }
+
+      assert.is_true(profile.CreateProfile("Raid"))
+
+      assert.are.equal("Raid", profile.GetActiveProfileName())
+      assert.are.same(profile.BuildSnapshot(), profile.GetProfile("Raid"))
+      assert.is_true(profile.GetProfile("Raid").enableFastPress)
+      assert.are.equal(1, #GearMenuConfiguration.gearBars)
+      -- Default was mirrored before the copy, so both hold the same settings in separate tables
+      assert.are.same(profile.GetProfile("Raid"), profile.GetProfile(defaultName))
+      profile.GetProfile("Raid").gearBars[1].slots[1] = 1
+      assert.are.equal(13, profile.GetProfile(defaultName).gearBars[1].slots[1])
+      assert.are.equal(13, GearMenuConfiguration.gearBars[1].slots[1])
+
+      assert.is_false(profile.CreateProfile("Raid"))
+      assert.is_false(profile.CreateProfile(defaultName))
+      assert.is_false(profile.CreateProfile(""))
+      assert.is_false(profile.CreateProfile(nil))
+      assert.are.same({ defaultName, "Raid" }, profile.ListProfiles())
+      assert.are.equal("Raid", profile.GetActiveProfileName())
+    end)
+
+    it("deleting the active profile falls back to Default and says so, deleting another does not", function()
+      profile.EnsureDefaultProfile()
+      profile.EnsureActiveProfile()
+      GearMenuConfiguration.enableFastPress = true
+      profile.CreateProfile("Raid")
+      profile.CreateProfile("PvP")
+      -- an edit of the active PvP
+      GearMenuConfiguration.enableTooltips = false
+
+      local deleted, fellBack = profile.DeleteProfile("Raid")
+
+      assert.is_true(deleted)
+      assert.is_false(fellBack)
+      assert.are.equal("PvP", profile.GetActiveProfileName())
+      assert.is_false(GearMenuConfiguration.enableTooltips)
+
+      deleted, fellBack = profile.DeleteProfile("PvP")
+
+      assert.is_true(deleted)
+      assert.is_true(fellBack)
+      assert.are.equal(defaultName, profile.GetActiveProfileName())
+      assert.is_nil(profile.GetProfile("PvP"))
+      -- Default's stored copy took over the live configuration, the edit went with PvP
+      assert.is_true(GearMenuConfiguration.enableFastPress)
+      assert.is_true(GearMenuConfiguration.enableTooltips)
+      assert.are.same(profile.GetProfile(defaultName), profile.BuildSnapshot())
+      assert.are.same({ defaultName }, profile.ListProfiles())
+
+      assert.is_false(profile.DeleteProfile(defaultName))
+      assert.are.equal(defaultName, profile.GetActiveProfileName())
+    end)
+
+    it("renaming the active profile moves the active name along", function()
+      profile.EnsureDefaultProfile()
+      profile.EnsureActiveProfile()
+      profile.CreateProfile("Raid")
+      profile.SaveProfile("PvP", profile.BuildSnapshot())
+
+      assert.is_true(profile.RenameProfile("PvP", "Arena"))
+      assert.are.equal("Raid", profile.GetActiveProfileName())
+
+      assert.is_true(profile.RenameProfile("Raid", "Raid Night"))
+      assert.are.equal("Raid Night", profile.GetActiveProfileName())
+      assert.are.equal("Raid Night", profile.SaveActiveProfile())
+      assert.are.same({ defaultName, "Arena", "Raid Night" }, profile.ListProfiles())
+    end)
+
+    it("resets the active profile to the factory state plus the starter GearBar and mirrors it", function()
+      profile.EnsureDefaultProfile()
+      profile.EnsureActiveProfile()
+      GearMenuConfiguration.enableTooltips = false
+      profile.CreateProfile("Raid")
+      GearMenuConfiguration.enableFastPress = true
+      GearMenuConfiguration.filterItemQuality = 5
+      GearMenuConfiguration.gearBars = { { id = 200001, slots = {} }, { id = 200002, slots = {} } }
+      GearMenuConfiguration.quickChangeRules = { { from = 1, to = 2 } }
+      GearMenuConfiguration.firstTimeInitializationDone = true
+
+      profile.ResetActiveProfile()
+
+      assert.are.equal("Raid", profile.GetActiveProfileName())
+      assert.is_false(GearMenuConfiguration.enableFastPress)
+      assert.is_true(GearMenuConfiguration.enableTooltips)
+      assert.are.equal(2, GearMenuConfiguration.filterItemQuality)
+      assert.are.same({}, GearMenuConfiguration.quickChangeRules)
+      -- the starter GearBar is back like on a fresh install, and it went into the mirror
+      assert.are.same({ STARTER_GEAR_BAR }, GearMenuConfiguration.gearBars)
+      assert.are.same(profile.BuildSnapshot(), profile.GetProfile("Raid"))
+      assert.are.same({ STARTER_GEAR_BAR }, profile.GetProfile("Raid").gearBars)
+      -- the other profiles are untouched
+      assert.is_false(profile.GetProfile(defaultName).enableTooltips)
+    end)
+
+    it("lists Default first and the rest sorted", function()
+      profile.EnsureDefaultProfile()
+      profile.SaveProfile("Zulu", profile.BuildSnapshot())
+      profile.SaveProfile("Alpha", profile.BuildSnapshot())
+      profile.SaveProfile("alts", profile.BuildSnapshot())
+
+      assert.are.same({ defaultName, "Alpha", "Zulu", "alts" }, profile.ListProfiles())
     end)
   end)
 

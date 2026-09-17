@@ -32,6 +32,7 @@ me.tag = "Core"
 
 -- Forward declarations
 local OnPlayerEnteringWorld
+local OnPlayerLogout
 local OnBagUpdate
 local OnItemLockChanged
 local OnPlayerEquipmentChanged
@@ -73,6 +74,16 @@ OnPlayerEnteringWorld = function(isInitialLogin, isReloadingUi)
   end
 
   me.comm.BroadcastVersion()
+end
+
+--[[
+  The player is logging out, reloading the UI or got disconnected; the client writes
+  the SavedVariables right after this. Mirror the live configuration into the active
+  profile so its stored copy is what the player last saw (a crash skips this the way
+  it skips the write - the login adoption mirrors again).
+]]--
+OnPlayerLogout = function()
+  me.profile.SaveActiveProfile()
 end
 
 --[[
@@ -201,6 +212,8 @@ end
 function me.OnLoad(self)
   -- Fired when the player logs in, /reloads the UI, or zones between map instances
   me.event.Register("PLAYER_ENTERING_WORLD", OnPlayerEnteringWorld)
+  -- Fires before the SavedVariables are written on logout, /reload and disconnect
+  me.event.Register("PLAYER_LOGOUT", OnPlayerLogout, { gated = true })
   -- Fires when a bags inventory changes
   me.event.Register("BAG_UPDATE", OnBagUpdate, { gated = true })
   -- Fires when an item gets locked or unlocked while items are moved around
@@ -283,9 +296,10 @@ Initialize = function()
   me.cmd.SetupSlashCmdList()
   -- load addon variables
   me.configuration.SetupConfiguration()
-  -- re-seed the undeletable default profile to the running version's factory defaults
-  -- (needs the defaults applied above)
+  -- seed the undeletable Default profile when the store has none (needs the defaults
+  -- applied above), then adopt the active profile and mirror the live configuration into it
   me.profile.EnsureDefaultProfile()
+  me.profile.EnsureActiveProfile()
   -- setup addon configuration ui
   me.addonConfiguration.SetupAddonConfiguration()
   -- sync up theme (needs to be happening before accessing ui elements)
