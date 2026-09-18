@@ -441,11 +441,27 @@ end
 --[[
   OnValueChanged callback for the gearSlot size slider
 
+  Resizing the gearSlots resizes and re-anchors buttons that inherit from the SecureActionButtonTemplate,
+  which is blocked in combat. Block the change and snap the slider back to the stored size instead of
+  letting the stored state drift away from what is actually displayed. Snapping back fires this callback
+  once more with the stored size - that re-entry is a no-op.
+
   @param {table} self
   @param {number} value
 ]]--
 function me.GearSlotSizeSliderOnValueChanged(self, value)
   local gearBarId = self:GetParent().gearBarId
+
+  if InCombatLockdown() then
+    local storedValue = mod.gearBarManager.GetGearSlotSize(gearBarId)
+
+    if value == storedValue then return end
+
+    mod.logger.PrintUserError(rggm.L["gear_slot_size_combat"])
+    self:SetValue(storedValue)
+
+    return
+  end
 
   mod.gearBarManager.SetGearSlotSize(gearBarId, value)
 end
