@@ -24,11 +24,11 @@
 
 --[[
   Spec for the combat guards of the gearBar configuration submenu in
-  gui/GearBarConfigurationSubMenu.lua (me.GearSlotSizeSliderOnValueChanged).
+  gui/GearBarConfigurationSubMenu.lua (me.GearSlotSizeSliderOnValueChanged, me.OrientationRadioOnSelect).
 
-  Resizing the gearSlots resizes and re-anchors buttons that inherit from the SecureActionButtonTemplate,
-  which is blocked in combat. The guard refuses the change during combat lockdown, tells the user and
-  keeps the displayed control in sync with the stored (unchanged) state.
+  Both options resize and re-anchor gearSlots that inherit from the SecureActionButtonTemplate, which
+  is blocked in combat. The guards refuse the change during combat lockdown, tell the user and keep
+  the displayed control in sync with the stored (unchanged) state.
 
   gui/GearBarConfigurationSubMenu.lua only indexes rggm.L at load time, so it can be dofile'd with an
   empty localization table and the collaborator modules (gearBarManager, logger) replaced by
@@ -82,8 +82,10 @@ describe("GearBarConfigurationSubMenu combat guards", function()
 
   before_each(function()
     calls = {
-      slotSizes = {}, -- gearBarManager.SetGearSlotSize(gearBarId, value)
-      userErrors = 0  -- logger.PrintUserError(msg)
+      slotSizes = {},     -- gearBarManager.SetGearSlotSize(gearBarId, value)
+      orientations = {},  -- gearBarManager.SetGearBarOrientation(gearBarId, value)
+      refreshes = 0,      -- subMenu.RefreshChangeMenuDirectionDropdown(contentFrame)
+      userErrors = 0      -- logger.PrintUserError(msg)
     }
 
     -- snapshot everything the load / functions touch so nothing leaks across specs
@@ -102,6 +104,9 @@ describe("GearBarConfigurationSubMenu combat guards", function()
       end,
       SetGearSlotSize = function(gearBarId, value)
         calls.slotSizes[#calls.slotSizes + 1] = { gearBarId = gearBarId, value = value }
+      end,
+      SetGearBarOrientation = function(gearBarId, value)
+        calls.orientations[#calls.orientations + 1] = { gearBarId = gearBarId, value = value }
       end
     }
 
@@ -119,6 +124,10 @@ describe("GearBarConfigurationSubMenu combat guards", function()
 
     dofile("gui/GearBarConfigurationSubMenu.lua")
     subMenu = rggm.gearBarConfigurationSubMenu
+    -- the ui is never built headlessly - record the refresh instead of touching the dropdown
+    subMenu.RefreshChangeMenuDirectionDropdown = function()
+      calls.refreshes = calls.refreshes + 1
+    end
   end)
 
   after_each(function()
@@ -169,6 +178,53 @@ describe("GearBarConfigurationSubMenu combat guards", function()
       assert.are.equal(0, calls.userErrors)
 
       restoreCombat()
+    end)
+  end)
+
+  describe("OrientationRadioOnSelect", function()
+    it("stores the new orientation and refreshes the change menu direction dropdown out of combat", function()
+      local contentFrame = {}
+
+      subMenu.OrientationRadioOnSelect(GEAR_BAR_ID, RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL, contentFrame)
+
+      assert.are.same({
+        { gearBarId = GEAR_BAR_ID, value = RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL }
+      }, calls.orientations)
+      assert.are.equal(1, calls.refreshes)
+      assert.are.equal(0, calls.userErrors)
+    end)
+
+    it("refuses the change during combat lockdown and tells the user", function()
+      local restoreCombat = wowStubs.install({
+        InCombatLockdown = wowStubs.stubs.InCombatLockdown(true)
+      })
+
+      subMenu.OrientationRadioOnSelect(GEAR_BAR_ID, RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL, {})
+
+      assert.are.equal(0, #calls.orientations)
+      assert.are.equal(0, calls.refreshes)
+      assert.are.equal(1, calls.userErrors)
+
+      restoreCombat()
+    end)
+
+    it("is wired to every orientation radio entry", function()
+      local radios = {}
+      local rootDescription = {
+        CreateRadio = function(_, text, isSelected, onSelect, value)
+          radios[#radios + 1] = { text = text, isSelected = isSelected, onSelect = onSelect, value = value }
+        end
+      }
+
+      subMenu.BuildOrientationRadios(rootDescription, GEAR_BAR_ID, {})
+      radios[2].onSelect(radios[2].value)
+
+      assert.are.equal(2, #radios)
+      assert.are.equal(RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_HORIZONTAL, radios[1].value)
+      assert.are.equal(RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL, radios[2].value)
+      assert.are.same({
+        { gearBarId = GEAR_BAR_ID, value = RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL }
+      }, calls.orientations)
     end)
   end)
 end)

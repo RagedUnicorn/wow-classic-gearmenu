@@ -140,6 +140,8 @@ rggm.L["change_slot_size_slider_title"] = "Changeslot size"
 rggm.L["change_slot_size_slider_tooltip"] = "Modify the size of the Changeslots"
 rggm.L["gearbar_orientation"] = "Orientation"
 rggm.L["gearbar_orientation_tooltip"] = "Choose whether this GearBar lays out its slots horizontally or vertically"
+rggm.L["gearbar_orientation_combat"] =
+  "Unable to change the orientation of a GearBar while in combat. Please try again after combat"
 rggm.L["orientation_horizontal"] = "Horizontal"
 rggm.L["orientation_vertical"] = "Vertical"
 rggm.L["change_menu_direction"] = "Change menu direction"

@@ -136,6 +136,7 @@ if (GetLocale() == "zhCN") then
   rggm.L["change_slot_size_slider_tooltip"] = "修改备选齿槽的大小"
   rggm.L["gearbar_orientation"] = "方向"
   rggm.L["gearbar_orientation_tooltip"] = "选择此装备条以水平还是垂直方式排列其槽位"
+  rggm.L["gearbar_orientation_combat"] = "战斗中无法更改装备条的方向。请在战斗结束后重试"
   rggm.L["orientation_horizontal"] = "水平"
   rggm.L["orientation_vertical"] = "垂直"
   rggm.L["change_menu_direction"] = "切换菜单方向"

@@ -152,6 +152,9 @@ if (GetLocale() == "deDE") then
   rggm.L["gearbar_orientation"] = "Ausrichtung"
   rggm.L["gearbar_orientation_tooltip"] =
     "Wähle, ob dieser Ausrüstungsbalken seine Slots horizontal oder vertikal anordnet"
+  rggm.L["gearbar_orientation_combat"] =
+    "Die Ausrichtung eines Ausrüstungsbalken kann im Kampf nicht geändert werden. "
+    .. "Bitte versuche es nach dem Kampf erneut"
   rggm.L["orientation_horizontal"] = "Horizontal"
   rggm.L["orientation_vertical"] = "Vertikal"
   rggm.L["change_menu_direction"] = "Wechselmenü-Richtung"

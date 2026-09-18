@@ -147,6 +147,8 @@ if (GetLocale() == "ruRU") then
   rggm.L["gearbar_orientation"] = "Ориентация"
   rggm.L["gearbar_orientation_tooltip"] =
     "Выберите, как панель экипировки располагает слоты — горизонтально или вертикально"
+  rggm.L["gearbar_orientation_combat"] =
+    "Невозможно изменить ориентацию панели экипировки в бою. Пожалуйста, попробуйте после боя"
   rggm.L["orientation_horizontal"] = "Горизонтально"
   rggm.L["orientation_vertical"] = "Вертикально"
   rggm.L["change_menu_direction"] = "Направление меню смены"

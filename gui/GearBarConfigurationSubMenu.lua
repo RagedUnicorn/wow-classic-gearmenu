@@ -551,14 +551,38 @@ function me.BuildOrientationRadios(rootDescription, gearBarId, contentFrame)
       orientation.text,
       function(value) return mod.gearBarManager.GetGearBarOrientation(gearBarId) == value end,
       function(value)
-        mod.gearBarManager.SetGearBarOrientation(gearBarId, value)
-        -- the available change menu directions depend on the orientation - refresh that dropdown so it
-        -- shows the correct entries and the (possibly normalized) selected direction
-        me.RefreshChangeMenuDirectionDropdown(contentFrame)
+        me.OrientationRadioOnSelect(gearBarId, value, contentFrame)
       end,
       orientation.value
     )
   end
+end
+
+--[[
+  Select callback for an orientation radio entry
+
+  Changing the orientation re-anchors and resizes gearSlots that inherit from the SecureActionButtonTemplate,
+  which is blocked in combat. Block the change so the stored orientation stays in sync with what is displayed -
+  the radio reads its selected state from the gearBarManager, so it simply keeps showing the stored value.
+
+  @param {number} gearBarId
+    The id of the gearBar the dropdown configures
+  @param {number} value
+    One of RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_HORIZONTAL or RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_VERTICAL
+  @param {table} contentFrame
+    The gearBar configuration content frame holding the dropdown references
+]]--
+function me.OrientationRadioOnSelect(gearBarId, value, contentFrame)
+  if InCombatLockdown() then
+    mod.logger.PrintUserError(rggm.L["gearbar_orientation_combat"])
+
+    return
+  end
+
+  mod.gearBarManager.SetGearBarOrientation(gearBarId, value)
+  -- the available change menu directions depend on the orientation - refresh that dropdown so it
+  -- shows the correct entries and the (possibly normalized) selected direction
+  me.RefreshChangeMenuDirectionDropdown(contentFrame)
 end
 
 --[[
