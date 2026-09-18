@@ -828,26 +828,60 @@ end
 --[[
   Frame callback to start moving the gearBar frame
 
+  The gearBarFrame is the anchor parent of its gearSlots, which inherit from the
+  SecureActionButtonTemplate. Moving a frame that protected frames are anchored to is itself a
+  protected operation and CANNOT be executed while in combat. Refuse the drag here so the
+  user gets a message instead of a blocked protected operation.
+
   @param {table} self
 ]]--
 function me.StartDragFrame(self)
   if mod.gearBarManager.IsGearBarLocked(self.id) then return end
 
+  if InCombatLockdown() then
+    mod.logger.PrintUserError(rggm.L["gear_bar_move_combat"])
+
+    return
+  end
+
+  self.isMoving = true
   self:StartMoving()
 end
 
 --[[
   Frame callback to stop moving the gearBar frame
 
+  Only a gearBar that was actually started moving is stopped. A drag that combat interrupted
+  stays pending (the frame keeps following the cursor) because stopping it is a protected
+  operation as well - it is finished by me.StopPendingDragFrames once combat ends.
+
   @param {table} self
 ]]--
 function me.StopDragFrame(self)
-  if mod.gearBarManager.IsGearBarLocked(self.id) then return end
+  if not self.isMoving then return end
 
+  if InCombatLockdown() then
+    mod.logger.PrintUserError(rggm.L["gear_bar_move_combat"])
+
+    return
+  end
+
+  self.isMoving = false
   self:StopMovingOrSizing()
 
   local point, relativeTo, relativePoint, posX, posY = self:GetPoint()
   mod.gearBarManager.UpdateGearBarPosition(self.id, point, relativeTo, relativePoint, posX, posY)
+end
+
+--[[
+  Finish every drag that was interrupted by combat. Invoked once the player leaves combat.
+]]--
+function me.StopPendingDragFrames()
+  for _, uiGearBar in pairs(mod.gearBarStorage.GetGearBars()) do
+    if uiGearBar.gearBarReference.isMoving then
+      me.StopDragFrame(uiGearBar.gearBarReference)
+    end
+  end
 end
 
 --[[

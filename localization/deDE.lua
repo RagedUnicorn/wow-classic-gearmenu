@@ -141,6 +141,8 @@ if (GetLocale() == "deDE") then
   rggm.L["show_gear_bar_combat"] =
     "Die Sichtbarkeit eines Ausrüstungsbalken kann im Kampf nicht geändert werden. "
     .. "Bitte versuche es nach dem Kampf erneut"
+  rggm.L["gear_bar_move_combat"] =
+    "Ein Ausrüstungsbalken kann im Kampf nicht bewegt werden. Bitte versuche es nach dem Kampf erneut"
   rggm.L["gear_slot_size_slider_title"] = "Ausrüstungsslot Grösse"
   rggm.L["gear_slot_size_slider_tooltip"] = "Verändere die Grösse der Ausrüstungsslots"
   rggm.L["change_slot_size_slider_title"] = "Wechselslots Grösse"

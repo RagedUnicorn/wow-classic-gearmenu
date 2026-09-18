@@ -185,6 +185,8 @@ end
   Player is alive again or left combat - work through all combat queues.
 ]]--
 OnPlayerAliveOrLeftCombat = function()
+  me.gearBar.StopPendingDragFrames()
+
   if not me.common.IsPlayerReallyDead() then
     me.ticker.StartTickerCombatQueue()
   end
