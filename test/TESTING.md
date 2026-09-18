@@ -87,6 +87,7 @@ One file per test case under [test/manual/](manual/). Case IDs follow `TC-<AREA>
 | [TC-GB-07](manual/TC-GB-07-orientation.md)            | Orientation and ChangeMenu direction  |
 | [TC-GB-08](manual/TC-GB-08-cooldown-visibility.md)    | Cooldown show/hide per bar            |
 | [TC-GB-09](manual/TC-GB-09-keybinding-visibility.md)  | Keybinding show/hide per bar          |
+| [TC-GB-10](manual/TC-GB-10-click-empty-gearslot.md)   | Click an empty gearslot               |
 
 ### ChangeMenu & swapping
 

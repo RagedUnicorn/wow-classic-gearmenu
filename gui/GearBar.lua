@@ -180,7 +180,7 @@ end
 
 --[[
   Shared gearSlot construction used by both themes. Creates the secure button, sizes and
-  anchors it, applies the secure item attributes and wires up the child widgets common to
+  anchors it, applies the secure macro attributes and wires up the child widgets common to
   every theme. Theme-specific styling (textures/backdrop, highlightFrame, cooldownOverlay)
   is layered on top by the calling theme. Because of SetAttribute this CANNOT run in combat;
   the me.CreateGearSlot dispatcher already guards against that.
@@ -211,8 +211,15 @@ function me.CreateGearSlotBase(gearBarFrame, gearBar, position, template)
   local gearSlotMetaData = gearBar.slots[position]
 
   if gearSlotMetaData ~= nil then
-    gearSlot:SetAttribute("type1", "item")
-    gearSlot:SetAttribute("item", gearSlotMetaData.slotId)
+    --[[
+      A "/use <slotId>" macro instead of the secure "item" action: the item action resolves a
+      slot number to the equipped item link and passes it to C_Item.IsEquippableItem, which
+      errors on an empty slot (nil argument). The use command goes straight to UseInventoryItem
+      and is a no-op on an empty slot. The plain slotId attribute is what the addon reads back
+    ]]--
+    gearSlot:SetAttribute("type1", "macro")
+    gearSlot:SetAttribute("macrotext1", "/use " .. gearSlotMetaData.slotId)
+    gearSlot:SetAttribute("slotId", gearSlotMetaData.slotId)
   end
 
   mod.uiHelper.CreateItemTexture(gearSlot, gearBar.gearSlotSize)
@@ -493,7 +500,7 @@ function me.UpdateCombatQueue(itemId, enchantId, runeAbilityId, slotId)
     local gearSlots = gearBar.gearSlotReferences
 
     for i = 1, #gearSlots do
-      if gearSlots[i]:GetAttribute("item") == slotId then
+      if gearSlots[i]:GetAttribute("slotId") == slotId then
         local icon = gearSlots[i].combatQueueSlot.icon
 
         if itemId then
@@ -760,8 +767,10 @@ end
 function me.UpdateExistingSlot(uiGearBar, gearSlotMetaData, position)
   local uiGearSlot = uiGearBar.gearSlotReferences[position]
 
-  uiGearSlot:SetAttribute("type1", "item")
-  uiGearSlot:SetAttribute("item", gearSlotMetaData.slotId)
+  -- see me.CreateGearSlotBase for why a /use macro is used instead of the secure item action
+  uiGearSlot:SetAttribute("type1", "macro")
+  uiGearSlot:SetAttribute("macrotext1", "/use " .. gearSlotMetaData.slotId)
+  uiGearSlot:SetAttribute("slotId", gearSlotMetaData.slotId)
   uiGearSlot:Show()
 end
 
@@ -920,7 +929,7 @@ function me.GearSlotOnClick(self, button, down)
   end
 
   if button == "RightButton" then
-    mod.combatQueue.RemoveFromQueue(self:GetAttribute("item"))
+    mod.combatQueue.RemoveFromQueue(self:GetAttribute("slotId"))
   end
 
   mod.themeCoordinator.GearSlotOnClick(self, button)
@@ -934,7 +943,7 @@ end
 function me.GearSlotOnEnter(self)
   mod.gearBarChangeMenu.UpdateChangeMenu(self.position, self:GetParent().id)
 
-  mod.tooltip.UpdateTooltipForSlot(self:GetAttribute("item"))
+  mod.tooltip.UpdateTooltipForSlot(self:GetAttribute("slotId"))
   mod.themeCoordinator.GearSlotOnEnter(self)
 end
 

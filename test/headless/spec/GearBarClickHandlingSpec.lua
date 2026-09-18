@@ -50,7 +50,7 @@ local CreateFakeGearSlot
   Build a fake gearSlot that records every widget call made against it
 
   @param {number} slotId
-    the slotId returned for GetAttribute("item")
+    the slotId returned for GetAttribute("slotId")
 
   @return {table}
     the fake gearSlot with `clicks`, `drags`, `scripts` and `attributes` recorders
@@ -81,7 +81,7 @@ CreateFakeGearSlot = function(slotId)
   end
 
   function gearSlot:GetAttribute(name)
-    if name == "item" then
+    if name == "slotId" then
       return self.slotId
     end
   end
