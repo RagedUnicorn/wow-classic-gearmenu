@@ -33,25 +33,6 @@ me.tag = "Core"
 -- whether a gearBar visual refresh is already scheduled for the next frame
 local gearBarVisualUpdatePending = false
 
--- Forward declarations
-local OnPlayerEnteringWorld
-local OnPlayerLogout
-local OnBagUpdate
-local OnItemLockChanged
-local OnPlayerEquipmentChanged
-local OnUnitInventoryChanged
-local RequestGearBarVisualUpdate
-local OnBagUpdateCooldown
-local OnUpdateBindings
-local OnLossOfControl
-local OnUnitSpellCastSucceeded
-local OnUnitSpellCastStop
-local OnPlayerAliveOrLeftCombat
-local OnPlayerRegenDisabled
-local OnPlayerTargetChanged
-local Initialize
-local ShowWelcomeMessage
-
 --[[
   Hook GetLocale to return a fixed value. This is used for testing only.
 ]]--
@@ -65,6 +46,60 @@ end
 ]]--
 
 --[[
+  Show welcome message to user
+]]--
+local function ShowWelcomeMessage()
+  print(
+    string.format("|cFF00FFB0" .. RGGM_CONSTANTS.ADDON_NAME .. rggm.L["help"],
+    C_AddOns.GetAddOnMetadata(RGGM_CONSTANTS.ADDON_NAME, "Version"))
+  )
+end
+
+--[[
+  Initialize addon
+]]--
+local function Initialize()
+  me.logger.LogDebug(me.tag, "Initialize addon")
+  -- update runes
+  me.engrave.RefreshRunes()
+  -- setup slash commands
+  me.cmd.SetupSlashCmdList()
+  -- load addon variables
+  me.configuration.SetupConfiguration()
+  -- seed the undeletable Default profile when the store has none (needs the defaults
+  -- applied above), then adopt the active profile and mirror the live configuration into it
+  me.profile.EnsureDefaultProfile()
+  me.profile.EnsureActiveProfile()
+  -- setup addon configuration ui
+  me.addonConfiguration.SetupAddonConfiguration()
+  -- sync up theme (needs to be happening before accessing ui elements)
+  me.themeCoordinator.UpdateTheme()
+  -- build ui for all gearBars
+  me.gearBar.BuildGearBars()
+  -- build ui for changeMenu
+  me.gearBarChangeMenu.BuildChangeMenu()
+  --[[
+    seed the current target - PLAYER_TARGET_CHANGED is gated until initialization, so a target
+    selected before a login or /reload is otherwise only seen once the player changes target
+  ]]--
+  me.target.UpdateCurrentTarget()
+
+  if me.configuration.IsTrinketMenuEnabled() then
+    -- build ui for trinketMenu
+    me.trinketMenu.BuildTrinketMenu()
+    -- update initial view of trinketMenu
+    me.trinketMenu.UpdateTrinketMenu()
+  end
+
+  -- update initial view of gearBars after addon initialization
+  me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarVisual)
+  me.keyBind.OnUpdateKeyBindings()
+  -- register addon message prefix for the version broadcast
+  me.comm.Initialize()
+  ShowWelcomeMessage()
+end
+
+--[[
   Run the bootstrap sequence on initial login or ui reload, then mark the event
   bus ready so gated handlers begin firing. The version goes to the guild and the group
   once per session; zoning between map instances only tells the group.
@@ -72,7 +107,7 @@ end
   @param {boolean} isInitialLogin
   @param {boolean} isReloadingUi
 ]]--
-OnPlayerEnteringWorld = function(isInitialLogin, isReloadingUi)
+local function OnPlayerEnteringWorld(isInitialLogin, isReloadingUi)
   if isInitialLogin or isReloadingUi then
     --[[
       A failing step must not leave the gated handlers (equipment updates, the combat queue,
@@ -95,7 +130,7 @@ end
   profile so its stored copy is what the player last saw (a crash skips this the way
   it skips the write - the login adoption mirrors again).
 ]]--
-OnPlayerLogout = function()
+local function OnPlayerLogout()
   me.profile.SaveActiveProfile()
 end
 
@@ -103,7 +138,7 @@ end
   Invalidate the item location cache and request a debounced bag update when a bags
   inventory changes.
 ]]--
-OnBagUpdate = function()
+local function OnBagUpdate()
   me.itemLocationCache.Invalidate()
   me.itemManager.RequestBagUpdate()
 end
@@ -112,27 +147,8 @@ end
   Invalidate the item location cache when an item is locked or unlocked. The event fires
   while items are picked up and placed, i.e. whenever bag contents are about to change.
 ]]--
-OnItemLockChanged = function()
+local function OnItemLockChanged()
   me.itemLocationCache.Invalidate()
-end
-
---[[
-  Update the gearBar visuals when the player equips or unequips an item.
-]]--
-OnPlayerEquipmentChanged = function()
-  RequestGearBarVisualUpdate()
-end
-
---[[
-  Update the gearBar visuals when the player's inventory changes. Kept next to
-  PLAYER_EQUIPMENT_CHANGED as the fallback during the initial login.
-
-  @param {string} unit
-]]--
-OnUnitInventoryChanged = function(unit)
-  if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER then
-    RequestGearBarVisualUpdate()
-  end
 end
 
 --[[
@@ -140,7 +156,7 @@ end
   and UNIT_INVENTORY_CHANGED; the pending flag folds them - and any further change in the same
   frame - into a single full refresh.
 ]]--
-RequestGearBarVisualUpdate = function()
+local function RequestGearBarVisualUpdate()
   if gearBarVisualUpdatePending then return end
 
   gearBarVisualUpdatePending = true
@@ -152,9 +168,28 @@ RequestGearBarVisualUpdate = function()
 end
 
 --[[
+  Update the gearBar visuals when the player equips or unequips an item.
+]]--
+local function OnPlayerEquipmentChanged()
+  RequestGearBarVisualUpdate()
+end
+
+--[[
+  Update the gearBar visuals when the player's inventory changes. Kept next to
+  PLAYER_EQUIPMENT_CHANGED as the fallback during the initial login.
+
+  @param {string} unit
+]]--
+local function OnUnitInventoryChanged(unit)
+  if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER then
+    RequestGearBarVisualUpdate()
+  end
+end
+
+--[[
   Update gearSlot and trinketMenu cooldowns when a cooldown update call is sent to a bag.
 ]]--
-OnBagUpdateCooldown = function()
+local function OnBagUpdateCooldown()
   me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarGearSlotCooldowns)
 
   if me.configuration.IsTrinketMenuEnabled() then
@@ -165,7 +200,7 @@ end
 --[[
   Update the displayed keybindings when the keybindings are changed.
 ]]--
-OnUpdateBindings = function()
+local function OnUpdateBindings()
   --[[
     On starting up the addon often times GetBindingAction will not return the correct keybinding set but rather an
     empty string. To prevent this a slight delay is required.
@@ -176,7 +211,7 @@ end
 --[[
   Update the equip change block status when a loss of control is added, updated or removed.
 ]]--
-OnLossOfControl = function()
+local function OnLossOfControl()
   me.combatQueue.UpdateEquipChangeBlockStatus()
 end
 
@@ -189,7 +224,7 @@ end
 
   @param {vararg} ...
 ]]--
-OnUnitSpellCastSucceeded = function(...)
+local function OnUnitSpellCastSucceeded(...)
   local unit = ...
 
   if unit ~= RGGM_CONSTANTS.UNIT_ID_PLAYER then return end
@@ -207,7 +242,7 @@ end
 
   @param {string} unit
 ]]--
-OnUnitSpellCastStop = function(unit)
+local function OnUnitSpellCastStop(unit)
   if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER then
     me.combatQueue.ProcessQueue()
   end
@@ -216,7 +251,7 @@ end
 --[[
   Player is alive again or left combat - work through all combat queues.
 ]]--
-OnPlayerAliveOrLeftCombat = function()
+local function OnPlayerAliveOrLeftCombat()
   me.gearBar.StopPendingDragFrames()
 
   if not me.common.IsPlayerReallyDead() then
@@ -227,14 +262,14 @@ end
 --[[
   Stop the combat queue ticker when the player enters combat status.
 ]]--
-OnPlayerRegenDisabled = function()
+local function OnPlayerRegenDisabled()
   me.ticker.StopTickerCombatQueue()
 end
 
 --[[
   Update the tracked target when the player's target changes.
 ]]--
-OnPlayerTargetChanged = function()
+local function OnPlayerTargetChanged()
   me.target.UpdateCurrentTarget()
 end
 
@@ -317,58 +352,4 @@ end
 ]]--
 function me.OnEvent(event, ...)
   me.event.Dispatch(event, ...)
-end
-
---[[
-  Initialize addon
-]]--
-Initialize = function()
-  me.logger.LogDebug(me.tag, "Initialize addon")
-  -- update runes
-  me.engrave.RefreshRunes()
-  -- setup slash commands
-  me.cmd.SetupSlashCmdList()
-  -- load addon variables
-  me.configuration.SetupConfiguration()
-  -- seed the undeletable Default profile when the store has none (needs the defaults
-  -- applied above), then adopt the active profile and mirror the live configuration into it
-  me.profile.EnsureDefaultProfile()
-  me.profile.EnsureActiveProfile()
-  -- setup addon configuration ui
-  me.addonConfiguration.SetupAddonConfiguration()
-  -- sync up theme (needs to be happening before accessing ui elements)
-  me.themeCoordinator.UpdateTheme()
-  -- build ui for all gearBars
-  me.gearBar.BuildGearBars()
-  -- build ui for changeMenu
-  me.gearBarChangeMenu.BuildChangeMenu()
-  --[[
-    seed the current target - PLAYER_TARGET_CHANGED is gated until initialization, so a target
-    selected before a login or /reload is otherwise only seen once the player changes target
-  ]]--
-  me.target.UpdateCurrentTarget()
-
-  if me.configuration.IsTrinketMenuEnabled() then
-    -- build ui for trinketMenu
-    me.trinketMenu.BuildTrinketMenu()
-    -- update initial view of trinketMenu
-    me.trinketMenu.UpdateTrinketMenu()
-  end
-
-  -- update initial view of gearBars after addon initialization
-  me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarVisual)
-  me.keyBind.OnUpdateKeyBindings()
-  -- register addon message prefix for the version broadcast
-  me.comm.Initialize()
-  ShowWelcomeMessage()
-end
-
---[[
-  Show welcome message to user
-]]--
-ShowWelcomeMessage = function()
-  print(
-    string.format("|cFF00FFB0" .. RGGM_CONSTANTS.ADDON_NAME .. rggm.L["help"],
-    C_AddOns.GetAddOnMetadata(RGGM_CONSTANTS.ADDON_NAME, "Version"))
-  )
 end
