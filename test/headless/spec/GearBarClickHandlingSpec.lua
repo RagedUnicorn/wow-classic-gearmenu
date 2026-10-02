@@ -38,9 +38,6 @@
 
 local wowStubs = require("WowStubs")
 
--- forward declarations
-local CreateFakeGearSlot
-
 --[[
   Build a fake gearSlot that records every widget call made against it
 
@@ -50,7 +47,7 @@ local CreateFakeGearSlot
   @return {table}
     the fake gearSlot with `clicks`, `drags`, `scripts` and `attributes` recorders
 ]]--
-CreateFakeGearSlot = function(slotId)
+local function CreateFakeGearSlot(slotId)
   local gearSlot = {
     slotId = slotId,
     clicks = {},     -- RegisterForClicks invocations

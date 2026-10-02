@@ -40,9 +40,6 @@ local wowStubs = require("WowStubs")
 local GEAR_BAR_ID = 1
 local STORED_SLOT_SIZE = 40
 
--- forward declarations
-local CreateFakeSlider
-
 --[[
   Build a fake size slider that records every SetValue call made against it
 
@@ -52,7 +49,7 @@ local CreateFakeSlider
   @return {table}
     the fake slider with a `setValues` recorder
 ]]--
-CreateFakeSlider = function(gearBarId)
+local function CreateFakeSlider(gearBarId)
   local slider = {
     parent = { gearBarId = gearBarId },
     setValues = {}

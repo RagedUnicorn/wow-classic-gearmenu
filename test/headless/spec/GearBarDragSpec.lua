@@ -40,9 +40,6 @@ local wowStubs = require("WowStubs")
 
 local GEAR_BAR_ID = 1
 
--- forward declarations
-local CreateFakeGearBarFrame
-
 --[[
   Build a fake gearBarFrame that records every widget call made against it
 
@@ -52,7 +49,7 @@ local CreateFakeGearBarFrame
   @return {table}
     the fake gearBarFrame with `startMoving` and `stopMoving` counters
 ]]--
-CreateFakeGearBarFrame = function(id)
+local function CreateFakeGearBarFrame(id)
   local gearBarFrame = {
     id = id,
     startMoving = 0,

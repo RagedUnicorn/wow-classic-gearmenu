@@ -40,16 +40,13 @@ local wowStubs = require("WowStubs")
 local GEAR_BAR_ID = 3
 local GEAR_BAR_NAME = "Tanking"
 
--- forward declarations
-local CreateFakeButton
-
 --[[
   Build a fake UIPanelButtonTemplate button that keeps the scripts set on it
 
   @return {table}
     the fake button with a `scripts` map of script name to handler
 ]]--
-CreateFakeButton = function()
+local function CreateFakeButton()
   local button = { scripts = {} }
 
   button.SetHeight = function() end

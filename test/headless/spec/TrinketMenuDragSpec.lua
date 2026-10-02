@@ -44,9 +44,6 @@ local wowStubs = require("WowStubs")
 local TRINKET_ITEM_ID = 12345
 local WEAPON_ITEM_ID = 67890
 
--- forward declarations
-local CreateFakeTrinketSlot
-
 --[[
   Build a fake trinketSlot that records every widget call made against it
 
@@ -56,7 +53,7 @@ local CreateFakeTrinketSlot
   @return {table}
     the fake trinketSlot with `clicks`, `drags` and `scripts` recorders
 ]]--
-CreateFakeTrinketSlot = function(itemId)
+local function CreateFakeTrinketSlot(itemId)
   local trinketSlot = {
     itemId = itemId,
     clicks = {},  -- RegisterForClicks invocations
