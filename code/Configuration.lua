@@ -239,19 +239,21 @@ function me.MergeDefaults(target, defaults)
 end
 
 --[[
-  Fill any missing field of the live GearMenuConfiguration with a fresh deep copy of
-  its default. Seeds a brand-new config and backfills fields a saved config from an
-  older addon version is missing. Table fields merge recursively so a newly added
-  nested default reaches upgrading players -- except userOwned collections, whose
-  content belongs to the player and is never touched beyond creating the container.
+  Fill any missing field of a configuration table with a fresh deep copy of its default.
+  Seeds a brand-new config and backfills fields a saved config from an older addon version
+  is missing. Table fields merge recursively so a newly added nested default reaches
+  upgrading players -- except userOwned collections, whose content belongs to the player
+  and is never touched beyond creating the container.
+
+  @param {table} target
 ]]--
-ApplyConfigurationDefaults = function()
+ApplyConfigurationDefaults = function(target)
   for _, entry in ipairs(CONFIGURATION_DEFAULTS) do
-    if GearMenuConfiguration[entry.name] == nil then
-      GearMenuConfiguration[entry.name] = mod.common.Clone(entry.default)
+    if target[entry.name] == nil then
+      target[entry.name] = mod.common.Clone(entry.default)
     elseif not entry.userOwned and type(entry.default) == "table"
-      and type(GearMenuConfiguration[entry.name]) == "table" then
-      me.MergeDefaults(GearMenuConfiguration[entry.name], entry.default)
+      and type(target[entry.name]) == "table" then
+      me.MergeDefaults(target[entry.name], entry.default)
     end
   end
 end
@@ -260,9 +262,28 @@ end
   Set default values if property is nil. This might happen after an addon upgrade
 ]]--
 function me.SetupConfiguration()
-  ApplyConfigurationDefaults()
+  me.NormalizeConfiguration(GearMenuConfiguration)
 
-  for _, gearBar in pairs(GearMenuConfiguration.gearBars) do
+  --[[
+    Set saved variables with addon version. This can be used later to determine whether
+    a migration path applies to the current saved variables or not
+  ]]--
+  me.SetAddonVersion()
+end
+
+--[[
+  Bring a configuration table into the form SetupConfiguration leaves the live configuration
+  in: missing fields backfilled with their defaults and the per-gearBar fields added in later
+  versions filled in. Used on the live configuration and by code/Profile.lua on a copy of a
+  stored profile, so a profile saved by an older version compares equal to the live
+  configuration it was applied to.
+
+  @param {table} target
+]]--
+function me.NormalizeConfiguration(target)
+  ApplyConfigurationDefaults(target)
+
+  for _, gearBar in pairs(target.gearBars) do
     --[[
       gearBars is a userOwned collection - ApplyConfigurationDefaults never descends into it,
       so a per-bar field added in a later version has to be backfilled here
@@ -282,12 +303,6 @@ function me.SetupConfiguration()
       gearBar.changeMenuDirection = mod.gearBarManager.GetDefaultChangeMenuDirection(gearBar.orientation)
     end
   end
-
-  --[[
-    Set saved variables with addon version. This can be used later to determine whether
-    a migration path applies to the current saved variables or not
-  ]]--
-  me.SetAddonVersion()
 end
 
 --[[

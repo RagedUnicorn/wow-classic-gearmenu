@@ -24,3 +24,4 @@
 * Fix an item waiting in the combat queue being queued again every tenth of a second right at the end of a fight - the queue now waits until the game treats you as fully out of combat and equips the item once
 * A QuickChange rule with a delay no longer swaps a slot back when you equipped or queued another item there while the delay was running
 * Fix Lua errors when the TrinketMenu is shown or moved right after a character with GearMenu 1.x settings logs in for the first time - the upgrade to the GearBar settings no longer removes the storage for the TrinketMenu position
+* On the first login after the update to the live active profile model, a profile saved by an older GearMenu version that you had applied and not edited since is now recognised and kept as the active one - before, settings GearMenu added after the profile was saved made it look edited, and Default took over instead

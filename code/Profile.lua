@@ -322,6 +322,30 @@ function me.BuildSnapshot()
 end
 
 --[[
+  Bring a stored snapshot into the form me.BuildSnapshot produces from the live
+  configuration: a copy run through the same normalization SetupConfiguration applies at
+  login (defaults for fields added since it was saved, the per-gearBar backfill) and then
+  cut down to the profile fields. Without it a snapshot stored by an older version never
+  compares equal to the live configuration it was applied to.
+
+  @param {table} snapshot
+
+  @return {table}
+]]--
+local function NormalizeSnapshot(snapshot)
+  local normalized = mod.common.Clone(snapshot)
+  local projected = {}
+
+  mod.configuration.NormalizeConfiguration(normalized)
+
+  for _, field in ipairs(me.PROFILE_FIELDS) do
+    projected[field] = normalized[field]
+  end
+
+  return projected
+end
+
+--[[
   Overwrite the configurable fields of the live GearMenuConfiguration from a
   snapshot. Missing fields are left for Configuration.SetupConfiguration to
   backfill with defaults, so an older-schema profile applies cleanly. The
@@ -616,7 +640,8 @@ function me.EnsureActiveProfile()
     name = RGGM_CONSTANTS.DEFAULT_PROFILE_NAME
 
     for _, candidate in ipairs(me.ListProfiles()) do
-      if not me.IsDefaultProfile(candidate) and mod.common.DeepEquals(store[candidate], live) then
+      if not me.IsDefaultProfile(candidate)
+        and mod.common.DeepEquals(NormalizeSnapshot(store[candidate]), live) then
         name = candidate
         break
       end

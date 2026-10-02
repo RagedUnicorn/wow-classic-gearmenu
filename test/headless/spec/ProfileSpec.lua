@@ -92,6 +92,7 @@ describe("Profile", function()
     previousConfiguration = rggm.configuration
     rggm.configuration = {
       SetupConfiguration = function() end,
+      NormalizeConfiguration = function() end,
       GetDefaults = getDefaults,
       FirstTimeInitialization = function()
         GearMenuConfiguration.gearBars[#GearMenuConfiguration.gearBars + 1] = rggm.common.Clone(STARTER_GEAR_BAR)
@@ -572,6 +573,35 @@ describe("Profile", function()
       assert.are.same(profile.BuildSnapshot(), profile.GetProfile("Raid"))
       assert.is_true(profile.GetProfile(defaultName).enableTooltips)
       assert.is_false(profile.GetProfile(defaultName).enableFastPress)
+    end)
+
+    it("adopts a profile stored by an older version once it is normalized like the live configuration", function()
+      -- the live configuration went through SetupConfiguration at login: every field is present
+      -- and each gearBar carries the per-bar fields later versions added
+      rggm.configuration.NormalizeConfiguration = function(target)
+        for field, value in pairs(getDefaults()) do
+          if target[field] == nil then target[field] = rggm.common.Clone(value) end
+        end
+
+        for _, gearBar in pairs(target.gearBars) do
+          if gearBar.isEnabled == nil then gearBar.isEnabled = true end
+        end
+      end
+
+      profile.EnsureDefaultProfile()
+      GearMenuConfiguration.enableFastPress = true
+      GearMenuConfiguration.gearBars = { { id = 100001, slots = { 13, 14 } } }
+      rggm.configuration.NormalizeConfiguration(GearMenuConfiguration)
+
+      -- the copy an older version stored: no per-bar isEnabled and a field it did not know yet
+      local stored = profile.BuildSnapshot()
+      stored.gearBars[1].isEnabled = nil
+      stored.enableFallbackToBaseItem = nil
+      profile.SaveProfile("Raid", stored)
+
+      profile.EnsureActiveProfile()
+
+      assert.are.equal("Raid", profile.GetActiveProfileName())
     end)
 
     it("falls back to Default when no stored profile equals the live configuration, on a dangling name too", function()

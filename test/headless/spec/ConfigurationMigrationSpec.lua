@@ -383,6 +383,20 @@ describe("Configuration migration", function()
       assert.is_true(config.gearBars[2].isEnabled)
     end)
 
+    it("normalizes a detached configuration table without touching the live configuration", function()
+      local config = useConfig({ gearBars = {} })
+      local stored = { enableTooltips = false, gearBars = { { id = 1, slots = {} } } }
+
+      configuration.NormalizeConfiguration(stored)
+
+      assert.is_false(stored.enableTooltips)
+      assert.are.equal(configuration.GetDefaults().enableFastPress, stored.enableFastPress)
+      assert.is_true(stored.gearBars[1].isEnabled)
+      assert.are.equal(RGGM_CONSTANTS.GEAR_BAR_ORIENTATION_HORIZONTAL, stored.gearBars[1].orientation)
+      assert.are.same({}, config.gearBars)
+      assert.is_nil(config.enableTooltips)
+    end)
+
     it("preserves a stored hidden gearBar across setup", function()
       local config = useConfig({ gearBars = { { id = 1, slots = {}, isEnabled = false } } })
 
