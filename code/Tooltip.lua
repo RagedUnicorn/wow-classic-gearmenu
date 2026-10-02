@@ -55,7 +55,12 @@ function me.UpdateTooltipForItem(item)
   local tooltip = me.PrepareTooltip()
 
   if mod.configuration.IsSimpleTooltipsEnabled() then
-    me.BuildSimpleTooltip(tooltip, item.itemId)
+    if not me.BuildSimpleTooltip(tooltip, item.itemId) then
+      -- nothing to show yet - do not pop up an empty tooltip
+      tooltip:Hide()
+
+      return
+    end
   else
     local inventorySlotId = item.inventorySlotId or item.slotId
 
@@ -122,16 +127,27 @@ function me.PrepareTooltip()
 end
 
 --[[
-  Build a simple tooltip for the passed itemId
+  Build a simple tooltip for the passed itemId. An item the client has not cached yet has no
+  name or quality, so nothing is added; the lookup itself makes the client load the item, so the
+  next hover shows it
 
   @param {table} tooltip
   @param {number} itemId
+
+  @return {boolean}
+    true - if the item line was added
+    false - if the item is not cached yet
 ]]--
 function me.BuildSimpleTooltip(tooltip, itemId)
   local itemName, _, itemRarity = C_Item.GetItemInfo(itemId)
+
+  if itemName == nil or itemRarity == nil then return false end
+
   local r, g, b = C_Item.GetItemQualityColor(itemRarity)
 
   tooltip:AddLine(itemName, r, g, b)
+
+  return true
 end
 
 --[[
