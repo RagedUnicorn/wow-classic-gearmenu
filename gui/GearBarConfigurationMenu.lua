@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: read globals STANDARD_TEXT_FONT CreateFrame StaticPopup_Show
+-- luacheck: read globals STANDARD_TEXT_FONT CreateFrame StaticPopup_Show InCombatLockdown
 -- luacheck: globals StaticPopupDialogs
 
 --[[
@@ -107,13 +107,7 @@ StaticPopupDialogs["RGGM_GEAR_BAR_CONFIRM_DELETE"] = {
   button2 = rggm.L["gear_bar_confirm_delete_no_button"],
   OnAccept = function()
     if deleteGearBarId then
-      mod.ticker.UnregisterForTickerRangeCheck(deleteGearBarId)
-      mod.gearBarManager.RemoveGearBar(deleteGearBarId)
-      mod.gearBarStorage.RemoveGearBar(deleteGearBarId)
-      me.GearBarListOnUpdate(gearBarList)
-      mod.addonConfiguration.InterfaceOptionsRemoveCategory(deleteGearBarId)
-      mod.gearBarConfigurationSubMenu.RemoveGearBarContentFrame(deleteGearBarId)
-
+      me.DeleteGearBar(deleteGearBarId)
       deleteGearBarId = nil
     end
   end,
@@ -183,12 +177,43 @@ function me.CreateNewGearBarButton(gearBarFrame)
 end
 
 --[[
+  Delete a gearBar together with its visual representation and its interface option
+
+  Hiding the gearBar frame hides the SecureActionButtonTemplate gearSlots parented to it, which is
+  blocked in combat. Refuse the deletion before any configuration is changed instead of letting the
+  stored configuration drift away from what is actually displayed.
+
+  @param {number} gearBarId
+]]--
+function me.DeleteGearBar(gearBarId)
+  if InCombatLockdown() then
+    mod.logger.PrintUserError(rggm.L["gear_bar_delete_combat"])
+    return
+  end
+
+  mod.ticker.UnregisterForTickerRangeCheck(gearBarId)
+  mod.gearBarManager.RemoveGearBar(gearBarId)
+  mod.gearBarStorage.RemoveGearBar(gearBarId)
+  me.GearBarListOnUpdate(gearBarList)
+  mod.addonConfiguration.InterfaceOptionsRemoveCategory(gearBarId)
+  mod.gearBarConfigurationSubMenu.RemoveGearBarContentFrame(gearBarId)
+end
+
+--[[
   Create a new gearBar with the gearBarManager - then adds a new interface option
   for the created gearBar
+
+  Building the gearBar creates gearSlots that inherit from the SecureActionButtonTemplate, which is
+  blocked in combat. Refuse the creation before any configuration is changed.
 
   @param {string} name
 ]]--
 function me.CreateNewGearBar(name)
+  if InCombatLockdown() then
+    mod.logger.PrintUserError(rggm.L["gear_bar_create_combat"])
+    return
+  end
+
   if #mod.gearBarManager.GetGearBars() >= RGGM_CONSTANTS.MAX_GEAR_BARS then
     mod.logger.PrintUserError(rggm.L["gear_bar_max_amount_of_gear_bars_reached"])
     return

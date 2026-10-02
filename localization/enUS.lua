@@ -133,6 +133,8 @@ rggm.L["show_gear_bar_tooltip"] = "Display this GearBar. Keybindings stay active
 rggm.L["show_gear_bar_combat"] =
   "Unable to change the visibility of a GearBar while in combat. Please try again after combat"
 rggm.L["gear_bar_move_combat"] = "Unable to move a GearBar while in combat. Please try again after combat"
+rggm.L["gear_bar_create_combat"] = "Unable to create a GearBar while in combat. Please try again after combat"
+rggm.L["gear_bar_delete_combat"] = "Unable to delete a GearBar while in combat. Please try again after combat"
 rggm.L["gear_bar_update_slots_combat"] =
   "Unable to update the GearSlots while in combat. Please /reload after you are out of combat"
 rggm.L["gear_slot_size_combat"] = "Unable to resize the GearSlots while in combat. Please try again after combat"

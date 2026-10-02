@@ -130,6 +130,8 @@ if (GetLocale() == "zhCN") then
   rggm.L["show_gear_bar_tooltip"] = "显示此装备条。隐藏时按键绑定仍然有效"
   rggm.L["show_gear_bar_combat"] = "战斗中无法更改装备条的显示状态。请在战斗结束后重试"
   rggm.L["gear_bar_move_combat"] = "战斗中无法移动装备条。请在战斗结束后重试"
+  rggm.L["gear_bar_create_combat"] = "战斗中无法创建装备条。请在战斗结束后重试"
+  rggm.L["gear_bar_delete_combat"] = "战斗中无法删除装备条。请在战斗结束后重试"
   rggm.L["gear_bar_update_slots_combat"] = "战斗中无法更新装备槽。请在战斗结束后输入 /reload"
   rggm.L["gear_slot_size_combat"] = "战斗中无法更改装备槽的大小。请在战斗结束后重试"
   rggm.L["gear_slot_size_slider_title"] = "装备槽大小"
