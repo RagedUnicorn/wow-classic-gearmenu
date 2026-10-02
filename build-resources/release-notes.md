@@ -12,3 +12,4 @@
 * Importing a profile string now checks the GearBar slots it carries: a string with a slot at an invalid position, a slot that is not a slot or a key binding that is not a key is refused as invalid instead of raising Lua errors or binding keys to GearSlots that do not exist
 * The update notice now only accepts a version broadcast over the guild, raid, party or instance channel that is a plain version number - a whispered version or one carrying extra text is ignored, and only the clean version number is shown and remembered, so another player can no longer put their own text into your chat or silence genuine update notices
 * Chinese (zhCN): the "Add Gearslot" button and the maximum-slots message now speak of gear slots instead of GearBars, and the TrinketMenu settings are translated
+* Fix a Lua error when the GearSlot size is changed for a GearBar that no longer exists

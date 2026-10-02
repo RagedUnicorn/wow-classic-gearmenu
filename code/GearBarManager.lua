@@ -491,11 +491,10 @@ function me.SetGearSlotSize(gearBarId, gearSlotSize)
   if gearBar then
     gearBar.gearSlotSize = gearSlotSize
     mod.gearBar.UpdateGearSlotSizes(gearBar)
+    mod.gearBar.UpdateGearBarSize(gearBar) -- resize the underlying gearBarFrame
   else
     mod.logger.LogError(me.tag, "Failed to update the gearSlotSize of the gearBar with id: " .. gearBarId)
   end
-
-  mod.gearBar.UpdateGearBarSize(gearBar) -- resize the underlying gearBarFrame
 end
 
 --[[

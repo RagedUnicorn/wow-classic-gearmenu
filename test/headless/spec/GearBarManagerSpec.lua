@@ -511,6 +511,22 @@ describe("GearBarManager", function()
     it("returns nil for an unknown gearBar id", function()
       assert.is_nil(gearBarManager.GetGearSlotSize(99999999))
     end)
+
+    it("logs an error and touches no ui for an unknown gearBar id", function()
+      local errors = {}
+      rggm.logger.LogError = function(_, message) errors[#errors + 1] = message end
+      -- the real UpdateGearBarSize dereferences the gearBar it is handed
+      rggm.gearBar.UpdateGearBarSize = function(gearBar)
+        calls.updateGearBarSize = calls.updateGearBarSize + 1
+        return gearBar.id
+      end
+
+      assert.has_no.errors(function() gearBarManager.SetGearSlotSize(99999999, 50) end)
+
+      assert.are.equal("Failed to update the gearSlotSize of the gearBar with id: 99999999", errors[#errors])
+      assert.are.equal(0, calls.updateGearSlotSizes)
+      assert.are.equal(0, calls.updateGearBarSize)
+    end)
   end)
 
   describe("SetChangeSlotSize / GetChangeSlotSize", function()
