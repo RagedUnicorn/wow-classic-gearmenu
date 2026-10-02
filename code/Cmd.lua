@@ -47,10 +47,67 @@ me.tag = "Cmd"
 local commandRegistry = {}
 local commandOrder = {}
 
--- forward declarations
-local HandleSlashCommand
-local ParseArguments
-local ShowInfoMessage
+--[[
+  Parse command arguments from a string
+
+  @param {string} msg
+    The raw command string
+
+  @return {table}
+    Array of whitespace-separated arguments
+]]--
+local function ParseArguments(msg)
+  local args = {}
+
+  mod.logger.LogDebug(me.tag, "/rggm passed argument: " .. msg)
+
+  -- parse arguments by whitespace
+  for arg in string.gmatch(msg, "%S+") do
+    table.insert(args, arg)
+  end
+
+  return args
+end
+
+--[[
+  Print cmd options for addon - generated from the command registry
+]]--
+local function ShowInfoMessage()
+  print(rggm.L["info_title"])
+
+  for _, command in ipairs(commandOrder) do
+    local helpTextKey = commandRegistry[command].helpTextKey
+
+    if helpTextKey ~= nil then
+      print(rggm.L[helpTextKey])
+    end
+  end
+end
+
+--[[
+  Handle slash command input
+
+  @param {string} msg
+    The raw command arguments
+]]--
+local function HandleSlashCommand(msg)
+  local args = ParseArguments(msg)
+
+  if #args == 0 or args[1] == "help" then
+    ShowInfoMessage()
+
+    return
+  end
+
+  local entry = commandRegistry[args[1]]
+
+  if entry ~= nil then
+    table.remove(args, 1) -- drop the command name; handlers receive the remaining arguments
+    entry.handler(args)
+  else
+    mod.logger.PrintUserError(rggm.L["invalid_argument"])
+  end
+end
 
 --[[
   Setup slash command handler
@@ -98,68 +155,6 @@ function me.RegisterCommand(command, handler, helpTextKey, aliases)
   end
 
   mod.logger.LogDebug(me.tag, "Registered command: " .. command)
-end
-
---[[
-  Handle slash command input
-
-  @param {string} msg
-    The raw command arguments
-]]--
-HandleSlashCommand = function(msg)
-  local args = ParseArguments(msg)
-
-  if #args == 0 or args[1] == "help" then
-    ShowInfoMessage()
-
-    return
-  end
-
-  local entry = commandRegistry[args[1]]
-
-  if entry ~= nil then
-    table.remove(args, 1) -- drop the command name; handlers receive the remaining arguments
-    entry.handler(args)
-  else
-    mod.logger.PrintUserError(rggm.L["invalid_argument"])
-  end
-end
-
---[[
-  Parse command arguments from a string
-
-  @param {string} msg
-    The raw command string
-
-  @return {table}
-    Array of whitespace-separated arguments
-]]--
-ParseArguments = function(msg)
-  local args = {}
-
-  mod.logger.LogDebug(me.tag, "/rggm passed argument: " .. msg)
-
-  -- parse arguments by whitespace
-  for arg in string.gmatch(msg, "%S+") do
-    table.insert(args, arg)
-  end
-
-  return args
-end
-
---[[
-  Print cmd options for addon - generated from the command registry
-]]--
-ShowInfoMessage = function()
-  print(rggm.L["info_title"])
-
-  for _, command in ipairs(commandOrder) do
-    local helpTextKey = commandRegistry[command].helpTextKey
-
-    if helpTextKey ~= nil then
-      print(rggm.L[helpTextKey])
-    end
-  end
 end
 
 -- built-in commands
