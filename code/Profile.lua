@@ -403,6 +403,11 @@ function me.ImportString(encoded)
     return nil, "profile_error_invalid"
   end
 
+  -- a paste far past any real export is junk - refuse it before spending time decoding it
+  if #encoded > RGGM_CONSTANTS.PROFILE_STRING_MAX_LENGTH then
+    return nil, "profile_error_invalid"
+  end
+
   -- strip any whitespace a paste may have wrapped around / into the string
   encoded = string.gsub(encoded, "%s+", "")
 
@@ -461,6 +466,19 @@ function me.ImportString(encoded)
   if type(envelope.name) ~= "string" then
     envelope.name = nil
   end
+
+  --[[
+    Keep only the profile fields. A crafted or foreign string may carry any number of other
+    keys; ApplySnapshot would ignore them, but SaveProfile would persist them into the saved
+    variables and every later export would carry them on
+  ]]--
+  local payload = {}
+
+  for _, field in ipairs(me.PROFILE_FIELDS) do
+    payload[field] = envelope.payload[field]
+  end
+
+  envelope.payload = payload
 
   return envelope
 end

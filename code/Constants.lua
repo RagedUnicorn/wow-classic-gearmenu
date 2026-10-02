@@ -317,6 +317,14 @@ RGGM_CONSTANTS = {
   ]]--
   PROFILE_NAME_MAX_LENGTH = 30,
   --[[
+    Upper bound for a profile string in characters, enforced by the import / export EditBox and
+    by Profile.ImportString before any decoding. Measured 2026-09-30: all 10 gearBars with 20
+    slots each (long names, bound keys) and 100 QuickChange rules export to ~111 KB, a single
+    ordinary gearBar to ~5 KB - the cap leaves more than twice the worst case and only stops
+    pathological pastes
+  ]]--
+  PROFILE_STRING_MAX_LENGTH = 262144,
+  --[[
     Name of the editable home profile every character starts on. Seeded from the factory
     defaults only when the store has none, then written by the mirror alone; it can neither
     be deleted nor renamed, and no other profile can be created, renamed or imported onto

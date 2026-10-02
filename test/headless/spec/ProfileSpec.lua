@@ -281,6 +281,47 @@ describe("Profile", function()
     end)
   end)
 
+  describe("imported payload", function()
+    it("keeps only the profile fields and drops any other key", function()
+      local serialized = rggm.serializer.Serialize({
+        addon = "GearMenu",
+        schemaVersion = 1,
+        payload = { enableTooltips = false, filterItemQuality = 4, junk = string.rep("x", 100), profiles = {} }
+      })
+      local envelope = profile.ImportString("GearMenu1:" .. rggm.encoder.Encode(serialized))
+
+      assert.is_false(envelope.payload.enableTooltips)
+      assert.are.equal(4, envelope.payload.filterItemQuality)
+      assert.is_nil(envelope.payload.junk)
+      assert.is_nil(envelope.payload.profiles)
+    end)
+
+    it("refuses a string past PROFILE_STRING_MAX_LENGTH before decoding it", function()
+      local decoded = false
+      local decode = rggm.encoder.Decode
+      rggm.encoder.Decode = function(...)
+        decoded = true
+        return decode(...)
+      end
+
+      local envelope, err = profile.ImportString(
+        "GearMenu1:" .. string.rep("A", RGGM_CONSTANTS.PROFILE_STRING_MAX_LENGTH))
+
+      rggm.encoder.Decode = decode
+
+      assert.is_nil(envelope)
+      assert.are.equal("profile_error_invalid", err)
+      assert.is_false(decoded)
+    end)
+
+    it("imports an export of every profile field unchanged", function()
+      local payload = profile.BuildSnapshot()
+      local envelope = profile.ImportString(profile.ExportString(payload, "Raid"))
+
+      assert.are.same(payload, envelope.payload)
+    end)
+  end)
+
   describe("envelope name", function()
     local function importWithName(name)
       local serialized = rggm.serializer.Serialize({
