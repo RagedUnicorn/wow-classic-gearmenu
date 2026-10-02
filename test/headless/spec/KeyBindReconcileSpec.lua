@@ -149,6 +149,27 @@ describe("KeyBind reconcile", function()
       assert.are.equal(0, #calls.bound)
       assert.are.equal(0, calls.bindingsSaved)
     end)
+
+    it("skips malformed slots instead of raising and binds the well-formed ones", function()
+      rggm.gearBarManager = {
+        GetGearBars = function()
+          return {
+            { id = 3, slots = {
+              [1] = { keyBinding = 42 },
+              [2] = "F3",
+              [3] = { keyBinding = "F4" },
+              first = { keyBinding = "F5" },
+              [RGGM_CONSTANTS.MAX_GEAR_BAR_SLOTS + 1] = { keyBinding = "F6" }
+            } },
+            { id = 7, slots = "x" }
+          }
+        end
+      }
+
+      assert.has_no.errors(function() keyBind.ApplyGearBarKeyBindings() end)
+      assert.are.same({ { key = "F4", action = "CLICK GM_GearBarFrame_3Slot_3:LeftButton" } }, calls.bound)
+      assert.are.equal(1, calls.bindingsSaved)
+    end)
   end)
 
   describe("ClearGearBarKeyBindings", function()
@@ -170,6 +191,18 @@ describe("KeyBind reconcile", function()
     it("ignores a nil argument", function()
       assert.has_no.errors(function() keyBind.ClearGearBarKeyBindings(nil) end)
       assert.are.equal(0, #calls.unbound)
+    end)
+
+    it("skips malformed slots instead of raising", function()
+      calls.bindingActions["F4"] = "CLICK GM_GearBarFrame_3Slot_3:LeftButton"
+
+      local gearBars = {
+        { id = 3, slots = { [1] = { keyBinding = 42 }, [2] = "F3", [3] = { keyBinding = "F4" } } },
+        { id = 7, slots = "x" }
+      }
+
+      assert.has_no.errors(function() keyBind.ClearGearBarKeyBindings(gearBars) end)
+      assert.are.same({ "F4" }, calls.unbound)
     end)
   end)
 

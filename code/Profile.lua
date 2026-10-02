@@ -166,6 +166,56 @@ local function HasUniqueGearBarIds(payload)
 end
 
 --[[
+  Verify the nested gearBars[].slots[] entries of a payload. IsPayloadWellTyped only checks
+  the top-level fields, but the slots feed straight into SetBinding once the profile is
+  applied: the slot key becomes the position of the proxy action (formatted with %d) and
+  keyBinding the key that is bound. A corrupt or hand-crafted string with a non-integer or
+  out-of-range position, a non-table slot or a non-string keyBinding is therefore rejected
+  here instead of raising while the bindings are applied.
+
+  A missing or non-table gearBars field passes here; the table-type check lives in
+  IsPayloadWellTyped.
+
+  @param {table} payload
+  @return {boolean}
+    true if every gearBar and its slots are well formed, false on the first violation
+]]--
+local function HasWellFormedGearBarSlots(payload)
+  if type(payload.gearBars) ~= "table" then
+    return true
+  end
+
+  for _, gearBar in pairs(payload.gearBars) do
+    if type(gearBar) ~= "table" then
+      return false
+    end
+
+    if gearBar.slots ~= nil then
+      if type(gearBar.slots) ~= "table" then
+        return false
+      end
+
+      for position, gearSlot in pairs(gearBar.slots) do
+        if type(position) ~= "number" or position ~= math.floor(position)
+          or position < 1 or position > RGGM_CONSTANTS.MAX_GEAR_BAR_SLOTS then
+          return false
+        end
+
+        if type(gearSlot) ~= "table" then
+          return false
+        end
+
+        if gearSlot.keyBinding ~= nil and type(gearSlot.keyBinding) ~= "string" then
+          return false
+        end
+      end
+    end
+  end
+
+  return true
+end
+
+--[[
   Lazily access the per-character profile store.
 
   @return {table}
@@ -373,6 +423,10 @@ function me.ImportString(encoded)
   end
 
   if not HasUniqueGearBarIds(envelope.payload) then
+    return nil, "profile_error_invalid"
+  end
+
+  if not HasWellFormedGearBarSlots(envelope.payload) then
     return nil, "profile_error_invalid"
   end
 

@@ -526,9 +526,11 @@ function me.ClearGearBarKeyBindings(gearBars)
   if type(gearBars) ~= "table" then return end
 
   for _, gearBar in pairs(gearBars) do
-    for _, gearSlot in pairs(gearBar.slots) do
-      if gearSlot.keyBinding ~= nil and gearSlot.keyBinding ~= "" then
-        me.UnsetKeyBindingFromGearSlot(gearSlot)
+    if type(gearBar.slots) == "table" then
+      for _, gearSlot in pairs(gearBar.slots) do
+        if type(gearSlot) == "table" and type(gearSlot.keyBinding) == "string" and gearSlot.keyBinding ~= "" then
+          me.UnsetKeyBindingFromGearSlot(gearSlot)
+        end
       end
     end
   end
@@ -541,15 +543,22 @@ end
 
   Binds purely from configuration data (gearBar.id + slot position build the slot frame
   name), so it does not depend on the gearSlot ui frames existing yet and can run before
-  the ReloadUI that follows a profile apply.
+  the ReloadUI that follows a profile apply. Profile import validates the slots already; the
+  numeric loop and the type checks keep a malformed slot table from ever reaching SetBinding
+  regardless.
 ]]--
 function me.ApplyGearBarKeyBindings()
   local gearBars = mod.gearBarManager.GetGearBars()
   local didBind = false
 
   for i = 1, #gearBars do
-    for position, gearSlot in pairs(gearBars[i].slots) do
-      if gearSlot.keyBinding ~= nil and gearSlot.keyBinding ~= "" then
+    local slots = type(gearBars[i].slots) == "table" and gearBars[i].slots or {}
+
+    -- numeric loop - a position that is not an integer in range would build a CLICK action for no frame
+    for position = 1, RGGM_CONSTANTS.MAX_GEAR_BAR_SLOTS do
+      local gearSlot = slots[position]
+
+      if type(gearSlot) == "table" and type(gearSlot.keyBinding) == "string" and gearSlot.keyBinding ~= "" then
         local action = "CLICK " .. RGGM_CONSTANTS.ELEMENT_GEAR_BAR_BASE_FRAME_NAME
           .. gearBars[i].id .. "Slot_" .. position .. ":LeftButton"
 

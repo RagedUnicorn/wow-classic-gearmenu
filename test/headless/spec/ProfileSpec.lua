@@ -207,6 +207,79 @@ describe("Profile", function()
     assert.is_table(envelope)
   end)
 
+  describe("gearBar slots", function()
+    local function importGearBars(gearBars)
+      local serialized = rggm.serializer.Serialize({
+        addon = "GearMenu",
+        schemaVersion = 1,
+        payload = { gearBars = gearBars }
+      })
+
+      return profile.ImportString("GearMenu1:" .. rggm.encoder.Encode(serialized))
+    end
+
+    it("accepts slots at integer positions carrying string or missing keyBindings", function()
+      local envelope, err = importGearBars({
+        { id = 100001, slots = { { keyBinding = "F1" }, { slotId = 13 } } },
+        { id = 100002 }
+      })
+
+      assert.is_nil(err)
+      assert.is_table(envelope)
+    end)
+
+    it("rejects a gearBar that is not a table", function()
+      local envelope, err = importGearBars({ "x" })
+
+      assert.is_nil(envelope)
+      assert.are.equal("profile_error_invalid", err)
+    end)
+
+    it("rejects slots that are not a table", function()
+      local envelope, err = importGearBars({ { id = 100001, slots = "x" } })
+
+      assert.is_nil(envelope)
+      assert.are.equal("profile_error_invalid", err)
+    end)
+
+    it("rejects a non-numeric slot position that would raise in the proxy action format", function()
+      local envelope, err = importGearBars({ { id = 100001, slots = { first = { keyBinding = "F1" } } } })
+
+      assert.is_nil(envelope)
+      assert.are.equal("profile_error_invalid", err)
+    end)
+
+    it("rejects a fractional slot position", function()
+      local envelope, err = importGearBars({ { id = 100001, slots = { [1.5] = { keyBinding = "F1" } } } })
+
+      assert.is_nil(envelope)
+      assert.are.equal("profile_error_invalid", err)
+    end)
+
+    it("rejects a slot position outside 1..MAX_GEAR_BAR_SLOTS", function()
+      local tooHigh = RGGM_CONSTANTS.MAX_GEAR_BAR_SLOTS + 1
+
+      assert.are.equal("profile_error_invalid",
+        select(2, importGearBars({ { id = 100001, slots = { [0] = { keyBinding = "F1" } } } })))
+      assert.are.equal("profile_error_invalid",
+        select(2, importGearBars({ { id = 100001, slots = { [tooHigh] = { keyBinding = "F1" } } } })))
+    end)
+
+    it("rejects a slot that is not a table", function()
+      local envelope, err = importGearBars({ { id = 100001, slots = { "F1" } } })
+
+      assert.is_nil(envelope)
+      assert.are.equal("profile_error_invalid", err)
+    end)
+
+    it("rejects a keyBinding that is not a string", function()
+      local envelope, err = importGearBars({ { id = 100001, slots = { { keyBinding = 42 } } } })
+
+      assert.is_nil(envelope)
+      assert.are.equal("profile_error_invalid", err)
+    end)
+  end)
+
   it("accepts a partial payload that omits fields", function()
     local serialized = rggm.serializer.Serialize({
       addon = "GearMenu",
