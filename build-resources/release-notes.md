@@ -6,3 +6,6 @@
 # Breaking Changes
 * The Default profile is now your editable home profile instead of a frozen copy of the factory settings: it is never deleted or renamed, but loading it brings back what you last had in it. Use Reset to defaults to get the factory settings back
 * The Save current as... and Apply buttons are gone; Create new Profile and Load replace them. On the first login after the update the profile you had applied and not edited since becomes the active one, otherwise Default takes over your current settings - nothing is lost either way
+
+# Bug Fixes
+* Choosing the empty entry of a change menu no longer equips the item held on the cursor into the slot, and it now tells you why an item could not be unequipped - in combat, while dead, casting or under a loss of control effect, while a spell asks for a target, or when the item is locked - instead of silently doing nothing. Choosing the empty entry also cancels a swap still queued for that slot

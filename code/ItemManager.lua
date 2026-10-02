@@ -45,7 +45,9 @@ me.failureReason = {
   itemLocked = "ITEM_LOCKED",
   cursorBusy = "CURSOR_BUSY",
   spellTargeting = "SPELL_TARGETING",
-  noBagSpace = "NO_BAG_SPACE"
+  noBagSpace = "NO_BAG_SPACE",
+  equipChangeBlocked = "EQUIP_CHANGE_BLOCKED",
+  pickupRefused = "PICKUP_REFUSED"
 }
 
 -- maps each typed failure reason to its localized user message
@@ -57,10 +59,21 @@ local swapFailureMessages = {
   [me.failureReason.noBagSpace] = "swap_failure_no_bag_space"
 }
 
+-- maps each typed failure reason of me.UnequipItemToBag to its localized user message
+local unequipFailureMessages = {
+  [me.failureReason.itemLocked] = "unequip_failure_item_locked",
+  [me.failureReason.cursorBusy] = "unequip_failure_cursor_busy",
+  [me.failureReason.spellTargeting] = "unequip_failure_spell_targeting",
+  [me.failureReason.noBagSpace] = "swap_failure_no_bag_space",
+  [me.failureReason.equipChangeBlocked] = "unequip_failure_blocked",
+  [me.failureReason.pickupRefused] = "unequip_failure_pickup_refused"
+}
+
 local bagUpdatePending = false
 
 -- forward declarations
 local NotifySwapFailure
+local IsEquipChangeRestricted
 local RequiresOffhandDisplacement
 local ScanBagsForItem
 
@@ -72,13 +85,29 @@ local ScanBagsForItem
     One of me.failureReason
   @param {number} slotId
   @param {number} itemId
+  @param {table} messages
+    Optional map of failure reason to localization key - defaults to the swap messages
 ]]--
-NotifySwapFailure = function(reason, slotId, itemId)
+NotifySwapFailure = function(reason, slotId, itemId, messages)
   if not mod.combatQueue.ShouldNotifySwapFailure(slotId, reason) then return end
 
   local itemName = itemId and C_Item.GetItemInfo(itemId) or nil
+  local messageKey = (messages or swapFailureMessages)[reason]
 
-  mod.logger.PrintUserChatError(string.format(rggm.L[swapFailureMessages[reason]], itemName or itemId))
+  mod.logger.PrintUserChatError(string.format(rggm.L[messageKey], itemName or itemId))
+end
+
+--[[
+  Whether the player is currently unable to change equipment - in combat, dead, casting or
+  under a loss of control effect that blocks equipment changes
+
+  @return {boolean}
+    true - if equipment cannot be changed right now
+    false - if equipment can be changed
+]]--
+IsEquipChangeRestricted = function()
+  return UnitAffectingCombat(RGGM_CONSTANTS.UNIT_ID_PLAYER) or mod.common.IsPlayerReallyDead()
+    or mod.combatQueue.IsEquipChangeBlocked() or mod.common.IsPlayerCasting()
 end
 
 --[[
@@ -211,8 +240,7 @@ function me.EquipItemByItemAndEnchantId(item)
     Blizzard blocks weapons from being switched by addons during combat. Because of this
     all items are added to the combatqueue if the player is in combat.
   ]]--
-  if UnitAffectingCombat(RGGM_CONSTANTS.UNIT_ID_PLAYER) or mod.common.IsPlayerReallyDead()
-    or mod.combatQueue.IsEquipChangeBlocked() or mod.common.IsPlayerCasting() then
+  if IsEquipChangeRestricted() then
     mod.combatQueue.AddToQueue(
       tonumber(item.itemId), tonumber(item.enchantId), tonumber(item.runeAbilityId), tonumber(item.slotId)
     )
@@ -786,30 +814,56 @@ function me.PlaceCursorItemInBag(itemId, slotId)
 end
 
 --[[
-  Unequips the item from the referenced slot into the first free bag slot. The free slot is
-  searched before the item is picked up - with full bags the action is aborted and the user
-  is notified without the cursor ever holding the item
+  Unequips the item from the referenced slot into the first free bag slot. Every precondition
+  (combat, cursor, spell targeting, item lock, free bag slot) is checked before the item is
+  picked up - an aborted action notifies the user without the cursor ever holding the item.
+  Unlike an equip the unequip is not queued while equipment changes are restricted; instead a
+  swap still queued for the slot is dropped because choosing the empty slot supersedes it
 
   @param {table} slot
 
   @return {string | nil}
-    string - me.failureReason.noBagSpace if no bag space could be found for the item
+    string - one of me.failureReason if the item was not unequipped
     nil - if the item was unequipped (or the slot was empty to begin with)
 ]]--
 function me.UnequipItemToBag(slot)
-  local itemId = GetInventoryItemID(RGGM_CONSTANTS.UNIT_ID_PLAYER, slot.slotId)
+  local slotId = slot.slotId
+  local itemId = GetInventoryItemID(RGGM_CONSTANTS.UNIT_ID_PLAYER, slotId)
 
   if itemId == nil then return end -- slot is empty, nothing to unequip
 
-  if me.FindSpace() == nil then
-    NotifySwapFailure(me.failureReason.noBagSpace, slot.slotId, itemId)
+  local failureReason
 
-    return me.failureReason.noBagSpace
+  if IsEquipChangeRestricted() then
+    failureReason = me.failureReason.equipChangeBlocked
+  elseif CursorHasItem() then
+    -- picking up with a held item would swap the held item into the slot
+    failureReason = me.failureReason.cursorBusy
+  elseif SpellIsTargeting() then
+    failureReason = me.failureReason.spellTargeting
+  elseif IsInventoryItemLocked(slotId) then
+    failureReason = me.failureReason.itemLocked
+  elseif me.FindSpace() == nil then
+    failureReason = me.failureReason.noBagSpace
   end
 
-  PickupInventoryItem(slot.slotId)
+  if failureReason then
+    NotifySwapFailure(failureReason, slotId, itemId, unequipFailureMessages)
+    mod.combatQueue.RemoveFromQueue(slotId)
 
-  return me.PlaceCursorItemInBag(itemId, slot.slotId)
+    return failureReason
+  end
+
+  PickupInventoryItem(slotId)
+
+  -- the client refused the pickup - an empty cursor must not be mistaken for a placed item
+  if not CursorHasItem() then
+    NotifySwapFailure(me.failureReason.pickupRefused, slotId, itemId, unequipFailureMessages)
+
+    return me.failureReason.pickupRefused
+  end
+
+  return me.PlaceCursorItemInBag(itemId, slotId)
 end
 
 --[[

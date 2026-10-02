@@ -61,6 +61,8 @@ describe("ItemManager swap failures", function()
   -- equipped[slotId] -> itemId currently worn in that slot
   local equipped
   local cursorHasItem, spellIsTargeting, inventoryLocked
+  -- inCombat backs UnitAffectingCombat, pickupRefused makes PickupInventoryItem leave the cursor empty
+  local inCombat, pickupRefused
   -- backs the mod.configuration.IsFallbackToBaseItemEnabled stub
   local fallbackEnabled
   -- slotIds passed to PickupInventoryItem, to assert an aborted action never touched the cursor
@@ -74,6 +76,7 @@ describe("ItemManager swap failures", function()
     bags = {}
     equipped = {}
     cursorHasItem, spellIsTargeting, inventoryLocked = false, false, false
+    inCombat, pickupRefused = false, false
     fallbackEnabled = false
     pickedUpInventorySlots = {}
     swapEvents = {}
@@ -125,12 +128,12 @@ describe("ItemManager swap failures", function()
       IsInventoryItemLocked = function() return inventoryLocked end,
       PickupInventoryItem = function(slotId)
         pickedUpInventorySlots[#pickedUpInventorySlots + 1] = slotId
-        if equipped[slotId] then cursorHasItem = true end
+        if equipped[slotId] and not pickupRefused then cursorHasItem = true end
       end,
       GetInventoryItemID = function(_, slotId) return equipped[slotId] end,
       PutItemInBackpack = function() cursorHasItem = false end,
       ClearCursor = function() end,
-      UnitAffectingCombat = function() return false end,
+      UnitAffectingCombat = function() return inCombat end,
       InCombatLockdown = wowStubs.stubs.InCombatLockdown(false)
     })
 
@@ -579,6 +582,96 @@ describe("ItemManager swap failures", function()
       assert.is_nil(reason)
       assert.are.equal(0, #pickedUpInventorySlots)
       assert.are.equal(0, #userChatMessages)
+    end)
+
+    it("reports EQUIP_CHANGE_BLOCKED without picking the item up while in combat", function()
+      equipped[13] = 12345
+      bags[0] = { false }
+      inCombat = true
+
+      local reason = itemManager.UnequipItemToBag({ slotId = 13 })
+
+      assert.are.equal(itemManager.failureReason.equipChangeBlocked, reason)
+      assert.are.equal(0, #pickedUpInventorySlots)
+      assert.are.equal(1, #userChatMessages)
+      assert.are.equal(
+        string.format(rggm.L["unequip_failure_blocked"], "Test Item"), userChatMessages[1])
+    end)
+
+    it("reports EQUIP_CHANGE_BLOCKED while casting", function()
+      equipped[13] = 12345
+      bags[0] = { false }
+      rggm.common.IsPlayerCasting = function() return true end
+
+      local reason = itemManager.UnequipItemToBag({ slotId = 13 })
+
+      assert.are.equal(itemManager.failureReason.equipChangeBlocked, reason)
+      assert.are.equal(0, #pickedUpInventorySlots)
+    end)
+
+    it("drops a swap queued for the slot when the unequip is refused in combat", function()
+      equipped[13] = 12345
+      bags[0] = { false }
+      inCombat = true
+      combatQueue.AddToQueue(67890, nil, nil, 13)
+
+      itemManager.UnequipItemToBag({ slotId = 13 })
+
+      assert.is_true(combatQueue.IsCombatQueueEmpty())
+    end)
+
+    it("reports CURSOR_BUSY without swapping the held item into the slot", function()
+      equipped[13] = 12345
+      bags[0] = { false }
+      cursorHasItem = true
+
+      local reason = itemManager.UnequipItemToBag({ slotId = 13 })
+
+      assert.are.equal(itemManager.failureReason.cursorBusy, reason)
+      assert.are.equal(0, #pickedUpInventorySlots)
+      assert.are.equal(1, #userChatMessages)
+      assert.are.equal(
+        string.format(rggm.L["unequip_failure_cursor_busy"], "Test Item"), userChatMessages[1])
+    end)
+
+    it("reports SPELL_TARGETING without picking the item up while a spell requests a target", function()
+      equipped[13] = 12345
+      bags[0] = { false }
+      spellIsTargeting = true
+
+      local reason = itemManager.UnequipItemToBag({ slotId = 13 })
+
+      assert.are.equal(itemManager.failureReason.spellTargeting, reason)
+      assert.are.equal(0, #pickedUpInventorySlots)
+      assert.are.equal(
+        string.format(rggm.L["unequip_failure_spell_targeting"], "Test Item"), userChatMessages[1])
+    end)
+
+    it("reports ITEM_LOCKED without picking the item up when the inventory slot is locked", function()
+      equipped[13] = 12345
+      bags[0] = { false }
+      inventoryLocked = true
+
+      local reason = itemManager.UnequipItemToBag({ slotId = 13 })
+
+      assert.are.equal(itemManager.failureReason.itemLocked, reason)
+      assert.are.equal(0, #pickedUpInventorySlots)
+      assert.are.equal(
+        string.format(rggm.L["unequip_failure_item_locked"], "Test Item"), userChatMessages[1])
+    end)
+
+    it("reports PICKUP_REFUSED instead of success when the client refuses the pickup", function()
+      equipped[13] = 12345
+      bags[0] = { false }
+      pickupRefused = true
+
+      local reason = itemManager.UnequipItemToBag({ slotId = 13 })
+
+      assert.are.equal(itemManager.failureReason.pickupRefused, reason)
+      assert.are.same({ 13 }, pickedUpInventorySlots)
+      assert.are.equal(1, #userChatMessages)
+      assert.are.equal(
+        string.format(rggm.L["unequip_failure_pickup_refused"], "Test Item"), userChatMessages[1])
     end)
   end)
 

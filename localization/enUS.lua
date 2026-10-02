@@ -183,6 +183,12 @@ rggm.L["swap_failure_item_locked"] = "Unable to switch to item %s - the item is 
 rggm.L["swap_failure_cursor_busy"] = "Unable to switch to item %s - another item is currently on the cursor"
 rggm.L["swap_failure_spell_targeting"] = "Unable to switch to item %s - a spell is currently requesting a target"
 rggm.L["swap_failure_no_bag_space"] = "Unable to unequip item %s - there is no free space in your bags"
+rggm.L["unequip_failure_item_locked"] = "Unable to unequip item %s - the item is currently locked"
+rggm.L["unequip_failure_cursor_busy"] = "Unable to unequip item %s - another item is currently on the cursor"
+rggm.L["unequip_failure_spell_targeting"] = "Unable to unequip item %s - a spell is currently requesting a target"
+rggm.L["unequip_failure_blocked"] = "Unable to unequip item %s while in combat, dead, casting or under a loss"
+  .. " of control effect. Please try again afterwards"
+rggm.L["unequip_failure_pickup_refused"] = "Unable to unequip item %s - the game refused to pick up the item"
 rggm.L["swap_fallback_to_base_item"] = "Equipped a substitute copy of %s - no copy matching the exact"
   .. " enchant/rune was found in your bags"
 

@@ -179,6 +179,11 @@ if (GetLocale() == "zhCN") then
   rggm.L["swap_failure_cursor_busy"] = "无法切换到物品 %s - 光标上有其他物品"
   rggm.L["swap_failure_spell_targeting"] = "无法切换到物品 %s - 有法术正在等待目标"
   rggm.L["swap_failure_no_bag_space"] = "无法卸下物品 %s - 背包中没有空余空间"
+  rggm.L["unequip_failure_item_locked"] = "无法卸下物品 %s - 该物品当前被锁定"
+  rggm.L["unequip_failure_cursor_busy"] = "无法卸下物品 %s - 光标上有其他物品"
+  rggm.L["unequip_failure_spell_targeting"] = "无法卸下物品 %s - 有法术正在等待目标"
+  rggm.L["unequip_failure_blocked"] = "无法在战斗中、死亡时、施法时或失去控制时卸下物品 %s。请稍后再试"
+  rggm.L["unequip_failure_pickup_refused"] = "无法卸下物品 %s - 游戏拒绝拿起该物品"
   rggm.L["swap_fallback_to_base_item"] = "已装备 %s 的替代副本 - 背包中找不到附魔/符文完全一致的副本"
 
   -- profile
