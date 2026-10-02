@@ -671,6 +671,9 @@ HandleRename = function(oldName, newName)
 
   if IsNameTooLong(newName) then return end
 
+  -- the popup is prefilled with the current name - accepting it unchanged is a no-op
+  if newName == oldName then return end
+
   if mod.profile.IsDefaultProfile(oldName) then
     PrintDefaultProfileError("profile_error_default_cannot_be_renamed")
     return
@@ -681,12 +684,13 @@ HandleRename = function(oldName, newName)
     return
   end
 
-  if newName ~= oldName and mod.profile.ProfileExists(newName) then
+  if mod.profile.ProfileExists(newName) then
     mod.logger.PrintUserError(rggm.L["profile_error_name_exists"])
     return
   end
 
-  mod.profile.RenameProfile(oldName, newName)
+  if not mod.profile.RenameProfile(oldName, newName) then return end
+
   me.selectedProfile = newName
   RefreshList()
   mod.logger.PrintUserMessage(string.format(rggm.L["profile_rename_success"], newName))

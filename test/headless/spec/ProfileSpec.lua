@@ -808,6 +808,32 @@ describe("Profile", function()
       assert.are.same({ defaultName, "Arena", "Raid Night" }, profile.ListProfiles())
     end)
 
+    it("keeps a profile renamed to its own name", function()
+      profile.EnsureDefaultProfile()
+      profile.EnsureActiveProfile()
+      profile.SaveProfile("PvP", profile.BuildSnapshot())
+      local stored = profile.GetProfile("PvP")
+
+      assert.is_true(profile.RenameProfile("PvP", "PvP"))
+
+      assert.is_true(profile.ProfileExists("PvP"))
+      assert.are.equal(stored, profile.GetProfile("PvP"))
+      assert.are.same({ defaultName, "PvP" }, profile.ListProfiles())
+    end)
+
+    it("keeps the active profile and its active name when renamed to its own name", function()
+      profile.EnsureDefaultProfile()
+      profile.EnsureActiveProfile()
+      profile.CreateProfile("Raid")
+
+      assert.is_true(profile.RenameProfile("Raid", "Raid"))
+
+      assert.is_true(profile.ProfileExists("Raid"))
+      assert.are.equal("Raid", profile.GetActiveProfileName())
+      -- the logout mirror still writes into Raid instead of falling back to Default
+      assert.are.equal("Raid", profile.SaveActiveProfile())
+    end)
+
     it("resets the active profile to the factory state plus the starter GearBar and mirrors it", function()
       profile.EnsureDefaultProfile()
       profile.EnsureActiveProfile()
