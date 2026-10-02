@@ -32,8 +32,6 @@ mod.uiHelper = me
 
 me.tag = "UiHelper"
 
-local CreateSliderOptions
-
 --[[
   Apply one of the RGGM_CONSTANTS.COLOR { r, g, b } tokens to a font string.
 
@@ -211,7 +209,7 @@ end
 
   @return {table} sliderOptions
 ]]--
-CreateSliderOptions = function(minValue, maxValue, title)
+local function CreateSliderOptions(minValue, maxValue, title)
   local sliderOptions = Settings.CreateSliderOptions(
     minValue,
     maxValue,

@@ -217,9 +217,6 @@ GearMenuConfiguration = GearMenuConfiguration or {}
 ]]--
 local defaultsByName
 
--- forward declarations
-local ApplyConfigurationDefaults
-
 --[[
   Recursively backfill missing keys of target with a fresh deep copy of the matching
   defaults value. A key is missing only when its value is nil -- false is a real value
@@ -248,7 +245,7 @@ end
 
   @param {table} target
 ]]--
-ApplyConfigurationDefaults = function(target)
+local function ApplyConfigurationDefaults(target)
   for _, entry in ipairs(CONFIGURATION_DEFAULTS) do
     if target[entry.name] == nil then
       target[entry.name] = mod.common.Clone(entry.default)
