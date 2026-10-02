@@ -151,6 +151,19 @@ describe("Core initialize", function()
     assert.is_true(seeded < indexOf("gearBar.UpdateGearBars"))
   end)
 
+  it("refreshes the gearBar visuals once, after the TrinketMenu is built", function()
+    handlers["PLAYER_ENTERING_WORLD"](false, true)
+
+    local refreshes = 0
+
+    for _, logged in ipairs(callLog) do
+      if logged == "gearBar.UpdateGearBars" then refreshes = refreshes + 1 end
+    end
+
+    assert.are.equal(1, refreshes)
+    assert.is_true(indexOf("configuration.IsTrinketMenuEnabled") < indexOf("gearBar.UpdateGearBars"))
+  end)
+
   it("does not re-initialize when only zoning between map instances", function()
     handlers["PLAYER_ENTERING_WORLD"](false, false)
 

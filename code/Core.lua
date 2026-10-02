@@ -30,6 +30,9 @@ local me = rggm
 
 me.tag = "Core"
 
+-- whether a gearBar visual refresh is already scheduled for the next frame
+local gearBarVisualUpdatePending = false
+
 -- Forward declarations
 local OnPlayerEnteringWorld
 local OnPlayerLogout
@@ -37,6 +40,7 @@ local OnBagUpdate
 local OnItemLockChanged
 local OnPlayerEquipmentChanged
 local OnUnitInventoryChanged
+local RequestGearBarVisualUpdate
 local OnBagUpdateCooldown
 local OnUpdateBindings
 local OnLossOfControl
@@ -111,18 +115,35 @@ end
   Update the gearBar visuals when the player equips or unequips an item.
 ]]--
 OnPlayerEquipmentChanged = function()
-  me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarVisual)
+  RequestGearBarVisualUpdate()
 end
 
 --[[
-  Update the gearBar visuals when the player's inventory changes.
+  Update the gearBar visuals when the player's inventory changes. Kept next to
+  PLAYER_EQUIPMENT_CHANGED as the fallback during the initial login.
 
   @param {string} unit
 ]]--
 OnUnitInventoryChanged = function(unit)
   if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER then
-    me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarVisual)
+    RequestGearBarVisualUpdate()
   end
+end
+
+--[[
+  Refresh the gearBar visuals on the next frame. One equip fires both PLAYER_EQUIPMENT_CHANGED
+  and UNIT_INVENTORY_CHANGED; the pending flag folds them - and any further change in the same
+  frame - into a single full refresh.
+]]--
+RequestGearBarVisualUpdate = function()
+  if gearBarVisualUpdatePending then return end
+
+  gearBarVisualUpdatePending = true
+
+  C_Timer.After(0, function()
+    gearBarVisualUpdatePending = false
+    me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarVisual)
+  end)
 end
 
 --[[
@@ -321,8 +342,6 @@ Initialize = function()
     selected before a login or /reload is otherwise only seen once the player changes target
   ]]--
   me.target.UpdateCurrentTarget()
-  -- update initial view of gearBars after addon initialization
-  me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarVisual)
 
   if me.configuration.IsTrinketMenuEnabled() then
     -- build ui for trinketMenu
@@ -331,6 +350,7 @@ Initialize = function()
     me.trinketMenu.UpdateTrinketMenu()
   end
 
+  -- update initial view of gearBars after addon initialization
   me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarVisual)
   me.keyBind.OnUpdateKeyBindings()
   -- register addon message prefix for the version broadcast
