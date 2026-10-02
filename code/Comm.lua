@@ -40,14 +40,6 @@ me.tag = "Comm"
   third-party comm library.
 ]]--
 
--- forward declarations
-local IsSelfSent
-local NormalizeVersion
-local RequestBroadcast
-local SendOnChannel
-local SendVersion
-local ShouldNotify
-
 --[[
   Minimum time in seconds between two version broadcasts. GROUP_ROSTER_UPDATE fires
   in bursts while a group forms; the cooldown keeps the broadcasts well within the
@@ -79,62 +71,19 @@ local pendingIncludesGuild = false
 local notifiedThisSession = false
 
 --[[
-  Register the addon message prefix so the client delivers version broadcasts from
-  other players via CHAT_MSG_ADDON
+  Send the version on one channel. A refused send (a channel the player is not in, the
+  throttle) is only logged - the next roster edge broadcasts again
+
+  @param {string} version
+  @param {string} channel
 ]]--
-function me.Initialize()
-  C_ChatInfo.RegisterAddonMessagePrefix(RGGM_CONSTANTS.ADDON_MESSAGE_PREFIX)
-  mod.logger.LogDebug(me.tag,
-    "Registered addon message prefix " .. RGGM_CONSTANTS.ADDON_MESSAGE_PREFIX)
-end
+local function SendOnChannel(version, channel)
+  local result = C_ChatInfo.SendAddonMessage(RGGM_CONSTANTS.ADDON_MESSAGE_PREFIX, version, channel)
 
---[[
-  Broadcast the running addon version to guild and group members. Invoked on login and
-  /reload only - the guild does not change with the group, so it is told once per session
-]]--
-function me.BroadcastVersion()
-  RequestBroadcast(true)
-end
-
---[[
-  Broadcast the running addon version to the raid or party only. Invoked on roster edges
-  (GROUP_ROSTER_UPDATE) and when zoning, where only the group may have new members
-]]--
-function me.BroadcastGroupVersion()
-  RequestBroadcast(false)
-end
-
---[[
-  Send the version now, or - within BROADCAST_COOLDOWN of the last broadcast - once the
-  cooldown elapsed. A roster burst coalesces into a single trailing broadcast instead of being
-  dropped, so a player joining right after another roster change still receives the version.
-  The trailing broadcast includes the guild if any of the calls it stands in for did.
-
-  @param {boolean} includeGuild
-]]--
-RequestBroadcast = function(includeGuild)
-  local elapsed = GetTime() - lastBroadcastTime
-
-  if not broadcastPending and elapsed >= BROADCAST_COOLDOWN then
-    SendVersion(includeGuild)
-
-    return
+  -- true (older clients) or 0 (Enum.SendAddonMessageResult.Success) mean the message was sent
+  if result ~= nil and result ~= true and result ~= 0 then
+    mod.logger.LogDebug(me.tag, "Version broadcast on " .. channel .. " was not sent: " .. tostring(result))
   end
-
-  pendingIncludesGuild = pendingIncludesGuild or includeGuild
-
-  if broadcastPending then return end
-
-  mod.logger.LogDebug(me.tag, "Delaying version broadcast - cooldown active")
-  broadcastPending = true
-
-  C_Timer.After(BROADCAST_COOLDOWN - elapsed, function()
-    local guild = pendingIncludesGuild
-
-    broadcastPending = false
-    pendingIncludesGuild = false
-    SendVersion(guild)
-  end)
 end
 
 --[[
@@ -143,7 +92,7 @@ end
 
   @param {boolean} includeGuild
 ]]--
-SendVersion = function(includeGuild)
+local function SendVersion(includeGuild)
   local version = C_AddOns.GetAddOnMetadata(RGGM_CONSTANTS.ADDON_NAME, "Version")
 
   if version == nil then return end
@@ -170,19 +119,126 @@ SendVersion = function(includeGuild)
 end
 
 --[[
-  Send the version on one channel. A refused send (a channel the player is not in, the
-  throttle) is only logged - the next roster edge broadcasts again
+  Send the version now, or - within BROADCAST_COOLDOWN of the last broadcast - once the
+  cooldown elapsed. A roster burst coalesces into a single trailing broadcast instead of being
+  dropped, so a player joining right after another roster change still receives the version.
+  The trailing broadcast includes the guild if any of the calls it stands in for did.
 
-  @param {string} version
-  @param {string} channel
+  @param {boolean} includeGuild
 ]]--
-SendOnChannel = function(version, channel)
-  local result = C_ChatInfo.SendAddonMessage(RGGM_CONSTANTS.ADDON_MESSAGE_PREFIX, version, channel)
+local function RequestBroadcast(includeGuild)
+  local elapsed = GetTime() - lastBroadcastTime
 
-  -- true (older clients) or 0 (Enum.SendAddonMessageResult.Success) mean the message was sent
-  if result ~= nil and result ~= true and result ~= 0 then
-    mod.logger.LogDebug(me.tag, "Version broadcast on " .. channel .. " was not sent: " .. tostring(result))
+  if not broadcastPending and elapsed >= BROADCAST_COOLDOWN then
+    SendVersion(includeGuild)
+
+    return
   end
+
+  pendingIncludesGuild = pendingIncludesGuild or includeGuild
+
+  if broadcastPending then return end
+
+  mod.logger.LogDebug(me.tag, "Delaying version broadcast - cooldown active")
+  broadcastPending = true
+
+  C_Timer.After(BROADCAST_COOLDOWN - elapsed, function()
+    local guild = pendingIncludesGuild
+
+    broadcastPending = false
+    pendingIncludesGuild = false
+    SendVersion(guild)
+  end)
+end
+
+--[[
+  Register the addon message prefix so the client delivers version broadcasts from
+  other players via CHAT_MSG_ADDON
+]]--
+function me.Initialize()
+  C_ChatInfo.RegisterAddonMessagePrefix(RGGM_CONSTANTS.ADDON_MESSAGE_PREFIX)
+  mod.logger.LogDebug(me.tag,
+    "Registered addon message prefix " .. RGGM_CONSTANTS.ADDON_MESSAGE_PREFIX)
+end
+
+--[[
+  Broadcast the running addon version to guild and group members. Invoked on login and
+  /reload only - the guild does not change with the group, so it is told once per session
+]]--
+function me.BroadcastVersion()
+  RequestBroadcast(true)
+end
+
+--[[
+  Broadcast the running addon version to the raid or party only. Invoked on roster edges
+  (GROUP_ROSTER_UPDATE) and when zoning, where only the group may have new members
+]]--
+function me.BroadcastGroupVersion()
+  RequestBroadcast(false)
+end
+
+--[[
+  Reduce a received version to its canonical "vMAJOR.MINOR.PATCH" form. Anything else -
+  a non-string, an oversized message, trailing or leading text - is rejected.
+
+  @param {string} message
+  @return {string | nil}
+    the normalized version, or nil if the message is not a well-formed version
+]]--
+local function NormalizeVersion(message)
+  if type(message) ~= "string" or #message > MAX_VERSION_LENGTH then return nil end
+
+  local major, minor, patch = string.match(message, "^v?(%d+)%.(%d+)%.(%d+)$")
+
+  if major == nil then return nil end
+
+  return string.format("v%d.%d.%d", tonumber(major), tonumber(minor), tonumber(patch))
+end
+
+--[[
+  Whether an addon message was sent by the player themself. Defense-in-depth -
+  the player's own version is never strictly newer than itself.
+
+  @param {string} sender
+    sender name, possibly realm-qualified ("Name-Realm")
+  @return {boolean}
+    true - if the sender is the player
+    false - otherwise
+]]--
+local function IsSelfSent(sender)
+  return string.match(sender or "", "^([^-]+)") == UnitName("player")
+end
+
+--[[
+  Whether a received version warrants the update notice: strictly newer than the
+  running version, not yet announced this session and newer than the persisted
+  lastNotifiedVersion.
+
+  @param {string} receivedVersion
+  @return {boolean}
+    true - if the update notice should be shown
+    false - otherwise
+]]--
+local function ShouldNotify(receivedVersion)
+  if notifiedThisSession then return false end
+
+  local version = C_AddOns.GetAddOnMetadata(RGGM_CONSTANTS.ADDON_NAME, "Version")
+
+  if not mod.configuration.IsVersionBefore(version, receivedVersion) then return false end
+
+  --[[
+    An empty lastNotifiedVersion means nothing was announced yet. IsVersionBefore
+    treats an unparseable version as "not before", which would otherwise suppress
+    the very first notice
+  ]]--
+  local lastNotifiedVersion = GearMenuConfiguration.lastNotifiedVersion
+
+  if lastNotifiedVersion ~= nil and lastNotifiedVersion ~= ""
+      and not mod.configuration.IsVersionBefore(lastNotifiedVersion, receivedVersion) then
+    return false
+  end
+
+  return true
 end
 
 --[[
@@ -213,68 +269,4 @@ function me.OnChatMsgAddon(prefix, message, channel, sender)
   notifiedThisSession = true
   GearMenuConfiguration.lastNotifiedVersion = version
   mod.logger.PrintUserMessage(string.format(rggm.L["update_available"], version))
-end
-
---[[
-  Reduce a received version to its canonical "vMAJOR.MINOR.PATCH" form. Anything else -
-  a non-string, an oversized message, trailing or leading text - is rejected.
-
-  @param {string} message
-  @return {string | nil}
-    the normalized version, or nil if the message is not a well-formed version
-]]--
-NormalizeVersion = function(message)
-  if type(message) ~= "string" or #message > MAX_VERSION_LENGTH then return nil end
-
-  local major, minor, patch = string.match(message, "^v?(%d+)%.(%d+)%.(%d+)$")
-
-  if major == nil then return nil end
-
-  return string.format("v%d.%d.%d", tonumber(major), tonumber(minor), tonumber(patch))
-end
-
---[[
-  Whether an addon message was sent by the player themself. Defense-in-depth -
-  the player's own version is never strictly newer than itself.
-
-  @param {string} sender
-    sender name, possibly realm-qualified ("Name-Realm")
-  @return {boolean}
-    true - if the sender is the player
-    false - otherwise
-]]--
-IsSelfSent = function(sender)
-  return string.match(sender or "", "^([^-]+)") == UnitName("player")
-end
-
---[[
-  Whether a received version warrants the update notice: strictly newer than the
-  running version, not yet announced this session and newer than the persisted
-  lastNotifiedVersion.
-
-  @param {string} receivedVersion
-  @return {boolean}
-    true - if the update notice should be shown
-    false - otherwise
-]]--
-ShouldNotify = function(receivedVersion)
-  if notifiedThisSession then return false end
-
-  local version = C_AddOns.GetAddOnMetadata(RGGM_CONSTANTS.ADDON_NAME, "Version")
-
-  if not mod.configuration.IsVersionBefore(version, receivedVersion) then return false end
-
-  --[[
-    An empty lastNotifiedVersion means nothing was announced yet. IsVersionBefore
-    treats an unparseable version as "not before", which would otherwise suppress
-    the very first notice
-  ]]--
-  local lastNotifiedVersion = GearMenuConfiguration.lastNotifiedVersion
-
-  if lastNotifiedVersion ~= nil and lastNotifiedVersion ~= ""
-      and not mod.configuration.IsVersionBefore(lastNotifiedVersion, receivedVersion) then
-    return false
-  end
-
-  return true
 end
