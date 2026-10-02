@@ -281,6 +281,39 @@ describe("Profile", function()
     end)
   end)
 
+  describe("envelope name", function()
+    local function importWithName(name)
+      local serialized = rggm.serializer.Serialize({
+        addon = "GearMenu",
+        schemaVersion = 1,
+        name = name,
+        payload = { enableTooltips = true }
+      })
+
+      return profile.ImportString("GearMenu1:" .. rggm.encoder.Encode(serialized))
+    end
+
+    it("keeps a string name as the suggestion for the import prompt", function()
+      local envelope = importWithName("Raid")
+
+      assert.are.equal("Raid", envelope.name)
+    end)
+
+    it("drops a table name so the import prompt starts empty instead of raising", function()
+      local envelope, err = importWithName({ "Raid" })
+
+      assert.is_nil(err)
+      assert.is_table(envelope)
+      assert.is_nil(envelope.name)
+    end)
+
+    it("drops a number name", function()
+      local envelope = importWithName(42)
+
+      assert.is_nil(envelope.name)
+    end)
+  end)
+
   it("accepts a partial payload that omits fields", function()
     local serialized = rggm.serializer.Serialize({
       addon = "GearMenu",

@@ -454,6 +454,14 @@ function me.ImportString(encoded)
     return nil, "profile_error_invalid"
   end
 
+  --[[
+    The name is only a suggestion for the import prompt, which puts it into an EditBox - a
+    crafted non-string name would raise there, so it is dropped and the prompt starts empty
+  ]]--
+  if type(envelope.name) ~= "string" then
+    envelope.name = nil
+  end
+
   return envelope
 end
 
