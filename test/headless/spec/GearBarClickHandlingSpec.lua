@@ -102,11 +102,13 @@ describe("GearBar click handling", function()
     calls = {
       removedFromQueue = {},  -- combatQueue.RemoveFromQueue(slotId)
       themeClicks = {},       -- themeCoordinator.GearSlotOnClick(self, button)
+      userErrors = {},        -- logger.PrintUserError(message)
       errorsLogged = 0
     }
 
     -- snapshot everything the load / functions touch so nothing leaks across specs
     previous = {
+      L = rggm.L,
       gearBar = rggm.gearBar,
       configuration = rggm.configuration,
       combatQueue = rggm.combatQueue,
@@ -138,13 +140,16 @@ describe("GearBar click handling", function()
       LogInfo = function() end,
       LogWarn = function() end,
       LogError = function() calls.errorsLogged = calls.errorsLogged + 1 end,
-      PrintUserError = function() end
+      PrintUserError = function(message) calls.userErrors[#calls.userErrors + 1] = message end
     }
 
     restore = wowStubs.install({
-      InCombatLockdown = wowStubs.stubs.InCombatLockdown(false)
+      InCombatLockdown = wowStubs.stubs.InCombatLockdown(false),
+      C_AddOns = wowStubs.stubs.C_AddOns({ Version = "0.0.0-test" })
     })
 
+    -- the real enUS strings, so the combat message is asserted against the shipped text
+    dofile("localization/enUS.lua")
     dofile("gui/GearBar.lua")
     gearBar = rggm.gearBar
   end)
@@ -158,6 +163,7 @@ describe("GearBar click handling", function()
     rggm.themeCoordinator = previous.themeCoordinator
     rggm.gearBarStorage = previous.gearBarStorage
     rggm.logger = previous.logger
+    rggm.L = previous.L
   end)
 
   describe("SetupEvents", function()
@@ -278,7 +284,8 @@ describe("GearBar click handling", function()
       gearBar.UpdateClickHandler()
 
       assert.are.equal(0, #gearSlot.attributes)
-      assert.are.equal(1, calls.errorsLogged)
+      assert.are.same({ rggm.L["gear_bar_update_slots_combat"] }, calls.userErrors)
+      assert.are.equal(0, calls.errorsLogged)
 
       restoreCombat()
     end)

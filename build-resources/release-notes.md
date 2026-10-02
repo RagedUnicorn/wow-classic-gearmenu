@@ -31,3 +31,4 @@
 * GearBar and TrinketMenu positions no longer store the frame they are anchored to - they always anchor to the screen - so a moved GearBar can always be exported with its profile
 * The TrinketMenu keeps one row of height when you carry no trinkets, so an unlocked TrinketMenu can still be grabbed and moved, and it no longer grows past its 30 slots when you carry more trinkets
 * With simple tooltips enabled, hovering an item the game has not loaded yet no longer risks a Lua error or an empty tooltip - the tooltip appears on the next hover once the item is loaded
+* The message shown when GearSlots cannot be updated during combat is now translated into every supported language and no longer reads "after your are out of combat"

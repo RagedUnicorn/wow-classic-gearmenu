@@ -143,6 +143,8 @@ if (GetLocale() == "deDE") then
     .. "Bitte versuche es nach dem Kampf erneut"
   rggm.L["gear_bar_move_combat"] =
     "Ein Ausrüstungsbalken kann im Kampf nicht bewegt werden. Bitte versuche es nach dem Kampf erneut"
+  rggm.L["gear_bar_update_slots_combat"] =
+    "Die Gearslots können im Kampf nicht aktualisiert werden. Bitte nach dem Kampf /reload ausführen"
   rggm.L["gear_slot_size_combat"] =
     "Die Grösse der Ausrüstungsslots kann im Kampf nicht geändert werden. Bitte versuche es nach dem Kampf erneut"
   rggm.L["gear_slot_size_slider_title"] = "Ausrüstungsslot Grösse"
