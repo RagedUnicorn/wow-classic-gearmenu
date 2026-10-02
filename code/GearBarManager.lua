@@ -161,19 +161,21 @@ function me.GetGearBars()
 end
 
 --[[
-  Update the position of a specific gearBar
+  Update the position of a specific gearBar. The frame the position is relative to is not
+  stored: gearBars always anchor to UIParent, and GetPoint may hand back a frame object that
+  cannot live in the SavedVariables or travel in a profile export
 
   @param {number} gearBarId
   @param {string} point
-  @param {string} relativeTo
+  @param {table | nil} _
+    relativeTo as returned by GetPoint - ignored
   @param {string} relativePoint
   @param {number} posX
   @param {number} posY
 ]]--
-function me.UpdateGearBarPosition(gearBarId, point, relativeTo, relativePoint, posX, posY)
+function me.UpdateGearBarPosition(gearBarId, point, _, relativePoint, posX, posY)
   local gearBar = me.GetGearBar(gearBarId)
   gearBar.position.point = point
-  gearBar.position.relativeTo = relativeTo
   gearBar.position.relativePoint = relativePoint
   gearBar.position.posX = posX
   gearBar.position.posY = posY

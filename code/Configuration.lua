@@ -284,6 +284,11 @@ function me.NormalizeConfiguration(target)
   ApplyConfigurationDefaults(target)
 
   for _, gearBar in pairs(target.gearBars) do
+    -- drop a relativeTo an earlier version stored - positions always anchor to UIParent
+    if type(gearBar.position) == "table" then
+      gearBar.position.relativeTo = nil
+    end
+
     --[[
       gearBars is a userOwned collection - ApplyConfigurationDefaults never descends into it,
       so a per-bar field added in a later version has to be backfilled here
@@ -301,6 +306,12 @@ function me.NormalizeConfiguration(target)
         gearBar.changeMenuDirection, gearBar.orientation) then
       mod.logger.LogInfo(me.tag, "gearBar changeMenuDirection has unexpected value")
       gearBar.changeMenuDirection = mod.gearBarManager.GetDefaultChangeMenuDirection(gearBar.orientation)
+    end
+  end
+
+  for _, framePosition in pairs(target.frames) do
+    if type(framePosition) == "table" then
+      framePosition.relativeTo = nil
     end
   end
 end
@@ -905,16 +916,19 @@ end
 
 
 --[[
-  Save the position of a frame in the addon variables allowing to persist its position
+  Save the position of a frame in the addon variables allowing to persist its position. The frame
+  the position is relative to is not stored: the frame always anchors to UIParent, and GetPoint may
+  hand back a frame object that cannot live in the SavedVariables or travel in a profile export
 
   @param {string} frameName
   @param {string} point
-  @param {string} relativeTo
+  @param {table | nil} _
+    relativeTo as returned by GetPoint - ignored
   @param {string} relativePoint
   @param {number} posX
   @param {number} posY
 ]]--
-function me.SaveUserPlacedFramePosition(frameName, point, relativeTo, relativePoint, posX, posY)
+function me.SaveUserPlacedFramePosition(frameName, point, _, relativePoint, posX, posY)
   if GearMenuConfiguration.frames[frameName] == nil then
     GearMenuConfiguration.frames[frameName] = {}
   end
@@ -922,7 +936,6 @@ function me.SaveUserPlacedFramePosition(frameName, point, relativeTo, relativePo
   GearMenuConfiguration.frames[frameName].posX = posX
   GearMenuConfiguration.frames[frameName].posY = posY
   GearMenuConfiguration.frames[frameName].point = point
-  GearMenuConfiguration.frames[frameName].relativeTo = relativeTo
   GearMenuConfiguration.frames[frameName].relativePoint = relativePoint
 
   mod.logger.LogDebug(me.tag, "Saved frame position for - " .. frameName

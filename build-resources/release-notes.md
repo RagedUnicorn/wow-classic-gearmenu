@@ -28,3 +28,4 @@
 * Importing a damaged or hand-edited profile string whose profile name is not text no longer raises a Lua error - the name prompt simply starts empty
 * An imported profile string now only brings in GearMenu's own settings - anything else a damaged or foreign string carries is left out of your saved profiles - and a paste far longer than any real profile is refused right away
 * Importing a damaged or hand-edited profile string with an out-of-range number (such as 1e999) is refused as invalid instead of storing an infinite size or position or raising a Lua error
+* GearBar and TrinketMenu positions no longer store the frame they are anchored to - they always anchor to the screen - so a moved GearBar can always be exported with its profile

@@ -248,17 +248,27 @@ describe("GearBarManager", function()
   end)
 
   describe("UpdateGearBarPosition", function()
-    it("writes all five position fields onto the bar", function()
+    it("writes the point, relative point and offsets onto the bar", function()
       local id = addBar("BarA")
 
-      gearBarManager.UpdateGearBarPosition(id, "TOPLEFT", "UIParent", "CENTER", 42, -17)
+      gearBarManager.UpdateGearBarPosition(id, "TOPLEFT", nil, "CENTER", 42, -17)
 
       local position = gearBarManager.GetGearBar(id).position
       assert.are.equal("TOPLEFT", position.point)
-      assert.are.equal("UIParent", position.relativeTo)
       assert.are.equal("CENTER", position.relativePoint)
       assert.are.equal(42, position.posX)
       assert.are.equal(-17, position.posY)
+    end)
+
+    it("does not store the frame GetPoint returns as relativeTo, so the bar stays exportable", function()
+      local id = addBar("BarA")
+      local uiParent = { GetName = function() return "UIParent" end }
+
+      gearBarManager.UpdateGearBarPosition(id, "TOPLEFT", uiParent, "CENTER", 42, -17)
+
+      local gearBar = gearBarManager.GetGearBar(id)
+      assert.is_nil(gearBar.position.relativeTo)
+      assert.has_no.errors(function() rggm.serializer.Serialize(gearBar) end)
     end)
   end)
 

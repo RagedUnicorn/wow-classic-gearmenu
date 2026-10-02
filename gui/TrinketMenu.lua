@@ -53,7 +53,7 @@ function me.BuildTrinketMenu()
   if framePosition ~= nil then
     trinketMenuFrame:SetPoint(
       framePosition.point,
-      framePosition.relativeTo,
+      UIParent,
       framePosition.relativePoint,
       framePosition.posX,
       framePosition.posY
