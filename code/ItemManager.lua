@@ -806,7 +806,7 @@ function me.PlaceCursorItemInBag(itemId, slotId)
   if bagNumber == 0 then
     PutItemInBackpack()
   else
-    -- PutItemInBag(mod.gearManager.GetMappedBag(bagNumber)) seems to be broken with latest patch
+    -- PutItemInBag with the bag's inventory slot is unreliable - place into the free slot itself
     C_Container.PickupContainerItem(bagNumber, bagPos)
   end
 

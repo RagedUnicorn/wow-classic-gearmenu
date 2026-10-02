@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: read globals UnitGUID UnitName
+-- luacheck: read globals UnitGUID
 
 local mod = rggm
 local me = {}
@@ -33,7 +33,6 @@ mod.target = me
 me.tag = "Target"
 
 local currentTargetGuid = ""
-local currentTargetName = ""
 
 --[[
   Returns the players current target uid or an empty string if the player has no target.
@@ -45,23 +44,10 @@ function me.GetCurrentTargetGuid()
 end
 
 --[[
-  Returns the players current target name or an empty string if the player has no target.
-
-  @return {string}
-]]--
-function me.GetCurrentTargetName()
-  return currentTargetName
-end
-
---[[
   Get players current target in the form of the targets unique id and update the currentTarget.
 ]]--
 function me.UpdateCurrentTarget()
-  local targetId
-  local targetName
-
-  targetId = UnitGUID(RGGM_CONSTANTS.UNIT_ID_TARGET)
-  targetName = UnitName(RGGM_CONSTANTS.UNIT_ID_TARGET)
+  local targetId = UnitGUID(RGGM_CONSTANTS.UNIT_ID_TARGET)
 
   if targetId == nil then
     currentTargetGuid = ""
@@ -69,13 +55,5 @@ function me.UpdateCurrentTarget()
   else
     currentTargetGuid = targetId
     mod.logger.LogDebug(me.tag, "Update players targetGUID: " .. currentTargetGuid)
-  end
-
-  if targetName == nil then
-    currentTargetName = ""
-    mod.logger.LogDebug(me.tag, "Update players targetName: [Empty-target]")
-  else
-    currentTargetName = targetName
-    mod.logger.LogDebug(me.tag, "Update players targetName: " .. currentTargetName)
   end
 end

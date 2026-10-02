@@ -45,7 +45,6 @@ code/Macro.lua
 code/Engrave.lua
 
 # debug
-code/Debug.lua
 
 # gui
 gui/Frame.xml

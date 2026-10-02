@@ -23,6 +23,13 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
+--[[
+  Developer tool: nothing in GearMenu registers a filter. While debugging, silence the log lines
+  of a noisy module from the chat, e.g. /run rggm.filter.RegisterFilter("ticker", "^Ticker$"),
+  and bring them back with /run rggm.filter.DeregisterFilter("ticker"). Logger checks every
+  log line against the registered patterns (see PrintLogMessage in code/Logger.lua).
+]]--
+
 local mod = rggm
 local me = {}
 

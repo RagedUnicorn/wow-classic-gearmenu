@@ -29,7 +29,7 @@
 
   Core.lua is loaded with a recording event bus; me.OnLoad registers the handlers and the spec
   fires PLAYER_ENTERING_WORLD directly. code/Target.lua is loaded for real against stubbed
-  UnitGUID / UnitName; every other module Initialize reaches is a recorder that accepts any call
+  UnitGUID; every other module Initialize reaches is a recorder that accepts any call
   and logs it, so the spec can also assert where in the sequence the target is seeded.
 ]]--
 
@@ -99,7 +99,6 @@ describe("Core initialize", function()
 
     restore = wowStubs.install({
       UnitGUID = function() return targetGuid end,
-      UnitName = function() return targetGuid and "Target" or nil end,
       C_AddOns = wowStubs.stubs.C_AddOns({ Version = "v0.0.0-test" }),
       print = function() end
     })
@@ -124,7 +123,6 @@ describe("Core initialize", function()
     handlers["PLAYER_ENTERING_WORLD"](false, true)
 
     assert.are.equal(TARGET_GUID, rggm.target.GetCurrentTargetGuid())
-    assert.are.equal("Target", rggm.target.GetCurrentTargetName())
   end)
 
   it("keeps the target empty when nothing is targeted", function()
@@ -133,7 +131,6 @@ describe("Core initialize", function()
     handlers["PLAYER_ENTERING_WORLD"](true, false)
 
     assert.are.equal("", rggm.target.GetCurrentTargetGuid())
-    assert.are.equal("", rggm.target.GetCurrentTargetName())
   end)
 
   it("seeds the target after the gearBars are built and before their first visual update", function()
