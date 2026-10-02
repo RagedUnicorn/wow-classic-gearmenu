@@ -42,12 +42,8 @@
   keybinding / metadata WoW globals the v2.0 migration touches come from wowStubs.install.
 ]]--
 
--- busted extends `assert` with .same / .equal / etc. at runtime; luacheck cannot verify those
--- fields statically. Suppress warning 143 (accessing undefined field of a global variable).
--- luacheck: globals describe it before_each after_each
 -- the WoW inventory slot ids used in fixtures are defined by test/headless/Bootstrap.lua at runtime
--- luacheck: globals INVSLOT_HEAD INVSLOT_TRINKET1
--- luacheck: ignore 143
+-- luacheck: read globals INVSLOT_HEAD INVSLOT_TRINKET1
 
 local wowStubs = require("WowStubs")
 

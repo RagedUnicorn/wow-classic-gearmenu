@@ -31,11 +31,6 @@
   produces identical offsets.
 ]]--
 
--- busted extends `assert` with .same / .equal / etc. at runtime; luacheck cannot verify those
--- fields statically. Suppress warning 143 (accessing undefined field of a global variable).
--- luacheck: globals describe it before_each
--- luacheck: ignore 143
-
 -- UiHelper.lua has no load-time WoW api calls; it only needs the rggm namespace from Bootstrap
 dofile("gui/UiHelper.lua")
 

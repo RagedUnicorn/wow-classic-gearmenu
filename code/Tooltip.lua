@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals C_Item UIParent GameTooltip_SetDefaultAnchor strmatch GetInventoryItemID
+-- luacheck: read globals C_Item UIParent GameTooltip_SetDefaultAnchor strmatch GetInventoryItemID
 
 local mod = rggm
 local me = {}

@@ -39,14 +39,10 @@
   are snapshotted and restored in after_each so the shared namespace does not leak into other specs.
 ]]--
 
--- busted extends `assert` with .same / .equal / .are_not at runtime; luacheck cannot verify those
--- fields statically. Suppress warning 143 (accessing undefined field of a global variable).
--- luacheck: globals describe it before_each after_each
 -- WoW inventory slot ids are defined by test/headless/Bootstrap.lua at runtime
--- luacheck: globals INVSLOT_HEAD INVSLOT_TRINKET1
+-- luacheck: read globals INVSLOT_HEAD INVSLOT_TRINKET1
 -- UnitClass is a WoW global stubbed on _G for the off-hand slot's load-time IIFE
--- luacheck: globals UnitClass
--- luacheck: ignore 143
+-- luacheck: read globals UnitClass
 
 describe("GearManager", function()
   local gearManager

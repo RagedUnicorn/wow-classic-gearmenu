@@ -31,11 +31,6 @@
   The bag-scanning bulk of ItemManager is dominated by C_Container.* and is intentionally out of scope.
 ]]--
 
--- busted extends `assert` with .same / .equal / etc. at runtime; luacheck cannot verify those
--- fields statically. Suppress warning 143 (accessing undefined field of a global variable).
--- luacheck: globals describe it before_each after_each
--- luacheck: ignore 143
-
 describe("ItemManager matchers", function()
   local itemManager
 

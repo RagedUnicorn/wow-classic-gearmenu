@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals INVSLOT_HEAD
+-- luacheck: read globals INVSLOT_HEAD
 
 RGGM_CONSTANTS = {
   ADDON_NAME = "GearMenu",

@@ -32,11 +32,6 @@
   plain tables, and mod.itemManager records the equips the rule requests.
 ]]--
 
--- busted extends `assert` with .same / .equal / etc. at runtime; luacheck cannot verify those
--- fields statically. Suppress warning 143 (accessing undefined field of a global variable).
--- luacheck: globals describe it before_each after_each
--- luacheck: ignore 143
-
 local wowStubs = require("WowStubs")
 
 local SLOT_ID = 13

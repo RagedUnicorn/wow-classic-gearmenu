@@ -28,11 +28,6 @@
   rggm.configuration stub are provided by test/headless/Bootstrap.lua.
 ]]--
 
--- busted extends `assert` with .same / .equal / etc. at runtime; luacheck cannot verify those
--- fields statically. Suppress warning 143 (accessing undefined field of a global variable).
--- luacheck: globals describe it before_each after_each
--- luacheck: ignore 143
-
 --[[
   Read a source file from the repo root (the expected busted cwd).
 

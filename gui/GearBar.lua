@@ -23,9 +23,9 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals CreateFrame UIParent GetInventoryItemID GetCursorInfo STANDARD_TEXT_FONT
--- luacheck: globals GetInventoryItemLink C_Item C_Container InCombatLockdown
--- luacheck: globals CursorCanGoInSlot EquipCursorItem ClearCursor IsInventoryItemLocked PickupInventoryItem
+-- luacheck: read globals CreateFrame UIParent GetInventoryItemID GetCursorInfo STANDARD_TEXT_FONT
+-- luacheck: read globals GetInventoryItemLink C_Item C_Container InCombatLockdown
+-- luacheck: read globals CursorCanGoInSlot EquipCursorItem ClearCursor IsInventoryItemLocked PickupInventoryItem
 
 --[[
   The gearBar (GM_Gearbar) module is responsible for building and showing gearBars to the user.

@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals CreateFrame STANDARD_TEXT_FONT Settings MinimalSliderWithSteppersMixin ScrollUtil GameTooltip
+-- luacheck: read globals CreateFrame STANDARD_TEXT_FONT Settings MinimalSliderWithSteppersMixin ScrollUtil GameTooltip
 
 local mod = rggm
 local me = {}

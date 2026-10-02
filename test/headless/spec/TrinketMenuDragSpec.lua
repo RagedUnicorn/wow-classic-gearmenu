@@ -37,11 +37,7 @@
   by recorder / no-op stubs and trinketSlots faked as recording tables.
 ]]--
 
--- busted extends `assert` with .same / .equal / etc. at runtime; luacheck cannot verify those
--- fields statically. Suppress warning 143 (accessing undefined field of a global variable).
--- luacheck: globals describe it before_each after_each
--- luacheck: globals INVSLOT_TRINKET1 INVSLOT_TRINKET2
--- luacheck: ignore 143
+-- luacheck: read globals INVSLOT_TRINKET1 INVSLOT_TRINKET2
 
 local wowStubs = require("WowStubs")
 

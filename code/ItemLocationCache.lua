@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals C_Container
+-- luacheck: read globals C_Container
 
 --[[
   In-memory cache of where items sit in the players bags. One full scan over bags 0-4 records

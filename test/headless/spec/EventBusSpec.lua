@@ -26,11 +26,6 @@
   Tests for the central event bus (code/Event.lua).
 ]]--
 
--- busted extends `assert` with .same / .equal / etc. at runtime; luacheck cannot verify those
--- fields statically. Suppress warning 143 (accessing undefined field of a global variable).
--- luacheck: globals describe it before_each after_each
--- luacheck: ignore 143
-
 describe("Event bus", function()
   local registered
   local registeredUnits

@@ -51,7 +51,7 @@
   Expected cwd: addon repo root. Run from elsewhere and the dofile()s will fail.
 ]]--
 
--- luacheck: globals rggm RGGM_ENVIRONMENT GearMenuConfiguration
+-- luacheck: globals RGGM_ENVIRONMENT GearMenuConfiguration
 -- luacheck: globals INVSLOT_AMMO INVSLOT_HEAD INVSLOT_NECK INVSLOT_SHOULDER INVSLOT_BODY
 -- luacheck: globals INVSLOT_CHEST INVSLOT_WAIST INVSLOT_LEGS INVSLOT_FEET INVSLOT_WRIST
 -- luacheck: globals INVSLOT_HAND INVSLOT_FINGER1 INVSLOT_FINGER2 INVSLOT_TRINKET1 INVSLOT_TRINKET2

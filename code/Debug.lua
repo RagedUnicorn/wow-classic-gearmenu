@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals C_Timer INVSLOT_TRINKET1
+-- luacheck: read globals C_Timer INVSLOT_TRINKET1
 
 local mod = rggm
 local me = {}

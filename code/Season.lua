@@ -22,7 +22,7 @@
   SOFTWARE.
 ]]--
 
--- luacheck: globals C_Seasons Enum
+-- luacheck: read globals C_Seasons Enum
 
 local mod = rggm
 local me = {}

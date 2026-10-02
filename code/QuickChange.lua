@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals C_Item GetInventoryItemID C_Timer
+-- luacheck: read globals C_Item GetInventoryItemID C_Timer
 
 local mod = rggm
 local me = {}

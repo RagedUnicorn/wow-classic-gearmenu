@@ -23,8 +23,8 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals CreateFrame STANDARD_TEXT_FONT COOLDOWN_TYPE_NORMAL CooldownFrame_Clear CooldownFrame_Set
--- luacheck: globals GetInventoryItemID C_Container
+-- luacheck: read globals CreateFrame STANDARD_TEXT_FONT COOLDOWN_TYPE_NORMAL CooldownFrame_Clear CooldownFrame_Set
+-- luacheck: read globals GetInventoryItemID C_Container
 
 local mod = rggm
 local me = {}

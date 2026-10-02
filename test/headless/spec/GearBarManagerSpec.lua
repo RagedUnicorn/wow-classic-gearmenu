@@ -41,12 +41,8 @@
   No WoW globals are stubbed: GearBarManager makes no direct Blizzard API calls.
 ]]--
 
--- busted extends `assert` with .same / .equal / etc. at runtime; luacheck cannot verify those
--- fields statically. Suppress warning 143 (accessing undefined field of a global variable).
--- luacheck: globals describe it before_each after_each
 -- the WoW inventory slot ids used in fixtures are defined by test/headless/Bootstrap.lua at runtime
--- luacheck: globals INVSLOT_TRINKET1
--- luacheck: ignore 143
+-- luacheck: read globals INVSLOT_TRINKET1
 
 describe("GearBarManager", function()
   local gearBarManager

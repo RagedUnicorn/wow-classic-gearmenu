@@ -27,12 +27,6 @@
   pure modules (Constants, Logger) loaded headlessly with no WoW client running.
 ]]--
 
--- busted extends `assert` with .same / .equal / etc. at runtime; luacheck
--- cannot verify those fields statically. Suppress warning 143 (accessing
--- undefined field of a global variable) for this file.
--- luacheck: globals describe it
--- luacheck: ignore 143
-
 describe("test harness", function()
   it("creates the rggm namespace", function()
     assert.is_table(rggm)

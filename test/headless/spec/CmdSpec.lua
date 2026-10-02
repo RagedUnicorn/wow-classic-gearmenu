@@ -45,11 +45,7 @@
   before_each yields a fresh registry per test.
 ]]--
 
--- busted extends `assert` with .same / .equal / etc. at runtime; luacheck cannot verify those
--- fields statically. Suppress warning 143 (accessing undefined field of a global variable).
--- luacheck: globals describe it before_each after_each
--- luacheck: globals SLASH_GEARMENU1 SLASH_GEARMENU2 SlashCmdList
--- luacheck: ignore 143
+-- luacheck: read globals SLASH_GEARMENU1 SLASH_GEARMENU2 SlashCmdList
 
 local wowStubs = require("WowStubs")
 

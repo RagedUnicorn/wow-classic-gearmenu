@@ -22,7 +22,7 @@
   SOFTWARE.
 ]]--
 
--- luacheck: globals CreateFrame STANDARD_TEXT_FONT Settings MinimalSliderWithSteppersMixin
+-- luacheck: read globals CreateFrame STANDARD_TEXT_FONT Settings MinimalSliderWithSteppersMixin
 
 local mod = rggm
 local me = {}

@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals STANDARD_TEXT_FONT CreateFrame InCombatLockdown
+-- luacheck: read globals STANDARD_TEXT_FONT CreateFrame InCombatLockdown
 
 --[[
   The gearBarMenu (GM_GearBarConfigurationMenu) module has some similarities to the gearBar (GM_GearBar) module.

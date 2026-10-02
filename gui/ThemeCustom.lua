@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals CreateFrame C_Timer MouseIsOver
+-- luacheck: read globals CreateFrame C_Timer MouseIsOver
 
 local mod = rggm
 local me = {}

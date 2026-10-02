@@ -23,8 +23,8 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals UnitIsDeadOrGhost UnitCastingInfo UnitChannelInfo UnitIsFeignDeath UIParent
--- luacheck: globals InCombatLockdown UnitAffectingCombat
+-- luacheck: read globals UnitIsDeadOrGhost UnitCastingInfo UnitChannelInfo UnitIsFeignDeath UIParent
+-- luacheck: read globals InCombatLockdown UnitAffectingCombat
 
 local mod = rggm
 local me = {}

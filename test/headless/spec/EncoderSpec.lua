@@ -26,11 +26,6 @@
   Tests for the generic byte-string codec (code/Encoder.lua).
 ]]--
 
--- busted extends `assert` with .same / .equal / etc. at runtime; luacheck cannot verify those
--- fields statically. Suppress warning 143 (accessing undefined field of a global variable).
--- luacheck: globals describe it
--- luacheck: ignore 143
-
 describe("Encoder", function()
   local encoder = rggm.encoder
 

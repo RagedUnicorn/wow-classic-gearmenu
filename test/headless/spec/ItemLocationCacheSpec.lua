@@ -42,11 +42,6 @@
   The stubs count their invocations so the specs can assert how the cache hits the container API.
 ]]--
 
--- busted extends `assert` with .same / .equal / etc. at runtime; luacheck cannot verify those
--- fields statically. Suppress warning 143 (accessing undefined field of a global variable).
--- luacheck: globals describe it before_each after_each
--- luacheck: ignore 143
-
 local wowStubs = require("WowStubs")
 
 describe("ItemLocationCache", function()

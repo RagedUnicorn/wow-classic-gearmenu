@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals UnitGUID UnitName
+-- luacheck: read globals UnitGUID UnitName
 
 local mod = rggm
 local me = {}

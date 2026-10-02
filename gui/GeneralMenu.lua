@@ -22,7 +22,8 @@
   SOFTWARE.
 ]]--
 
--- luacheck: globals CreateFrame STANDARD_TEXT_FONT ReloadUI StaticPopupDialogs StaticPopup_Show
+-- luacheck: read globals CreateFrame STANDARD_TEXT_FONT ReloadUI StaticPopup_Show
+-- luacheck: globals StaticPopupDialogs
 
 local mod = rggm
 local me = {}

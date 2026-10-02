@@ -44,8 +44,9 @@
   after, and the UI reloads so every GearBar rebuilds from the applied state.
 ]]--
 
--- luacheck: globals CreateFrame STANDARD_TEXT_FONT StaticPopupDialogs StaticPopup_Show ReloadUI
--- luacheck: globals ACCEPT CANCEL YES NO
+-- luacheck: read globals CreateFrame STANDARD_TEXT_FONT StaticPopup_Show ReloadUI
+-- luacheck: globals StaticPopupDialogs
+-- luacheck: read globals ACCEPT CANCEL YES NO
 
 local mod = rggm
 local me = {}

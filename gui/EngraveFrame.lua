@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals C_Engraving CreateFrame
+-- luacheck: read globals C_Engraving CreateFrame
 
 local mod = rggm
 local me = {}

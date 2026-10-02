@@ -33,11 +33,6 @@
   and logs it, so the spec can also assert where in the sequence the target is seeded.
 ]]--
 
--- busted extends `assert` with .same / .equal / etc. at runtime; luacheck cannot verify those
--- fields statically. Suppress warning 143 (accessing undefined field of a global variable).
--- luacheck: globals describe it before_each after_each
--- luacheck: ignore 143
-
 local wowStubs = require("WowStubs")
 
 local TARGET_GUID = "Player-1234-00ABCDEF"

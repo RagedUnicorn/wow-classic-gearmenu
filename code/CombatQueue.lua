@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals GetItemInfo C_LossOfControl
+-- luacheck: read globals GetItemInfo C_LossOfControl
 
 local mod = rggm
 local me = {}

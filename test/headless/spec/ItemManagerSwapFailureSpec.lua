@@ -36,10 +36,7 @@
   PickupContainerItem mutate the way the real client would for the exercised paths.
 ]]--
 
--- busted extends `assert` with .same / .equal / etc. at runtime; luacheck cannot verify those
--- fields statically. Suppress warning 143 (accessing undefined field of a global variable).
--- luacheck: globals describe it before_each after_each INVSLOT_MAINHAND INVSLOT_OFFHAND
--- luacheck: ignore 143
+-- luacheck: read globals INVSLOT_MAINHAND INVSLOT_OFFHAND
 
 local wowStubs = require("WowStubs")
 

@@ -23,7 +23,8 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals C_Item GM_AddToCombatQueue GM_RemoveFromCombatQueue
+-- luacheck: read globals C_Item
+-- luacheck: globals GM_AddToCombatQueue GM_RemoveFromCombatQueue
 -- luacheck: globals GM_RegisterSwapListener GM_UnregisterSwapListener
 
 --[[

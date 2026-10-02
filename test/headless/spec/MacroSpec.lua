@@ -48,12 +48,8 @@
   the code under test formats, so the spec does not depend on the localization files being loaded.
 ]]--
 
--- busted extends `assert` with .same / .equal / etc. at runtime; luacheck cannot verify those
--- fields statically. Suppress warning 143 (accessing undefined field of a global variable).
--- luacheck: globals describe it before_each after_each
--- luacheck: globals GM_AddToCombatQueue GM_RemoveFromCombatQueue
--- luacheck: globals GM_RegisterSwapListener GM_UnregisterSwapListener
--- luacheck: ignore 143
+-- luacheck: read globals GM_AddToCombatQueue GM_RemoveFromCombatQueue
+-- luacheck: read globals GM_RegisterSwapListener GM_UnregisterSwapListener
 
 local wowStubs = require("WowStubs")
 

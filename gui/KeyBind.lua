@@ -23,9 +23,10 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals StaticPopupDialogs StaticPopup_Show SetBindingClick STANDARD_TEXT_FONT
--- luacheck: globals GetBindingAction SetBinding GetCurrentBindingSet SaveBindings
--- luacheck: globals StaticPopup_Hide
+-- luacheck: read globals StaticPopup_Show SetBindingClick STANDARD_TEXT_FONT
+-- luacheck: globals StaticPopupDialogs
+-- luacheck: read globals GetBindingAction SetBinding GetCurrentBindingSet SaveBindings
+-- luacheck: read globals StaticPopup_Hide
 
 --[[
   The keyBind (GM_KeyBind) is responsible for recording and setting keyBindings to gearSlots

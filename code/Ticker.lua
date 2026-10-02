@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals C_Timer InCombatLockdown
+-- luacheck: read globals C_Timer InCombatLockdown
 
 local mod = rggm
 local me = {}

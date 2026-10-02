@@ -23,7 +23,8 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals STANDARD_TEXT_FONT CreateFrame StaticPopupDialogs StaticPopup_Show
+-- luacheck: read globals STANDARD_TEXT_FONT CreateFrame StaticPopup_Show
+-- luacheck: globals StaticPopupDialogs
 
 --[[
   The gearBarMenu (GM_GearBarConfigurationMenu) module has some similarities to the gearBar (GM_GearBar) module.

@@ -22,7 +22,8 @@
   SOFTWARE.
 ]]--
 
--- luacheck: globals SLASH_GEARMENU1 SLASH_GEARMENU2 SlashCmdList ReloadUI
+-- luacheck: globals SLASH_GEARMENU1 SLASH_GEARMENU2 SlashCmdList
+-- luacheck: read globals ReloadUI
 
 local mod = rggm
 local me = {}

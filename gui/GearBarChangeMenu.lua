@@ -23,8 +23,8 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals CreateFrame MouseIsOver C_Container STANDARD_TEXT_FONT CooldownFrame_Clear
--- luacheck: globals CooldownFrame_Set UIParent
+-- luacheck: read globals CreateFrame MouseIsOver C_Container STANDARD_TEXT_FONT CooldownFrame_Clear
+-- luacheck: read globals CooldownFrame_Set UIParent
 
 local mod = rggm
 local me = {}

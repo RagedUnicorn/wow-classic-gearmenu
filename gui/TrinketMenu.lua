@@ -23,8 +23,8 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals CreateFrame UIParent INVSLOT_TRINKET1 INVSLOT_TRINKET2 CooldownFrame_Set CooldownFrame_Clear
--- luacheck: globals C_Container C_Item GetCursorInfo
+-- luacheck: read globals CreateFrame UIParent INVSLOT_TRINKET1 INVSLOT_TRINKET2 CooldownFrame_Set CooldownFrame_Clear
+-- luacheck: read globals C_Container C_Item GetCursorInfo
 
 local mod = rggm
 local me = {}

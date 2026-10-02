@@ -32,11 +32,6 @@
   slot layout are stubbed out because they are not under test.
 ]]--
 
--- busted extends `assert` with .same / .equal / etc. at runtime; luacheck cannot verify those
--- fields statically. Suppress warning 143 (accessing undefined field of a global variable).
--- luacheck: globals describe it before_each after_each
--- luacheck: ignore 143
-
 local wowStubs = require("WowStubs")
 
 local SLOT_SIZE = 40
@@ -85,7 +80,7 @@ describe("TrinketMenu size", function()
       CreateFrame = function() return frame end,
       UIParent = {},
       -- WoW keeps the Lua 5.1 global the default position is spread with
-      unpack = unpack or table.unpack
+      unpack = unpack or table.unpack -- luacheck: ignore 143 (Lua 5.4 field, the std is lua51)
     })
 
     dofile("gui/UiHelper.lua")

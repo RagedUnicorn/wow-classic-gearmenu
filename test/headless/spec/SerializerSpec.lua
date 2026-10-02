@@ -26,11 +26,6 @@
   Tests for the generic table (de)serializer (code/Serializer.lua).
 ]]--
 
--- busted extends `assert` with .same / .equal / etc. at runtime; luacheck cannot verify those
--- fields statically. Suppress warning 143 (accessing undefined field of a global variable).
--- luacheck: globals describe it
--- luacheck: ignore 143
-
 describe("Serializer", function()
   local serializer = rggm.serializer
 
