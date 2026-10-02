@@ -2,7 +2,12 @@ name: Release Wago.io
 on: [workflow_dispatch]
 
 jobs:
+  lint:
+    uses: ./.github/workflows/lint.yaml
+  test:
+    uses: ./.github/workflows/test.yaml
   wago-release-job:
+    needs: [lint, test]
     name: Wago.io Release
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -24,6 +29,19 @@ jobs:
             ${{ runner.os }}-maven-
       - name: Package Production
         run: mvn generate-resources -D generate.sources.overwrite=true -P release
+      - name: Build Package
+        run: mvn --batch-mode --no-transfer-progress assembly:single@default-cli -P deploy-wago
+      - name: Verify Package Contents
+        run: |
+          entries=$(unzip -Z1 target/GearMenu.zip)
+          missing=0
+          for pattern in 'GearMenu/GearMenu\.toc' 'GearMenu/code/[^/]+\.lua' 'GearMenu/localization/[^/]+\.lua'; do
+            if ! grep -Eqx "$pattern" <<< "$entries"; then
+              echo "::error::target/GearMenu.zip has no entry matching $pattern"
+              missing=1
+            fi
+          done
+          exit $missing
       - name: Publish Package to Wago.io
         run: |
           mvn --batch-mode --no-transfer-progress \
