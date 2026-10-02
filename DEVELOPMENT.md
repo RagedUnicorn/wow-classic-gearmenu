@@ -348,6 +348,15 @@ flowchart TD
   mirror --> done(["the active profile equals<br/>the live configuration"])
 ```
 
+## Local Functions
+
+A file-private helper is a plain `local function Name()` defined above its first caller, so a
+module reads bottom-up: helpers first, then the public `me.X` functions that use them. Self-recursion
+needs nothing extra - the name is in scope inside its own body. Forward-declare a local
+(`local Name` and later `Name = function()`) only for mutual recursion; group those declarations in
+one commented block at the top of the file. A local function referenced before its definition
+reads an undefined global, which `luacheck` reports.
+
 ## Localization
 
 `localization/enUS.lua` is the source of truth: it defines every key, and the other locales
