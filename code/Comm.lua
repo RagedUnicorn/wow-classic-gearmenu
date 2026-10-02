@@ -24,6 +24,7 @@
 ]]--
 
 -- luacheck: read globals C_ChatInfo C_AddOns UnitName IsInGuild IsInGroup IsInRaid GetTime C_Timer
+-- luacheck: read globals LE_PARTY_CATEGORY_HOME LE_PARTY_CATEGORY_INSTANCE
 
 local mod = rggm
 local me = {}
@@ -43,6 +44,7 @@ me.tag = "Comm"
 local IsSelfSent
 local NormalizeVersion
 local RequestBroadcast
+local SendOnChannel
 local SendVersion
 local ShouldNotify
 
@@ -149,13 +151,37 @@ SendVersion = function(includeGuild)
   lastBroadcastTime = GetTime()
 
   if includeGuild and IsInGuild() then
-    C_ChatInfo.SendAddonMessage(RGGM_CONSTANTS.ADDON_MESSAGE_PREFIX, version, "GUILD")
+    SendOnChannel(version, "GUILD")
   end
 
-  if IsInRaid() then
-    C_ChatInfo.SendAddonMessage(RGGM_CONSTANTS.ADDON_MESSAGE_PREFIX, version, "RAID")
-  elseif IsInGroup() then
-    C_ChatInfo.SendAddonMessage(RGGM_CONSTANTS.ADDON_MESSAGE_PREFIX, version, "PARTY")
+  --[[
+    RAID / PARTY reach the player's own group only. Inside a battleground the instance group
+    is separate and only INSTANCE_CHAT reaches it - a player queued with their party is in both
+  ]]--
+  if IsInRaid(LE_PARTY_CATEGORY_HOME) then
+    SendOnChannel(version, "RAID")
+  elseif IsInGroup(LE_PARTY_CATEGORY_HOME) then
+    SendOnChannel(version, "PARTY")
+  end
+
+  if IsInGroup(LE_PARTY_CATEGORY_INSTANCE) then
+    SendOnChannel(version, "INSTANCE_CHAT")
+  end
+end
+
+--[[
+  Send the version on one channel. A refused send (a channel the player is not in, the
+  throttle) is only logged - the next roster edge broadcasts again
+
+  @param {string} version
+  @param {string} channel
+]]--
+SendOnChannel = function(version, channel)
+  local result = C_ChatInfo.SendAddonMessage(RGGM_CONSTANTS.ADDON_MESSAGE_PREFIX, version, channel)
+
+  -- true (older clients) or 0 (Enum.SendAddonMessageResult.Success) mean the message was sent
+  if result ~= nil and result ~= true and result ~= 0 then
+    mod.logger.LogDebug(me.tag, "Version broadcast on " .. channel .. " was not sent: " .. tostring(result))
   end
 end
 

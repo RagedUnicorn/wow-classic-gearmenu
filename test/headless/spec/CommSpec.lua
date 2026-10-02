@@ -71,6 +71,11 @@ describe("Comm", function()
   local inGuild
   local inRaid
   local inGroup
+  -- the battleground instance group, separate from the home group inRaid / inGroup describe
+  local inInstanceGroup
+  -- what SendAddonMessage returns, nil like the stub always did
+  local sendResult
+  local debugLines
   -- C_Timer.After callbacks waiting for flushTimers, { delay, callback }
   local pendingTimers
 
@@ -92,6 +97,9 @@ describe("Comm", function()
     inGuild = false
     inRaid = false
     inGroup = false
+    inInstanceGroup = false
+    sendResult = nil
+    debugLines = {}
     pendingTimers = {}
 
     previousModules = {
@@ -104,7 +112,7 @@ describe("Comm", function()
 
     -- silence the configuration module's logging and capture the user facing notice
     rggm.logger = {
-      LogDebug = function() end,
+      LogDebug = function(_, message) debugLines[#debugLines + 1] = message end,
       LogInfo = function() end,
       LogError = function() end,
       PrintUserMessage = function(msg) notices[#notices + 1] = msg end
@@ -119,12 +127,26 @@ describe("Comm", function()
         end,
         SendAddonMessage = function(prefix, message, channel)
           sentMessages[#sentMessages + 1] = { prefix = prefix, message = message, channel = channel }
+
+          return sendResult
         end
       },
       UnitName = function() return "Selfplayer" end,
       IsInGuild = function() return inGuild end,
-      IsInRaid = function() return inRaid end,
-      IsInGroup = function() return inGroup end,
+      -- the party categories as the client defines them; no category means either group
+      LE_PARTY_CATEGORY_HOME = 1,
+      LE_PARTY_CATEGORY_INSTANCE = 2,
+      IsInRaid = function(category)
+        if category == 2 then return false end
+
+        return inRaid
+      end,
+      IsInGroup = function(category)
+        if category == 1 then return inGroup end
+        if category == 2 then return inInstanceGroup end
+
+        return inGroup or inInstanceGroup
+      end,
       GetTime = function() return now end,
       C_Timer = {
         After = function(delay, callback)
@@ -280,6 +302,56 @@ describe("Comm", function()
       comm.BroadcastGroupVersion()
 
       assert.are.same({}, sentMessages)
+    end)
+  end)
+
+  describe("instance groups", function()
+    it("tells a battleground instance group over INSTANCE_CHAT instead of PARTY", function()
+      inInstanceGroup = true
+
+      comm.BroadcastGroupVersion()
+
+      assert.are.equal(1, #sentMessages)
+      assert.are.equal("INSTANCE_CHAT", sentMessages[1].channel)
+    end)
+
+    it("tells both the home party and the instance group when queued together", function()
+      inGroup = true
+      inInstanceGroup = true
+
+      comm.BroadcastGroupVersion()
+
+      assert.are.same({ "PARTY", "INSTANCE_CHAT" }, { sentMessages[1].channel, sentMessages[2].channel })
+    end)
+
+    it("tells a home raid over RAID only", function()
+      inRaid = true
+      inGroup = true
+
+      comm.BroadcastGroupVersion()
+
+      assert.are.equal(1, #sentMessages)
+      assert.are.equal("RAID", sentMessages[1].channel)
+    end)
+
+    it("logs a refused send at debug level", function()
+      inGroup = true
+      -- Enum.SendAddonMessageResult.NotInGroup
+      sendResult = 3
+
+      comm.BroadcastGroupVersion()
+
+      assert.are.equal(1, #debugLines)
+      assert.is_truthy(debugLines[1]:find("PARTY", 1, true))
+    end)
+
+    it("logs nothing for a successful send", function()
+      inGroup = true
+      sendResult = 0
+
+      comm.BroadcastGroupVersion()
+
+      assert.are.same({}, debugLines)
     end)
   end)
 
