@@ -98,23 +98,507 @@ local ACTION_BUTTON_LEFT = 320
 local ACTION_BUTTON_TOP = -64
 local ACTION_BUTTON_SPACING = 32
 
--- forward declarations
-local SetupStaticPopups
-local CreateActionButton
-local CreateProfileRow
-local RefreshList
-local UpdateActionButtonState
-local PrintDefaultProfileError
-local Trim
-local IsNameTooLong
-local HandleCreate
-local HandleLoad
-local HandleReset
-local HandleDelete
-local HandleRename
-local HandleExport
-local HandleImport
-local FinishImport
+--[[
+  Grey out the buttons that act on the selection while they could not act: Load,
+  Rename, Delete and Export with nothing selected, Load also on the active profile
+  (it is loaded already), Rename and Delete also on the Default profile. Create new
+  Profile, Reset to defaults and Import never depend on the selection. The click
+  handlers guard the same conditions - this only makes the refusal visible before
+  the click.
+]]--
+local function UpdateActionButtonState()
+  if not loadButton or not renameButton or not deleteButton or not exportButton then return end
+
+  local selected = me.selectedProfile ~= nil and mod.profile.ProfileExists(me.selectedProfile)
+  local editable = selected and not mod.profile.IsDefaultProfile(me.selectedProfile)
+  local loadable = selected and me.selectedProfile ~= mod.profile.GetActiveProfileName()
+
+  loadButton:SetEnabled(loadable)
+  renameButton:SetEnabled(editable)
+  deleteButton:SetEnabled(editable)
+  exportButton:SetEnabled(selected)
+end
+
+--[[
+  Print one of the profile_error_default_* messages. The reserved profile name is not
+  translated - it is a saved-variable key that also travels inside export strings - so every
+  locale spells it out verbatim instead of naming it in its own words.
+
+  @param {string} errorKey
+]]--
+local function PrintDefaultProfileError(errorKey)
+  mod.logger.PrintUserError(string.format(rggm.L[errorKey], RGGM_CONSTANTS.DEFAULT_PROFILE_NAME))
+end
+
+--[[
+  Create a row button at the given index in the list. Used as the createFrame
+  factory of the row pool.
+
+  @param {number} index
+  @return {table}
+]]--
+local function CreateProfileRow(index)
+  local rowHeight = RGGM_CONSTANTS.ELEMENT_PROFILE_LIST_ROW_HEIGHT
+  local _, yPos = mod.uiHelper.CalculateGridPosition(index, 1, rowHeight)
+
+  local row = CreateFrame("Button", RGGM_CONSTANTS.ELEMENT_PROFILE_LIST_ROW .. index, profileListContent)
+  row:SetHeight(rowHeight)
+  row:SetPoint("TOPLEFT", profileListContent, "TOPLEFT", 0, -yPos)
+  row:SetPoint("TOPRIGHT", profileListContent, "TOPRIGHT", 0, -yPos)
+
+  local selectedTexture = row:CreateTexture(nil, "BACKGROUND")
+  selectedTexture:SetAllPoints()
+  selectedTexture:SetColorTexture(1, 0.82, 0, 0.25)
+  selectedTexture:Hide()
+  row.selectedTexture = selectedTexture
+
+  local highlightTexture = row:CreateTexture(nil, "HIGHLIGHT")
+  highlightTexture:SetAllPoints()
+  highlightTexture:SetColorTexture(1, 1, 1, 0.15)
+
+  local label = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+  label:SetPoint("LEFT", 4, 0)
+  label:SetJustifyH("LEFT")
+  row.label = label
+
+  row:SetScript("OnClick", function(self)
+    me.SelectProfile(self.profileName)
+  end)
+
+  return row
+end
+
+--[[
+  Rebuild the visible profile rows from the saved profile list. The active profile's
+  row reads "<name> (active)" in gold; the selection is the translucent row texture,
+  so a row can be active, selected or both.
+]]--
+local function RefreshList()
+  if not profileListContent then return end
+
+  local names = mod.profile.ListProfiles()
+  local activeName = mod.profile.GetActiveProfileName()
+
+  -- drop a selection that no longer exists
+  if me.selectedProfile and not mod.profile.ProfileExists(me.selectedProfile) then
+    me.selectedProfile = nil
+  end
+
+  local rowHeight = RGGM_CONSTANTS.ELEMENT_PROFILE_LIST_ROW_HEIGHT
+  profileListContent:SetHeight(math.max(#names * rowHeight, 1))
+
+  for index, name in ipairs(names) do
+    local row = rowPool.Acquire(index)
+
+    row.profileName = name
+
+    if name == activeName then
+      row.label:SetText(string.format(rggm.L["profile_active_suffix"], name))
+      mod.uiHelper.SetColor(row.label, ACTIVE_ROW_COLOR)
+    else
+      row.label:SetText(name)
+      mod.uiHelper.SetColor(row.label, ROW_COLOR)
+    end
+
+    if name == me.selectedProfile then
+      row.selectedTexture:Show()
+    else
+      row.selectedTexture:Hide()
+    end
+
+    row:Show()
+  end
+
+  rowPool.ReleaseFrom(#names + 1)
+
+  UpdateActionButtonState()
+end
+
+--[[
+  Helper to create a UIPanelButton.
+
+  @param {table} parent
+  @param {string} name
+  @param {number} width
+  @param {table} point
+    a table that can be unpacked into SetPoint
+  @param {string} text
+  @param {function} onClick
+  @return {table}
+]]--
+local function CreateActionButton(parent, name, width, point, text, onClick)
+  local button = CreateFrame("Button", name, parent, "UIPanelButtonTemplate")
+  button:SetSize(width, RGGM_CONSTANTS.ELEMENT_PROFILE_BUTTON_HEIGHT)
+  button:SetPoint(unpack(point))
+  button:SetText(text)
+  button:SetScript("OnClick", onClick)
+
+  return button
+end
+
+--[[
+  Trim leading/trailing whitespace from a string.
+
+  @param {string} value
+  @return {string}
+]]--
+local function Trim(value)
+  return (string.match(value, "^%s*(.-)%s*$"))
+end
+
+--[[
+  Refuse an overlong profile name. The name prompts already cap their edit box, so this
+  only catches a name that did not come from typing - an imported envelope carrying a
+  name from an addon version with a laxer limit.
+
+  @param {string} name
+  @return {boolean}
+    true - if the name was refused and an error was printed
+    false - otherwise
+]]--
+local function IsNameTooLong(name)
+  if not mod.profile.IsNameTooLong(name) then
+    return false
+  end
+
+  mod.logger.PrintUserError(
+    string.format(rggm.L["profile_error_name_too_long"], RGGM_CONSTANTS.PROFILE_NAME_MAX_LENGTH))
+
+  return true
+end
+
+--[[
+  Create a new named profile from the current settings and make it the active one.
+  A name another profile carries is refused, and so is the reserved Default name.
+
+  @param {string} name
+]]--
+local function HandleCreate(name)
+  name = Trim(name)
+
+  if name == "" then
+    mod.logger.PrintUserError(rggm.L["profile_error_name_empty"])
+    return
+  end
+
+  if IsNameTooLong(name) then return end
+
+  if mod.profile.IsDefaultProfile(name) then
+    PrintDefaultProfileError("profile_error_default_cannot_be_overwritten")
+    return
+  end
+
+  if mod.profile.ProfileExists(name) then
+    mod.logger.PrintUserError(rggm.L["profile_error_name_exists"])
+    return
+  end
+
+  mod.profile.CreateProfile(name)
+  me.selectedProfile = name
+  RefreshList()
+  mod.logger.PrintUserMessage(string.format(rggm.L["profile_create_success"], name))
+end
+
+--[[
+  Switch to a stored profile and reload the UI: the profile that was active keeps the
+  settings as they are now, the loaded one takes over. The outgoing GearBars' key
+  bindings are cleared before the switch and the incoming ones applied after, so the
+  bindings follow the profile across the reload. The active profile itself has
+  nothing to load.
+
+  @param {string} name
+]]--
+local function HandleLoad(name)
+  if not mod.profile.ProfileExists(name) then
+    mod.logger.PrintUserError(rggm.L["profile_error_no_selection"])
+    return
+  end
+
+  if name == mod.profile.GetActiveProfileName() then
+    return
+  end
+
+  mod.keyBind.ClearGearBarKeyBindings(mod.gearBarManager.GetGearBars())
+
+  if not mod.profile.SwitchProfile(name) then
+    -- nothing was applied; put the bindings of the still-live GearBars back
+    mod.keyBind.ApplyGearBarKeyBindings()
+    return
+  end
+
+  mod.keyBind.ApplyGearBarKeyBindings()
+  ReloadUI()
+end
+
+--[[
+  Reset the active profile to the factory settings (the starter GearBar included) and
+  reload the UI, with the key-binding dance around it like a load.
+]]--
+local function HandleReset()
+  mod.keyBind.ClearGearBarKeyBindings(mod.gearBarManager.GetGearBars())
+  mod.profile.ResetActiveProfile()
+  mod.keyBind.ApplyGearBarKeyBindings()
+  ReloadUI()
+end
+
+--[[
+  Delete a stored profile. Deleting the active profile falls back to Default, which
+  takes over the live setup - that path runs the key-binding dance and reloads the
+  UI like a load does.
+
+  @param {string} name
+]]--
+local function HandleDelete(name)
+  if mod.profile.IsDefaultProfile(name) then
+    PrintDefaultProfileError("profile_error_default_cannot_be_deleted")
+    return
+  end
+
+  local isActive = name == mod.profile.GetActiveProfileName()
+
+  if isActive then
+    mod.keyBind.ClearGearBarKeyBindings(mod.gearBarManager.GetGearBars())
+  end
+
+  local deleted, fellBack = mod.profile.DeleteProfile(name)
+
+  if not deleted then
+    PrintDefaultProfileError("profile_error_default_cannot_be_deleted")
+    return
+  end
+
+  if me.selectedProfile == name then
+    me.selectedProfile = nil
+  end
+
+  mod.logger.PrintUserMessage(string.format(rggm.L["profile_delete_success"], name))
+
+  if fellBack then
+    mod.keyBind.ApplyGearBarKeyBindings()
+    ReloadUI()
+    return
+  end
+
+  RefreshList()
+end
+
+--[[
+  Rename a stored profile. Neither the Default profile itself nor its name as the
+  target are allowed, and a name another profile carries is refused.
+
+  @param {string} oldName
+  @param {string} newName
+]]--
+local function HandleRename(oldName, newName)
+  newName = Trim(newName)
+
+  if newName == "" then
+    mod.logger.PrintUserError(rggm.L["profile_error_name_empty"])
+    return
+  end
+
+  if IsNameTooLong(newName) then return end
+
+  -- the popup is prefilled with the current name - accepting it unchanged is a no-op
+  if newName == oldName then return end
+
+  if mod.profile.IsDefaultProfile(oldName) then
+    PrintDefaultProfileError("profile_error_default_cannot_be_renamed")
+    return
+  end
+
+  if mod.profile.IsDefaultProfile(newName) then
+    PrintDefaultProfileError("profile_error_default_cannot_be_overwritten")
+    return
+  end
+
+  if mod.profile.ProfileExists(newName) then
+    mod.logger.PrintUserError(rggm.L["profile_error_name_exists"])
+    return
+  end
+
+  if not mod.profile.RenameProfile(oldName, newName) then return end
+
+  me.selectedProfile = newName
+  RefreshList()
+  mod.logger.PrintUserMessage(string.format(rggm.L["profile_rename_success"], newName))
+end
+
+--[[
+  Export the selected profile into the string box and select it for copying. The live
+  setup is mirrored into the active profile first, so the active row always exports
+  the settings as they are now.
+]]--
+local function HandleExport()
+  local name = me.selectedProfile
+
+  if not name or not mod.profile.ProfileExists(name) then
+    mod.logger.PrintUserError(rggm.L["profile_error_no_selection"])
+    return
+  end
+
+  mod.profile.SaveActiveProfile()
+  profileEditBox:SetText(mod.profile.ExportString(mod.profile.GetProfile(name), name))
+  profileEditBox:HighlightText()
+  profileEditBox:SetFocus()
+end
+
+--[[
+  Decode and validate the string box content, then prompt for a name to store
+  it under.
+]]--
+local function HandleImport()
+  local envelope, errorKey = mod.profile.ImportString(profileEditBox:GetText())
+
+  if not envelope then
+    mod.logger.PrintUserError(rggm.L[errorKey])
+    return
+  end
+
+  StaticPopup_Show("RGGM_PROFILE_IMPORT", nil, nil, envelope)
+end
+
+--[[
+  Store an imported, already-validated envelope under a user-given name. The import
+  is stored without switching to it.
+
+  @param {string} name
+  @param {table} envelope
+]]--
+local function FinishImport(name, envelope)
+  name = Trim(name)
+
+  if name == "" then
+    mod.logger.PrintUserError(rggm.L["profile_error_name_empty"])
+    return
+  end
+
+  if IsNameTooLong(name) then return end
+
+  if mod.profile.IsDefaultProfile(name) then
+    PrintDefaultProfileError("profile_error_default_cannot_be_overwritten")
+    return
+  end
+
+  if mod.profile.ProfileExists(name) then
+    mod.logger.PrintUserError(rggm.L["profile_error_name_exists"])
+    return
+  end
+
+  mod.profile.SaveProfile(name, envelope.payload)
+  me.selectedProfile = name
+  profileEditBox:SetText("")
+  RefreshList()
+  mod.logger.PrintUserMessage(string.format(rggm.L["profile_import_success"], name))
+end
+
+--[[
+  Register the StaticPopup dialogs used for naming and destructive confirmation. The
+  name prompts answer Accept / Cancel, every confirm answers Yes / No.
+]]--
+local function SetupStaticPopups()
+  StaticPopupDialogs["RGGM_PROFILE_CREATE"] = {
+    text = rggm.L["profile_name_prompt"],
+    button1 = ACCEPT,
+    button2 = CANCEL,
+    hasEditBox = true,
+    maxLetters = RGGM_CONSTANTS.PROFILE_NAME_MAX_LENGTH,
+    OnShow = function(self)
+      self.EditBox:SetText("")
+      self.EditBox:SetFocus()
+    end,
+    OnAccept = function(self)
+      HandleCreate(self.EditBox:GetText())
+    end,
+    EditBoxOnEnterPressed = function(self)
+      HandleCreate(self:GetText())
+      self:GetParent():Hide()
+    end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = true,
+    preferredIndex = 3
+  }
+
+  StaticPopupDialogs["RGGM_PROFILE_RENAME"] = {
+    text = rggm.L["profile_rename_prompt"],
+    button1 = ACCEPT,
+    button2 = CANCEL,
+    hasEditBox = true,
+    maxLetters = RGGM_CONSTANTS.PROFILE_NAME_MAX_LENGTH,
+    OnShow = function(self)
+      self.EditBox:SetText(self.data or "")
+      self.EditBox:SetFocus()
+      self.EditBox:HighlightText()
+    end,
+    OnAccept = function(self)
+      HandleRename(self.data, self.EditBox:GetText())
+    end,
+    EditBoxOnEnterPressed = function(self)
+      local parent = self:GetParent()
+      HandleRename(parent.data, self:GetText())
+      parent:Hide()
+    end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = true,
+    preferredIndex = 3
+  }
+
+  StaticPopupDialogs["RGGM_PROFILE_IMPORT"] = {
+    text = rggm.L["profile_import_name_prompt"],
+    button1 = ACCEPT,
+    button2 = CANCEL,
+    hasEditBox = true,
+    maxLetters = RGGM_CONSTANTS.PROFILE_NAME_MAX_LENGTH,
+    OnShow = function(self)
+      self.EditBox:SetText((self.data and self.data.name) or "")
+      self.EditBox:SetFocus()
+      self.EditBox:HighlightText()
+    end,
+    OnAccept = function(self)
+      FinishImport(self.EditBox:GetText(), self.data)
+    end,
+    EditBoxOnEnterPressed = function(self)
+      local parent = self:GetParent()
+      FinishImport(self:GetText(), parent.data)
+      parent:Hide()
+    end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = true,
+    preferredIndex = 3
+  }
+
+  --[[
+    A Yes / No question, the family rule for every confirm popup
+
+    @param {string} textKey
+    @param {function} commit
+      invoked with the popup's data
+    @return {table}
+  ]]--
+  local function ConfirmPopup(textKey, commit)
+    return {
+      text = rggm.L[textKey],
+      button1 = YES,
+      button2 = NO,
+      OnAccept = function(self)
+        commit(self.data)
+      end,
+      timeout = 0,
+      whileDead = true,
+      hideOnEscape = true,
+      preferredIndex = 3
+    }
+  end
+
+  StaticPopupDialogs["RGGM_PROFILE_LOAD"] = ConfirmPopup("profile_load_confirm", HandleLoad)
+  StaticPopupDialogs["RGGM_PROFILE_DELETE"] = ConfirmPopup("profile_delete_confirm", HandleDelete)
+  -- deleting the active profile says what follows: Default takes over and the UI reloads
+  StaticPopupDialogs["RGGM_PROFILE_DELETE_ACTIVE"] = ConfirmPopup("profile_delete_active_confirm", HandleDelete)
+  StaticPopupDialogs["RGGM_PROFILE_RESET"] = ConfirmPopup("profile_reset_confirm", HandleReset)
+end
 
 --[[
   Build the ui for the profile menu. Built once (guarded); the list is
@@ -368,506 +852,4 @@ function me.SelectProfile(name)
   end)
 
   UpdateActionButtonState()
-end
-
---[[
-  Grey out the buttons that act on the selection while they could not act: Load,
-  Rename, Delete and Export with nothing selected, Load also on the active profile
-  (it is loaded already), Rename and Delete also on the Default profile. Create new
-  Profile, Reset to defaults and Import never depend on the selection. The click
-  handlers guard the same conditions - this only makes the refusal visible before
-  the click.
-]]--
-UpdateActionButtonState = function()
-  if not loadButton or not renameButton or not deleteButton or not exportButton then return end
-
-  local selected = me.selectedProfile ~= nil and mod.profile.ProfileExists(me.selectedProfile)
-  local editable = selected and not mod.profile.IsDefaultProfile(me.selectedProfile)
-  local loadable = selected and me.selectedProfile ~= mod.profile.GetActiveProfileName()
-
-  loadButton:SetEnabled(loadable)
-  renameButton:SetEnabled(editable)
-  deleteButton:SetEnabled(editable)
-  exportButton:SetEnabled(selected)
-end
-
---[[
-  Print one of the profile_error_default_* messages. The reserved profile name is not
-  translated - it is a saved-variable key that also travels inside export strings - so every
-  locale spells it out verbatim instead of naming it in its own words.
-
-  @param {string} errorKey
-]]--
-PrintDefaultProfileError = function(errorKey)
-  mod.logger.PrintUserError(string.format(rggm.L[errorKey], RGGM_CONSTANTS.DEFAULT_PROFILE_NAME))
-end
-
---[[
-  Create a row button at the given index in the list. Used as the createFrame
-  factory of the row pool.
-
-  @param {number} index
-  @return {table}
-]]--
-CreateProfileRow = function(index)
-  local rowHeight = RGGM_CONSTANTS.ELEMENT_PROFILE_LIST_ROW_HEIGHT
-  local _, yPos = mod.uiHelper.CalculateGridPosition(index, 1, rowHeight)
-
-  local row = CreateFrame("Button", RGGM_CONSTANTS.ELEMENT_PROFILE_LIST_ROW .. index, profileListContent)
-  row:SetHeight(rowHeight)
-  row:SetPoint("TOPLEFT", profileListContent, "TOPLEFT", 0, -yPos)
-  row:SetPoint("TOPRIGHT", profileListContent, "TOPRIGHT", 0, -yPos)
-
-  local selectedTexture = row:CreateTexture(nil, "BACKGROUND")
-  selectedTexture:SetAllPoints()
-  selectedTexture:SetColorTexture(1, 0.82, 0, 0.25)
-  selectedTexture:Hide()
-  row.selectedTexture = selectedTexture
-
-  local highlightTexture = row:CreateTexture(nil, "HIGHLIGHT")
-  highlightTexture:SetAllPoints()
-  highlightTexture:SetColorTexture(1, 1, 1, 0.15)
-
-  local label = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-  label:SetPoint("LEFT", 4, 0)
-  label:SetJustifyH("LEFT")
-  row.label = label
-
-  row:SetScript("OnClick", function(self)
-    me.SelectProfile(self.profileName)
-  end)
-
-  return row
-end
-
---[[
-  Rebuild the visible profile rows from the saved profile list. The active profile's
-  row reads "<name> (active)" in gold; the selection is the translucent row texture,
-  so a row can be active, selected or both.
-]]--
-RefreshList = function()
-  if not profileListContent then return end
-
-  local names = mod.profile.ListProfiles()
-  local activeName = mod.profile.GetActiveProfileName()
-
-  -- drop a selection that no longer exists
-  if me.selectedProfile and not mod.profile.ProfileExists(me.selectedProfile) then
-    me.selectedProfile = nil
-  end
-
-  local rowHeight = RGGM_CONSTANTS.ELEMENT_PROFILE_LIST_ROW_HEIGHT
-  profileListContent:SetHeight(math.max(#names * rowHeight, 1))
-
-  for index, name in ipairs(names) do
-    local row = rowPool.Acquire(index)
-
-    row.profileName = name
-
-    if name == activeName then
-      row.label:SetText(string.format(rggm.L["profile_active_suffix"], name))
-      mod.uiHelper.SetColor(row.label, ACTIVE_ROW_COLOR)
-    else
-      row.label:SetText(name)
-      mod.uiHelper.SetColor(row.label, ROW_COLOR)
-    end
-
-    if name == me.selectedProfile then
-      row.selectedTexture:Show()
-    else
-      row.selectedTexture:Hide()
-    end
-
-    row:Show()
-  end
-
-  rowPool.ReleaseFrom(#names + 1)
-
-  UpdateActionButtonState()
-end
-
---[[
-  Helper to create a UIPanelButton.
-
-  @param {table} parent
-  @param {string} name
-  @param {number} width
-  @param {table} point
-    a table that can be unpacked into SetPoint
-  @param {string} text
-  @param {function} onClick
-  @return {table}
-]]--
-CreateActionButton = function(parent, name, width, point, text, onClick)
-  local button = CreateFrame("Button", name, parent, "UIPanelButtonTemplate")
-  button:SetSize(width, RGGM_CONSTANTS.ELEMENT_PROFILE_BUTTON_HEIGHT)
-  button:SetPoint(unpack(point))
-  button:SetText(text)
-  button:SetScript("OnClick", onClick)
-
-  return button
-end
-
---[[
-  Trim leading/trailing whitespace from a string.
-
-  @param {string} value
-  @return {string}
-]]--
-Trim = function(value)
-  return (string.match(value, "^%s*(.-)%s*$"))
-end
-
---[[
-  Refuse an overlong profile name. The name prompts already cap their edit box, so this
-  only catches a name that did not come from typing - an imported envelope carrying a
-  name from an addon version with a laxer limit.
-
-  @param {string} name
-  @return {boolean}
-    true - if the name was refused and an error was printed
-    false - otherwise
-]]--
-IsNameTooLong = function(name)
-  if not mod.profile.IsNameTooLong(name) then
-    return false
-  end
-
-  mod.logger.PrintUserError(
-    string.format(rggm.L["profile_error_name_too_long"], RGGM_CONSTANTS.PROFILE_NAME_MAX_LENGTH))
-
-  return true
-end
-
---[[
-  Create a new named profile from the current settings and make it the active one.
-  A name another profile carries is refused, and so is the reserved Default name.
-
-  @param {string} name
-]]--
-HandleCreate = function(name)
-  name = Trim(name)
-
-  if name == "" then
-    mod.logger.PrintUserError(rggm.L["profile_error_name_empty"])
-    return
-  end
-
-  if IsNameTooLong(name) then return end
-
-  if mod.profile.IsDefaultProfile(name) then
-    PrintDefaultProfileError("profile_error_default_cannot_be_overwritten")
-    return
-  end
-
-  if mod.profile.ProfileExists(name) then
-    mod.logger.PrintUserError(rggm.L["profile_error_name_exists"])
-    return
-  end
-
-  mod.profile.CreateProfile(name)
-  me.selectedProfile = name
-  RefreshList()
-  mod.logger.PrintUserMessage(string.format(rggm.L["profile_create_success"], name))
-end
-
---[[
-  Switch to a stored profile and reload the UI: the profile that was active keeps the
-  settings as they are now, the loaded one takes over. The outgoing GearBars' key
-  bindings are cleared before the switch and the incoming ones applied after, so the
-  bindings follow the profile across the reload. The active profile itself has
-  nothing to load.
-
-  @param {string} name
-]]--
-HandleLoad = function(name)
-  if not mod.profile.ProfileExists(name) then
-    mod.logger.PrintUserError(rggm.L["profile_error_no_selection"])
-    return
-  end
-
-  if name == mod.profile.GetActiveProfileName() then
-    return
-  end
-
-  mod.keyBind.ClearGearBarKeyBindings(mod.gearBarManager.GetGearBars())
-
-  if not mod.profile.SwitchProfile(name) then
-    -- nothing was applied; put the bindings of the still-live GearBars back
-    mod.keyBind.ApplyGearBarKeyBindings()
-    return
-  end
-
-  mod.keyBind.ApplyGearBarKeyBindings()
-  ReloadUI()
-end
-
---[[
-  Reset the active profile to the factory settings (the starter GearBar included) and
-  reload the UI, with the key-binding dance around it like a load.
-]]--
-HandleReset = function()
-  mod.keyBind.ClearGearBarKeyBindings(mod.gearBarManager.GetGearBars())
-  mod.profile.ResetActiveProfile()
-  mod.keyBind.ApplyGearBarKeyBindings()
-  ReloadUI()
-end
-
---[[
-  Delete a stored profile. Deleting the active profile falls back to Default, which
-  takes over the live setup - that path runs the key-binding dance and reloads the
-  UI like a load does.
-
-  @param {string} name
-]]--
-HandleDelete = function(name)
-  if mod.profile.IsDefaultProfile(name) then
-    PrintDefaultProfileError("profile_error_default_cannot_be_deleted")
-    return
-  end
-
-  local isActive = name == mod.profile.GetActiveProfileName()
-
-  if isActive then
-    mod.keyBind.ClearGearBarKeyBindings(mod.gearBarManager.GetGearBars())
-  end
-
-  local deleted, fellBack = mod.profile.DeleteProfile(name)
-
-  if not deleted then
-    PrintDefaultProfileError("profile_error_default_cannot_be_deleted")
-    return
-  end
-
-  if me.selectedProfile == name then
-    me.selectedProfile = nil
-  end
-
-  mod.logger.PrintUserMessage(string.format(rggm.L["profile_delete_success"], name))
-
-  if fellBack then
-    mod.keyBind.ApplyGearBarKeyBindings()
-    ReloadUI()
-    return
-  end
-
-  RefreshList()
-end
-
---[[
-  Rename a stored profile. Neither the Default profile itself nor its name as the
-  target are allowed, and a name another profile carries is refused.
-
-  @param {string} oldName
-  @param {string} newName
-]]--
-HandleRename = function(oldName, newName)
-  newName = Trim(newName)
-
-  if newName == "" then
-    mod.logger.PrintUserError(rggm.L["profile_error_name_empty"])
-    return
-  end
-
-  if IsNameTooLong(newName) then return end
-
-  -- the popup is prefilled with the current name - accepting it unchanged is a no-op
-  if newName == oldName then return end
-
-  if mod.profile.IsDefaultProfile(oldName) then
-    PrintDefaultProfileError("profile_error_default_cannot_be_renamed")
-    return
-  end
-
-  if mod.profile.IsDefaultProfile(newName) then
-    PrintDefaultProfileError("profile_error_default_cannot_be_overwritten")
-    return
-  end
-
-  if mod.profile.ProfileExists(newName) then
-    mod.logger.PrintUserError(rggm.L["profile_error_name_exists"])
-    return
-  end
-
-  if not mod.profile.RenameProfile(oldName, newName) then return end
-
-  me.selectedProfile = newName
-  RefreshList()
-  mod.logger.PrintUserMessage(string.format(rggm.L["profile_rename_success"], newName))
-end
-
---[[
-  Export the selected profile into the string box and select it for copying. The live
-  setup is mirrored into the active profile first, so the active row always exports
-  the settings as they are now.
-]]--
-HandleExport = function()
-  local name = me.selectedProfile
-
-  if not name or not mod.profile.ProfileExists(name) then
-    mod.logger.PrintUserError(rggm.L["profile_error_no_selection"])
-    return
-  end
-
-  mod.profile.SaveActiveProfile()
-  profileEditBox:SetText(mod.profile.ExportString(mod.profile.GetProfile(name), name))
-  profileEditBox:HighlightText()
-  profileEditBox:SetFocus()
-end
-
---[[
-  Decode and validate the string box content, then prompt for a name to store
-  it under.
-]]--
-HandleImport = function()
-  local envelope, errorKey = mod.profile.ImportString(profileEditBox:GetText())
-
-  if not envelope then
-    mod.logger.PrintUserError(rggm.L[errorKey])
-    return
-  end
-
-  StaticPopup_Show("RGGM_PROFILE_IMPORT", nil, nil, envelope)
-end
-
---[[
-  Store an imported, already-validated envelope under a user-given name. The import
-  is stored without switching to it.
-
-  @param {string} name
-  @param {table} envelope
-]]--
-FinishImport = function(name, envelope)
-  name = Trim(name)
-
-  if name == "" then
-    mod.logger.PrintUserError(rggm.L["profile_error_name_empty"])
-    return
-  end
-
-  if IsNameTooLong(name) then return end
-
-  if mod.profile.IsDefaultProfile(name) then
-    PrintDefaultProfileError("profile_error_default_cannot_be_overwritten")
-    return
-  end
-
-  if mod.profile.ProfileExists(name) then
-    mod.logger.PrintUserError(rggm.L["profile_error_name_exists"])
-    return
-  end
-
-  mod.profile.SaveProfile(name, envelope.payload)
-  me.selectedProfile = name
-  profileEditBox:SetText("")
-  RefreshList()
-  mod.logger.PrintUserMessage(string.format(rggm.L["profile_import_success"], name))
-end
-
---[[
-  Register the StaticPopup dialogs used for naming and destructive confirmation. The
-  name prompts answer Accept / Cancel, every confirm answers Yes / No.
-]]--
-SetupStaticPopups = function()
-  StaticPopupDialogs["RGGM_PROFILE_CREATE"] = {
-    text = rggm.L["profile_name_prompt"],
-    button1 = ACCEPT,
-    button2 = CANCEL,
-    hasEditBox = true,
-    maxLetters = RGGM_CONSTANTS.PROFILE_NAME_MAX_LENGTH,
-    OnShow = function(self)
-      self.EditBox:SetText("")
-      self.EditBox:SetFocus()
-    end,
-    OnAccept = function(self)
-      HandleCreate(self.EditBox:GetText())
-    end,
-    EditBoxOnEnterPressed = function(self)
-      HandleCreate(self:GetText())
-      self:GetParent():Hide()
-    end,
-    timeout = 0,
-    whileDead = true,
-    hideOnEscape = true,
-    preferredIndex = 3
-  }
-
-  StaticPopupDialogs["RGGM_PROFILE_RENAME"] = {
-    text = rggm.L["profile_rename_prompt"],
-    button1 = ACCEPT,
-    button2 = CANCEL,
-    hasEditBox = true,
-    maxLetters = RGGM_CONSTANTS.PROFILE_NAME_MAX_LENGTH,
-    OnShow = function(self)
-      self.EditBox:SetText(self.data or "")
-      self.EditBox:SetFocus()
-      self.EditBox:HighlightText()
-    end,
-    OnAccept = function(self)
-      HandleRename(self.data, self.EditBox:GetText())
-    end,
-    EditBoxOnEnterPressed = function(self)
-      local parent = self:GetParent()
-      HandleRename(parent.data, self:GetText())
-      parent:Hide()
-    end,
-    timeout = 0,
-    whileDead = true,
-    hideOnEscape = true,
-    preferredIndex = 3
-  }
-
-  StaticPopupDialogs["RGGM_PROFILE_IMPORT"] = {
-    text = rggm.L["profile_import_name_prompt"],
-    button1 = ACCEPT,
-    button2 = CANCEL,
-    hasEditBox = true,
-    maxLetters = RGGM_CONSTANTS.PROFILE_NAME_MAX_LENGTH,
-    OnShow = function(self)
-      self.EditBox:SetText((self.data and self.data.name) or "")
-      self.EditBox:SetFocus()
-      self.EditBox:HighlightText()
-    end,
-    OnAccept = function(self)
-      FinishImport(self.EditBox:GetText(), self.data)
-    end,
-    EditBoxOnEnterPressed = function(self)
-      local parent = self:GetParent()
-      FinishImport(self:GetText(), parent.data)
-      parent:Hide()
-    end,
-    timeout = 0,
-    whileDead = true,
-    hideOnEscape = true,
-    preferredIndex = 3
-  }
-
-  --[[
-    A Yes / No question, the family rule for every confirm popup
-
-    @param {string} textKey
-    @param {function} commit
-      invoked with the popup's data
-    @return {table}
-  ]]--
-  local function ConfirmPopup(textKey, commit)
-    return {
-      text = rggm.L[textKey],
-      button1 = YES,
-      button2 = NO,
-      OnAccept = function(self)
-        commit(self.data)
-      end,
-      timeout = 0,
-      whileDead = true,
-      hideOnEscape = true,
-      preferredIndex = 3
-    }
-  end
-
-  StaticPopupDialogs["RGGM_PROFILE_LOAD"] = ConfirmPopup("profile_load_confirm", HandleLoad)
-  StaticPopupDialogs["RGGM_PROFILE_DELETE"] = ConfirmPopup("profile_delete_confirm", HandleDelete)
-  -- deleting the active profile says what follows: Default takes over and the UI reloads
-  StaticPopupDialogs["RGGM_PROFILE_DELETE_ACTIVE"] = ConfirmPopup("profile_delete_active_confirm", HandleDelete)
-  StaticPopupDialogs["RGGM_PROFILE_RESET"] = ConfirmPopup("profile_reset_confirm", HandleReset)
 end
