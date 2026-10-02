@@ -48,11 +48,11 @@ GearMenu supports World of Warcraft Classic Era, TBC Anniversary and Mists of Pa
 | WristSlot         | Wrist/Bracers slot           |
 | HandsSlot         | Hands slot                   |
 | Finger0Slot       | First/Upper Ring slot        |
-| Finger1Slot       | Second/Upper Ring slot       |
+| Finger1Slot       | Second/Lower Ring slot       |
 | Trinket0Slot      | First/Upper Trinket slot     |
 | Trinket1Slot      | Second/Lower Trinket slot    |
 | BackSlot          | Back/Cloak slot              |
-| MainhandSlot      | Main-hand slot               |
+| MainHandSlot      | Main-hand slot               |
 | SecondaryHandSlot | Secondary-hand/Off-hand slot |
 | RangedSlot        | Ranged slot                  |
 | AmmoSlot          | Ammo slot                    |
@@ -341,7 +341,7 @@ Make sure to recheck the installation part of this Readme and check that the Add
 
 #### I get a red error (Lua Error) on my screen. What is this?
 
-This is what we call a Lua error, and it usually happens because of an oversight or error by the developer (in this case me). Take a screenshot off the error and create a GitHub Issue with it, and I will see if I can resolve it. It also helps if you can add any additional information of what you were doing at the time and what other addons you have active. Additionally, if you are able to reproduce the error make sure to check if it still happens if you disable all others addons.
+This is what we call a Lua error, and it usually happens because of an oversight or error by the developer (in this case me). Take a screenshot of the error and create a GitHub Issue with it, and I will see if I can resolve it. It also helps if you can add any additional information of what you were doing at the time and what other addons you have active. Additionally, if you are able to reproduce the error make sure to check if it still happens if you disable all other addons.
 
 #### GearMenu spams my chat with messages. How can I deactivate this?
 
