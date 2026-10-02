@@ -42,6 +42,9 @@
   must consume the same arguments as enUS (e.g. enUS "(%s)" with a stray placeholder dropped, or an
   extra one added, in a translation would crash the formatting call at runtime). Placeholders are
   compared as a sorted multiset so a translator may legitimately reorder them.
+
+  Finally every enUS key must be referenced as a quoted literal somewhere in code/ or gui/, so a key
+  whose UI was removed is caught instead of being kept alive by translators.
 ]]--
 
 local wowStubs = require("WowStubs")
@@ -147,6 +150,35 @@ local function extractPlaceholders(value)
 end
 
 --[[
+  Read the Lua and XML source the addon ships (code/ and gui/, cwd is the addon repo root) into one
+  string, so a locale key can be looked up as a quoted literal. Localization keys are only ever
+  indexed with string literals, so a key that does not appear here is dead.
+
+  @return {string}
+]]--
+local function readAddonSource()
+  local chunks = {}
+  local handle = io.popen("ls code/*.lua gui/*.lua gui/*.xml 2>/dev/null")
+
+  if not handle then
+    return ""
+  end
+
+  for path in handle:lines() do
+    local file = io.open(path, "r")
+
+    if file then
+      chunks[#chunks + 1] = file:read("*a")
+      file:close()
+    end
+  end
+
+  handle:close()
+
+  return table.concat(chunks, "\n")
+end
+
+--[[
   Return the keys present in `a` but absent from `b`, sorted for a stable failure message.
 
   @param {table} a
@@ -185,6 +217,25 @@ describe("localization parity", function()
       end
     end
     assert.is_true(hasReference, "reference locale " .. REFERENCE_LOCALE .. " was not discovered")
+  end)
+
+  it("every " .. REFERENCE_LOCALE .. " key is referenced by the addon source", function()
+    local source = readAddonSource()
+    local unused = {}
+
+    assert.is_true(#source > 0, "no addon source was read from code/ and gui/")
+
+    for key in pairs(localeStrings[REFERENCE_LOCALE]) do
+      if not source:find('"' .. key .. '"', 1, true) then
+        unused[#unused + 1] = key
+      end
+    end
+    table.sort(unused)
+
+    assert.is_true(
+      #unused == 0,
+      REFERENCE_LOCALE .. " defines keys the addon never uses: " .. table.concat(unused, ", ")
+    )
   end)
 
   for _, file in ipairs(localeFiles) do

@@ -157,7 +157,6 @@ if (GetLocale() == "zhCN") then
   rggm.L["gear_bar_configuration_add_gearslot_combat"] =
     "战斗中无法添加装备槽。请在战斗结束后重试"
   rggm.L["gear_bar_configuration_remove_gearslot"] = "-"
-  rggm.L["gear_bar_configuration_delete_gearbar"] = "删除装备条"
   -- gearbar scrollmenu
   rggm.L["gear_bar_configuration_key_binding_button"] = "设置/取消设置 按键绑定"
   rggm.L["gear_bar_configuration_key_binding_not_set"] = "没有绑定按键设置"

@@ -173,7 +173,6 @@ if (GetLocale() == "ruRU") then
   rggm.L["gear_bar_configuration_add_gearslot_combat"] =
     "Невозможно добавить слот экипировки в бою. Пожалуйста, повторите попытку после боя"
   rggm.L["gear_bar_configuration_remove_gearslot"] = "-"
-  rggm.L["gear_bar_configuration_delete_gearbar"] = "Удалить панель экипировки"
   -- gearbar scrollmenu
   rggm.L["gear_bar_configuration_key_binding_button"] = "Установить/Снять привязку клавиши"
   rggm.L["gear_bar_configuration_key_binding_not_set"] = "Привязка не установлена"
