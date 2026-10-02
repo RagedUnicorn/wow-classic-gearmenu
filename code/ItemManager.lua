@@ -71,12 +71,6 @@ local unequipFailureMessages = {
 
 local bagUpdatePending = false
 
--- forward declarations
-local NotifySwapFailure
-local IsEquipChangeRestricted
-local RequiresOffhandDisplacement
-local ScanBagsForItem
-
 --[[
   Surface an aborted swap to the user with a localized chat message. The combatQueue guard
   makes sure a queued swap reports each reason only once instead of once per ProcessQueue tick
@@ -88,7 +82,7 @@ local ScanBagsForItem
   @param {table} messages
     Optional map of failure reason to localization key - defaults to the swap messages
 ]]--
-NotifySwapFailure = function(reason, slotId, itemId, messages)
+local function NotifySwapFailure(reason, slotId, itemId, messages)
   if not mod.combatQueue.ShouldNotifySwapFailure(slotId, reason) then return end
 
   local itemName = itemId and C_Item.GetItemInfo(itemId) or nil
@@ -105,7 +99,7 @@ end
     true - if equipment cannot be changed right now
     false - if equipment can be changed
 ]]--
-IsEquipChangeRestricted = function()
+local function IsEquipChangeRestricted()
   return mod.common.IsPlayerInCombat() or mod.common.IsPlayerReallyDead()
     or mod.combatQueue.IsEquipChangeBlocked() or mod.common.IsPlayerCasting()
 end
@@ -262,7 +256,7 @@ end
     true - if equipping the item displaces the worn offhand into the bags
     false - if no offhand displacement will happen
 ]]--
-RequiresOffhandDisplacement = function(itemId, slotId)
+local function RequiresOffhandDisplacement(itemId, slotId)
   if slotId ~= INVSLOT_MAINHAND then return false end
 
   if GetInventoryItemID(RGGM_CONSTANTS.UNIT_ID_PLAYER, INVSLOT_OFFHAND) == nil then
@@ -435,7 +429,7 @@ end
     number - the bagPos where the item was found
     nil - if the item could not be found
 ]]--
-ScanBagsForItem = function(itemId, enchantId, runeAbilityId, isRetry)
+local function ScanBagsForItem(itemId, enchantId, runeAbilityId, isRetry)
   local locations = mod.itemLocationCache.GetItemLocations(itemId)
   local staleEntryDetected = false
 
