@@ -27,3 +27,4 @@
 * On the first login after the update to the live active profile model, a profile saved by an older GearMenu version that you had applied and not edited since is now recognised and kept as the active one - before, settings GearMenu added after the profile was saved made it look edited, and Default took over instead
 * Importing a damaged or hand-edited profile string whose profile name is not text no longer raises a Lua error - the name prompt simply starts empty
 * An imported profile string now only brings in GearMenu's own settings - anything else a damaged or foreign string carries is left out of your saved profiles - and a paste far longer than any real profile is refused right away
+* Importing a damaged or hand-edited profile string with an out-of-range number (such as 1e999) is refused as invalid instead of storing an infinite size or position or raising a Lua error

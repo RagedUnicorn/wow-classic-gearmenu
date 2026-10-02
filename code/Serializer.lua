@@ -53,6 +53,33 @@ me.tag = "Serializer"
 ]]--
 local MAX_DEPTH = 64
 
+--[[
+  Whether a number is finite. NaN is the only value not equal to itself
+
+  @param {number} number
+
+  @return {boolean}
+]]--
+local function IsFinite(number)
+  return number == number and number ~= math.huge and number ~= -math.huge
+end
+
+--[[
+  Whether text is a plain decimal number of the form EncodeValue writes with %.14g: an
+  optional minus, digits, an optional fraction and an optional exponent. tonumber alone is
+  looser - it also takes hexadecimal ("0x10"), surrounding whitespace and, depending on the
+  client's C library, "inf" / "nan" - none of which the encoder ever emits.
+
+  @param {string} text
+
+  @return {boolean}
+]]--
+local function IsDecimalText(text)
+  local mantissa = string.match(text, "^(.-)[eE][+-]?%d+$") or text
+
+  return string.match(mantissa, "^-?%d+$") ~= nil or string.match(mantissa, "^-?%d+%.%d+$") ~= nil
+end
+
 -- forward declarations
 local EncodeValue
 local ReadValue
@@ -90,6 +117,10 @@ EncodeValue = function(value, out, depth)
   elseif valueType == "boolean" then
     out[#out + 1] = value and "T" or "F"
   elseif valueType == "number" then
+    if not IsFinite(value) then
+      error("serializer: cannot serialize a non-finite number")
+    end
+
     local text = string.format("%.14g", value)
     out[#out + 1] = "n" .. #text .. ":" .. text
   elseif valueType == "string" then
@@ -197,9 +228,12 @@ ReadValue = function(input, pos, depth)
 
     if not text then return nil, nil, "malformed number" end
 
+    if not IsDecimalText(text) then return nil, nil, "invalid number value" end
+
     local number = tonumber(text)
 
-    if not number then return nil, nil, "invalid number value" end
+    -- "1e999" is valid decimal text but overflows to inf; a NaN would even raise as a table key
+    if not number or not IsFinite(number) then return nil, nil, "invalid number value" end
 
     return nextPos, number
   elseif tag == "s" then

@@ -109,4 +109,48 @@ describe("Serializer", function()
   it("rejects a malformed length prefix", function()
     assert.is_nil(serializer.Deserialize("s999:short"))
   end)
+
+  describe("numbers", function()
+    --[[
+      Wrap raw number text the way EncodeValue frames it: as a bare value and as the key of a
+      one-pair table
+    ]]--
+    local function asValue(text)
+      return "n" .. #text .. ":" .. text
+    end
+
+    local function asKey(text)
+      return "t1:" .. asValue(text) .. "T"
+    end
+
+    it("round-trips the number forms %.14g writes", function()
+      for _, number in ipairs({ 0, -0.5, 42, -1234567, 3.25, 1e20, 1.2345678901234e-05, -2.5e-300 }) do
+        assert.are.equal(number, serializer.Deserialize(serializer.Serialize(number)))
+      end
+    end)
+
+    for _, text in ipairs({ "1e999", "-1e999", "nan", "-nan", "inf", "0x10", " 5", "5 ", "1e", ".5", "5.", "+5" }) do
+      it("rejects \"" .. text .. "\" as a value without raising", function()
+        local ok, result, err = pcall(serializer.Deserialize, asValue(text))
+
+        assert.is_true(ok)
+        assert.is_nil(result)
+        assert.are.equal("invalid number value", err)
+      end)
+
+      it("rejects \"" .. text .. "\" as a table key without raising", function()
+        local ok, result, err = pcall(serializer.Deserialize, asKey(text))
+
+        assert.is_true(ok)
+        assert.is_nil(result)
+        assert.are.equal("invalid number value", err)
+      end)
+    end
+
+    it("refuses to serialize a non-finite number", function()
+      assert.has_error(function() serializer.Serialize(math.huge) end)
+      assert.has_error(function() serializer.Serialize({ size = -math.huge }) end)
+      assert.has_error(function() serializer.Serialize(0 / 0) end)
+    end)
+  end)
 end)
