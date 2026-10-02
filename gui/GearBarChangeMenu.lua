@@ -80,7 +80,8 @@ end
 --[[
   Update the changeMenu. Note that the gearSlotPosition and gearBarId can be nil in case of a manual trigger
   of UpdateChangeMenu instead of through a 'hover' event on a gearSlot. In this case the
-  last used gearbar and gearSlot are used.
+  last used gearbar and gearSlot are used. When there is no such gearBar - none was hovered yet,
+  or it was deleted while its changeMenu was open - the changeMenu is closed instead.
 
   @param {table} gearSlotPosition
     The gearSlot position that was hovered
@@ -89,7 +90,12 @@ end
 ]]--
 function me.UpdateChangeMenu(gearSlotPosition, gearBarId)
   me.ResetChangeMenu()
-  me.UpdateChangeMenuProperties(gearBarId, gearSlotPosition)
+
+  if not me.UpdateChangeMenuProperties(gearBarId, gearSlotPosition) then
+    me.CloseChangeMenu()
+
+    return
+  end
 
   local gearBar = mod.gearBarManager.GetGearBar(changeMenuFrame.gearBarId)
   -- stash the direction on the frame so the slot layout (which only receives the frame) can read it
@@ -383,20 +389,32 @@ end
     The id of the hovered gearBar
   @param {table} gearSlotPosition
     The gearSlot position that was hovered
+
+  @return {boolean}
+    true - if the changeMenu belongs to an existing gearBar
+    false - if there is no gearBar to show the changeMenu for
 ]]--
 function me.UpdateChangeMenuProperties(gearBarId, gearSlotPosition)
   if gearSlotPosition == nil or gearBarId == nil then
     if changeMenuFrame.gearBarId ~= nil then
       gearBarId = changeMenuFrame.gearBarId
     else
-      return
+      return false
     end
 
     if changeMenuFrame.gearSlotPosition ~= nil then
       gearSlotPosition = changeMenuFrame.gearSlotPosition
     else
-      return
+      return false
     end
+  end
+
+  if mod.gearBarManager.GetGearBar(gearBarId) == nil then
+    -- the gearBar was deleted while its changeMenu was open - forget it so later refreshes stay quiet
+    changeMenuFrame.gearBarId = nil
+    changeMenuFrame.gearSlotPosition = nil
+
+    return false
   end
 
   -- update changeMenuFrame's Id to the currently hovered gearBarId
@@ -410,6 +428,8 @@ function me.UpdateChangeMenuProperties(gearBarId, gearSlotPosition)
   else
     changeMenuFrame.showCooldowns = false
   end
+
+  return true
 end
 
 --[[

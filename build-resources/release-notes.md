@@ -14,3 +14,4 @@
 * Chinese (zhCN): the "Add Gearslot" button and the maximum-slots message now speak of gear slots instead of GearBars, and the TrinketMenu settings are translated
 * Fix a Lua error when the GearSlot size is changed for a GearBar that no longer exists
 * Fix a Lua error when "Add Gearslot" is clicked on the configuration page of a GearBar that was deleted in the meantime
+* Fix a Lua error when your bags change while the change menu of a GearBar you just deleted is still open - the change menu now closes instead
