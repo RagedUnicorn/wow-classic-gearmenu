@@ -346,6 +346,37 @@ describe("ItemManager swap failures", function()
       assert.is_false(combatQueue.IsCombatQueueEmpty())
     end)
 
+    it("keeps the queued entry when the bag item is locked so it can retry", function()
+      bags[0] = { { itemId = 12345, locked = true } }
+      combatQueue.AddToQueue(12345, nil, nil, 13)
+
+      itemManager.SwitchItems(12345, nil, nil, 13)
+
+      assert.is_false(combatQueue.IsCombatQueueEmpty())
+    end)
+
+    it("keeps the queued entry when the target inventory slot is locked so it can retry", function()
+      bags[0] = { { itemId = 12345 } }
+      inventoryLocked = true
+      combatQueue.AddToQueue(12345, nil, nil, 13)
+
+      itemManager.SwitchItems(12345, nil, nil, 13)
+
+      assert.is_false(combatQueue.IsCombatQueueEmpty())
+    end)
+
+    it("does not swap in a copy worn in another slot when the bag copy is locked", function()
+      -- the gearManager stub exposes slot 13; the same item is worn there and locked in the bag
+      equipped[13] = 12345
+      bags[0] = { { itemId = 12345, locked = true } }
+
+      local reason = itemManager.SwitchItems(12345, nil, nil, 14)
+
+      assert.are.equal(itemManager.failureReason.itemLocked, reason)
+      assert.are.equal(0, #pickedUpInventorySlots)
+      assert.are.equal(0, #swapEvents)
+    end)
+
     it("notifies on every attempt for a direct swap without a queued entry", function()
       cursorHasItem = true
 
@@ -535,6 +566,26 @@ describe("ItemManager swap failures", function()
       assert.are.equal(
         string.format(rggm.L["swap_failure_item_not_found"], "Test Item"), userChatMessages[2])
       assert.is_true(combatQueue.IsCombatQueueEmpty())
+    end)
+
+    it("notifies a locked item once and equips it once the lock clears", function()
+      local bagItem = { itemId = 12345, locked = true }
+      bags[0] = { bagItem }
+      combatQueue.AddToQueue(12345, nil, nil, 13)
+
+      combatQueue.ProcessQueue()
+      combatQueue.ProcessQueue()
+
+      assert.are.equal(1, #userChatMessages)
+      assert.are.equal(
+        string.format(rggm.L["swap_failure_item_locked"], "Test Item"), userChatMessages[1])
+      assert.is_false(combatQueue.IsCombatQueueEmpty())
+
+      bagItem.locked = false
+      combatQueue.ProcessQueue()
+
+      assert.is_true(combatQueue.IsCombatQueueEmpty())
+      assert.are.same({ 13 }, pickedUpInventorySlots)
     end)
   end)
 

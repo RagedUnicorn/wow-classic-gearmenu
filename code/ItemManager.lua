@@ -330,7 +330,6 @@ function me.SwitchItems(itemId, enchantId, runeAbilityId, slotId)
     return me.failureReason.noBagSpace
   end
 
-  local failureReason = me.failureReason.itemNotFound
   local bagNumber, bagPos, usedFallback = me.FindItemInBag(itemId, enchantId, runeAbilityId)
 
   if bagNumber and bagPos then
@@ -357,7 +356,14 @@ function me.SwitchItems(itemId, enchantId, runeAbilityId, slotId)
       return -- abort
     end
 
-    failureReason = me.failureReason.itemLocked
+    --[[
+      A lock is transient - the item is being moved, traded or waits for the server. Keep a
+      queued swap for a retry once the lock clears, like a busy cursor. The bag copy is the item
+      to equip, so the equipped-copy fallback below does not apply
+    ]]--
+    NotifySwapFailure(me.failureReason.itemLocked, slotId, itemId)
+
+    return me.failureReason.itemLocked
   end
 
   --[[
@@ -379,11 +385,11 @@ function me.SwitchItems(itemId, enchantId, runeAbilityId, slotId)
     return -- abort
   end
 
-  mod.logger.LogDebug(me.tag, "Was unable to switch because of failure reason: " .. failureReason)
-  NotifySwapFailure(failureReason, slotId, itemId)
+  mod.logger.LogDebug(me.tag, "Was unable to switch because the item could not be found")
+  NotifySwapFailure(me.failureReason.itemNotFound, slotId, itemId)
   mod.combatQueue.RemoveFromQueue(slotId)
 
-  return failureReason
+  return me.failureReason.itemNotFound
 end
 
 --[[
