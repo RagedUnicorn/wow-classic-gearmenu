@@ -76,6 +76,18 @@ describe("Comm", function()
   local inGuild
   local inRaid
   local inGroup
+  -- C_Timer.After callbacks waiting for flushTimers, { delay, callback }
+  local pendingTimers
+
+  local function flushTimers()
+    local timers = pendingTimers
+
+    pendingTimers = {}
+
+    for _, timer in ipairs(timers) do
+      timer.callback()
+    end
+  end
 
   before_each(function()
     registeredPrefixes = {}
@@ -85,6 +97,7 @@ describe("Comm", function()
     inGuild = false
     inRaid = false
     inGroup = false
+    pendingTimers = {}
 
     previousModules = {
       logger = rggm.logger,
@@ -117,7 +130,12 @@ describe("Comm", function()
       IsInGuild = function() return inGuild end,
       IsInRaid = function() return inRaid end,
       IsInGroup = function() return inGroup end,
-      GetTime = function() return now end
+      GetTime = function() return now end,
+      C_Timer = {
+        After = function(delay, callback)
+          pendingTimers[#pendingTimers + 1] = { delay = delay, callback = callback }
+        end
+      }
     })
 
     -- the real comparator (rggm.configuration.IsVersionBefore) replacing the bootstrap no-op
@@ -185,19 +203,88 @@ describe("Comm", function()
       assert.are.same({}, sentMessages)
     end)
 
-    it("skips a broadcast within the cooldown and sends again after it elapsed", function()
+    it("delays a broadcast within the cooldown instead of dropping it", function()
+      inGroup = true
+
+      comm.BroadcastGroupVersion()
+      assert.are.equal(1, #sentMessages)
+
+      -- a player joins 4 seconds after the first roster change
+      now = now + 4
+      comm.BroadcastGroupVersion()
+      assert.are.equal(1, #sentMessages)
+      assert.are.equal(1, #pendingTimers)
+      assert.are.equal(6, pendingTimers[1].delay)
+
+      now = now + 6
+      flushTimers()
+      assert.are.equal(2, #sentMessages)
+      assert.are.equal("PARTY", sentMessages[2].channel)
+    end)
+
+    it("coalesces a roster burst into a single trailing broadcast", function()
+      inGroup = true
+
+      comm.BroadcastGroupVersion()
+      comm.BroadcastGroupVersion()
+      comm.BroadcastGroupVersion()
+      comm.BroadcastGroupVersion()
+
+      assert.are.equal(1, #sentMessages)
+      assert.are.equal(1, #pendingTimers)
+
+      now = now + 10
+      flushTimers()
+      assert.are.equal(2, #sentMessages)
+      assert.are.equal(0, #pendingTimers)
+    end)
+
+    it("sends immediately again once the cooldown elapsed without a pending broadcast", function()
+      inGroup = true
+
+      comm.BroadcastGroupVersion()
+      now = now + 60
+      comm.BroadcastGroupVersion()
+
+      assert.are.equal(2, #sentMessages)
+      assert.are.equal(0, #pendingTimers)
+    end)
+
+    it("includes the guild in the trailing broadcast when a delayed call asked for it", function()
+      inGuild = true
+      inGroup = true
+
+      comm.BroadcastGroupVersion()
+      now = now + 2
+      comm.BroadcastVersion()
+      comm.BroadcastGroupVersion()
+
+      now = now + 8
+      flushTimers()
+
+      assert.are.same({ "PARTY", "GUILD", "PARTY" }, {
+        sentMessages[1].channel, sentMessages[2].channel, sentMessages[3].channel
+      })
+    end)
+  end)
+
+  describe("BroadcastGroupVersion", function()
+    it("tells the raid or party but not the guild", function()
+      inGuild = true
+      inRaid = true
+
+      comm.BroadcastGroupVersion()
+
+      assert.are.equal(1, #sentMessages)
+      assert.are.equal("RAID", sentMessages[1].channel)
+    end)
+
+    it("sends nothing to a guild member who is not in a group", function()
       inGuild = true
 
-      comm.BroadcastVersion()
-      assert.are.equal(1, #sentMessages)
+      comm.BroadcastGroupVersion()
 
-      -- a roster burst right after the first broadcast is swallowed by the cooldown
-      comm.BroadcastVersion()
-      assert.are.equal(1, #sentMessages)
-
-      now = now + 60
-      comm.BroadcastVersion()
-      assert.are.equal(2, #sentMessages)
+      assert.are.same({}, sentMessages)
     end)
   end)
 

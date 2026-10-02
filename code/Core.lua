@@ -62,7 +62,8 @@ end
 
 --[[
   Run the bootstrap sequence on initial login or ui reload, then mark the event
-  bus ready so gated handlers begin firing.
+  bus ready so gated handlers begin firing. The version goes to the guild and the group
+  once per session; zoning between map instances only tells the group.
 
   @param {boolean} isInitialLogin
   @param {boolean} isReloadingUi
@@ -71,9 +72,12 @@ OnPlayerEnteringWorld = function(isInitialLogin, isReloadingUi)
   if isInitialLogin or isReloadingUi then
     Initialize()
     me.event.SetReady()
+    me.comm.BroadcastVersion()
+
+    return
   end
 
-  me.comm.BroadcastVersion()
+  me.comm.BroadcastGroupVersion()
 end
 
 --[[
@@ -274,7 +278,7 @@ function me.OnLoad(self)
   -- Fires when another addon client sends a message over the addon message channel
   me.event.Register("CHAT_MSG_ADDON", me.comm.OnChatMsgAddon, { gated = true })
   -- Fires when the group or raid composition changes
-  me.event.Register("GROUP_ROSTER_UPDATE", me.comm.BroadcastVersion, { gated = true })
+  me.event.Register("GROUP_ROSTER_UPDATE", me.comm.BroadcastGroupVersion, { gated = true })
 
   me.event.Setup(self)
 end

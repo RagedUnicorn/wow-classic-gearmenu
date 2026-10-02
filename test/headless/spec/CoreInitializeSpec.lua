@@ -157,4 +157,24 @@ describe("Core initialize", function()
     assert.is_nil(indexOf("target.UpdateCurrentTarget"))
     assert.are.equal("", rggm.target.GetCurrentTargetGuid())
   end)
+
+  it("broadcasts the version to guild and group once on login or /reload", function()
+    handlers["PLAYER_ENTERING_WORLD"](true, false)
+
+    assert.is_truthy(indexOf("comm.BroadcastVersion"))
+    assert.is_nil(indexOf("comm.BroadcastGroupVersion"))
+  end)
+
+  it("tells only the group when zoning between map instances", function()
+    handlers["PLAYER_ENTERING_WORLD"](false, false)
+
+    assert.is_nil(indexOf("comm.BroadcastVersion"))
+    assert.is_truthy(indexOf("comm.BroadcastGroupVersion"))
+  end)
+
+  it("tells only the group on a roster change", function()
+    handlers["GROUP_ROSTER_UPDATE"]()
+
+    assert.are.same({ "comm.BroadcastGroupVersion" }, callLog)
+  end)
 end)

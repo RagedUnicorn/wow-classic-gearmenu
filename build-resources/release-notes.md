@@ -18,3 +18,4 @@
 * A swap listener registered with GM_RegisterSwapListener that unregisters itself while handling an event no longer causes the next listener to be skipped and a "Swap listener failed" error to be logged
 * QuickChange rules now also fire for channelled spells and for casts that finish while a channel is active - before, those casts were silently ignored
 * The key binding on a GearSlot turns red for an out-of-range target right after a login or /reload - before, a target selected before the reload was only picked up once you changed target
+* The version check no longer repeats its guild message on every group change - the guild hears it once per login, the group on every change - and a group change right after another one is announced a few seconds later instead of being skipped, so a player who joins right away still learns about a newer version

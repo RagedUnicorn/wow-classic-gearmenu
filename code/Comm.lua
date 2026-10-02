@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals C_ChatInfo C_AddOns UnitName IsInGuild IsInGroup IsInRaid GetTime
+-- luacheck: globals C_ChatInfo C_AddOns UnitName IsInGuild IsInGroup IsInRaid GetTime C_Timer
 
 local mod = rggm
 local me = {}
@@ -42,6 +42,8 @@ me.tag = "Comm"
 -- forward declarations
 local IsSelfSent
 local NormalizeVersion
+local RequestBroadcast
+local SendVersion
 local ShouldNotify
 
 --[[
@@ -67,6 +69,10 @@ local MAX_VERSION_LENGTH = 16
 
 -- time of the last version broadcast
 local lastBroadcastTime = 0
+-- whether a broadcast suppressed by the cooldown is scheduled to run once it elapsed
+local broadcastPending = false
+-- whether the scheduled broadcast has to include the guild
+local pendingIncludesGuild = false
 -- whether the update notice was already shown this session
 local notifiedThisSession = false
 
@@ -81,24 +87,68 @@ function me.Initialize()
 end
 
 --[[
-  Broadcast the running addon version to guild and group members. Invoked on
-  roster edges only (PLAYER_ENTERING_WORLD and GROUP_ROSTER_UPDATE), never in a
-  loop, so the native throttle is never exhausted
+  Broadcast the running addon version to guild and group members. Invoked on login and
+  /reload only - the guild does not change with the group, so it is told once per session
 ]]--
 function me.BroadcastVersion()
-  local version = C_AddOns.GetAddOnMetadata(RGGM_CONSTANTS.ADDON_NAME, "Version")
+  RequestBroadcast(true)
+end
 
-  if version == nil then return end
+--[[
+  Broadcast the running addon version to the raid or party only. Invoked on roster edges
+  (GROUP_ROSTER_UPDATE) and when zoning, where only the group may have new members
+]]--
+function me.BroadcastGroupVersion()
+  RequestBroadcast(false)
+end
 
-  if GetTime() - lastBroadcastTime < BROADCAST_COOLDOWN then
-    mod.logger.LogDebug(me.tag, "Skipping version broadcast - cooldown active")
+--[[
+  Send the version now, or - within BROADCAST_COOLDOWN of the last broadcast - once the
+  cooldown elapsed. A roster burst coalesces into a single trailing broadcast instead of being
+  dropped, so a player joining right after another roster change still receives the version.
+  The trailing broadcast includes the guild if any of the calls it stands in for did.
+
+  @param {boolean} includeGuild
+]]--
+RequestBroadcast = function(includeGuild)
+  local elapsed = GetTime() - lastBroadcastTime
+
+  if not broadcastPending and elapsed >= BROADCAST_COOLDOWN then
+    SendVersion(includeGuild)
 
     return
   end
 
+  pendingIncludesGuild = pendingIncludesGuild or includeGuild
+
+  if broadcastPending then return end
+
+  mod.logger.LogDebug(me.tag, "Delaying version broadcast - cooldown active")
+  broadcastPending = true
+
+  C_Timer.After(BROADCAST_COOLDOWN - elapsed, function()
+    local guild = pendingIncludesGuild
+
+    broadcastPending = false
+    pendingIncludesGuild = false
+    SendVersion(guild)
+  end)
+end
+
+--[[
+  Send the running addon version over the guild (optionally) and the raid or party. Uses only
+  the native per-prefix throttle, which a broadcast per BROADCAST_COOLDOWN never exhausts
+
+  @param {boolean} includeGuild
+]]--
+SendVersion = function(includeGuild)
+  local version = C_AddOns.GetAddOnMetadata(RGGM_CONSTANTS.ADDON_NAME, "Version")
+
+  if version == nil then return end
+
   lastBroadcastTime = GetTime()
 
-  if IsInGuild() then
+  if includeGuild and IsInGuild() then
     C_ChatInfo.SendAddonMessage(RGGM_CONSTANTS.ADDON_MESSAGE_PREFIX, version, "GUILD")
   end
 
