@@ -341,5 +341,45 @@ describe("Macro", function()
       assert.are.equal(1, #loggedErrors)
       assert.is_truthy(loggedErrors[1]:find("broken listener", 1, true))
     end)
+
+    it("still notifies the next listener when a listener unregisters itself", function()
+      local received = {}
+      local selfRemoving
+
+      selfRemoving = function(eventName)
+        received[#received + 1] = "first " .. eventName
+        GM_UnregisterSwapListener(selfRemoving)
+      end
+
+      GM_RegisterSwapListener(selfRemoving)
+      GM_RegisterSwapListener(function(eventName)
+        received[#received + 1] = "second " .. eventName
+      end)
+
+      macro.FireSwapEvent(RGGM_CONSTANTS.SWAP_EVENT_QUEUED, 13, 1000)
+      macro.FireSwapEvent(RGGM_CONSTANTS.SWAP_EVENT_COMPLETED, 13, 1000)
+
+      assert.are.same({
+        "first " .. RGGM_CONSTANTS.SWAP_EVENT_QUEUED,
+        "second " .. RGGM_CONSTANTS.SWAP_EVENT_QUEUED,
+        "second " .. RGGM_CONSTANTS.SWAP_EVENT_COMPLETED
+      }, received)
+      assert.are.same({}, loggedErrors)
+    end)
+
+    it("delivers a listener registered during dispatch from the next event on", function()
+      local received = {}
+      local late = function(eventName)
+        received[#received + 1] = "late " .. eventName
+      end
+
+      GM_RegisterSwapListener(function() GM_RegisterSwapListener(late) end)
+
+      macro.FireSwapEvent(RGGM_CONSTANTS.SWAP_EVENT_QUEUED, 13, 1000)
+      assert.are.same({}, received)
+
+      macro.FireSwapEvent(RGGM_CONSTANTS.SWAP_EVENT_COMPLETED, 13, 1000)
+      assert.are.same({ "late " .. RGGM_CONSTANTS.SWAP_EVENT_COMPLETED }, received)
+    end)
   end)
 end)

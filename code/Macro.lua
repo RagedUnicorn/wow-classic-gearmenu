@@ -145,7 +145,9 @@ end
 --[[
   Notify all registered swap listeners about a swap-lifecycle event. Each listener is isolated
   with pcall so a broken third-party callback can never break the swap path itself; errors are
-  routed to the logger
+  routed to the logger. Dispatch runs over a copy of the listeners taken before the first call, so
+  a listener that registers or unregisters listeners - itself included - neither skips nor adds a
+  listener for the event being fired; the change applies from the next event on
 
   @param {string} eventName
     One of RGGM_CONSTANTS.SWAP_EVENT_QUEUED, SWAP_EVENT_UNQUEUED or SWAP_EVENT_COMPLETED
@@ -153,8 +155,14 @@ end
   @param {number} itemId
 ]]--
 function me.FireSwapEvent(eventName, slotId, itemId)
+  local listeners = {}
+
   for i = 1, #swapListeners do
-    local status, err = pcall(swapListeners[i], eventName, slotId, itemId)
+    listeners[i] = swapListeners[i]
+  end
+
+  for i = 1, #listeners do
+    local status, err = pcall(listeners[i], eventName, slotId, itemId)
 
     if not status then
       mod.logger.LogError(me.tag, "Swap listener failed for event '" .. eventName .. "': " .. tostring(err))
