@@ -16,3 +16,4 @@
 * Fix a Lua error when "Add Gearslot" is clicked on the configuration page of a GearBar that was deleted in the meantime
 * Fix a Lua error when your bags change while the change menu of a GearBar you just deleted is still open - the change menu now closes instead
 * A swap listener registered with GM_RegisterSwapListener that unregisters itself while handling an event no longer causes the next listener to be skipped and a "Swap listener failed" error to be logged
+* QuickChange rules now also fire for channelled spells and for casts that finish while a channel is active - before, those casts were silently ignored

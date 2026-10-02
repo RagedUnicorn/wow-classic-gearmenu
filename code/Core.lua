@@ -152,20 +152,22 @@ end
 
 --[[
   Process quickChange rules and the combat queue after a successful spellcast of the
-  player. Channelled spells are skipped - the queue is processed once the channel stops.
+  player. QuickChange rules run for every cast, channelled spells included - the spellId is
+  only available here, and an equip a rule triggers mid-channel is queued anyway while the
+  player is casting. Only the combat queue waits while a channel is active; it is processed
+  once the channel stops.
 
   @param {vararg} ...
 ]]--
 OnUnitSpellCastSucceeded = function(...)
   local unit = ...
 
-  if unit == RGGM_CONSTANTS.UNIT_ID_PLAYER then
-    local channelledSpell = UnitChannelInfo(RGGM_CONSTANTS.UNIT_ID_PLAYER)
+  if unit ~= RGGM_CONSTANTS.UNIT_ID_PLAYER then return end
 
-    if not channelledSpell then
-      me.quickChange.OnUnitSpellCastSucceeded(...)
-      me.combatQueue.ProcessQueue()
-    end
+  me.quickChange.OnUnitSpellCastSucceeded(...)
+
+  if not UnitChannelInfo(RGGM_CONSTANTS.UNIT_ID_PLAYER) then
+    me.combatQueue.ProcessQueue()
   end
 end
 
