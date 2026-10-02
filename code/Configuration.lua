@@ -527,7 +527,9 @@ function me.UpgradeToV2_0_0()
   GearMenuConfiguration.showKeyBindings = nil
   GearMenuConfiguration.showCooldowns = nil
   GearMenuConfiguration.slotSize = nil
-  GearMenuConfiguration.frames = nil
+  -- emptied, not nil: the frames container is userOwned and the defaults backfill ran before
+  -- the migration path, so nil would leave the TrinketMenu position reads and writes without it
+  GearMenuConfiguration.frames = {}
   GearMenuConfiguration.slots = nil
 
   mod.logger.LogDebug(me.tag, "Finished upgrade path from " .. GearMenuConfiguration.addonVersion .. " to v2.0.0")

@@ -23,3 +23,4 @@
 * A queued item that is momentarily locked (being moved or traded) is no longer dropped from the combat queue - GearMenu tells you once and equips it as soon as the lock clears
 * Fix an item waiting in the combat queue being queued again every tenth of a second right at the end of a fight - the queue now waits until the game treats you as fully out of combat and equips the item once
 * A QuickChange rule with a delay no longer swaps a slot back when you equipped or queued another item there while the delay was running
+* Fix Lua errors when the TrinketMenu is shown or moved right after a character with GearMenu 1.x settings logs in for the first time - the upgrade to the GearBar settings no longer removes the storage for the TrinketMenu position
