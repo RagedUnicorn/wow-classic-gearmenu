@@ -49,8 +49,39 @@ local bagEntriesByItemId = {}
 -- whether the cached entries no longer reflect the live bag contents
 local dirty = true
 
--- forward declarations
-local RebuildCache
+--[[
+  Rebuild the cached entries with a single full scan over bags 0-4.
+]]--
+local function RebuildCache()
+  bagEntries = {}
+  bagEntriesByItemId = {}
+
+  for bagNumber = 0, 4 do
+    for bagPos = 1, C_Container.GetContainerNumSlots(bagNumber) do
+      local itemInfo = mod.common.GetItemInfo(C_Container.GetContainerItemLink(bagNumber, bagPos))
+
+      if itemInfo.itemId then
+        local entry = {
+          bagNumber = bagNumber,
+          bagPos = bagPos,
+          itemId = itemInfo.itemId,
+          enchantId = itemInfo.enchantId
+        }
+
+        table.insert(bagEntries, entry)
+
+        if not bagEntriesByItemId[entry.itemId] then
+          bagEntriesByItemId[entry.itemId] = {}
+        end
+
+        table.insert(bagEntriesByItemId[entry.itemId], entry)
+      end
+    end
+  end
+
+  dirty = false
+  mod.logger.LogDebug(me.tag, "Rebuilt item location cache with " .. #bagEntries .. " entries")
+end
 
 --[[
   Mark the cached entries as stale. The next lookup rebuilds the cache with a full bag scan.
@@ -88,38 +119,4 @@ function me.GetItemLocations(itemId)
   end
 
   return bagEntriesByItemId[itemId] or {}
-end
-
---[[
-  Rebuild the cached entries with a single full scan over bags 0-4.
-]]--
-RebuildCache = function()
-  bagEntries = {}
-  bagEntriesByItemId = {}
-
-  for bagNumber = 0, 4 do
-    for bagPos = 1, C_Container.GetContainerNumSlots(bagNumber) do
-      local itemInfo = mod.common.GetItemInfo(C_Container.GetContainerItemLink(bagNumber, bagPos))
-
-      if itemInfo.itemId then
-        local entry = {
-          bagNumber = bagNumber,
-          bagPos = bagPos,
-          itemId = itemInfo.itemId,
-          enchantId = itemInfo.enchantId
-        }
-
-        table.insert(bagEntries, entry)
-
-        if not bagEntriesByItemId[entry.itemId] then
-          bagEntriesByItemId[entry.itemId] = {}
-        end
-
-        table.insert(bagEntriesByItemId[entry.itemId], entry)
-      end
-    end
-  end
-
-  dirty = false
-  mod.logger.LogDebug(me.tag, "Rebuilt item location cache with " .. #bagEntries .. " entries")
 end
