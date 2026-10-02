@@ -312,6 +312,11 @@ Initialize = function()
   me.gearBar.BuildGearBars()
   -- build ui for changeMenu
   me.gearBarChangeMenu.BuildChangeMenu()
+  --[[
+    seed the current target - PLAYER_TARGET_CHANGED is gated until initialization, so a target
+    selected before a login or /reload is otherwise only seen once the player changes target
+  ]]--
+  me.target.UpdateCurrentTarget()
   -- update initial view of gearBars after addon initialization
   me.gearBar.UpdateGearBars(me.gearBar.UpdateGearBarVisual)
 
