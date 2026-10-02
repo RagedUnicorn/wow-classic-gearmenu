@@ -41,6 +41,7 @@ me.tag = "Comm"
 
 -- forward declarations
 local IsSelfSent
+local NormalizeVersion
 local ShouldNotify
 
 --[[
@@ -49,6 +50,20 @@ local ShouldNotify
   native throttle budget
 ]]--
 local BROADCAST_COOLDOWN = 10
+
+--[[
+  The channels BroadcastVersion sends on. A version arriving on any other channel (a
+  WHISPER from an arbitrary player) is not a broadcast and is ignored
+]]--
+local BROADCAST_CHANNELS = {
+  ["GUILD"] = true,
+  ["RAID"] = true,
+  ["PARTY"] = true,
+  ["INSTANCE_CHAT"] = true
+}
+
+-- upper bound for a received version string - "v999.999.999" is 12 characters
+local MAX_VERSION_LENGTH = 16
 
 -- time of the last version broadcast
 local lastBroadcastTime = 0
@@ -95,26 +110,51 @@ function me.BroadcastVersion()
 end
 
 --[[
-  Handle an incoming addon message. Foreign prefixes and self-sent messages are
-  dropped; a strictly newer version shows the localized update notice once per
-  session and persists the announced version so relogs are not re-nagged.
+  Handle an incoming addon message. Foreign prefixes, messages outside the broadcast
+  channels and self-sent messages are dropped. The message is untrusted input from
+  another player: only a well-formed version is accepted, and only its normalized form
+  is persisted and printed, so sender-controlled text never reaches the saved
+  variables or the chat. A strictly newer version shows the localized update notice
+  once per session and persists the announced version so relogs are not re-nagged.
 
   @param {string} prefix
   @param {string} message
     the version string of the sending player
-  @param {string} _
-    the channel the message arrived on (unused)
+  @param {string} channel
+    the channel the message arrived on
   @param {string} sender
     sender name, realm-qualified for cross-realm players ("Name-Realm")
 ]]--
-function me.OnChatMsgAddon(prefix, message, _, sender)
+function me.OnChatMsgAddon(prefix, message, channel, sender)
   if prefix ~= RGGM_CONSTANTS.ADDON_MESSAGE_PREFIX then return end
+  if not BROADCAST_CHANNELS[channel] then return end
   if IsSelfSent(sender) then return end
-  if not ShouldNotify(message) then return end
+
+  local version = NormalizeVersion(message)
+
+  if version == nil or not ShouldNotify(version) then return end
 
   notifiedThisSession = true
-  GearMenuConfiguration.lastNotifiedVersion = message
-  mod.logger.PrintUserMessage(string.format(rggm.L["update_available"], message))
+  GearMenuConfiguration.lastNotifiedVersion = version
+  mod.logger.PrintUserMessage(string.format(rggm.L["update_available"], version))
+end
+
+--[[
+  Reduce a received version to its canonical "vMAJOR.MINOR.PATCH" form. Anything else -
+  a non-string, an oversized message, trailing or leading text - is rejected.
+
+  @param {string} message
+  @return {string | nil}
+    the normalized version, or nil if the message is not a well-formed version
+]]--
+NormalizeVersion = function(message)
+  if type(message) ~= "string" or #message > MAX_VERSION_LENGTH then return nil end
+
+  local major, minor, patch = string.match(message, "^v?(%d+)%.(%d+)%.(%d+)$")
+
+  if major == nil then return nil end
+
+  return string.format("v%d.%d.%d", tonumber(major), tonumber(minor), tonumber(patch))
 end
 
 --[[

@@ -263,6 +263,52 @@ describe("Comm", function()
       comm.OnChatMsgAddon(RGGM_CONSTANTS.ADDON_MESSAGE_PREFIX, "v2.9.0", "GUILD", "Otherplayer")
       assert.are.same({ "New version v2.9.0 is available" }, notices)
     end)
+
+    it("accepts a version on every broadcast channel", function()
+      for _, channel in ipairs({ "GUILD", "RAID", "PARTY", "INSTANCE_CHAT" }) do
+        dofile("code/Comm.lua")
+        comm = rggm.comm
+        config.lastNotifiedVersion = ""
+
+        comm.OnChatMsgAddon(RGGM_CONSTANTS.ADDON_MESSAGE_PREFIX, "v2.8.0", channel, "Otherplayer")
+      end
+
+      assert.are.equal(4, #notices)
+    end)
+
+    it("ignores a version whispered by another player", function()
+      comm.OnChatMsgAddon(RGGM_CONSTANTS.ADDON_MESSAGE_PREFIX, "v2.8.0", "WHISPER", "Otherplayer")
+
+      assert.are.same({}, notices)
+      assert.are.equal("", config.lastNotifiedVersion)
+    end)
+
+    it("ignores a version followed by trailing text and persists nothing", function()
+      comm.OnChatMsgAddon(RGGM_CONSTANTS.ADDON_MESSAGE_PREFIX, "v99.0.0 |cFFFF0000click", "GUILD", "Otherplayer")
+
+      assert.are.same({}, notices)
+      assert.are.equal("", config.lastNotifiedVersion)
+    end)
+
+    it("ignores an oversized message even when it is all digits", function()
+      comm.OnChatMsgAddon(RGGM_CONSTANTS.ADDON_MESSAGE_PREFIX, "v99999999999999.0.0", "GUILD", "Otherplayer")
+
+      assert.are.same({}, notices)
+      assert.are.equal("", config.lastNotifiedVersion)
+    end)
+
+    it("ignores a message that is not a string", function()
+      comm.OnChatMsgAddon(RGGM_CONSTANTS.ADDON_MESSAGE_PREFIX, nil, "GUILD", "Otherplayer")
+
+      assert.are.same({}, notices)
+    end)
+
+    it("persists and prints the normalized version only", function()
+      comm.OnChatMsgAddon(RGGM_CONSTANTS.ADDON_MESSAGE_PREFIX, "2.08.0", "GUILD", "Otherplayer")
+
+      assert.are.same({ "New version v2.8.0 is available" }, notices)
+      assert.are.equal("v2.8.0", config.lastNotifiedVersion)
+    end)
   end)
 
   describe("IsVersionBefore", function()
