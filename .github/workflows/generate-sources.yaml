@@ -33,6 +33,8 @@ jobs:
       - name: Generate sources
         run: mvn generate-resources -D generate.sources.overwrite=true -P development
       - name: Commit generated files if changed
+        # GITHUB_TOKEN cannot push to a fork, so only same-repository PRs get the commit
+        if: github.event.pull_request.head.repo.full_name == github.repository
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -42,4 +44,13 @@ jobs:
           else
             git commit -m "chore: generate sources"
             git push
+          fi
+      - name: Report stale generated files on fork PRs
+        if: github.event.pull_request.head.repo.full_name != github.repository
+        run: |
+          if git diff --quiet -- GearMenu.toc code/Environment.lua docs/wow_badge_classic.svg docs/wow_badge_tbc.svg docs/wow_badge_mop.svg; then
+            echo "Generated files are up to date"
+          else
+            echo "::warning::Generated files are out of date - run 'mvn generate-resources -D generate.sources.overwrite=true -P development' and commit the result"
+            git diff --stat -- GearMenu.toc code/Environment.lua docs/wow_badge_classic.svg docs/wow_badge_tbc.svg docs/wow_badge_mop.svg
           fi
