@@ -218,7 +218,7 @@ function me.AddRuleOnClick(self)
 
   if delay == nil then
     -- internal user
-    mod.logger.LogError(me.tag, "Unable to read delay from delay slider")
+    mod.logger.LogWarn(me.tag, "Unable to read delay from delay slider")
     return
   end
 

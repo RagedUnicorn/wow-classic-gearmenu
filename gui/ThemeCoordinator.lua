@@ -45,7 +45,7 @@ function me.UpdateTheme()
   elseif mod.configuration.GetUiTheme() == RGGM_CONSTANTS.UI_THEME_CUSTOM then
     themeReference = mod.themeCustom
   else
-    mod.logger.LogError(me.tag, "Invalid uiTheme found")
+    mod.logger.LogWarn(me.tag, "Invalid uiTheme found")
   end
 end
 

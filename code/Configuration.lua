@@ -492,7 +492,7 @@ function me.UpgradeToV2_0_0()
   mod.logger.LogDebug(me.tag, "Running upgrade path from " .. GearMenuConfiguration.addonVersion .. " to v2.0.0")
 
   if GearMenuConfiguration.frames.GM_GearBar == nil then
-    mod.logger.LogError(me.tag, "Migration failed - no gearBar found. Continuing with default initialization")
+    mod.logger.LogWarn(me.tag, "Migration failed - no gearBar found. Continuing with default initialization")
     GearMenuConfiguration.gearBars = nil
     GearMenuConfiguration.gearBars = {}
     return

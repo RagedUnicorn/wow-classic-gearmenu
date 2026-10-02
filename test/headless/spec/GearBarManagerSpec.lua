@@ -96,6 +96,7 @@ describe("GearBarManager", function()
     rggm.logger = {
       LogDebug = function() end,
       LogInfo = function() end,
+      LogWarn = function() end,
       LogError = function() end
     }
     rggm.gearBar = {
@@ -520,7 +521,7 @@ describe("GearBarManager", function()
 
     it("logs an error and touches no ui for an unknown gearBar id", function()
       local errors = {}
-      rggm.logger.LogError = function(_, message) errors[#errors + 1] = message end
+      rggm.logger.LogWarn = function(_, message) errors[#errors + 1] = message end
       -- the real UpdateGearBarSize dereferences the gearBar it is handed
       rggm.gearBar.UpdateGearBarSize = function(gearBar)
         calls.updateGearBarSize = calls.updateGearBarSize + 1

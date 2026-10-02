@@ -77,7 +77,7 @@ end
 ]]--
 function me.RegisterCommand(command, handler, helpTextKey, aliases)
   if type(command) ~= "string" or type(handler) ~= "function" then
-    mod.logger.LogError(me.tag, "Invalid command registration - missing command or handler")
+    mod.logger.LogWarn(me.tag, "Invalid command registration - missing command or handler")
 
     return
   end

@@ -248,7 +248,7 @@ describe("GearBarConfigurationSubMenu combat guards", function()
         addedGearSlots = addedGearSlots + 1
         return {}
       end
-      rggm.logger.LogError = function(_, message) errors[#errors + 1] = message end
+      rggm.logger.LogWarn = function(_, message) errors[#errors + 1] = message end
     end)
 
     it("adds a gearSlot to the configured gearBar", function()

@@ -36,7 +36,7 @@
     - The public swap-listener surface GM_RegisterSwapListener / GM_UnregisterSwapListener and the
       FireSwapEvent dispatcher: registration type guard, dispatch order and payload, duplicate
       registration as a no-op, deregistration, and pcall isolation of a throwing listener (the
-      error is routed to mod.logger.LogError and remaining listeners still run).
+      error is handed to geterrorhandler() and remaining listeners still run).
 
   The collaborators (logger, gearManager, combatQueue) are replaced with recorder stubs on the shared
   rggm namespace and restored in after_each so they do not leak into other specs (the pattern used by
@@ -62,7 +62,7 @@ describe("Macro", function()
   local chatErrors
   local queueAdds
   local queueRemoves
-  local loggedErrors
+  local reportedErrors
   -- snapshot of the rggm.* collaborators we overwrite, restored in after_each so the shared namespace
   -- (notably the real rggm.logger from Bootstrap) does not leak into other specs
   local previousModules
@@ -75,7 +75,7 @@ describe("Macro", function()
     chatErrors = {}
     queueAdds = {}
     queueRemoves = {}
-    loggedErrors = {}
+    reportedErrors = {}
 
     previousModules = {
       logger = rggm.logger,
@@ -86,9 +86,6 @@ describe("Macro", function()
 
     rggm.logger = {
       LogDebug = function() end,
-      LogError = function(_, message)
-        loggedErrors[#loggedErrors + 1] = message
-      end,
       PrintUserChatError = function(message)
         chatErrors[#chatErrors + 1] = message
       end
@@ -117,6 +114,9 @@ describe("Macro", function()
     -- GetItemInfoInstant shape: itemID, itemType, itemSubType, itemEquipLoc (4th = equip slot).
     -- 1000 -> equippable trinket, 2000 -> valid but non-equippable (empty equip slot), unknown -> nil.
     restoreGlobals = wowStubs.install({
+      geterrorhandler = function()
+        return function(message) reportedErrors[#reportedErrors + 1] = message end
+      end,
       C_Item = wowStubs.stubs.C_Item({}, {
         [1000] = { 1000, nil, nil, "INVTYPE_TRINKET" },
         [2000] = { 2000, nil, nil, "" }
@@ -275,7 +275,7 @@ describe("Macro", function()
       assert.is_truthy(chatErrors[1]:find("GM_RegisterSwapListener", 1, true))
 
       macro.FireSwapEvent(RGGM_CONSTANTS.SWAP_EVENT_QUEUED, 13, 1000)
-      assert.are.equal(0, #loggedErrors) -- nothing was registered, nothing can fail
+      assert.are.equal(0, #reportedErrors) -- nothing was registered, nothing can fail
     end)
 
     it("registers the same callback only once", function()
@@ -334,8 +334,8 @@ describe("Macro", function()
       macro.FireSwapEvent(RGGM_CONSTANTS.SWAP_EVENT_UNQUEUED, 13, 1000)
 
       assert.are.same({ RGGM_CONSTANTS.SWAP_EVENT_UNQUEUED }, received)
-      assert.are.equal(1, #loggedErrors)
-      assert.is_truthy(loggedErrors[1]:find("broken listener", 1, true))
+      assert.are.equal(1, #reportedErrors)
+      assert.is_truthy(reportedErrors[1]:find("broken listener", 1, true))
     end)
 
     it("still notifies the next listener when a listener unregisters itself", function()
@@ -360,7 +360,7 @@ describe("Macro", function()
         "second " .. RGGM_CONSTANTS.SWAP_EVENT_QUEUED,
         "second " .. RGGM_CONSTANTS.SWAP_EVENT_COMPLETED
       }, received)
-      assert.are.same({}, loggedErrors)
+      assert.are.same({}, reportedErrors)
     end)
 
     it("delivers a listener registered during dispatch from the next event on", function()

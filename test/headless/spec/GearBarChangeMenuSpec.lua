@@ -65,18 +65,18 @@ describe("GearBarChangeMenu refresh", function()
 
   before_each(function()
     gearBars = { [GEAR_BAR_ID] = { id = GEAR_BAR_ID, showCooldowns = true, slots = {} } }
-    calls = { tickerStops = 0, errors = {} }
+    calls = { tickerStops = 0, warnings = {} }
 
     rggm.logger = {
       LogDebug = function() end,
       LogInfo = function() end,
-      LogError = function(_, message) calls.errors[#calls.errors + 1] = message end
+      LogWarn = function(_, message) calls.warnings[#calls.warnings + 1] = message end
     }
     -- mirrors the real manager: an unknown id logs, and IsShowCooldownsEnabled indexes the result
     rggm.gearBarManager = {
       GetGearBar = function(gearBarId)
         if gearBars[gearBarId] == nil then
-          rggm.logger.LogError("GearBarManager", "Could not find GearBar with id: " .. gearBarId)
+          rggm.logger.LogWarn("GearBarManager", "Could not find GearBar with id: " .. gearBarId)
         end
 
         return gearBars[gearBarId]
@@ -128,7 +128,7 @@ describe("GearBarChangeMenu refresh", function()
     changeMenu.UpdateChangeMenu()
 
     assert.are.equal(0, calls.tickerStops)
-    assert.are.same({}, calls.errors)
+    assert.are.same({}, calls.warnings)
   end)
 
   it("closes the changeMenu instead of raising when its gearBar was deleted", function()
@@ -148,11 +148,11 @@ describe("GearBarChangeMenu refresh", function()
     changeMenu.UpdateChangeMenu(1, GEAR_BAR_ID)
     gearBars[GEAR_BAR_ID] = nil
     changeMenu.UpdateChangeMenu()
-    calls.errors = {}
+    calls.warnings = {}
 
     assert.has_no.errors(function() changeMenu.UpdateChangeMenu() end)
 
-    assert.are.same({}, calls.errors)
+    assert.are.same({}, calls.warnings)
   end)
 
   it("closes the changeMenu for a refresh before any gearSlot was hovered", function()

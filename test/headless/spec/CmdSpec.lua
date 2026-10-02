@@ -80,6 +80,7 @@ describe("Cmd", function()
 
     rggm.logger = {
       LogDebug = function() end,
+      LogWarn = function() end,
       LogError = function() end,
       PrintUserError = function(message)
         userErrors[#userErrors + 1] = message

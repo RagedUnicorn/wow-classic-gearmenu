@@ -145,7 +145,7 @@ StaticPopupDialogs["RGGM_SET_KEYBIND"] = {
     if gearSlot ~= nil then
       me.SetKeyBinding(gearBar.id, currentGearSlotPosition, recordedKeyBinding)
     else
-      mod.logger.LogError(
+      mod.logger.LogWarn(
         me.tag,
         "Failed to update keyBinding for gearBar with id: " .. gearBar.id
         .. " at position: " .. currentGearSlotPosition
@@ -206,7 +206,7 @@ function me.OnMouseWheel(self, direction)
   elseif direction == RGGM_CONSTANTS.MOUSEWHEELDOWN then
     me.KeyBindingOnKey(self, "MOUSEWHEELDOWN")
   else
-    mod.logger.LogError(me.tag, "Unable to determine mousewheel direction")
+    mod.logger.LogWarn(me.tag, "Unable to determine mousewheel direction")
   end
 end
 

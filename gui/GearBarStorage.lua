@@ -68,7 +68,7 @@ end
 ]]--
 function me.GetGearBar(gearBarId)
   if gearBarUiStorage[gearBarId] == nil then
-    mod.logger.LogError(me.tag, "Unable to find a GearBar with id: " .. gearBarId)
+    mod.logger.LogWarn(me.tag, "Unable to find a GearBar with id: " .. gearBarId)
     return nil
   end
 
@@ -113,7 +113,7 @@ end
 ]]--
 function me.AddGearSlot(gearBarId, gearSlotReference)
   if gearBarUiStorage[gearBarId] == nil then
-    mod.logger.LogError(me.tag, "Unable to find a GearBar with id: " .. gearBarId)
+    mod.logger.LogWarn(me.tag, "Unable to find a GearBar with id: " .. gearBarId)
     return
   end
 

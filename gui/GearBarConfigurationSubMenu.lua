@@ -291,7 +291,7 @@ function me.AddGearSlot()
   local gearBar = mod.gearBarManager.GetGearBar(gearBarConfiguration.id)
 
   if gearBar == nil then
-    mod.logger.LogError(me.tag, "Failed to find gearBar with id: " .. gearBarConfiguration.id)
+    mod.logger.LogWarn(me.tag, "Failed to find gearBar with id: " .. gearBarConfiguration.id)
 
     return
   end
@@ -303,7 +303,7 @@ function me.AddGearSlot()
   end
 
   if not mod.gearBarManager.AddGearSlot(gearBarConfiguration.id) then
-    mod.logger.LogError(me.tag, "Failed to add new gearSlot to gearBar with id: " .. gearBarConfiguration.id)
+    mod.logger.LogWarn(me.tag, "Failed to add new gearSlot to gearBar with id: " .. gearBarConfiguration.id)
 
     return
   end
@@ -1000,7 +1000,7 @@ function me.RemoveGearSlot(self)
   local gearSlotPosition = self:GetParent().position
 
   if gearBar == nil then
-    mod.logger.LogError(me.tag, "Failed to find gearBar with id: " .. gearBarConfiguration.id)
+    mod.logger.LogWarn(me.tag, "Failed to find gearBar with id: " .. gearBarConfiguration.id)
     return
   end
 
@@ -1011,7 +1011,7 @@ function me.RemoveGearSlot(self)
   end
 
   if not mod.gearBarManager.RemoveGearSlot(gearBarConfiguration.id, self:GetParent().position) then
-    mod.logger.LogError(me.tag, "Failed to remove gearSlot from gearBar with id: " .. gearBarConfiguration.id)
+    mod.logger.LogWarn(me.tag, "Failed to remove gearSlot from gearBar with id: " .. gearBarConfiguration.id)
     return
   end
 
@@ -1073,7 +1073,7 @@ function me.RegisterScriptWithContentFrame(event, callback)
   if activeContentFrame ~= nil then
     activeContentFrame:SetScript(event, callback)
   else
-    mod.logger.LogError(me.tag, "Failed to register script with content frame - content frame is nil")
+    mod.logger.LogWarn(me.tag, "Failed to register script with content frame - content frame is nil")
   end
 end
 
@@ -1088,7 +1088,7 @@ function me.UnregisterScriptWithContentFrame(event)
   if activeContentFrame ~= nil then
     activeContentFrame:SetScript(event, nil)
   else
-    mod.logger.LogError(me.tag, "Failed to unregister script with content frame - content frame is nil")
+    mod.logger.LogWarn(me.tag, "Failed to unregister script with content frame - content frame is nil")
   end
 end
 

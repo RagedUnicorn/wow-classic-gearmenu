@@ -412,7 +412,7 @@ end
 ]]--
 function me.UpdateGearBarVisibility(gearBar)
   if InCombatLockdown() then
-    mod.logger.LogError(me.tag, "Unable to change the visibility of a gearBar in combat")
+    mod.logger.LogWarn(me.tag, "Unable to change the visibility of a gearBar in combat")
 
     return
   end
@@ -515,7 +515,7 @@ function me.UpdateCombatQueue(itemId, enchantId, runeAbilityId, slotId)
               With the introduction of the macrobridge it would be possible for items to not be found if the player
               passed an item that he doesn't have in his inventory
             ]]--
-            mod.logger.LogError(me.tag, "Failed to find item in bag")
+            mod.logger.LogWarn(me.tag, "Failed to find item in bag")
           end
         else
           icon:Hide()

@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: read globals C_Item
+-- luacheck: read globals C_Item geterrorhandler
 -- luacheck: globals GM_AddToCombatQueue GM_RemoveFromCombatQueue
 -- luacheck: globals GM_RegisterSwapListener GM_UnregisterSwapListener
 
@@ -145,10 +145,11 @@ end
 
 --[[
   Notify all registered swap listeners about a swap-lifecycle event. Each listener is isolated
-  with pcall so a broken third-party callback can never break the swap path itself; errors are
-  routed to the logger. Dispatch runs over a copy of the listeners taken before the first call, so
-  a listener that registers or unregisters listeners - itself included - neither skips nor adds a
-  listener for the event being fired; the change applies from the next event on
+  with pcall so a broken third-party callback can never break the swap path itself; its error is
+  handed to the game error handler (the Lua error frame or an error-catching AddOn), so the author of
+  the listener sees it in release builds too. Dispatch runs over a copy of the listeners taken before
+  the first call, so a listener that registers or unregisters listeners - itself included - neither
+  skips nor adds a listener for the event being fired; the change applies from the next event on
 
   @param {string} eventName
     One of RGGM_CONSTANTS.SWAP_EVENT_QUEUED, SWAP_EVENT_UNQUEUED or SWAP_EVENT_COMPLETED
@@ -166,7 +167,7 @@ function me.FireSwapEvent(eventName, slotId, itemId)
     local status, err = pcall(listeners[i], eventName, slotId, itemId)
 
     if not status then
-      mod.logger.LogError(me.tag, "Swap listener failed for event '" .. eventName .. "': " .. tostring(err))
+      geterrorhandler()("Swap listener failed for event '" .. eventName .. "': " .. tostring(err))
     end
   end
 end

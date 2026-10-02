@@ -141,6 +141,7 @@ describe("ItemManager swap failures", function()
     -- collaborators reached via mod.* -> stubs on the shared rggm namespace
     rggm.logger = {
       LogDebug = function() end,
+      LogWarn = function() end,
       LogError = function() end,
       PrintUserChatError = function(message)
         userChatMessages[#userChatMessages + 1] = message

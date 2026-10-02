@@ -87,6 +87,7 @@ describe("Configuration migration", function()
     rggm.logger = {
       LogDebug = function() end,
       LogInfo = function() end,
+      LogWarn = function() end,
       LogError = function() end
     }
     -- AddGearBar returns the bar table the v2.0 migration then mutates in place. Mirrors the real

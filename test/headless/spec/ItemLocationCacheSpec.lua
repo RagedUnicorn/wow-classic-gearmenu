@@ -174,6 +174,7 @@ describe("ItemLocationCache", function()
     -- collaborators reached via mod.* -> stubs on the shared rggm namespace
     rggm.logger = {
       LogDebug = function() end,
+      LogWarn = function() end,
       LogError = function() end
     }
     rggm.common = {
