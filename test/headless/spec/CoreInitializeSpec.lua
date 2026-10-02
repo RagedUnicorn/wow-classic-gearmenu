@@ -40,6 +40,8 @@ local TARGET_GUID = "Player-1234-00ABCDEF"
 describe("Core initialize", function()
   local handlers
   local callLog
+  -- errors the client error handler received
+  local reportedErrors
   local targetGuid
   local restore
 
@@ -75,6 +77,7 @@ describe("Core initialize", function()
   before_each(function()
     handlers = {}
     callLog = {}
+    reportedErrors = {}
     targetGuid = TARGET_GUID
 
     for _, name in ipairs({
@@ -93,14 +96,17 @@ describe("Core initialize", function()
         end
       end,
       Setup = function() end,
-      SetReady = function() end
+      SetReady = function() callLog[#callLog + 1] = "event.SetReady" end
     }
     rggm.L = { help = " %s" }
 
     restore = wowStubs.install({
       UnitGUID = function() return targetGuid end,
       C_AddOns = wowStubs.stubs.C_AddOns({ Version = "v0.0.0-test" }),
-      print = function() end
+      print = function() end,
+      geterrorhandler = function()
+        return function(err) reportedErrors[#reportedErrors + 1] = err end
+      end
     })
 
     dofile("code/Target.lua")
@@ -154,6 +160,24 @@ describe("Core initialize", function()
 
     assert.are.equal(1, refreshes)
     assert.is_true(indexOf("configuration.IsTrinketMenuEnabled") < indexOf("gearBar.UpdateGearBars"))
+  end)
+
+  it("opens the event gate once initialization completed", function()
+    handlers["PLAYER_ENTERING_WORLD"](true, false)
+
+    assert.is_true(indexOf("gearBar.BuildGearBars") < indexOf("event.SetReady"))
+    assert.are.same({}, reportedErrors)
+  end)
+
+  it("still opens the event gate and reports the error when an initialization step raises", function()
+    rggm.gearBar.BuildGearBars = function() error("gearBar build failed") end
+
+    assert.has_no.errors(function() handlers["PLAYER_ENTERING_WORLD"](false, true) end)
+
+    assert.is_truthy(indexOf("event.SetReady"))
+    assert.is_truthy(indexOf("comm.BroadcastVersion"))
+    assert.are.equal(1, #reportedErrors)
+    assert.is_truthy(tostring(reportedErrors[1]):find("gearBar build failed", 1, true))
   end)
 
   it("does not re-initialize when only zoning between map instances", function()

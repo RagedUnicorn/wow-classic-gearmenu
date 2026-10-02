@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: read globals C_AddOns UnitChannelInfo C_Timer
+-- luacheck: read globals C_AddOns UnitChannelInfo C_Timer geterrorhandler
 
 rggm = rggm or {}
 local me = rggm
@@ -74,7 +74,12 @@ end
 ]]--
 OnPlayerEnteringWorld = function(isInitialLogin, isReloadingUi)
   if isInitialLogin or isReloadingUi then
-    Initialize()
+    --[[
+      A failing step must not leave the gated handlers (equipment updates, the combat queue,
+      the logout profile mirror) off for the whole session - nothing retries the initialization.
+      The error still reaches the client's error handler with its stack, then the gate opens.
+    ]]--
+    xpcall(Initialize, geterrorhandler())
     me.event.SetReady()
     me.comm.BroadcastVersion()
 
