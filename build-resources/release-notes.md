@@ -22,3 +22,4 @@
 * The combat queue no longer restarts its update loop in the middle of a fight after a resurrection, a loss of control ending or an item being queued - queued items are still equipped as soon as the fight is over
 * A queued item that is momentarily locked (being moved or traded) is no longer dropped from the combat queue - GearMenu tells you once and equips it as soon as the lock clears
 * Fix an item waiting in the combat queue being queued again every tenth of a second right at the end of a fight - the queue now waits until the game treats you as fully out of combat and equips the item once
+* A QuickChange rule with a delay no longer swaps a slot back when you equipped or queued another item there while the delay was running

@@ -207,6 +207,32 @@ function me.CollectEligibleSlotIds(quickChangeRule)
 end
 
 --[[
+  Whether a quickChangeRule still applies to a slot: the slot holds the item the rule changes
+  from, the item it changes to is not worn anywhere, and no other item is waiting in the
+  combatQueue for that slot. Checked when the rule is triggered and again when a delayed rule
+  fires, so a change the player made during the delay - equipped, or queued during combat - is
+  never swapped back.
+
+  @param {table} quickChangeRule
+  @param {number} slotId
+
+  @return {boolean}
+]]--
+local function IsRuleApplicable(quickChangeRule, slotId)
+  if GetInventoryItemID(RGGM_CONSTANTS.UNIT_ID_PLAYER, slotId) ~= quickChangeRule.changeFromItemId then
+    return false
+  end
+
+  if C_Item.IsEquippedItem(quickChangeRule.changeToItemId) then
+    return false
+  end
+
+  local queued = mod.combatQueue.GetCombatQueueStore()[slotId]
+
+  return queued == nil or queued[1] == quickChangeRule.changeToItemId
+end
+
+--[[
   Executes a quickChangeRule once the correct slot was found
 
   @param {table} quickChangeRule
@@ -216,9 +242,15 @@ function me.ExecuteQuickChangeRule(quickChangeRule, slotIds)
   for _, slotMetadata in ipairs(slotIds) do
     -- Only perform quickchange if item ID's match and item is not currently equipped.
     -- Solving situations such as users using two of the same trinket or weapon will need a more complicated approach.
-    if slotMetadata.itemId == quickChangeRule.changeFromItemId
-      and not C_Item.IsEquippedItem(quickChangeRule.changeToItemId) then
+    if IsRuleApplicable(quickChangeRule, slotMetadata.slotId) then
       C_Timer.After(quickChangeRule.delay or 0, function()
+        if not IsRuleApplicable(quickChangeRule, slotMetadata.slotId) then
+          mod.logger.LogDebug(me.tag, "Skipping delayed quickChange - slot " .. slotMetadata.slotId
+            .. " changed during the delay")
+
+          return
+        end
+
         local item = {}
         item.itemId = quickChangeRule.changeToItemId
         item.enchantId = quickChangeRule.changeToItemEnchantId
