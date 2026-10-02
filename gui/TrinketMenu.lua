@@ -119,14 +119,17 @@ function me.UpdateTrinketMenuResize()
 end
 
 --[[
-  Update the trinketMenus frame size
+  Update the trinketMenus frame size. The rows follow the slots that are actually shown: at most
+  TRINKET_MENU_DEFAULT_SLOT_AMOUNT, and at least one row so an empty trinketMenu keeps a height
+  the player can still grab and move
 
   @param {number} itemCount
 ]]--
 function me.UpdateTrinketMenuSize(itemCount)
   local trinketMenuSlotSize = mod.configuration.GetTrinketMenuSlotSize()
   local trinketMenuColumnAmount = mod.configuration.GetTrinketMenuColumnAmount()
-  local rows = itemCount / trinketMenuColumnAmount
+  local shownSlots = math.max(1, math.min(itemCount, RGGM_CONSTANTS.TRINKET_MENU_DEFAULT_SLOT_AMOUNT))
+  local rows = shownSlots / trinketMenuColumnAmount
 
   trinketMenuFrame:SetHeight(math.ceil(rows) * trinketMenuSlotSize)
   trinketMenuFrame:SetWidth(
