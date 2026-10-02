@@ -248,3 +248,50 @@ describe("localization parity", function()
     end
   end
 end)
+
+describe("Localization enUS fallback", function()
+  --[[
+    Load enUS and then the passed locale the way the TOC does, with an extra key only enUS
+    carries, and return the resulting rggm.L. Restores rggm.L and the stubbed globals.
+
+    @param {string} locale
+
+    @return {table}
+  ]]--
+  local function loadInGameOrder(locale)
+    local restore = wowStubs.install({
+      GetLocale = wowStubs.stubs.GetLocale(locale),
+      C_AddOns  = wowStubs.stubs.C_AddOns({ Version = "0.0.0-test" })
+    })
+    local previousL = rggm.L
+
+    rggm.L = nil
+    dofile("localization/enUS.lua")
+    rggm.L["spec_untranslated_key"] = "english only"
+    dofile("localization/" .. locale .. ".lua")
+
+    local loaded = rggm.L
+
+    rggm.L = previousL
+    restore()
+
+    return loaded
+  end
+
+  for _, locale in ipairs({ "deDE", "ruRU", "zhCN" }) do
+    it("resolves a key " .. locale .. " lacks to the enUS string", function()
+      local strings = loadInGameOrder(locale)
+
+      assert.are.equal("english only", strings["spec_untranslated_key"])
+      -- the fallback is not a key of the locale, so the parity checks above still report it
+      assert.is_nil(rawget(strings, "spec_untranslated_key"))
+    end)
+
+    it("keeps its own translation over the enUS string in " .. locale, function()
+      local strings = loadInGameOrder(locale)
+
+      assert.is_not_nil(rawget(strings, "options_title"))
+      assert.are_not.equal("Options", strings["options_title"])
+    end)
+  end
+end)

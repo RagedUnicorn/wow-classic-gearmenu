@@ -3,7 +3,8 @@
 
 if (GetLocale() == "deDE") then
   rggm = rggm or {}
-  rggm.L = {}
+  -- a key not translated yet falls back to the enUS string (enUS.lua loads first, see GearMenu.toc)
+  rggm.L = setmetatable({}, { __index = rggm.L })
 
   rggm.L["addon_name"] = "GearMenu"
 
