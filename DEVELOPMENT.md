@@ -136,6 +136,12 @@ This generates a JUnit XML report in `./target/busted-junit.xml`.
 - `test/headless/Bootstrap.lua` - test globals and pure-module bootstrap
 - `test/headless/WowStubs.lua` - opt-in registry of WoW-global stubs
 
+**Modules deliberately without a spec:**
+- `gui/AboutContent.lua` - builds a logo and four fixed font strings; no branches or state to pin
+- `gui/ThemeClassic.lua` and the slot constructors of `gui/ThemeCustom.lua` - only build the slot frames
+  and lay out their textures; the routing to the configured theme is covered by `ThemeCoordinatorSpec`
+  and the highlight handlers of the custom theme by `ThemeCustomSpec`
+
 ### Testing and Code Quality
 
 Before committing changes:
