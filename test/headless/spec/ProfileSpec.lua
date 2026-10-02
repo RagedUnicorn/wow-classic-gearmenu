@@ -86,9 +86,9 @@ describe("Profile", function()
     previousLogger = rggm.logger
     rggm.logger = { LogInfo = function() end, LogDebug = function() end, LogWarn = function() end }
 
-    -- ApplySnapshot backfills via mod.configuration.SetupConfiguration; other specs dofile the real
-    -- configuration module into the shared rggm namespace, so pin a stub for these tests. The
-    -- stubbed FirstTimeInitialization seeds the starter GearBar like the real one does.
+    -- ApplySnapshot backfills via mod.configuration.SetupConfiguration, which stays a no-op here;
+    -- GetDefaults is the real one, and the stubbed FirstTimeInitialization seeds the starter
+    -- GearBar like the real one does.
     previousConfiguration = rggm.configuration
     rggm.configuration = {
       SetupConfiguration = function() end,

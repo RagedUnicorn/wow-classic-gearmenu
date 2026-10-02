@@ -45,6 +45,8 @@
   Module-state reset convention for specs: because modules load via dofile (not require /
   package.loaded), re-dofile a module inside before_each to get a fresh module table -- e.g.
   `dofile("code/CombatQueue.lua")` re-runs `mod.combatQueue = {}`, clearing its file-local state.
+  Whatever a spec file leaves in rggm or GearMenuConfiguration is reset when the file ends (see
+  "Spec file isolation" at the bottom), so no spec depends on the order the files run in.
 
   Expected cwd: addon repo root. Run from elsewhere and the dofile()s will fail.
 ]]--
@@ -129,3 +131,105 @@ rggm.configuration = {
 dofile("code/Serializer.lua")
 dofile("code/Encoder.lua")
 dofile("code/Profile.lua")
+
+--[[
+  Spec file isolation. busted insulates the globals of every spec file, but rggm and
+  GearMenuConfiguration are single tables shared by all of them: a module a spec dofiles
+  (dofile("code/CombatQueue.lua") replaces rggm.combatQueue), a stub it installs or a field it
+  mutates would otherwise leak into every spec file that runs after it, making results depend on
+  file order. Each spec file therefore starts from the namespace captured when it starts and gets
+  it back when it ends - two levels deep for rggm (the module tables and their fields) and fully
+  for GearMenuConfiguration. Specs still restore what they replace per test; this is the safety net
+  across files.
+]]--
+local busted = require("busted")
+
+local function ShallowCopy(source)
+  local copy = {}
+
+  for key, value in pairs(source) do
+    copy[key] = value
+  end
+
+  return copy
+end
+
+local function DeepCopy(source)
+  if type(source) ~= "table" then return source end
+
+  local copy = {}
+
+  for key, value in pairs(source) do
+    copy[key] = DeepCopy(value)
+  end
+
+  return copy
+end
+
+-- make target hold exactly the fields of source, keeping the table identity
+local function ReplaceContents(target, source)
+  for key in pairs(target) do
+    if source[key] == nil then
+      target[key] = nil
+    end
+  end
+
+  for key, value in pairs(source) do
+    target[key] = value
+  end
+end
+
+--[[
+  Capture rggm and GearMenuConfiguration
+
+  @return {function}
+    restores both to the captured state
+]]--
+local function SnapshotNamespace()
+  local modules = {}
+  local configuration = GearMenuConfiguration
+  local configurationCopy = DeepCopy(configuration)
+
+  for name, module in pairs(rggm) do
+    modules[name] = {
+      module = module,
+      fields = type(module) == "table" and ShallowCopy(module) or nil
+    }
+  end
+
+  return function()
+    for name in pairs(rggm) do
+      if modules[name] == nil then
+        rggm[name] = nil
+      end
+    end
+
+    for name, captured in pairs(modules) do
+      rggm[name] = captured.module
+
+      if captured.fields ~= nil then
+        ReplaceContents(captured.module, captured.fields)
+      end
+    end
+
+    ReplaceContents(configuration, DeepCopy(configurationCopy))
+    GearMenuConfiguration = configuration
+  end
+end
+
+local restoreNamespace
+
+busted.subscribe({ "file", "start" }, function()
+  restoreNamespace = SnapshotNamespace()
+
+  return nil, true
+end)
+
+busted.subscribe({ "file", "end" }, function()
+  if restoreNamespace ~= nil then
+    restoreNamespace()
+    restoreNamespace = nil
+  end
+
+  return nil, true
+end)

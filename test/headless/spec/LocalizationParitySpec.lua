@@ -90,11 +90,13 @@ local function loadLocale(file)
     C_AddOns  = wowStubs.stubs.C_AddOns({ Version = "0.0.0-test" })
   })
 
+  local previousL = rggm.L
+
   rggm.L = nil
   dofile(file.path)
 
   local loaded = rggm.L
-  rggm.L = nil
+  rggm.L = previousL
   restore()
 
   assert(
