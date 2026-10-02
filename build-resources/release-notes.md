@@ -13,3 +13,4 @@
 * The update notice now only accepts a version broadcast over the guild, raid, party or instance channel that is a plain version number - a whispered version or one carrying extra text is ignored, and only the clean version number is shown and remembered, so another player can no longer put their own text into your chat or silence genuine update notices
 * Chinese (zhCN): the "Add Gearslot" button and the maximum-slots message now speak of gear slots instead of GearBars, and the TrinketMenu settings are translated
 * Fix a Lua error when the GearSlot size is changed for a GearBar that no longer exists
+* Fix a Lua error when "Add Gearslot" is clicked on the configuration page of a GearBar that was deleted in the meantime

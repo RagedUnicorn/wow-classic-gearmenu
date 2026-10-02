@@ -227,4 +227,66 @@ describe("GearBarConfigurationSubMenu combat guards", function()
       }, calls.orientations)
     end)
   end)
+
+  describe("AddGearSlot", function()
+    local storedGearBar
+    local addedGearSlots
+    local errors
+
+    --[[
+      Open the configuration page of storedGearBar the way the interface options do, with the
+      content frame already built so no ui is created headlessly
+    ]]--
+    local function openConfiguration()
+      subMenu.GetCurrentContentFrame = function() return {} end
+      subMenu.GearBarConfigurationSlotsListOnUpdate = function() end
+      subMenu.GearBarConfigurationCategoryContainerOnCallback({ gearBarId = GEAR_BAR_ID })
+    end
+
+    before_each(function()
+      storedGearBar = { id = GEAR_BAR_ID, slots = {} }
+      addedGearSlots = 0
+      errors = {}
+
+      rggm.gearBarManager.GetGearBar = function() return storedGearBar end
+      rggm.gearBarManager.AddGearSlot = function()
+        addedGearSlots = addedGearSlots + 1
+        return {}
+      end
+      rggm.logger.LogError = function(_, message) errors[#errors + 1] = message end
+    end)
+
+    it("adds a gearSlot to the configured gearBar", function()
+      openConfiguration()
+
+      subMenu.AddGearSlot()
+
+      assert.are.equal(1, addedGearSlots)
+      assert.are.equal(0, calls.userErrors)
+    end)
+
+    it("refuses a gearSlot past the maximum and tells the user", function()
+      for position = 1, RGGM_CONSTANTS.MAX_GEAR_BAR_SLOTS do
+        storedGearBar.slots[position] = {}
+      end
+      openConfiguration()
+
+      subMenu.AddGearSlot()
+
+      assert.are.equal(0, addedGearSlots)
+      assert.are.equal(1, calls.userErrors)
+    end)
+
+    it("logs an error instead of raising when the configured gearBar no longer exists", function()
+      openConfiguration()
+      -- the gearBar was deleted while its configuration page stayed open
+      storedGearBar = nil
+
+      assert.has_no.errors(function() subMenu.AddGearSlot() end)
+
+      assert.are.equal(0, addedGearSlots)
+      assert.are.equal(0, calls.userErrors)
+      assert.are.same({ "Failed to find gearBar with id: " .. GEAR_BAR_ID }, errors)
+    end)
+  end)
 end)
