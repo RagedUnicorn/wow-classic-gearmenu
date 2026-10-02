@@ -215,6 +215,97 @@ local function HasWellFormedGearBarSlots(payload)
   return true
 end
 
+-- the anchor points SetPoint accepts for a gearBar position
+local ANCHOR_POINTS = {
+  TOPLEFT = true, TOP = true, TOPRIGHT = true,
+  LEFT = true, CENTER = true, RIGHT = true,
+  BOTTOMLEFT = true, BOTTOM = true, BOTTOMRIGHT = true
+}
+
+--[[
+  @param {any} value
+  @param {number} min
+  @param {number} max
+  @param {boolean} integer
+    whether value also has to be a whole number
+
+  @return {boolean}
+    true if value is nil (the field is backfilled) or a number in min..max
+]]--
+local function IsOptionalNumberInRange(value, min, max, integer)
+  if value == nil then return true end
+  if type(value) ~= "number" or value < min or value > max then return false end
+
+  return not integer or value == math.floor(value)
+end
+
+--[[
+  Verify a gearBar position: a known anchor point and relative point and numeric offsets.
+  The serializer already refuses non-finite numbers. A missing position is backfilled.
+
+  @param {any} position
+  @return {boolean}
+]]--
+local function IsValidPosition(position)
+  if position == nil then return true end
+  if type(position) ~= "table" then return false end
+
+  -- field by field: a missing point must not hide the fields after it the way ipairs would
+  for _, field in ipairs({ "point", "relativePoint" }) do
+    if position[field] ~= nil and not ANCHOR_POINTS[position[field]] then return false end
+  end
+
+  for _, field in ipairs({ "posX", "posY" }) do
+    if position[field] ~= nil and type(position[field]) ~= "number" then return false end
+  end
+
+  return true
+end
+
+--[[
+  Verify that the numbers a payload carries lie in the ranges the settings UI can produce.
+  IsPayloadWellTyped only checks Lua types, but the values feed straight into the frame layout
+  after the import is loaded - a TrinketMenu with 0 columns divides by zero, an oversized slot
+  or an unknown anchor point breaks SetSize / SetPoint. The type checks of the nested gearBar
+  tables live in HasWellFormedGearBarSlots.
+
+  @param {table} payload
+  @return {boolean}
+    true if every present value is in range, false on the first violation
+]]--
+local function HasValuesInRange(payload)
+  local constants = RGGM_CONSTANTS
+
+  if not IsOptionalNumberInRange(payload.trinketMenuColumns,
+      constants.TRINKET_MENU_COLUMN_AMOUNT_SLIDER_MIN, constants.TRINKET_MENU_COLUMN_AMOUNT_SLIDER_MAX, true)
+    or not IsOptionalNumberInRange(payload.trinketMenuSlotSize,
+      constants.TRINKET_MENU_SLOT_SIZE_SLIDER_MIN, constants.TRINKET_MENU_SLOT_SIZE_SLIDER_MAX, false)
+    or not IsOptionalNumberInRange(payload.filterItemQuality,
+      constants.ITEMQUALITY.poor, constants.ITEMQUALITY.legendary, true)
+    or not IsOptionalNumberInRange(payload.uiTheme, constants.UI_THEME_CLASSIC, constants.UI_THEME_CUSTOM, true) then
+    return false
+  end
+
+  if type(payload.gearBars) ~= "table" then return true end
+
+  local gearBarCount = 0
+
+  for _, gearBar in pairs(payload.gearBars) do
+    gearBarCount = gearBarCount + 1
+
+    if type(gearBar) ~= "table"
+      or not IsOptionalNumberInRange(gearBar.gearSlotSize,
+        constants.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_MIN, constants.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_MAX, false)
+      or not IsOptionalNumberInRange(gearBar.changeSlotSize,
+        constants.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_MIN, constants.GEAR_BAR_CONFIGURATION_SIZE_SLIDER_MAX, false)
+      or not IsValidPosition(gearBar.position) then
+      return false
+    end
+  end
+
+  return gearBarCount <= constants.MAX_GEAR_BARS
+end
+
 --[[
   Lazily access the per-character profile store.
 
@@ -456,6 +547,10 @@ function me.ImportString(encoded)
   end
 
   if not HasWellFormedGearBarSlots(envelope.payload) then
+    return nil, "profile_error_invalid"
+  end
+
+  if not HasValuesInRange(envelope.payload) then
     return nil, "profile_error_invalid"
   end
 

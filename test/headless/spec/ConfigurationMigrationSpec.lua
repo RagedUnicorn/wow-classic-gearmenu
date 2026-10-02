@@ -559,6 +559,36 @@ describe("Configuration migration", function()
     end)
   end)
 
+  describe("TrinketMenu getters", function()
+    it("return a column amount inside the slider range as a whole number", function()
+      local cases = {
+        { stored = 4, expected = 4 },
+        { stored = 0, expected = RGGM_CONSTANTS.TRINKET_MENU_COLUMN_AMOUNT_SLIDER_MIN },
+        { stored = 999, expected = RGGM_CONSTANTS.TRINKET_MENU_COLUMN_AMOUNT_SLIDER_MAX },
+        { stored = 3.7, expected = 3 },
+        { stored = "4", expected = RGGM_CONSTANTS.TRINKET_MENU_DEFAULT_COLUMN_AMOUNT },
+        { stored = 0 / 0, expected = RGGM_CONSTANTS.TRINKET_MENU_DEFAULT_COLUMN_AMOUNT }
+      }
+
+      for _, case in ipairs(cases) do
+        useConfig({ trinketMenuColumns = case.stored })
+
+        assert.are.equal(case.expected, configuration.GetTrinketMenuColumnAmount())
+      end
+    end)
+
+    it("return a slot size inside the slider range", function()
+      useConfig({ trinketMenuSlotSize = 1e9 })
+      assert.are.equal(RGGM_CONSTANTS.TRINKET_MENU_SLOT_SIZE_SLIDER_MAX, configuration.GetTrinketMenuSlotSize())
+
+      useConfig({ trinketMenuSlotSize = 1 })
+      assert.are.equal(RGGM_CONSTANTS.TRINKET_MENU_SLOT_SIZE_SLIDER_MIN, configuration.GetTrinketMenuSlotSize())
+
+      useConfig({ trinketMenuSlotSize = nil })
+      assert.are.equal(RGGM_CONSTANTS.TRINKET_MENU_DEFAULT_SLOT_SIZE, configuration.GetTrinketMenuSlotSize())
+    end)
+  end)
+
   describe("frame positions", function()
     it("saves a frame position without the frame GetPoint returns as relativeTo", function()
       local config = useConfig({ frames = {} })

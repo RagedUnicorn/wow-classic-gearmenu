@@ -35,3 +35,4 @@
 * German, Russian and Chinese players see the English text for any message not translated yet instead of an empty label or a Lua error
 * Corrected spelling and grammar in the English, German, Russian and Chinese texts, and every language now uses one consistent word for GearBars and GearSlots (German: Ausrüstungsbalken / Ausrüstungsplatz, Russian: панель / слот экипировки, Chinese: 装备条 / 装备槽)
 * Fix renaming a profile to the name it already has - for example pressing Enter in the prefilled rename box - deleting the profile; an unchanged name now simply closes the box
+* An imported profile string is now refused as invalid when it carries values the settings could never produce - a TrinketMenu with 0 columns, an oversized GearSlot, an unknown GearBar anchor or theme, or more GearBars than allowed - instead of breaking the layout after the reload, and the TrinketMenu always uses a column count and slot size inside its setting range

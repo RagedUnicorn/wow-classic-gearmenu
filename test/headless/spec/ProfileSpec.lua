@@ -276,6 +276,83 @@ describe("Profile", function()
     end)
   end)
 
+  describe("value ranges", function()
+    local function importPayload(payload)
+      local serialized = rggm.serializer.Serialize({ addon = "GearMenu", schemaVersion = 1, payload = payload })
+
+      return profile.ImportString("GearMenu1:" .. rggm.encoder.Encode(serialized))
+    end
+
+    local function assertRejected(payload)
+      local envelope, err = importPayload(payload)
+
+      assert.is_nil(envelope)
+      assert.are.equal("profile_error_invalid", err)
+    end
+
+    it("accepts values inside the setting ranges", function()
+      local envelope, err = importPayload({
+        trinketMenuColumns = 4,
+        trinketMenuSlotSize = 40,
+        filterItemQuality = 5,
+        uiTheme = RGGM_CONSTANTS.UI_THEME_CLASSIC,
+        gearBars = { {
+          id = 100001,
+          gearSlotSize = 64,
+          changeSlotSize = 24,
+          position = { point = "BOTTOMRIGHT", relativePoint = "CENTER", posX = -1234.5, posY = 987.25 }
+        } }
+      })
+
+      assert.is_nil(err)
+      assert.is_table(envelope)
+    end)
+
+    it("rejects a TrinketMenu column amount of 0, past the maximum or not whole", function()
+      assertRejected({ trinketMenuColumns = 0 })
+      assertRejected({ trinketMenuColumns = RGGM_CONSTANTS.TRINKET_MENU_COLUMN_AMOUNT_SLIDER_MAX + 1 })
+      assertRejected({ trinketMenuColumns = 2.5 })
+    end)
+
+    it("rejects a TrinketMenu slot size outside the slider range", function()
+      assertRejected({ trinketMenuSlotSize = 1e9 })
+      assertRejected({ trinketMenuSlotSize = RGGM_CONSTANTS.TRINKET_MENU_SLOT_SIZE_SLIDER_MIN - 1 })
+    end)
+
+    it("rejects an item quality filter that is not one of the qualities", function()
+      assertRejected({ filterItemQuality = 9 })
+      assertRejected({ filterItemQuality = -1 })
+    end)
+
+    it("rejects a theme that is not one of the themes", function()
+      assertRejected({ uiTheme = RGGM_CONSTANTS.UI_THEME_CUSTOM + 1 })
+      assertRejected({ uiTheme = 0 })
+      assertRejected({ uiTheme = 1.5 })
+    end)
+
+    it("rejects a gearBar slot or change slot size outside the slider range", function()
+      assertRejected({ gearBars = { { id = 100001, gearSlotSize = 500 } } })
+      assertRejected({ gearBars = { { id = 100001, changeSlotSize = 0 } } })
+    end)
+
+    it("rejects a gearBar position with an unknown anchor point or a non-numeric offset", function()
+      assertRejected({ gearBars = { { id = 100001, position = { point = "NOWHERE" } } } })
+      assertRejected({ gearBars = { { id = 100001, position = { relativePoint = 5 } } } })
+      assertRejected({ gearBars = { { id = 100001, position = { point = "CENTER", posX = "10" } } } })
+      assertRejected({ gearBars = { { id = 100001, position = "CENTER" } } })
+    end)
+
+    it("rejects more gearBars than MAX_GEAR_BARS", function()
+      local gearBars = {}
+
+      for index = 1, RGGM_CONSTANTS.MAX_GEAR_BARS + 1 do
+        gearBars[index] = { id = 100000 + index }
+      end
+
+      assertRejected({ gearBars = gearBars })
+    end)
+  end)
+
   describe("imported payload", function()
     it("keeps only the profile fields and drops any other key", function()
       local serialized = rggm.serializer.Serialize({

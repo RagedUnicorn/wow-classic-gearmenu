@@ -797,13 +797,35 @@ function me.IsShowCooldownsEnabled()
 end
 
 --[[
+  Keep a stored number inside the range its setting allows. The saved variables can hold any
+  value (a hand-edited file, an older build); the frame layout must not see one outside the
+  slider range.
+
+  @param {any} value
+  @param {number} min
+  @param {number} max
+  @param {number} default
+    used when value is not a number at all
+
+  @return {number}
+]]--
+local function ClampToRange(value, min, max, default)
+  if type(value) ~= "number" or value ~= value then return default end
+
+  return math.max(min, math.min(value, max))
+end
+
+--[[
   Get the amount of columns to use when displaying the trinketMenu.
-  Returns the default value if the value was never changed by the player
+  Returns the default value if the value was never changed by the player - always a
+  whole number in the column slider range
 
   @return {number}
 ]]--
 function me.GetTrinketMenuColumnAmount()
-  return GearMenuConfiguration.trinketMenuColumns
+  return math.floor(ClampToRange(GearMenuConfiguration.trinketMenuColumns,
+    RGGM_CONSTANTS.TRINKET_MENU_COLUMN_AMOUNT_SLIDER_MIN, RGGM_CONSTANTS.TRINKET_MENU_COLUMN_AMOUNT_SLIDER_MAX,
+    RGGM_CONSTANTS.TRINKET_MENU_DEFAULT_COLUMN_AMOUNT))
 end
 
 --[[
@@ -823,12 +845,14 @@ end
 
 --[[
   Get the trinketMenu slot size
-  Returns the default value if the value was never changed by the player
+  Returns the default value if the value was never changed by the player, always in the slot size slider range
 
   @return {number}
 ]]--
 function me.GetTrinketMenuSlotSize()
-  return GearMenuConfiguration.trinketMenuSlotSize
+  return ClampToRange(GearMenuConfiguration.trinketMenuSlotSize,
+    RGGM_CONSTANTS.TRINKET_MENU_SLOT_SIZE_SLIDER_MIN, RGGM_CONSTANTS.TRINKET_MENU_SLOT_SIZE_SLIDER_MAX,
+    RGGM_CONSTANTS.TRINKET_MENU_DEFAULT_SLOT_SIZE)
 end
 
 --[[
