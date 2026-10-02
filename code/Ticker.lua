@@ -61,7 +61,10 @@ end
   Start the repeating update ticker for combatQueue. Never during combat: ProcessQueue cannot
   change gear then and would only return early every tick for the rest of the fight. Callers
   that can fire mid-combat (an enqueue, a resurrection, a loss of control ending) are therefore
-  ignored until PLAYER_REGEN_ENABLED starts the ticker after combat
+  ignored until PLAYER_REGEN_ENABLED starts the ticker after combat. Deliberately InCombatLockdown
+  and not mod.common.IsPlayerInCombat: the restart hangs on PLAYER_REGEN_ENABLED, which ends the
+  lockdown, while the player's combat flag can outlast it - gating on the flag could leave a
+  queued swap without a ticker. ProcessQueue waits for the flag on its own
 ]]--
 function me.StartTickerCombatQueue()
   if InCombatLockdown() then

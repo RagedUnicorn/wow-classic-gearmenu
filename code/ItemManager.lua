@@ -24,7 +24,7 @@
 ]]--
 
 -- luacheck: globals C_Item INVSLOT_MAINHAND INVSLOT_OFFHAND PutItemInBackpack GetInventoryItemID
--- luacheck: globals UnitAffectingCombat CursorHasItem SpellIsTargeting ClearCursor C_Timer
+-- luacheck: globals CursorHasItem SpellIsTargeting ClearCursor C_Timer
 -- luacheck: globals IsInventoryItemLocked PutItemInBag PickupInventoryItem C_Container GetInventoryItemLink
 
 --[[
@@ -106,7 +106,7 @@ end
     false - if equipment can be changed
 ]]--
 IsEquipChangeRestricted = function()
-  return UnitAffectingCombat(RGGM_CONSTANTS.UNIT_ID_PLAYER) or mod.common.IsPlayerReallyDead()
+  return mod.common.IsPlayerInCombat() or mod.common.IsPlayerReallyDead()
     or mod.combatQueue.IsEquipChangeBlocked() or mod.common.IsPlayerCasting()
 end
 

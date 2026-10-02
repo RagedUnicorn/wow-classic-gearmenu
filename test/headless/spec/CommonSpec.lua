@@ -23,14 +23,17 @@
 ]]--
 
 --[[
-  Tests for the pure table helpers of code/Common.lua (loaded by test/headless/Bootstrap.lua):
-  Clone and DeepEquals, the comparison behind the active profile adoption in code/Profile.lua.
+  Tests for helpers of code/Common.lua (loaded by test/headless/Bootstrap.lua): the pure table
+  helpers Clone and DeepEquals, the comparison behind the active profile adoption in
+  code/Profile.lua, and IsPlayerInCombat, the combat predicate of the swap path.
 ]]--
 
 -- busted extends `assert` with .same / .equal / etc. at runtime; luacheck cannot verify those
 -- fields statically. Suppress warning 143 (accessing undefined field of a global variable).
--- luacheck: globals describe it
+-- luacheck: globals describe it before_each after_each
 -- luacheck: ignore 143
+
+local wowStubs = require("WowStubs")
 
 describe("Common", function()
   local common = rggm.common
@@ -90,6 +93,38 @@ describe("Common", function()
 
       assert.is_false(common.DeepEquals(a, b))
       assert.is_false(common.DeepEquals({ nested = {} }, { nested = 1 }))
+    end)
+  end)
+  describe("IsPlayerInCombat", function()
+    local inLockdown, flagged
+    local restore
+
+    before_each(function()
+      inLockdown, flagged = false, false
+      restore = wowStubs.install({
+        InCombatLockdown = function() return inLockdown end,
+        UnitAffectingCombat = function() return flagged end
+      })
+    end)
+
+    after_each(function()
+      restore()
+    end)
+
+    it("is false out of combat", function()
+      assert.is_false(common.IsPlayerInCombat())
+    end)
+
+    it("is true in combat lockdown", function()
+      inLockdown = true
+
+      assert.is_true(common.IsPlayerInCombat())
+    end)
+
+    it("is true while the player is still flagged as in combat after the lockdown ended", function()
+      flagged = true
+
+      assert.is_true(common.IsPlayerInCombat())
     end)
   end)
 end)

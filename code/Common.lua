@@ -24,6 +24,7 @@
 ]]--
 
 -- luacheck: globals UnitIsDeadOrGhost UnitCastingInfo UnitChannelInfo UnitIsFeignDeath UIParent
+-- luacheck: globals InCombatLockdown UnitAffectingCombat
 
 local mod = rggm
 local me = {}
@@ -46,6 +47,21 @@ function me.IsPlayerReallyDead()
   end
 
   return dead
+end
+
+--[[
+  Checks whether the player counts as in combat for changing equipment. The single combat
+  predicate of the swap path: queueing an item (ItemManager) and working the queue off
+  (CombatQueue) must agree, or an item is re-queued on every tick while they disagree. The
+  client's combat lockdown and the player's combat flag can briefly differ around the start and
+  end of a fight, so either one counts - the swap waits until both are clear
+
+  @return {boolean}
+    true - If the player is in combat lockdown or flagged as in combat
+    false - If neither is the case
+]]--
+function me.IsPlayerInCombat()
+  return InCombatLockdown() or UnitAffectingCombat(RGGM_CONSTANTS.UNIT_ID_PLAYER) == true
 end
 
 --[[

@@ -61,8 +61,9 @@ describe("ItemManager swap failures", function()
   -- equipped[slotId] -> itemId currently worn in that slot
   local equipped
   local cursorHasItem, spellIsTargeting, inventoryLocked
-  -- inCombat backs UnitAffectingCombat, pickupRefused makes PickupInventoryItem leave the cursor empty
-  local inCombat, pickupRefused
+  -- inCombat backs UnitAffectingCombat and inLockdown InCombatLockdown, pickupRefused makes
+  -- PickupInventoryItem leave the cursor empty
+  local inCombat, inLockdown, pickupRefused
   -- backs the mod.configuration.IsFallbackToBaseItemEnabled stub
   local fallbackEnabled
   -- slotIds passed to PickupInventoryItem, to assert an aborted action never touched the cursor
@@ -76,7 +77,7 @@ describe("ItemManager swap failures", function()
     bags = {}
     equipped = {}
     cursorHasItem, spellIsTargeting, inventoryLocked = false, false, false
-    inCombat, pickupRefused = false, false
+    inCombat, inLockdown, pickupRefused = false, false, false
     fallbackEnabled = false
     pickedUpInventorySlots = {}
     swapEvents = {}
@@ -134,7 +135,7 @@ describe("ItemManager swap failures", function()
       PutItemInBackpack = function() cursorHasItem = false end,
       ClearCursor = function() end,
       UnitAffectingCombat = function() return inCombat end,
-      InCombatLockdown = wowStubs.stubs.InCombatLockdown(false)
+      InCombatLockdown = function() return inLockdown end
     })
 
     -- real localized strings so the emitted messages are asserted against enUS
@@ -151,14 +152,14 @@ describe("ItemManager swap failures", function()
         userChatWarnMessages[#userChatWarnMessages + 1] = message
       end
     }
-    rggm.common = {
-      GetItemInfo = function(itemLink)
-        if not itemLink then return {} end
-        return { itemId = itemLink.itemId, enchantId = itemLink.enchantId }
-      end,
-      IsPlayerCasting = function() return false end,
-      IsPlayerReallyDead = function() return false end
-    }
+    -- the real combat predicate the swap path shares; item info, casting and death are stubbed
+    dofile("code/Common.lua")
+    rggm.common.GetItemInfo = function(itemLink)
+      if not itemLink then return {} end
+      return { itemId = itemLink.itemId, enchantId = itemLink.enchantId }
+    end
+    rggm.common.IsPlayerCasting = function() return false end
+    rggm.common.IsPlayerReallyDead = function() return false end
     rggm.engrave = {
       GetRuneForInventorySlot = function(bagNumber, bagPos)
         local item = bags[bagNumber] and bags[bagNumber][bagPos]
@@ -586,6 +587,39 @@ describe("ItemManager swap failures", function()
 
       assert.is_true(combatQueue.IsCombatQueueEmpty())
       assert.are.same({ 13 }, pickedUpInventorySlots)
+    end)
+
+    it("neither equips nor re-queues while the combat flag outlasts the combat lockdown", function()
+      bags[0] = { { itemId = 12345 } }
+      combatQueue.AddToQueue(12345, nil, nil, 13)
+      swapEvents = {}
+
+      -- the lockdown ended but the player is still flagged as in combat
+      inCombat = true
+      combatQueue.ProcessQueue()
+      combatQueue.ProcessQueue()
+      combatQueue.ProcessQueue()
+
+      assert.are.same({}, swapEvents)
+      assert.are.equal(0, #pickedUpInventorySlots)
+      assert.is_false(combatQueue.IsCombatQueueEmpty())
+
+      inCombat = false
+      combatQueue.ProcessQueue()
+
+      assert.is_true(combatQueue.IsCombatQueueEmpty())
+      assert.are.same({ 13 }, pickedUpInventorySlots)
+    end)
+
+    it("waits while in combat lockdown without the combat flag", function()
+      bags[0] = { { itemId = 12345 } }
+      combatQueue.AddToQueue(12345, nil, nil, 13)
+
+      inLockdown = true
+      combatQueue.ProcessQueue()
+
+      assert.are.equal(0, #pickedUpInventorySlots)
+      assert.is_false(combatQueue.IsCombatQueueEmpty())
     end)
   end)
 

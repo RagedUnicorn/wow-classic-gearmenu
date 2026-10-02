@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals GetItemInfo C_LossOfControl InCombatLockdown
+-- luacheck: globals GetItemInfo C_LossOfControl
 
 local mod = rggm
 local me = {}
@@ -78,6 +78,18 @@ function me.AddToQueue(itemId, enchantId, runeAbilityId, slotId)
 
   assert(type(slotId) == "number", string.format(
     "bad argument #4 to `AddToQueue` (expected number got %s)", type(slotId)))
+
+  local queued = combatQueueStore[slotId]
+
+  if queued ~= nil and queued[1] == itemId and queued[2] == enchantId and queued[3] == runeAbilityId then
+    --[[
+      Already queued for this slot - no repaint, no second QUEUED event. A repeated request
+      re-arms the failure notice so the player hears again why the swap is still waiting
+    ]]--
+    queued.notifiedFailureReason = nil
+
+    return
+  end
 
   combatQueueStore[slotId] = { itemId, enchantId, runeAbilityId }
 
@@ -156,7 +168,7 @@ function me.ProcessQueue()
   end
 
   -- cannot change gear while player is in combat, is casting or is under a blocking loss of control effect
-  if InCombatLockdown() or mod.common.IsPlayerCasting() or mod.common.IsPlayerReallyDead()
+  if mod.common.IsPlayerInCombat() or mod.common.IsPlayerCasting() or mod.common.IsPlayerReallyDead()
     or me.IsEquipChangeBlocked() then return end
 
   -- update queue for all slot positions

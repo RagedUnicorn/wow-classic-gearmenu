@@ -21,3 +21,4 @@
 * The version check no longer repeats its guild message on every group change - the guild hears it once per login, the group on every change - and a group change right after another one is announced a few seconds later instead of being skipped, so a player who joins right away still learns about a newer version
 * The combat queue no longer restarts its update loop in the middle of a fight after a resurrection, a loss of control ending or an item being queued - queued items are still equipped as soon as the fight is over
 * A queued item that is momentarily locked (being moved or traded) is no longer dropped from the combat queue - GearMenu tells you once and equips it as soon as the lock clears
+* Fix an item waiting in the combat queue being queued again every tenth of a second right at the end of a fight - the queue now waits until the game treats you as fully out of combat and equips the item once

@@ -87,6 +87,7 @@ describe("CombatQueue", function()
       StopTickerCombatQueue = function() calls.stopTicker = calls.stopTicker + 1 end
     }
     rggm.common = {
+      IsPlayerInCombat = function() return inCombat end,
       IsPlayerCasting = function() return isCasting end,
       IsPlayerReallyDead = function() return isDead end
     }
@@ -178,6 +179,33 @@ describe("CombatQueue", function()
       assert.is_true(combatQueue.IsCombatQueueEmpty())
       assert.are.equal(0, calls.updateCombatQueue.count)
       assert.are.equal(0, calls.startTicker)
+    end)
+
+    it("does not repaint, restart the ticker or fire again when the same item is re-queued", function()
+      combatQueue.AddToQueue(12345, 678, nil, 5)
+      combatQueue.AddToQueue(12345, 678, nil, 5)
+
+      assert.are.equal(1, calls.updateCombatQueue.count)
+      assert.are.equal(1, calls.startTicker)
+      assert.are.equal(1, #calls.swapEvents)
+    end)
+
+    it("queues a different item or enchant for the same slot as a new entry", function()
+      combatQueue.AddToQueue(12345, 678, nil, 5)
+      combatQueue.AddToQueue(12345, nil, nil, 5)
+      combatQueue.AddToQueue(99999, nil, nil, 5)
+
+      assert.are.equal(3, calls.updateCombatQueue.count)
+      assert.are.equal(99999, combatQueue.GetCombatQueueStore()[5][1])
+      assert.is_nil(combatQueue.GetCombatQueueStore()[5][2])
+    end)
+
+    it("queues the same item with a different rune for the same slot as a new entry", function()
+      combatQueue.AddToQueue(12345, nil, 7, 5)
+      combatQueue.AddToQueue(12345, nil, 8, 5)
+
+      assert.are.equal(2, calls.updateCombatQueue.count)
+      assert.are.equal(8, combatQueue.GetCombatQueueStore()[5][3])
     end)
 
     it("notifies the gear bar and starts the ticker", function()
