@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals C_Timer
+-- luacheck: globals C_Timer InCombatLockdown
 
 local mod = rggm
 local me = {}
@@ -58,9 +58,18 @@ function me.StopTickerChangeMenu()
   end
 end
 --[[
-  Start the repeating update ticker for combatQueue
+  Start the repeating update ticker for combatQueue. Never during combat: ProcessQueue cannot
+  change gear then and would only return early every tick for the rest of the fight. Callers
+  that can fire mid-combat (an enqueue, a resurrection, a loss of control ending) are therefore
+  ignored until PLAYER_REGEN_ENABLED starts the ticker after combat
 ]]--
 function me.StartTickerCombatQueue()
+  if InCombatLockdown() then
+    mod.logger.LogDebug(me.tag, "Not starting 'CombatQueueTicker' during combat")
+
+    return
+  end
+
   if combatQueueTicker == nil or combatQueueTicker:IsCancelled() then
     combatQueueTicker = C_Timer.NewTicker(
       RGGM_CONSTANTS.COMBAT_QUEUE_UPDATE_INTERVAL, mod.combatQueue.ProcessQueue)
