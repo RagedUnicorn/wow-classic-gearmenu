@@ -69,17 +69,17 @@ if (GetLocale() == "zhCN") then
 
   -- trinketMenu
   rggm.L["trinket_menu_category_name"] = "TrinketMenu"
-  rggm.L["trinket_menu_title"] = "Trinket Menu Configuration"
-  rggm.L["enable_trinket_menu"] = "Enable TrinketMenu"
-  rggm.L["enable_trinket_menu_tooltip"] = "Whether to enable and show TrinketMenu or not"
-  rggm.L["window_lock_trinket_menu"] = "Lock TrinketMenu"
-  rggm.L["window_lock_trinket_menu_tooltip"] = "Prevents TrinketMenu frame from being moved"
-  rggm.L["shoow_cooldowns_trinket_menu"] = "Show Cooldowns"
-  rggm.L["shoow_cooldowns_trinket_menu_tooltip"] = "Display a cooldown for all itemslots"
-  rggm.L["trinket_menu_column_amount_slider_title"] = "Columns"
-  rggm.L["trinket_menu_column_amount_slider_tooltip"] = "The amount of columns to use in the TrinketMenu"
-  rggm.L["trinket_menu_slot_size_slider_title"] = "Slot Size"
-  rggm.L["trinket_menu_slot_size_slider_tooltip"] = "The size of a slot in the TrinketMenu"
+  rggm.L["trinket_menu_title"] = "饰品菜单配置"
+  rggm.L["enable_trinket_menu"] = "启用 TrinketMenu"
+  rggm.L["enable_trinket_menu_tooltip"] = "是否启用并显示 TrinketMenu"
+  rggm.L["window_lock_trinket_menu"] = "锁定 TrinketMenu"
+  rggm.L["window_lock_trinket_menu_tooltip"] = "防止 TrinketMenu 框体被移动"
+  rggm.L["shoow_cooldowns_trinket_menu"] = "显示冷却计时"
+  rggm.L["shoow_cooldowns_trinket_menu_tooltip"] = "所有物品槽上显示冷却计时"
+  rggm.L["trinket_menu_column_amount_slider_title"] = "列数"
+  rggm.L["trinket_menu_column_amount_slider_tooltip"] = "TrinketMenu 使用的列数"
+  rggm.L["trinket_menu_slot_size_slider_title"] = "槽位大小"
+  rggm.L["trinket_menu_slot_size_slider_tooltip"] = "TrinketMenu 中槽位的大小"
 
   -- slot translations
   rggm.L["slot_name_head"] = "头"
@@ -146,10 +146,10 @@ if (GetLocale() == "zhCN") then
   rggm.L["change_menu_direction_left"] = "向左"
   rggm.L["change_menu_direction_right"] = "向右"
   rggm.L["gear_bar_max_amount_of_gear_slots_reached"] =
-    "你达到了最大值 " .. RGGM_CONSTANTS.MAX_GEAR_BAR_SLOTS .. " 装备条"
+    "你达到了最大值 " .. RGGM_CONSTANTS.MAX_GEAR_BAR_SLOTS .. " 装备槽"
 
   -- add/remove slots
-  rggm.L["gear_bar_configuration_add_gearslot"] = "添加装备条"
+  rggm.L["gear_bar_configuration_add_gearslot"] = "添加装备槽"
   rggm.L["gear_bar_configuration_add_gearslot_combat"] =
     "战斗中无法添加装备栏。请在战斗结束后重试"
   rggm.L["gear_bar_configuration_remove_gearslot"] = "-"
