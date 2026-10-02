@@ -33,9 +33,10 @@
   that file's own locale code (derived from its basename), stub C_AddOns (the "version" string reads
   GetAddOnMetadata at load time), reset rggm.L, dofile the file, and snapshot the resulting keys.
 
-  enUS is the declared source of truth (see CLAUDE.md); every other locale is compared against it and
-  must have exactly the same key set -- no missing keys, no extra keys. The locale list is globbed
-  from localization/*.lua so a future locale file is covered without editing this spec.
+  enUS is the declared source of truth (see "Localization" in DEVELOPMENT.md); every other locale is
+  compared against it and must have exactly the same key set -- no missing keys, no extra keys. The
+  locale list is globbed from localization/*.lua so a future locale file is covered without editing
+  this spec.
 
   On top of key parity, each shared key's string.format placeholder set is compared: a translation
   must consume the same arguments as enUS (e.g. enUS "(%s)" with a stray placeholder dropped, or an

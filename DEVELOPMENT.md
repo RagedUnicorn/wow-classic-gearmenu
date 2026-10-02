@@ -348,6 +348,15 @@ flowchart TD
   mirror --> done(["the active profile equals<br/>the live configuration"])
 ```
 
+## Localization
+
+`localization/enUS.lua` is the source of truth: it defines every key, and the other locales
+(`deDE`, `ruRU`, `zhCN`) translate that same key set inside their `GetLocale()` guard. Add or remove a
+key in all four files together. `LocalizationParitySpec` enforces this headlessly - every locale
+must carry exactly the enUS keys and the same `string.format` placeholders. At runtime a key a locale
+lacks falls back to the enUS string (each locale replaces `rggm.L` with a table whose metatable `__index` is the
+enUS table), so a missing translation shows English instead of raising - the parity spec still reports it.
+
 ## Dependency Management
 
 This repository uses [Renovate](https://renovatebot.com/) for automated dependency updates. Renovate monitors and updates:
