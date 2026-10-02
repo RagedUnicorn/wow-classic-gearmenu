@@ -184,4 +184,87 @@ function M.stubs.GetLocale(locale)
   end
 end
 
+--[[
+  CreateFrame(frameType, name, parent, template) -> a recording frame for the settings pages.
+  Every created frame is registered by name in the returned registry's `frames` map and records
+  its template, RegisterForClicks arguments, Hide / Show calls and attributes. Like the client,
+  Hide / Show run the frame's OnHide / OnShow script (with the frame as self) only when the call
+  actually changes the visibility - a frame starts shown, so a first Show does not fire OnShow.
+
+    local frames = wowStubs.stubs.FrameRegistry()
+    restore = wowStubs.install({ CreateFrame = frames.CreateFrame, UIParent = {} })
+    ...
+    frames.frames["GM_GearBarFrame_1"]:GetScript("OnShow")
+
+  @return {table}
+]]--
+function M.stubs.FrameRegistry()
+  local registry = { frames = {}, created = 0 }
+
+  function registry.CreateFrame(frameType, name, parent, template)
+    local frame = {
+      frameType = frameType,
+      name = name,
+      parent = parent,
+      template = template,
+      attributes = {},
+      attributeWrites = 0,
+      clicks = nil,
+      scripts = {},
+      hidden = false
+    }
+
+    function frame:RegisterForClicks(...)
+      self.clicks = { ... }
+    end
+
+    function frame:SetScript(scriptType, handler)
+      self.scripts[scriptType] = handler
+    end
+
+    function frame:GetScript(scriptType)
+      return self.scripts[scriptType]
+    end
+
+    function frame:SetAttribute(attribute, value)
+      self.attributes[attribute] = value
+      self.attributeWrites = self.attributeWrites + 1
+    end
+
+    function frame:GetAttribute(attribute)
+      return self.attributes[attribute]
+    end
+
+    function frame:Hide()
+      if self.hidden then return end
+
+      self.hidden = true
+
+      if self.scripts.OnHide then self.scripts.OnHide(self) end
+    end
+
+    function frame:Show()
+      if not self.hidden then return end
+
+      self.hidden = false
+
+      if self.scripts.OnShow then self.scripts.OnShow(self) end
+    end
+
+    function frame:GetName()
+      return self.name
+    end
+
+    registry.created = registry.created + 1
+
+    if name ~= nil then
+      registry.frames[name] = frame
+    end
+
+    return frame
+  end
+
+  return registry
+end
+
 return M
