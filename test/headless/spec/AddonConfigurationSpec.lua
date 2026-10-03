@@ -278,12 +278,7 @@ describe("AddonConfiguration", function()
       return ids
     end
 
-    --[[
-      Pending: InterfaceOptionsRemoveCategory nils the entry and then compacts over #categories. With
-      the hole in the middle of three entries the length operator may stop at the border before the
-      hole (it does here), so gearBar 3 stays at index 3 behind the hole and the result is { 1 }.
-    ]]--
-    pending("removes a gearBar from the middle and closes the gap", function()
+    it("removes a gearBar from the middle and closes the gap", function()
       addonConfiguration.InterfaceOptionsRemoveCategory(2)
 
       assert.are.same({ 1, 3 }, remainingGearBarIds())

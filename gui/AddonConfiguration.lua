@@ -221,25 +221,11 @@ function me.InterfaceOptionsRemoveCategory(gearBarId)
   local categories = me.GetGearBarSubCategory().subcategories
 
   for i = 1, #categories do
-    local interfaceCategory = categories[i]
-
-    if interfaceCategory.gearBarId == gearBarId then
-      categories[i] = nil -- delete category
+    if categories[i].gearBarId == gearBarId then
+      -- shifts the later categories down - a nil in the middle would leave # undefined
+      table.remove(categories, i)
       break
     end
-  end
-
-  local currentIndex = 0
-
-  for i = 1, #categories do
-    if categories[i] ~= nil then
-      currentIndex = currentIndex + 1
-      categories[currentIndex] = categories[i]
-    end
-  end
-
-  for i = currentIndex + 1, #categories do
-    categories[i] = nil
   end
 
   me.UpdateAddonPanel()
